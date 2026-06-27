@@ -1,6 +1,11 @@
 <template>
     <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-24 text-center">
-        <div v-if="!order" class="py-16">
+        <div v-if="loading" class="py-24">
+            <div class="inline-block w-8 h-8 border-2 border-charcoal/20 border-t-charcoal rounded-full animate-spin"></div>
+            <p class="mt-4 text-sm text-charcoal/60">Memuat pesanan...</p>
+        </div>
+
+        <div v-else-if="!order" class="py-16">
             <svg class="w-12 h-12 mx-auto text-aliesmo-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
@@ -22,14 +27,16 @@
                 <span class="font-medium tracking-wider">{{ order.order_number }}</span>
             </div>
 
-            <p class="mt-2 text-sm text-bronze">Status: Menunggu Pembayaran</p>
+            <div class="mt-2 text-sm" :class="order.status === 'paid' ? 'text-green-600' : 'text-bronze'">
+                Status: {{ statusLabel }}
+            </div>
 
             <div class="mt-8 bg-white p-6 lg:p-8 border border-aliesmo-200/50 text-left">
                 <h2 class="text-sm tracking-widest uppercase text-charcoal/70 mb-6">Detail Pesanan</h2>
-                <div v-if="order.items" class="space-y-3">
-                    <div v-for="(item, i) in order.items" :key="i" class="flex justify-between text-sm">
+                <div class="space-y-3">
+                    <div v-for="item in order.items" :key="item.id" class="flex justify-between text-sm">
                         <span class="text-charcoal/70">{{ item.product_name }} <span class="text-charcoal/40">×{{ item.quantity }}</span></span>
-                        <span class="font-medium">Rp {{ formatPrice(item.subtotal || item.price * item.quantity) }}</span>
+                        <span class="font-medium">Rp {{ formatPrice(item.subtotal) }}</span>
                     </div>
                 </div>
                 <div class="border-t border-aliesmo-200/50 mt-4 pt-4 space-y-1.5 text-sm">
@@ -69,24 +76,39 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { formatPrice } from '../mock-data'
+import api from '../api'
 
 const route = useRoute()
 const order = ref(null)
+const loading = ref(true)
 
-onMounted(() => {
+const statusLabel = computed(() => {
+    const labels = {
+        pending: 'Menunggu Pembayaran',
+        paid: 'Lunas',
+        processing: 'Diproses',
+        shipped: 'Dikirim',
+        completed: 'Selesai',
+        cancelled: 'Dibatalkan',
+        expired: 'Kadaluarsa',
+    }
+    return labels[order.value?.status] || order.value?.status
+})
+
+function formatPrice(price) {
+    return new Intl.NumberFormat('id-ID').format(price)
+}
+
+onMounted(async () => {
     try {
-        const stored = sessionStorage.getItem('lastOrder')
-        if (stored) {
-            const data = JSON.parse(stored)
-            if (data.order_number === route.params.orderNumber) {
-                order.value = data
-            }
-        }
+        const res = await api.get(`/orders/${route.params.orderNumber}/status`)
+        order.value = res.data.data
     } catch (e) {
         console.error(e)
+    } finally {
+        loading.value = false
     }
 })
 </script>

@@ -5,7 +5,6 @@ const api = axios.create({
     headers: {
         'Accept': 'application/json',
     },
-    timeout: 5000,
 })
 
 api.interceptors.request.use(config => {
@@ -15,17 +14,6 @@ api.interceptors.request.use(config => {
     }
     return config
 })
-
-api.interceptors.response.use(
-    res => res,
-    err => {
-        if (!err.response) {
-            console.warn('[API] Backend not available — using static mode')
-            return Promise.reject({ ...err, isOffline: true })
-        }
-        return Promise.reject(err)
-    }
-)
 
 export function setToken(token) {
     localStorage.setItem('token', token)

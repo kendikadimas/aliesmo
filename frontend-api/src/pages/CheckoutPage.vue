@@ -78,8 +78,8 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import api from '../api'
 import { useCartStore } from '../cart'
-import { formatPrice } from '../mock-data'
 
 const router = useRouter()
 const { items, total, clear } = useCartStore()
@@ -93,16 +93,11 @@ const form = reactive({
     shipping_address: '',
 })
 
-function generateOrderNumber() {
-    const date = new Date()
-    const y = date.getFullYear()
-    const m = String(date.getMonth() + 1).padStart(2, '0')
-    const d = String(date.getDate()).padStart(2, '0')
-    const rand = String(Math.floor(Math.random() * 9000) + 1000)
-    return `ORD-${y}${m}${d}-${rand}`
+function formatPrice(price) {
+    return new Intl.NumberFormat('id-ID').format(price)
 }
 
-function submitOrder() {
+async function submitOrder() {
     if (!items.value.length) {
         error.value = 'Keranjang belanja kosong.'
         return
@@ -111,30 +106,21 @@ function submitOrder() {
     error.value = ''
 
     try {
-        const orderData = {
-            order_number: generateOrderNumber(),
-            customer_name: form.customer_name,
-            customer_email: form.customer_email,
-            customer_phone: form.customer_phone,
-            shipping_address: form.shipping_address,
-            items: items.value.map(i => ({
-                product_name: i.name,
-                quantity: i.quantity,
-                price: i.price,
-                subtotal: i.price * i.quantity,
-            })),
-            subtotal: total(),
-            shipping_cost: 0,
-            total: total(),
-            status: 'pending',
-            created_at: new Date().toISOString(),
+        const payload = {
+            items: items.value.map(i => ({ product_id: i.product_id, quantity: i.quantity })),
+            ...form,
         }
 
+        const res = await api.post('/orders', payload)
         clear()
-        sessionStorage.setItem('lastOrder', JSON.stringify(orderData))
-        router.push(`/order/${orderData.order_number}`)
+
+        if (res.data.payment?.redirect_url) {
+            window.location.href = res.data.payment.redirect_url
+        } else {
+            router.push(`/order/${res.data.order.order_number}`)
+        }
     } catch (e) {
-        error.value = 'Terjadi kesalahan. Silakan coba lagi.'
+        error.value = e.response?.data?.message || 'Terjadi kesalahan. Silakan coba lagi.'
     } finally {
         submitting.value = false
     }

@@ -59,9 +59,12 @@
 
 <script setup>
 import { useCartStore } from '../cart'
-import { formatPrice } from '../mock-data'
 
 const { items, updateQuantity, removeItem, total } = useCartStore()
+
+function formatPrice(price) {
+    return new Intl.NumberFormat('id-ID').format(price)
+}
 
 function decrease(productId) {
     const item = items.value.find(i => i.product_id === productId)
