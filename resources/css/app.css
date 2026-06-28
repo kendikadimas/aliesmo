@@ -9,44 +9,35 @@
 @theme {
     --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif;
 
-    --color-coral: #e07a5f;
-    --color-coral-50: #fdf2ef;
-    --color-coral-100: #fae0d8;
-    --color-coral-200: #f4c0b0;
-    --color-coral-300: #ed9d85;
-    --color-coral-400: #e58064;
-    --color-coral-500: #e07a5f;
-    --color-coral-600: #c45d42;
-    --color-coral-700: #a34732;
-    --color-coral-800: #853a28;
-    --color-coral-900: #6c2f20;
+    --color-maroon: #7a2e3b;
+    --color-maroon-50: #fdf2f4;
+    --color-maroon-100: #f9e2e5;
+    --color-maroon-200: #f4c5cb;
+    --color-maroon-300: #eb9da8;
+    --color-maroon-400: #df6c7d;
+    --color-maroon-500: #d44a60;
+    --color-maroon-600: #b83247;
+    --color-maroon-700: #9a283b;
+    --color-maroon-800: #7a2e3b;
+    --color-maroon-900: #5e212c;
 
-    --color-navy: #3d5a80;
-    --color-navy-50: #eef3f8;
-    --color-navy-100: #d8e3ef;
-    --color-navy-200: #b8cce0;
-    --color-navy-300: #8dafcc;
-    --color-navy-400: #6190b3;
-    --color-navy-500: #3d5a80;
-    --color-navy-600: #2e4564;
-    --color-navy-700: #23354e;
-    --color-navy-800: #1c293c;
-    --color-navy-900: #151e2b;
+    --color-coklat: #6b4c3a;
+    --color-coklat-50: #f6f1ec;
+    --color-coklat-100: #e9ddd4;
+    --color-coklat-200: #d3bbb0;
+    --color-coklat-300: #b49586;
+    --color-coklat-400: #9c7562;
+    --color-coklat-500: #6b4c3a;
+    --color-coklat-600: #5a3d2d;
+    --color-coklat-700: #4a3123;
+    --color-coklat-800: #3c271b;
+    --color-coklat-900: #2c1810;
 
-    --color-cream: #fff8f0;
-    --color-cream-dark: #f5ede3;
-
-    --color-warm: #f4d06f;
-    --color-warm-50: #fef9e8;
-    --color-warm-100: #fdf0c6;
-    --color-warm-200: #fade8a;
-    --color-warm-300: #f4d06f;
-    --color-warm-400: #e8b845;
-    --color-warm-500: #d49e2a;
-
-    --color-charcoal: #2d2a24;
-    --color-muted: #8c8279;
+    --color-charcoal: #2c1810;
+    --color-muted: #9c8273;
     --color-surface: #ffffff;
+    --color-putih: #ffffff;
+    --color-putih-off: #fafafa;
 }
 
 @layer base {
@@ -55,11 +46,11 @@
     }
 
     body {
-        @apply bg-cream text-charcoal antialiased;
+        @apply bg-putih text-charcoal antialiased;
     }
 
     ::selection {
-        @apply bg-coral/20 text-charcoal;
+        @apply bg-maroon/15 text-charcoal;
     }
 }
 
