@@ -1,6 +1,6 @@
 <template>
     <div class="min-h-screen bg-putih">
-        <header class="fixed top-0 left-0 right-0 z-50 bg-batik-cream/90 backdrop-blur-md border-b border-maroon-100/50">
+        <header class="fixed top-0 left-0 right-0 z-50 bg-putih/90 backdrop-blur-md border-b border-maroon-100/50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between h-16 lg:h-20">
                     <button @click="mobileOpen = !mobileOpen" class="lg:hidden p-2 -ml-2 text-charcoal hover:text-maroon transition-colors" aria-label="Menu">

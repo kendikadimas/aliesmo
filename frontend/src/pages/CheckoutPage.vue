@@ -3,7 +3,7 @@
         <h1 class="text-3xl lg:text-4xl font-bold text-charcoal tracking-tight">Checkout</h1>
 
         <div v-if="submitting" class="py-24 text-center">
-            <div class="inline-block w-10 h-10 border-4 border-maroon-100 border-t-coral rounded-full animate-spin"></div>
+            <div class="inline-block w-10 h-10 border-4 border-maroon-100 border-t-maroon rounded-full animate-spin"></div>
             <p class="mt-4 text-base text-charcoal/50">Bentar ya, kami lagi proses pesananmu...</p>
         </div>
 
