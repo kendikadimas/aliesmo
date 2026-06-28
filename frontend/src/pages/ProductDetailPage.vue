@@ -1,95 +1,72 @@
 <template>
     <div class="min-h-screen">
-        <div v-if="loading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
-            <div class="grid lg:grid-cols-2 gap-8 lg:gap-12">
-                <div class="aspect-[3/4] bg-aliesmo-100 animate-pulse"></div>
-                <div class="space-y-4">
-                    <div class="h-3 bg-aliesmo-200/50 w-1/4 animate-pulse"></div>
-                    <div class="h-6 bg-aliesmo-200/50 w-3/4 animate-pulse"></div>
-                    <div class="h-5 bg-aliesmo-200/50 w-1/3 animate-pulse"></div>
-                    <div class="h-20 bg-aliesmo-200/50 w-full animate-pulse mt-6"></div>
-                </div>
-            </div>
-        </div>
-
-        <div v-else-if="!product" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 text-center">
-            <p class="text-lg text-charcoal/50">Produk tidak ditemukan.</p>
-            <router-link to="/" class="inline-block mt-4 text-sm tracking-widest uppercase text-bronze hover:text-charcoal transition-colors">Kembali</router-link>
+        <div v-if="!product" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 text-center">
+            <p class="text-lg text-charcoal/50">Produk gak ditemukan nih :(</p>
+            <router-link to="/" class="inline-block mt-4 text-sm font-semibold text-coral hover:text-coral-600 transition-colors">Kembali ke Beranda</router-link>
         </div>
 
         <div v-else class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-            <router-link to="/#shop" class="inline-flex items-center gap-2 text-xs tracking-widest uppercase text-charcoal/50 hover:text-charcoal transition-colors mb-8">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
-                    <line x1="19" y1="12" x2="5" y2="12"/>
-                    <polyline points="12 19 5 12 12 5"/>
-                </svg>
+            <router-link to="/#shop" class="inline-flex items-center gap-2 text-sm font-medium text-charcoal/50 hover:text-coral transition-colors mb-6">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
                 Kembali
             </router-link>
 
             <div class="grid lg:grid-cols-2 gap-8 lg:gap-12">
                 <div>
-                    <div class="aspect-[3/4] bg-aliesmo-100 overflow-hidden relative">
-                        <img v-if="product.thumbnail" :src="product.thumbnail" :alt="product.name" class="w-full h-full object-cover" />
-                        <div v-else class="w-full h-full flex items-center justify-center">
-                            <span class="text-8xl font-light text-aliesmo-300/40 select-none">A</span>
-                        </div>
-                    </div>
-                    <div v-if="product.images?.length" class="flex gap-3 mt-4 overflow-x-auto pb-2">
-                        <div v-for="(img, i) in product.images" :key="i" class="w-20 h-20 shrink-0 bg-aliesmo-100 overflow-hidden cursor-pointer" @click="selectedImage = i">
-                            <img :src="img.path" :alt="`${product.name} ${i + 1}`" class="w-full h-full object-cover" />
-                        </div>
+                    <div class="aspect-[3/4] bg-coral-50 rounded-2xl overflow-hidden relative">
+                        <img :src="product.thumbnail" :alt="product.name" class="w-full h-full object-cover" />
                     </div>
                 </div>
 
                 <div class="lg:sticky lg:top-28 lg:self-start">
-                    <p class="text-xs tracking-[0.25em] uppercase text-bronze/70">{{ product.category?.name || 'Kemeja' }}</p>
-                    <h1 class="text-3xl lg:text-4xl font-light text-charcoal mt-2">{{ product.name }}</h1>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-navy-50 rounded-full text-navy text-xs font-semibold">{{ product.category?.name || 'Kemeja' }}</span>
+                    <h1 class="text-3xl lg:text-4xl font-bold text-charcoal mt-3 tracking-tight">{{ product.name }}</h1>
 
-                    <div class="mt-6 flex items-baseline gap-3">
-                        <span class="text-3xl font-medium text-charcoal">Rp {{ formatPrice(product.price) }}</span>
+                    <div class="mt-4 flex items-baseline gap-2">
+                        <span class="text-3xl font-bold text-coral">Rp{{ formatPrice(product.price) }}</span>
+                        <span class="text-sm text-charcoal/40 line-through">Rp{{ formatPrice(product.price + 50000) }}</span>
                     </div>
 
-                    <div class="mt-4 flex items-center gap-2">
+                    <div class="mt-3 flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full" :class="product.stock > 0 ? 'bg-green-500' : 'bg-red-400'"></span>
-                        <span class="text-sm" :class="product.stock > 0 ? 'text-green-700' : 'text-red-600'">
-                            {{ product.stock > 0 ? `Tersedia (${product.stock} pcs)` : 'Stok Habis' }}
+                        <span class="text-sm font-medium" :class="product.stock > 0 ? 'text-green-700' : 'text-red-600'">
+                            {{ product.stock > 0 ? `Stok tersedia (${product.stock} pcs)` : 'Stok habis kak :(' }}
                         </span>
                     </div>
 
-                    <div class="mt-8">
-                        <p class="text-xs tracking-widest uppercase text-charcoal/50 mb-3">Jumlah</p>
-                        <div class="flex items-center gap-4">
-                            <button @click="decrementQty" class="w-10 h-10 border border-aliesmo-200/70 flex items-center justify-center text-lg hover:border-charcoal/30 transition-colors active:scale-95" :disabled="quantity <= 1">−</button>
-                            <span class="w-12 text-center text-lg font-medium">{{ quantity }}</span>
-                            <button @click="quantity++" class="w-10 h-10 border border-aliesmo-200/70 flex items-center justify-center text-lg hover:border-charcoal/30 transition-colors active:scale-95" :disabled="quantity >= product.stock">+</button>
+                    <div class="mt-6">
+                        <p class="text-xs font-semibold text-charcoal/50 uppercase tracking-wide mb-2">Jumlah</p>
+                        <div class="flex items-center gap-3">
+                            <button @click="decrementQty" class="w-10 h-10 rounded-xl border-2 border-coral-200 flex items-center justify-center text-lg font-medium text-charcoal hover:border-coral hover:text-coral transition-colors active:scale-95" :disabled="quantity <= 1">−</button>
+                            <span class="w-10 text-center text-lg font-bold">{{ quantity }}</span>
+                            <button @click="quantity++" class="w-10 h-10 rounded-xl border-2 border-coral-200 flex items-center justify-center text-lg font-medium text-charcoal hover:border-coral hover:text-coral transition-colors active:scale-95" :disabled="quantity >= product.stock">+</button>
                         </div>
                     </div>
 
-                    <div class="mt-8 flex flex-col sm:flex-row gap-3">
-                        <button @click="addToCart" :disabled="product.stock === 0" class="flex-1 px-8 py-3.5 bg-charcoal text-ivory text-sm tracking-widest uppercase hover:bg-charcoal/90 transition-all active:scale-[0.98] disabled:bg-aliesmo-300 disabled:cursor-not-allowed disabled:active:scale-100">
-                            {{ product.stock === 0 ? 'Stok Habis' : 'Tambahkan ke Keranjang' }}
+                    <div class="mt-6 flex flex-col sm:flex-row gap-3">
+                        <button @click="addToCart" :disabled="product.stock === 0" class="flex-1 px-8 py-3.5 bg-coral text-white text-sm font-semibold rounded-xl hover:bg-coral-600 transition-all active:scale-[0.97] shadow-lg shadow-coral/25 disabled:bg-coral-200 disabled:cursor-not-allowed disabled:active:scale-100">
+                            {{ product.stock === 0 ? 'Stok Habis' : 'Masukin ke Keranjang' }}
                         </button>
                     </div>
 
-                    <div class="mt-8 pt-8 border-t border-aliesmo-200/50">
-                        <p class="text-xs tracking-widest uppercase text-charcoal/50 mb-4">Deskripsi</p>
-                        <p class="text-base text-charcoal/70 leading-relaxed">{{ product.description || 'Tidak ada deskripsi.' }}</p>
+                    <div class="mt-8 pt-6 border-t border-coral-100">
+                        <p class="text-xs font-semibold text-charcoal/50 uppercase tracking-wide mb-3">Deskripsi</p>
+                        <p class="text-base text-charcoal/65 leading-relaxed">{{ product.description }}</p>
                     </div>
 
-                    <div class="mt-6 pt-6 border-t border-aliesmo-200/50">
-                        <div class="flex items-center gap-6 text-sm text-charcoal/60">
+                    <div class="mt-4 pt-4 border-t border-coral-100">
+                        <div class="flex flex-wrap gap-4 text-sm text-charcoal/50">
                             <span class="flex items-center gap-2">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
-                                    <rect x="3" y="7" width="18" height="13" rx="2"/>
-                                    <path d="M7 7V5a2 2 0 012-2h6a2 2 0 012 2v2"/>
-                                </svg>
-                                Premium Packaging
+                                <svg class="w-4 h-4 text-coral" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M7 7V5a2 2 0 012-2h6a2 2 0 012 2v2"/></svg>
+                                Kemasan Premium
                             </span>
                             <span class="flex items-center gap-2">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
-                                    <polyline points="20 6 9 17 4 12"/>
-                                </svg>
-                                100% Original
+                                <svg class="w-4 h-4 text-coral" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Original 100%
+                            </span>
+                            <span class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-coral" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                                Gratis Ongkir
                             </span>
                         </div>
                     </div>
@@ -100,20 +77,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import api from '../api'
 import { useCartStore } from '../cart'
+import { products, formatPrice } from '../mock-data'
 
 const route = useRoute()
 const { addItem } = useCartStore()
-const product = ref(null)
-const loading = ref(true)
 const quantity = ref(1)
 
-function formatPrice(price) {
-    return new Intl.NumberFormat('id-ID').format(price)
-}
+const product = computed(() => products.find(p => p.slug === route.params.slug) || null)
 
 function decrementQty() {
     if (quantity.value > 1) quantity.value--
@@ -124,16 +97,4 @@ function addToCart() {
         addItem(product.value, quantity.value)
     }
 }
-
-onMounted(async () => {
-    try {
-        const res = await api.get(`/products/${route.params.slug}`)
-        product.value = res.data.data
-        document.title = `${product.value.name} — Aliesmo`
-    } catch (e) {
-        console.error(e)
-    } finally {
-        loading.value = false
-    }
-})
 </script>

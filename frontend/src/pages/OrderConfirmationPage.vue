@@ -1,74 +1,61 @@
 <template>
     <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-24 text-center">
-        <div v-if="loading" class="py-24">
-            <div class="inline-block w-8 h-8 border-2 border-charcoal/20 border-t-charcoal rounded-full animate-spin"></div>
-            <p class="mt-4 text-sm text-charcoal/60">Memuat pesanan...</p>
-        </div>
-
-        <div v-else-if="!order" class="py-16">
-            <svg class="w-12 h-12 mx-auto text-aliesmo-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+        <div v-if="!order" class="py-16">
+            <svg class="w-12 h-12 mx-auto text-coral-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
-            <p class="mt-4 text-lg text-charcoal/50">Pesanan tidak ditemukan.</p>
-            <router-link to="/" class="inline-block mt-6 text-sm tracking-widest uppercase text-bronze hover:text-charcoal transition-colors">Kembali ke Beranda</router-link>
+            <p class="mt-4 text-lg text-charcoal/50">Pesanan gak ditemukan :(</p>
+            <router-link to="/" class="inline-block mt-6 text-sm font-semibold text-coral hover:text-coral-600 transition-colors">Kembali ke Beranda</router-link>
         </div>
 
         <div v-else>
-            <div class="w-16 h-16 rounded-full bg-green-50 border border-green-200 flex items-center justify-center mx-auto">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="1.5" stroke-linecap="square">
-                    <polyline points="20 6 9 17 4 12"/>
-                </svg>
+            <div class="w-16 h-16 rounded-2xl bg-green-50 border-2 border-green-200 flex items-center justify-center mx-auto">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="square"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
-            <h1 class="mt-6 text-3xl lg:text-4xl font-light text-charcoal">Pesanan Berhasil!</h1>
-            <p class="mt-3 text-base text-charcoal/60">Terima kasih, <strong>{{ order.customer_name }}</strong>. Pesanan Anda telah tercatat.</p>
+            <h1 class="mt-6 text-3xl lg:text-4xl font-bold text-charcoal tracking-tight">Pesanan Berhasil!</h1>
+            <p class="mt-2 text-base text-charcoal/60">Makasih ya <strong>{{ order.customer_name }}</strong>, pesananmu udah kami terima!</p>
 
-            <div class="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-aliesmo-50 border border-aliesmo-200/50 text-sm text-charcoal/70">
-                <span class="text-xs tracking-widest uppercase text-charcoal/50">No. Pesanan:</span>
-                <span class="font-medium tracking-wider">{{ order.order_number }}</span>
+            <div class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-coral-50 rounded-xl text-sm">
+                <span class="font-semibold text-charcoal/60">No. Pesanan:</span>
+                <span class="font-bold text-coral">{{ order.order_number }}</span>
             </div>
 
-            <div class="mt-2 text-sm" :class="order.status === 'paid' ? 'text-green-600' : 'text-bronze'">
-                Status: {{ statusLabel }}
-            </div>
+            <p class="mt-2 text-sm text-coral font-semibold">Status: Menunggu Pembayaran</p>
 
-            <div class="mt-8 bg-white p-6 lg:p-8 border border-aliesmo-200/50 text-left">
-                <h2 class="text-sm tracking-widest uppercase text-charcoal/70 mb-6">Detail Pesanan</h2>
-                <div class="space-y-3">
-                    <div v-for="item in order.items" :key="item.id" class="flex justify-between text-sm">
+            <div class="mt-8 bg-white p-6 lg:p-8 rounded-2xl border-2 border-coral-50 text-left">
+                <h2 class="text-sm font-bold text-charcoal tracking-wide mb-6">Detail Pesanan</h2>
+                <div v-if="order.items" class="space-y-3">
+                    <div v-for="(item, i) in order.items" :key="i" class="flex justify-between text-sm">
                         <span class="text-charcoal/70">{{ item.product_name }} <span class="text-charcoal/40">×{{ item.quantity }}</span></span>
-                        <span class="font-medium">Rp {{ formatPrice(item.subtotal) }}</span>
+                        <span class="font-bold">Rp{{ formatPrice(item.subtotal || item.price * item.quantity) }}</span>
                     </div>
                 </div>
-                <div class="border-t border-aliesmo-200/50 mt-4 pt-4 space-y-1.5 text-sm">
-                    <div class="flex justify-between text-charcoal/70">
+                <div class="border-t-2 border-coral-100 mt-4 pt-4 space-y-1.5 text-sm">
+                    <div class="flex justify-between text-charcoal/60">
                         <span>Subtotal</span>
-                        <span>Rp {{ formatPrice(order.subtotal) }}</span>
+                        <span class="font-medium">Rp{{ formatPrice(order.subtotal) }}</span>
                     </div>
-                    <div v-if="order.shipping_cost" class="flex justify-between text-charcoal/70">
-                        <span>Ongkos Kirim</span>
-                        <span>Rp {{ formatPrice(order.shipping_cost) }}</span>
-                    </div>
-                    <div class="flex justify-between font-medium text-charcoal pt-2 border-t border-aliesmo-200/50 text-base">
+                    <div class="flex justify-between font-bold text-lg text-charcoal pt-2 border-t-2 border-coral-100">
                         <span>Total</span>
-                        <span>Rp {{ formatPrice(order.total) }}</span>
+                        <span class="text-coral">Rp{{ formatPrice(order.total) }}</span>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-6 bg-white p-6 lg:p-8 border border-aliesmo-200/50 text-left">
-                <h2 class="text-sm tracking-widest uppercase text-charcoal/70 mb-4">Informasi Pengiriman</h2>
-                <div class="text-sm text-charcoal/70 space-y-1 leading-relaxed">
-                    <p><span class="text-charcoal/50">Nama:</span> {{ order.customer_name }}</p>
-                    <p><span class="text-charcoal/50">Email:</span> {{ order.customer_email }}</p>
-                    <p v-if="order.customer_phone"><span class="text-charcoal/50">Telepon:</span> {{ order.customer_phone }}</p>
-                    <p><span class="text-charcoal/50">Alamat:</span> {{ order.shipping_address }}</p>
+            <div class="mt-4 bg-white p-6 lg:p-8 rounded-2xl border-2 border-coral-50 text-left">
+                <h2 class="text-sm font-bold text-charcoal tracking-wide mb-4">Data Pengiriman</h2>
+                <div class="text-sm text-charcoal/65 space-y-1 leading-relaxed">
+                    <p><span class="font-medium text-charcoal/50">Nama:</span> {{ order.customer_name }}</p>
+                    <p><span class="font-medium text-charcoal/50">Email:</span> {{ order.customer_email }}</p>
+                    <p v-if="order.customer_phone"><span class="font-medium text-charcoal/50">Telp:</span> {{ order.customer_phone }}</p>
+                    <p><span class="font-medium text-charcoal/50">Alamat:</span> {{ order.shipping_address }}</p>
                 </div>
             </div>
 
-            <div class="mt-10">
-                <p class="text-sm text-charcoal/50">Konfirmasi akan dikirim ke <strong class="text-charcoal/70">{{ order.customer_email }}</strong></p>
-                <router-link to="/" class="inline-block mt-6 px-8 py-3 bg-charcoal text-ivory text-sm tracking-widest uppercase hover:bg-charcoal/90 transition-all active:scale-[0.98]">
-                    Lanjut Belanja
+            <div class="mt-8">
+                <p class="text-sm text-charcoal/50">Konfirmasi bakal dikirim ke <strong class="text-charcoal">{{ order.customer_email }}</strong></p>
+                <router-link to="/" class="inline-block mt-4 px-8 py-3 bg-coral text-white text-sm font-semibold rounded-xl hover:bg-coral-600 transition-all active:scale-[0.97] shadow-lg shadow-coral/25">
+                    Belanja Lagi
                 </router-link>
             </div>
         </div>
@@ -76,39 +63,22 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import api from '../api'
+import { formatPrice } from '../mock-data'
 
 const route = useRoute()
 const order = ref(null)
-const loading = ref(true)
 
-const statusLabel = computed(() => {
-    const labels = {
-        pending: 'Menunggu Pembayaran',
-        paid: 'Lunas',
-        processing: 'Diproses',
-        shipped: 'Dikirim',
-        completed: 'Selesai',
-        cancelled: 'Dibatalkan',
-        expired: 'Kadaluarsa',
-    }
-    return labels[order.value?.status] || order.value?.status
-})
-
-function formatPrice(price) {
-    return new Intl.NumberFormat('id-ID').format(price)
-}
-
-onMounted(async () => {
+onMounted(() => {
     try {
-        const res = await api.get(`/orders/${route.params.orderNumber}/status`)
-        order.value = res.data.data
-    } catch (e) {
-        console.error(e)
-    } finally {
-        loading.value = false
-    }
+        const stored = sessionStorage.getItem('lastOrder')
+        if (stored) {
+            const data = JSON.parse(stored)
+            if (data.order_number === route.params.orderNumber) {
+                order.value = data
+            }
+        }
+    } catch (e) {}
 })
 </script>

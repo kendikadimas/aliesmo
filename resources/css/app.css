@@ -7,26 +7,46 @@
 @source "../**/*.vue";
 
 @theme {
-    --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif;
 
-    --color-aliesmo-50: #f8f7f4;
-    --color-aliesmo-100: #efede8;
-    --color-aliesmo-200: #ddd9cf;
-    --color-aliesmo-300: #c8c0af;
-    --color-aliesmo-400: #b3a68f;
-    --color-aliesmo-500: #a28e74;
-    --color-aliesmo-600: #947d63;
-    --color-aliesmo-700: #7d6953;
-    --color-aliesmo-800: #675648;
-    --color-aliesmo-900: #55473b;
-    --color-aliesmo-950: #2d251e;
+    --color-coral: #e07a5f;
+    --color-coral-50: #fdf2ef;
+    --color-coral-100: #fae0d8;
+    --color-coral-200: #f4c0b0;
+    --color-coral-300: #ed9d85;
+    --color-coral-400: #e58064;
+    --color-coral-500: #e07a5f;
+    --color-coral-600: #c45d42;
+    --color-coral-700: #a34732;
+    --color-coral-800: #853a28;
+    --color-coral-900: #6c2f20;
 
-    --color-charcoal: #1a1a1a;
-    --color-ivory: #faf8f5;
-    --color-bronze: #8b7355;
-    --color-bronze-light: #c4b69e;
-    --color-slate: #2d2d2d;
+    --color-navy: #3d5a80;
+    --color-navy-50: #eef3f8;
+    --color-navy-100: #d8e3ef;
+    --color-navy-200: #b8cce0;
+    --color-navy-300: #8dafcc;
+    --color-navy-400: #6190b3;
+    --color-navy-500: #3d5a80;
+    --color-navy-600: #2e4564;
+    --color-navy-700: #23354e;
+    --color-navy-800: #1c293c;
+    --color-navy-900: #151e2b;
+
+    --color-cream: #fff8f0;
+    --color-cream-dark: #f5ede3;
+
+    --color-warm: #f4d06f;
+    --color-warm-50: #fef9e8;
+    --color-warm-100: #fdf0c6;
+    --color-warm-200: #fade8a;
+    --color-warm-300: #f4d06f;
+    --color-warm-400: #e8b845;
+    --color-warm-500: #d49e2a;
+
+    --color-charcoal: #2d2a24;
+    --color-muted: #8c8279;
+    --color-surface: #ffffff;
 }
 
 @layer base {
@@ -35,11 +55,11 @@
     }
 
     body {
-        @apply bg-ivory text-charcoal antialiased;
+        @apply bg-cream text-charcoal antialiased;
     }
 
     ::selection {
-        @apply bg-bronze/20 text-charcoal;
+        @apply bg-coral/20 text-charcoal;
     }
 }
 
