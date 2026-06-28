@@ -1,78 +1,56 @@
 <template>
     <div>
-        <section class="relative overflow-hidden bg-gradient-to-br from-putih to-maroon-50/30">
-            <div class="relative min-h-[70vh] lg:min-h-[80vh] flex transition-all duration-500" :style="{ transform: `translateX(-${activeSlide * 100}%)` }">
-                <div class="w-full shrink-0 flex items-center px-4 sm:px-8 lg:px-12 xl:px-16 py-24 lg:py-0">
-                    <div class="max-w-lg">
-                        <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-maroon/10 rounded-full text-maroon text-xs font-medium mb-6">
-                            <span class="w-1.5 h-1.5 rounded-full bg-maroon animate-pulse"></span>
-                            Koleksi Baru — Mulai Rp 149.000
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 lg:pt-8">
+            <div class="relative rounded-2xl overflow-hidden shadow-lg">
+                <div class="relative flex transition-all duration-500" :style="{ transform: `translateX(-${activeSlide * 100}%)` }">
+                    <div class="w-full shrink-0 relative min-h-[35vh] lg:min-h-[50vh]">
+                        <img src="https://picsum.photos/seed/banner-kemeja-1/1400/600" alt="Koleksi Baru" class="absolute inset-0 w-full h-full object-cover" />
+                        <div class="absolute inset-0 bg-gradient-to-r from-charcoal/60 via-charcoal/30 to-transparent"></div>
+                        <div class="relative z-10 flex flex-col justify-center h-full px-6 sm:px-10 lg:px-14 py-10 lg:py-14">
+                            <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-maroon/90 rounded-full text-white text-xs font-medium mb-4 w-fit">
+                                <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                                Koleksi Baru
+                            </div>
+                            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white max-w-lg leading-tight">Kemeja Keren<br>Mulai Rp 149.000</h2>
+                            <p class="mt-2 text-sm sm:text-base text-white/80 max-w-md">Kualitas premium, harga merakyat. Cocok buat semua momen!</p>
+                            <a href="#shop" class="mt-4 inline-flex items-center gap-2 px-6 py-2.5 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] w-fit shadow-lg">Belanja Yuk</a>
                         </div>
-                        <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-[1] tracking-tight text-charcoal text-balance">
-                            Kemeja <span class="text-maroon">Keren</span><br>
-                            untuk <span class="bg-maroon/10 px-2 rounded-xl">Semua</span>
-                        </h1>
-                        <p class="mt-5 text-base lg:text-lg text-charcoal/60 leading-relaxed max-w-md">
-                            Dari kantor hingga nongkrong, temukan kemeja yang bikin kamu tampil pede tanpa bikin kantong bolong. Kualitas premium, harga merakyat.
-                        </p>
-                        <a href="#shop" class="inline-flex items-center justify-center gap-2 mt-8 px-8 py-3.5 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25 min-w-[160px]">
-                            Belanja Yuk!
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                        </a>
+                    </div>
+                    <div class="w-full shrink-0 relative min-h-[35vh] lg:min-h-[50vh]">
+                        <img src="https://picsum.photos/seed/banner-kemeja-2/1400/600" alt="Gratis Ongkir" class="absolute inset-0 w-full h-full object-cover" />
+                        <div class="absolute inset-0 bg-gradient-to-r from-charcoal/60 via-charcoal/30 to-transparent"></div>
+                        <div class="relative z-10 flex flex-col justify-center h-full px-6 sm:px-10 lg:px-14 py-10 lg:py-14">
+                            <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-maroon/90 rounded-full text-white text-xs font-medium mb-4 w-fit">
+                                <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                                Promo Spesial
+                            </div>
+                            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white max-w-lg leading-tight">Gratis Ongkir!<br>Min. Rp 200.000</h2>
+                            <p class="mt-2 text-sm sm:text-base text-white/80 max-w-md">Berlaku untuk JNE, J&T, dan SiCepat ke seluruh Indonesia.</p>
+                            <a href="#shop" class="mt-4 inline-flex items-center gap-2 px-6 py-2.5 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] w-fit shadow-lg">Belanja Sekarang</a>
+                        </div>
+                    </div>
+                    <div class="w-full shrink-0 relative min-h-[35vh] lg:min-h-[50vh]">
+                        <img src="https://picsum.photos/seed/banner-kemeja-3/1400/600" alt="Garansi 30 Hari" class="absolute inset-0 w-full h-full object-cover" />
+                        <div class="absolute inset-0 bg-gradient-to-r from-charcoal/60 via-charcoal/30 to-transparent"></div>
+                        <div class="relative z-10 flex flex-col justify-center h-full px-6 sm:px-10 lg:px-14 py-10 lg:py-14">
+                            <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-maroon/90 rounded-full text-white text-xs font-medium mb-4 w-fit">
+                                <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                                Garansi 30 Hari
+                            </div>
+                            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white max-w-lg leading-tight">Tidak Cocok?<br><span class="text-maroon-200">Ganti Baru!</span></h2>
+                            <p class="mt-2 text-sm sm:text-base text-white/80 max-w-md">Belanja tanpa risau dengan garansi return 30 hari.</p>
+                            <a href="#shop" class="mt-4 inline-flex items-center gap-2 px-6 py-2.5 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] w-fit shadow-lg">Mulai Belanja</a>
+                        </div>
                     </div>
                 </div>
-                <div class="w-full shrink-0 flex items-center px-4 sm:px-8 lg:px-12 xl:px-16 py-24 lg:py-0 bg-gradient-to-br from-coklat-50/50 to-putih">
-                    <div class="max-w-lg">
-                        <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-maroon/10 rounded-full text-maroon text-xs font-medium mb-6">
-                            <span class="w-1.5 h-1.5 rounded-full bg-maroon animate-pulse"></span>
-                            Promo Spesial
-                        </div>
-                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1] tracking-tight text-charcoal text-balance">
-                            Gratis <span class="text-maroon">Ongkir</span><br>
-                            Belanja Minimal<br>
-                            <span class="bg-maroon/10 px-2 rounded-xl">Rp 200.000</span>
-                        </h1>
-                        <p class="mt-5 text-base lg:text-lg text-charcoal/60 leading-relaxed max-w-md">
-                            Promo berlaku untuk semua area JNE, J&T, dan SiCepat. Buruan belanja sebelum kehabisan!
-                        </p>
-                        <a href="#shop" class="inline-flex items-center justify-center gap-2 mt-8 px-8 py-3.5 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25 min-w-[160px]">
-                                Belanja Sekarang
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                        </a>
-                    </div>
+                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2.5 z-20">
+                    <button v-for="(_, i) in 3" :key="i" @click="activeSlide = i" class="h-2 rounded-full transition-all" :class="activeSlide === i ? 'w-6 bg-white' : 'w-2 bg-white/50 hover:bg-white/70'"></button>
                 </div>
-                <div class="w-full shrink-0 flex items-center px-4 sm:px-8 lg:px-12 xl:px-16 py-24 lg:py-0 bg-gradient-to-br from-maroon-50/20 to-putih">
-                    <div class="max-w-lg">
-                        <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-maroon/10 rounded-full text-maroon text-xs font-medium mb-6">
-                            <span class="w-1.5 h-1.5 rounded-full bg-maroon animate-pulse"></span>
-                            Garansi 30 Hari
-                        </div>
-                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1] tracking-tight text-charcoal text-balance">
-                            Tidak Cocok?<br>
-                            <span class="text-maroon">Tenang</span>, Kami<br>
-                            <span class="bg-maroon/10 px-2 rounded-xl">Ganti Baru</span>
-                        </h1>
-                        <p class="mt-5 text-base lg:text-lg text-charcoal/60 leading-relaxed max-w-md">
-                            Belanja tanpa risau. Setiap pembelian dilindungi garansi 30 hari. Kamu bisa return atau tukar ukuran dengan mudah.
-                        </p>
-                        <a href="#shop" class="inline-flex items-center justify-center gap-2 mt-8 px-8 py-3.5 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25 min-w-[160px]">
-                                Mulai Belanja
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3 z-10">
-                <button v-for="(_, i) in 3" :key="i" @click="activeSlide = i" class="w-2.5 h-2.5 rounded-full transition-all" :class="activeSlide === i ? 'bg-maroon w-8' : 'bg-maroon-200 hover:bg-maroon-300'"></button>
-            </div>
-            <div class="absolute top-1/2 -translate-y-1/2 left-4 z-10">
-                <button @click="prevSlide" class="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-md hover:bg-white transition-all">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="15 18 9 12 15 6"/></svg>
+                <button @click="prevSlide" class="absolute top-1/2 -translate-y-1/2 left-3 z-20 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow hover:bg-white transition-all">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="15 18 9 12 15 6"/></svg>
                 </button>
-            </div>
-            <div class="absolute top-1/2 -translate-y-1/2 right-4 z-10">
-                <button @click="nextSlide" class="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-md hover:bg-white transition-all">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="9 18 15 12 9 6"/></svg>
+                <button @click="nextSlide" class="absolute top-1/2 -translate-y-1/2 right-3 z-20 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow hover:bg-white transition-all">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
             </div>
         </section>
@@ -265,9 +243,7 @@ onMounted(() => {
     categoriesList.value = mockCategories
     products.value = mockProducts
     loading.value = false
-
     slideTimer = setInterval(() => { nextSlide() }, 5000)
-
     if (route.query.shop) {
         setTimeout(() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' }), 150)
     }
