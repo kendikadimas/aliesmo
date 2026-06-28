@@ -16,15 +16,15 @@
                         Dirancang dengan presisi dari katun premium pilihan. Aliesmo menghadirkan kemeja yang menemani setiap momen pentingmu dengan gaya dan kenyamanan.
                     </p>
                     <div class="mt-8 flex flex-col sm:flex-row gap-3">
-                        <a href="#shop" class="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-charcoal text-ivory text-xs tracking-[0.2em] uppercase hover:bg-charcoal/90 transition-all active:scale-[0.98] min-w-[180px]">
+                        <router-link to="/?shop=1" class="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-charcoal text-ivory text-xs tracking-[0.2em] uppercase hover:bg-charcoal/90 transition-all active:scale-[0.98] min-w-[180px]">
                             Belanja Sekarang
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
                                 <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
                             </svg>
-                        </a>
-                        <a href="#shop" class="inline-flex items-center justify-center px-8 py-3.5 border border-charcoal/20 text-charcoal/70 text-xs tracking-[0.2em] uppercase hover:bg-charcoal hover:text-ivory transition-all active:scale-[0.98] min-w-[180px]">
+                        </router-link>
+                        <router-link to="/?shop=1" class="inline-flex items-center justify-center px-8 py-3.5 border border-charcoal/20 text-charcoal/70 text-xs tracking-[0.2em] uppercase hover:bg-charcoal hover:text-ivory transition-all active:scale-[0.98] min-w-[180px]">
                             Lihat Koleksi
-                        </a>
+                        </router-link>
                     </div>
                     <div class="mt-10 flex items-center gap-8 text-sm text-charcoal/40">
                         <div class="flex items-center gap-2">
@@ -65,18 +65,18 @@
                     <span class="h-[1px] flex-1 bg-aliesmo-200/50"></span>
                 </div>
                 <div class="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none">
-                    <div v-for="cat in categories" :key="cat.id" @click="selectedCategory = cat.slug; scrollToShop()" class="snap-start shrink-0 cursor-pointer group">
+                    <div v-for="cat in categories" :key="cat.id" @click="selectCategory(cat.slug)" class="snap-start shrink-0 cursor-pointer group">
                         <div class="w-28 h-36 lg:w-32 lg:h-40 bg-aliesmo-100 overflow-hidden relative">
                             <div class="absolute inset-0 flex items-center justify-center bg-aliesmo-100 group-hover:bg-aliesmo-200 transition-colors">
                                 <span class="text-3xl font-light text-aliesmo-300/60 group-hover:text-bronze/40 transition-colors">{{ cat.name.charAt(0) }}</span>
                             </div>
                             <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-charcoal/70 to-transparent p-3">
                                 <p class="text-xs font-medium text-white">{{ cat.name }}</p>
-                                <p class="text-[10px] text-white/60">{{ cat.products_count }} produk</p>
+                                <p v-if="cat.products_count !== undefined" class="text-[10px] text-white/60">{{ cat.products_count }} produk</p>
                             </div>
                         </div>
                     </div>
-                    <div @click="selectedCategory = ''; scrollToShop()" class="snap-start shrink-0 cursor-pointer group">
+                    <div @click="filters.category = ''; fetchProducts()" class="snap-start shrink-0 cursor-pointer group">
                         <div class="w-28 h-36 lg:w-32 lg:h-40 bg-ivory border border-dashed border-aliesmo-200/70 overflow-hidden flex items-center justify-center group-hover:border-charcoal/30 transition-colors">
                             <div class="text-center">
                                 <svg class="w-5 h-5 mx-auto text-charcoal/30 group-hover:text-charcoal/50 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -102,21 +102,41 @@
                         <button @click="prevPage" :disabled="page <= 1" class="w-10 h-10 border border-aliesmo-200/70 flex items-center justify-center hover:border-charcoal/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed active:scale-95">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><polyline points="15 18 9 12 15 6"/></svg>
                         </button>
-                        <button @click="nextPage" :disabled="page >= totalPages" class="w-10 h-10 border border-aliesmo-200/70 flex items-center justify-center hover:border-charcoal/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed active:scale-95">
+                        <button @click="nextPage" :disabled="!hasMore" class="w-10 h-10 border border-aliesmo-200/70 flex items-center justify-center hover:border-charcoal/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed active:scale-95">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><polyline points="9 18 15 12 9 6"/></svg>
                         </button>
                     </div>
                 </div>
 
                 <div class="flex flex-wrap gap-3 mb-8">
-                    <button @click="selectedCategory = ''" class="px-4 py-2 text-xs tracking-widest uppercase border transition-all" :class="!selectedCategory ? 'bg-charcoal text-ivory border-charcoal' : 'bg-white text-charcoal/60 border-aliesmo-200/70 hover:border-charcoal/30'">Semua</button>
-                    <button v-for="cat in categories" :key="cat.id" @click="selectedCategory = cat.slug" class="px-4 py-2 text-xs tracking-widest uppercase border transition-all" :class="selectedCategory === cat.slug ? 'bg-charcoal text-ivory border-charcoal' : 'bg-white text-charcoal/60 border-aliesmo-200/70 hover:border-charcoal/30'">{{ cat.name }}</button>
+                    <button @click="filters.category = ''; filters.sort = 'newest'; fetchProducts()" class="px-4 py-2 text-xs tracking-widest uppercase border transition-all" :class="!filters.category ? 'bg-charcoal text-ivory border-charcoal' : 'bg-white text-charcoal/60 border-aliesmo-200/70 hover:border-charcoal/30'">Semua</button>
+                    <button v-for="cat in categories" :key="cat.id" @click="selectCategory(cat.slug)" class="px-4 py-2 text-xs tracking-widest uppercase border transition-all" :class="filters.category === cat.slug ? 'bg-charcoal text-ivory border-charcoal' : 'bg-white text-charcoal/60 border-aliesmo-200/70 hover:border-charcoal/30'">{{ cat.name }}</button>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
-                    <div v-for="product in displayProducts" :key="product.id" class="group cursor-pointer" @click="$router.push(`/products/${product.slug}`)">
+                <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+                    <div v-for="n in 8" :key="n" class="animate-pulse">
+                        <div class="aspect-[3/4] bg-aliesmo-100/80"></div>
+                        <div class="mt-4 space-y-2.5">
+                            <div class="h-2.5 bg-aliesmo-100/80 w-1/4"></div>
+                            <div class="h-3.5 bg-aliesmo-100/80 w-2/3"></div>
+                            <div class="h-3.5 bg-aliesmo-100/80 w-1/5"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-else-if="!products.length && !loading" class="text-center py-16 lg:py-24">
+                    <svg class="w-10 h-10 mx-auto text-aliesmo-300/60 mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <p class="text-lg text-charcoal/50">Belum ada produk di kategori ini.</p>
+                    <button @click="filters.category = ''; fetchProducts()" class="mt-4 text-sm text-bronze hover:text-charcoal transition-colors underline underline-offset-4">Lihat semua produk</button>
+                </div>
+
+                <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+                    <div v-for="product in products" :key="product.id" class="group cursor-pointer" @click="$router.push(`/products/${product.slug}`)">
                         <div class="aspect-[3/4] bg-aliesmo-100 overflow-hidden relative">
-                            <img :src="product.thumbnail" :alt="product.name" class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out" />
+                            <img v-if="product.thumbnail" :src="product.thumbnail" :alt="product.name" class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out" />
+                            <div v-else class="w-full h-full flex items-center justify-center">
+                                <img :src="`https://picsum.photos/seed/kemeja-${product.id || product.slug}/600/800`" :alt="product.name" class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out" />
+                            </div>
                             <div v-if="product.stock > 0 && product.stock <= 5" class="absolute top-3 left-3 bg-bronze/90 text-white text-[10px] tracking-wider uppercase px-2 py-1">
                                 {{ product.stock <= 3 ? 'Hampir Habis' : 'Sisa ' + product.stock }}
                             </div>
@@ -126,7 +146,7 @@
                             <button @click.stop="addToCart(product)" :disabled="product.stock === 0" class="absolute bottom-0 left-0 right-0 py-3.5 bg-charcoal/90 text-ivory text-xs tracking-[0.2em] uppercase translate-y-full group-hover:translate-y-0 transition-transform duration-300 hover:bg-charcoal disabled:opacity-0">
                                 {{ product.stock === 0 ? 'Stok Habis' : '+ Keranjang' }}
                             </button>
-                            <button @click.stop class="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white active:scale-95">
+                            <button @click.stop="quickView(product)" class="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white active:scale-95">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                             </button>
                         </div>
@@ -213,10 +233,10 @@
                             <p>Aliesmo lahir dari hasrat untuk menciptakan kemeja premium yang tidak hanya terlihat sempurna, tetapi juga terasa luar biasa. Setiap potongan kain dipilih dengan cermat, setiap jahitan dikerjakan oleh pengrajin berpengalaman.</p>
                             <p>Kami percaya bahwa kemeja yang baik adalah investasi — bukan sekadar pakaian. Dengan bahan katun premium dan konstruksi yang teliti, setiap kemeja Aliesmo dirancang untuk menemani perjalanan Anda selama bertahun-tahun.</p>
                         </div>
-                        <a href="#shop" class="inline-flex items-center gap-2 mt-6 text-xs tracking-[0.2em] uppercase text-bronze hover:text-charcoal transition-colors group">
+                        <router-link to="/?shop=1" class="inline-flex items-center gap-2 mt-6 text-xs tracking-[0.2em] uppercase text-bronze hover:text-charcoal transition-colors group">
                             Jelajahi Koleksi
                             <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                        </a>
+                        </router-link>
                     </div>
                 </div>
             </div>
@@ -246,51 +266,78 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import api from '../api'
 import { useCartStore } from '../cart'
-import { categories, products, formatPrice } from '../mock-data'
 
 const route = useRoute()
 const { addItem } = useCartStore()
-const selectedCategory = ref('')
+const products = ref([])
+const categories = ref([])
+const loading = ref(false)
 const page = ref(1)
-const perPage = 8
+const hasMore = ref(true)
+const filters = reactive({ category: '', search: '', sort: 'newest' })
 const email = ref('')
 const subscribed = ref(false)
 
-const filteredProducts = computed(() => {
-    if (!selectedCategory.value) return products
-    return products.filter(p => p.category?.slug === selectedCategory.value)
-})
+function formatPrice(price) {
+    return new Intl.NumberFormat('id-ID').format(price)
+}
 
-const totalPages = computed(() => Math.ceil(filteredProducts.value.length / perPage))
+async function fetchProducts() {
+    loading.value = true
+    page.value = 1
+    try {
+        const params = { page: page.value, ...filters }
+        const res = await api.get('/products', { params })
+        products.value = res.data.data
+        hasMore.value = res.data.links?.next !== null
+    } catch (e) {
+        console.error(e)
+    } finally {
+        loading.value = false
+    }
+}
 
-const displayProducts = computed(() => {
-    const start = 0
-    const end = page.value * perPage
-    return filteredProducts.value.slice(start, end)
-})
-
-const hasMore = computed(() => page.value * perPage < filteredProducts.value.length)
+async function loadMore() {
+    page.value++
+    try {
+        const params = { page: page.value, ...filters }
+        const res = await api.get('/products', { params })
+        products.value.push(...res.data.data)
+        hasMore.value = res.data.links?.next !== null
+    } catch (e) {
+        console.error(e)
+    }
+}
 
 function prevPage() {
-    if (page.value > 1) page.value--
+    if (page.value > 1) {
+        page.value--
+        fetchProducts()
+    }
 }
 
 function nextPage() {
-    if (hasMore.value) page.value++
-}
-
-function loadMore() {
-    if (hasMore.value) page.value++
+    if (hasMore.value) {
+        page.value++
+        fetchProducts()
+    }
 }
 
 function addToCart(product) {
     addItem(product, 1)
 }
 
-function scrollToShop() {
+function quickView(product) {
+    // placeholder for quick view modal
+}
+
+function selectCategory(slug) {
+    filters.category = slug
+    fetchProducts()
     document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' })
 }
 
@@ -301,4 +348,19 @@ function handleSubscribe() {
         setTimeout(() => { subscribed.value = false }, 5000)
     }
 }
+
+onMounted(async () => {
+    try {
+        const catRes = await api.get('/categories')
+        categories.value = catRes.data.data
+    } catch (e) {
+        console.error(e)
+    }
+    fetchProducts()
+    if (route.query.shop) {
+        setTimeout(() => {
+            document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' })
+        }, 150)
+    }
+})
 </script>

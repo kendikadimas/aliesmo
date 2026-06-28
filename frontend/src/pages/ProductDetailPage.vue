@@ -1,10 +1,19 @@
 <template>
     <div class="min-h-screen">
-        <div v-if="!product" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 text-center">
-            <svg class="w-12 h-12 mx-auto text-aliesmo-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
-            <p class="mt-4 text-lg text-charcoal/50">Produk tidak ditemukan.</p>
+        <div v-if="loading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+            <div class="grid lg:grid-cols-2 gap-8 lg:gap-12">
+                <div class="aspect-[3/4] bg-aliesmo-100 animate-pulse"></div>
+                <div class="space-y-4">
+                    <div class="h-3 bg-aliesmo-200/50 w-1/4 animate-pulse"></div>
+                    <div class="h-6 bg-aliesmo-200/50 w-3/4 animate-pulse"></div>
+                    <div class="h-5 bg-aliesmo-200/50 w-1/3 animate-pulse"></div>
+                    <div class="h-20 bg-aliesmo-200/50 w-full animate-pulse mt-6"></div>
+                </div>
+            </div>
+        </div>
+
+        <div v-else-if="!product" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 text-center">
+            <p class="text-lg text-charcoal/50">Produk tidak ditemukan.</p>
             <router-link to="/" class="inline-block mt-4 text-sm tracking-widest uppercase text-bronze hover:text-charcoal transition-colors">Kembali</router-link>
         </div>
 
@@ -20,7 +29,15 @@
             <div class="grid lg:grid-cols-2 gap-8 lg:gap-12">
                 <div>
                     <div class="aspect-[3/4] bg-aliesmo-100 overflow-hidden relative">
-                        <img :src="product.thumbnail" :alt="product.name" class="w-full h-full object-cover" />
+                        <img v-if="product.thumbnail" :src="product.thumbnail" :alt="product.name" class="w-full h-full object-cover" />
+                        <div v-else class="w-full h-full flex items-center justify-center">
+                            <span class="text-8xl font-light text-aliesmo-300/40 select-none">A</span>
+                        </div>
+                    </div>
+                    <div v-if="product.images?.length" class="flex gap-3 mt-4 overflow-x-auto pb-2">
+                        <div v-for="(img, i) in product.images" :key="i" class="w-20 h-20 shrink-0 bg-aliesmo-100 overflow-hidden cursor-pointer" @click="selectedImage = i">
+                            <img :src="img.path" :alt="`${product.name} ${i + 1}`" class="w-full h-full object-cover" />
+                        </div>
                     </div>
                 </div>
 
@@ -56,17 +73,22 @@
 
                     <div class="mt-8 pt-8 border-t border-aliesmo-200/50">
                         <p class="text-xs tracking-widest uppercase text-charcoal/50 mb-4">Deskripsi</p>
-                        <p class="text-base text-charcoal/70 leading-relaxed">{{ product.description }}</p>
+                        <p class="text-base text-charcoal/70 leading-relaxed">{{ product.description || 'Tidak ada deskripsi.' }}</p>
                     </div>
 
                     <div class="mt-6 pt-6 border-t border-aliesmo-200/50">
                         <div class="flex items-center gap-6 text-sm text-charcoal/60">
                             <span class="flex items-center gap-2">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M7 7V5a2 2 0 012-2h6a2 2 0 012 2v2"/></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                                    <rect x="3" y="7" width="18" height="13" rx="2"/>
+                                    <path d="M7 7V5a2 2 0 012-2h6a2 2 0 012 2v2"/>
+                                </svg>
                                 Premium Packaging
                             </span>
                             <span class="flex items-center gap-2">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><polyline points="20 6 9 17 4 12"/></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
                                 100% Original
                             </span>
                         </div>
@@ -78,16 +100,20 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import api from '../api'
 import { useCartStore } from '../cart'
-import { products, formatPrice } from '../mock-data'
 
 const route = useRoute()
 const { addItem } = useCartStore()
+const product = ref(null)
+const loading = ref(true)
 const quantity = ref(1)
 
-const product = computed(() => products.find(p => p.slug === route.params.slug) || null)
+function formatPrice(price) {
+    return new Intl.NumberFormat('id-ID').format(price)
+}
 
 function decrementQty() {
     if (quantity.value > 1) quantity.value--
@@ -98,4 +124,16 @@ function addToCart() {
         addItem(product.value, quantity.value)
     }
 }
+
+onMounted(async () => {
+    try {
+        const res = await api.get(`/products/${route.params.slug}`)
+        product.value = res.data.data
+        document.title = `${product.value.name} — Aliesmo`
+    } catch (e) {
+        console.error(e)
+    } finally {
+        loading.value = false
+    }
+})
 </script>

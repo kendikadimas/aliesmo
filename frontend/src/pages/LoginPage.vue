@@ -14,7 +14,6 @@
             </div>
 
             <div v-if="error" class="p-3 bg-red-50 border border-red-200 text-red-700 text-sm">{{ error }}</div>
-            <div v-if="success" class="p-3 bg-green-50 border border-green-200 text-green-700 text-sm">Login berhasil! Mengalihkan...</div>
 
             <button type="submit" :disabled="submitting" class="w-full px-8 py-3.5 bg-charcoal text-ivory text-sm tracking-widest uppercase hover:bg-charcoal/90 transition-all active:scale-[0.98] disabled:bg-aliesmo-300 disabled:cursor-not-allowed">
                 {{ submitting ? 'Memproses...' : 'Masuk' }}
@@ -31,12 +30,11 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { setToken } from '../api'
+import api, { setToken } from '../api'
 
 const router = useRouter()
 const submitting = ref(false)
 const error = ref('')
-const success = ref(false)
 
 const form = reactive({
     email: '',
@@ -46,13 +44,14 @@ const form = reactive({
 async function handleLogin() {
     submitting.value = true
     error.value = ''
-    if (!form.email || !form.password) {
-        error.value = 'Silakan isi email dan kata sandi.'
+    try {
+        const res = await api.post('/auth/login', form)
+        setToken(res.data.token)
+        router.push('/')
+    } catch (e) {
+        error.value = e.response?.data?.message || 'Email atau kata sandi salah.'
+    } finally {
         submitting.value = false
-        return
     }
-    setToken('mock-token-' + Date.now())
-    success.value = true
-    setTimeout(() => router.push('/'), 800)
 }
 </script>
