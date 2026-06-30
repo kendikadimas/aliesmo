@@ -23,6 +23,7 @@ class StoreOrderRequest extends FormRequest
             'customer_phone' => ['nullable', 'string', 'max:20'],
             'shipping_address' => ['required', 'string'],
             'shipping_cost' => ['nullable', 'numeric', 'min:0'],
+            'payment_method' => ['nullable', 'string', 'in:midtrans,cod,whatsapp'],
         ];
     }
 

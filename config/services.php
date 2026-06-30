@@ -41,4 +41,14 @@ return [
         'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
     ],
 
+    'whatsapp' => [
+        'number' => env('WHATSAPP_NUMBER', '6281234567890'),
+    ],
+
+    'rajaongkir' => [
+        'api_key' => env('RAJAONGKIR_API_KEY'),
+        'base_url' => env('RAJAONGKIR_BASE_URL', 'https://api.rajaongkir.com/starter'),
+        'origin_city' => env('RAJAONGKIR_ORIGIN_CITY', 39),
+    ],
+
 ];

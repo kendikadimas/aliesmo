@@ -3,32 +3,32 @@
 @theme {
     --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif;
 
-    --color-maroon: #7a2e3b;
-    --color-maroon-50: #fdf2f4;
-    --color-maroon-100: #f9e2e5;
-    --color-maroon-200: #f4c5cb;
-    --color-maroon-300: #eb9da8;
-    --color-maroon-400: #df6c7d;
-    --color-maroon-500: #d44a60;
-    --color-maroon-600: #b83247;
-    --color-maroon-700: #9a283b;
-    --color-maroon-800: #7a2e3b;
-    --color-maroon-900: #5e212c;
+    --color-maroon: #be123c;
+    --color-maroon-50: #fff1f2;
+    --color-maroon-100: #ffe4e6;
+    --color-maroon-200: #fecdd3;
+    --color-maroon-300: #fda4af;
+    --color-maroon-400: #fb7185;
+    --color-maroon-500: #f43f5e;
+    --color-maroon-600: #e11d48;
+    --color-maroon-700: #be123c;
+    --color-maroon-800: #9f1239;
+    --color-maroon-900: #881337;
 
-    --color-coklat: #6b4c3a;
-    --color-coklat-50: #f6f1ec;
-    --color-coklat-100: #e9ddd4;
-    --color-coklat-200: #d3bbb0;
-    --color-coklat-300: #b49586;
-    --color-coklat-400: #9c7562;
-    --color-coklat-500: #6b4c3a;
-    --color-coklat-600: #5a3d2d;
-    --color-coklat-700: #4a3123;
-    --color-coklat-800: #3c271b;
-    --color-coklat-900: #2c1810;
+    --color-coklat: #854d0e;
+    --color-coklat-50: #ffffff;
+    --color-coklat-100: #fafafa;
+    --color-coklat-200: #f4f4f5;
+    --color-coklat-300: #e4e4e7;
+    --color-coklat-400: #a1a1aa;
+    --color-coklat-500: #854d0e;
+    --color-coklat-600: #713f12;
+    --color-coklat-700: #a16207;
+    --color-coklat-800: #854d0e;
+    --color-coklat-900: #422006;
 
-    --color-charcoal: #2c1810;
-    --color-muted: #9c8273;
+    --color-charcoal: #0f172a;
+    --color-muted: #64748b;
     --color-surface: #ffffff;
     --color-putih: #ffffff;
     --color-putih-off: #fafafa;

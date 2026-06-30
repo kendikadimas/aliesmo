@@ -1,77 +1,149 @@
 <template>
-    <div class="min-h-screen">
+    <div class="min-h-screen bg-white">
         <div v-if="!product" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 text-center">
-            <p class="text-lg text-charcoal/50">Produk gak ditemukan nih :(</p>
-            <router-link to="/" class="inline-block mt-4 text-sm font-semibold text-maroon hover:text-maroon-600 transition-colors">Kembali ke Beranda</router-link>
+            <p class="text-base text-charcoal/50">Produk gak ditemukan nih :(</p>
+            <router-link to="/" class="inline-block mt-3 text-sm font-semibold text-maroon hover:text-maroon-700 transition-colors">Kembali ke Beranda</router-link>
         </div>
 
-        <div v-else class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-            <router-link to="/#shop" class="inline-flex items-center gap-2 text-sm font-medium text-charcoal/50 hover:text-maroon transition-colors mb-6">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-                Kembali
-            </router-link>
+        <div v-else>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 lg:py-8">
+                <router-link to="/#shop" class="inline-flex items-center gap-1.5 text-xs font-semibold text-charcoal/40 hover:text-maroon transition-colors mb-4">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    Kembali
+                </router-link>
 
-            <div class="grid lg:grid-cols-2 gap-8 lg:gap-12">
-                <div>
-                    <div class="aspect-[3/4] bg-maroon-50 rounded-2xl overflow-hidden relative">
-                        <img :src="product.thumbnail" :alt="product.name" class="w-full h-full object-cover" />
-                    </div>
-                </div>
-
-                <div class="lg:sticky lg:top-28 lg:self-start">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-coklat-50 rounded-full text-coklat text-xs font-semibold">{{ product.category?.name || 'Kemeja' }}</span>
-                    <h1 class="text-3xl lg:text-4xl font-bold text-charcoal mt-3 tracking-tight">{{ product.name }}</h1>
-
-                    <div class="mt-4 flex items-baseline gap-2">
-                        <span class="text-3xl font-bold text-maroon">Rp{{ formatPrice(product.price) }}</span>
-                        <span class="text-sm text-charcoal/40 line-through">Rp{{ formatPrice(product.price + 50000) }}</span>
-                    </div>
-
-                    <div class="mt-3 flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full" :class="product.stock > 0 ? 'bg-green-500' : 'bg-red-400'"></span>
-                        <span class="text-sm font-medium" :class="product.stock > 0 ? 'text-green-700' : 'text-red-600'">
-                            {{ product.stock > 0 ? `Stok tersedia (${product.stock} pcs)` : 'Stok habis kak :(' }}
-                        </span>
-                    </div>
-
-                    <div class="mt-6">
-                        <p class="text-xs font-semibold text-charcoal/50 uppercase tracking-wide mb-2">Jumlah</p>
-                        <div class="flex items-center gap-3">
-                            <button @click="decrementQty" class="w-10 h-10 rounded-xl border-2 border-maroon-200 flex items-center justify-center text-lg font-medium text-charcoal hover:border-maroon hover:text-maroon transition-colors active:scale-95" :disabled="quantity <= 1">−</button>
-                            <span class="w-10 text-center text-lg font-bold">{{ quantity }}</span>
-                            <button @click="quantity++" class="w-10 h-10 rounded-xl border-2 border-maroon-200 flex items-center justify-center text-lg font-medium text-charcoal hover:border-maroon hover:text-maroon transition-colors active:scale-95" :disabled="quantity >= product.stock">+</button>
+                <div class="lg:flex lg:items-start lg:gap-8 xl:gap-12">
+                    <div class="lg:sticky lg:top-24 lg:self-start w-full max-w-md mx-auto lg:mx-0 shrink-0">
+                        <div class="aspect-[3/4] bg-maroon-50 rounded-xl overflow-hidden relative max-h-[420px] lg:max-h-[520px]">
+                            <img :src="selectedImage === 0 ? product.thumbnail : (product.images?.[selectedImage]?.path || product.thumbnail)" :alt="product.name" class="w-full h-full object-cover" />
+                        </div>
+                        <div v-if="product.images?.length" class="flex gap-2 mt-3 overflow-x-auto pb-1">
+                            <div v-for="(img, i) in product.images" :key="i" class="w-14 h-14 shrink-0 bg-maroon-50 rounded-lg overflow-hidden border-2 cursor-pointer" :class="selectedImage === i ? 'border-maroon' : 'border-transparent hover:border-maroon-200'" @click="selectedImage = i">
+                                <img :src="img.path" :alt="`${product.name} ${i + 1}`" class="w-full h-full object-cover" />
+                            </div>
                         </div>
                     </div>
 
-                    <div class="mt-6 flex flex-col sm:flex-row gap-3">
-                        <button @click="addToCart" :disabled="product.stock === 0" class="flex-1 px-8 py-3.5 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25 disabled:bg-maroon-200 disabled:cursor-not-allowed disabled:active:scale-100">
-                            {{ product.stock === 0 ? 'Stok Habis' : 'Masukin ke Keranjang' }}
-                        </button>
-                    </div>
+                    <div class="flex-1 min-w-0 max-w-md mx-auto lg:mx-0 lg:pt-0">
+                        <p class="text-[10px] font-medium text-maroon-400 uppercase tracking-wide">{{ product.category?.name || 'Kemeja' }}</p>
+                        <h1 class="text-xl lg:text-2xl font-bold text-charcoal mt-1 leading-tight">{{ product.name }}</h1>
 
-                    <div class="mt-8 pt-6 border-t border-maroon-100">
-                        <p class="text-xs font-semibold text-charcoal/50 uppercase tracking-wide mb-3">Deskripsi</p>
-                        <p class="text-base text-charcoal/65 leading-relaxed">{{ product.description }}</p>
-                    </div>
+                        <div class="mt-3 flex items-baseline gap-2">
+                            <span class="text-xl lg:text-2xl font-bold text-maroon">Rp{{ formatPrice(product.price) }}</span>
+                            <span class="text-xs text-charcoal/40 line-through">Rp{{ formatPrice(product.price + 50000) }}</span>
+                        </div>
 
-                    <div class="mt-4 pt-4 border-t border-maroon-100">
-                        <div class="flex flex-wrap gap-4 text-sm text-charcoal/50">
-                            <span class="flex items-center gap-2">
-                                <svg class="w-4 h-4 text-maroon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M7 7V5a2 2 0 012-2h6a2 2 0 012 2v2"/></svg>
+                        <div class="mt-2 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full" :class="product.stock > 0 ? 'bg-green-500' : 'bg-red-400'"></span>
+                            <span class="text-xs font-medium" :class="product.stock > 0 ? 'text-green-700' : 'text-red-600'">
+                                {{ product.stock > 0 ? `Tersedia (${product.stock} pcs)` : 'Stok habis kak :(' }}
+                            </span>
+                        </div>
+
+                        <div class="mt-4">
+                            <p class="text-[10px] font-semibold text-charcoal/50 mb-1.5">Jumlah</p>
+                            <div class="flex items-center gap-3">
+                                <button @click="decrementQty" class="w-8 h-8 rounded-lg border-2 border-maroon-200/60 flex items-center justify-center text-sm font-semibold text-charcoal/50 hover:border-maroon hover:text-maroon transition-colors active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed" :disabled="quantity <= 1">−</button>
+                                <span class="w-10 text-center text-base font-bold text-charcoal">{{ quantity }}</span>
+                                <button @click="quantity++" class="w-8 h-8 rounded-lg border-2 border-maroon-200/60 flex items-center justify-center text-sm font-semibold text-charcoal/50 hover:border-maroon hover:text-maroon transition-colors active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed" :disabled="quantity >= product.stock">+</button>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 flex gap-2">
+                            <button @click="addToCart" :disabled="product.stock === 0" class="flex-1 px-6 py-3 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.98] disabled:bg-maroon-200 disabled:cursor-not-allowed disabled:active:scale-100 shadow-lg">
+                                {{ product.stock === 0 ? 'Stok Habis' : 'Masukin ke Keranjang' }}
+                            </button>
+                            <button @click="toggleWishlist(product.id)" class="w-12 h-11 flex items-center justify-center rounded-xl border-2 transition-all active:scale-95" :class="isWishlisted(product.id) ? 'bg-red-50 border-red-200 text-red-500' : 'border-maroon-200/60 text-charcoal/50 hover:border-maroon hover:text-maroon'">
+                                <svg width="18" height="18" viewBox="0 0 24 24" :fill="isWishlisted(product.id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="mt-4 pt-4 border-t border-maroon-50">
+                            <p v-if="isDescriptionShort" class="text-xs font-semibold text-charcoal/50 leading-relaxed">{{ product.description }}</p>
+                            <div v-else>
+                                <p class="text-xs font-semibold text-charcoal/50 leading-relaxed line-clamp-3">{{ product.description }}</p>
+                                <button @click="showDescriptionModal = true" class="text-xs font-semibold text-maroon hover:text-maroon-600 mt-1">Lihat Selengkapnya</button>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-charcoal/50">
+                            <span class="flex items-center gap-1.5">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M7 7V5a2 2 0 012-2h6a2 2 0 012 2v2"/></svg>
                                 Kemasan Premium
                             </span>
-                            <span class="flex items-center gap-2">
-                                <svg class="w-4 h-4 text-maroon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span class="flex items-center gap-1.5">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="20 6 9 17 4 12"/></svg>
                                 Original 100%
                             </span>
-                            <span class="flex items-center gap-2">
-                                <svg class="w-4 h-4 text-maroon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                            <span class="flex items-center gap-1.5">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                                 Gratis Ongkir
                             </span>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <teleport to="body">
+                <div v-if="showDescriptionModal" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="showDescriptionModal = false">
+                    <div class="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
+                    <div class="relative bg-white rounded-2xl max-w-lg w-full max-h-[70vh] overflow-y-auto p-6 shadow-xl">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-bold text-charcoal">Deskripsi</h3>
+                            <button @click="showDescriptionModal = false" class="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-maroon-50 transition-colors">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            </button>
+                        </div>
+                        <p class="text-sm text-charcoal/70 leading-relaxed whitespace-pre-line">{{ product.description }}</p>
+                    </div>
+                </div>
+            </teleport>
+
+            <section class="py-8 lg:py-12 bg-coklat-50/20 mt-6">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center justify-between mb-5">
+                        <div>
+                            <h2 class="text-lg lg:text-xl font-bold text-charcoal tracking-tight">Produk Terkait</h2>
+                            <p class="text-xs text-charcoal/50 mt-0.5">Koleksi lain dari kategori yang sama</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button @click="scrollRelated('left')" class="w-7 h-7 rounded-lg border border-maroon-200/60 flex items-center justify-center text-charcoal/50 hover:border-maroon hover:text-maroon transition-colors active:scale-95">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="15 18 9 12 15 6"/></svg>
+                            </button>
+                            <button @click="scrollRelated('right')" class="w-7 h-7 rounded-lg border border-maroon-200/60 flex items-center justify-center text-charcoal/50 hover:border-maroon hover:text-maroon transition-colors active:scale-95">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="9 18 15 12 9 6"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div ref="relatedCarousel" class="flex gap-4 overflow-x-auto scroll-smooth pb-2" style="scrollbar-width:none;-ms-overflow-style:none;">
+                        <div v-for="rp in relatedProducts" :key="rp.id" class="shrink-0 w-[160px] sm:w-[190px] group/card cursor-pointer bg-white rounded-xl overflow-hidden border border-maroon-50 hover:border-maroon-200 transition-all hover:shadow-md active:scale-[0.98]" @click="$router.push(`/products/${rp.slug}`)">
+                            <div class="aspect-[3/4] bg-maroon-50 overflow-hidden relative">
+                                <img :src="productImage(rp, 0)" :alt="rp.name" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 group-hover/card:opacity-0" />
+                                <img :src="productImage(rp, 1)" :alt="rp.name" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 group-hover/card:opacity-100" />
+                                <div v-if="rp.stock > 0 && rp.stock <= 5" class="absolute top-1.5 left-1.5 bg-coklat text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-md">Sisa {{ rp.stock }}</div>
+                                <div v-if="rp.stock === 0" class="absolute inset-0 bg-white/80 flex items-center justify-center">
+                                    <span class="bg-charcoal text-white text-[10px] font-semibold px-2 py-1 rounded-lg">Stok Habis</span>
+                                </div>
+                                <button @click.stop="addItem(rp, 1)" :disabled="rp.stock === 0" class="absolute bottom-0 left-0 right-0 py-2 bg-maroon text-white text-[10px] font-semibold tracking-wide translate-y-full group-hover/card:translate-y-0 transition-transform duration-300 hover:bg-maroon-600 disabled:opacity-0">
+                                    {{ rp.stock === 0 ? 'Stok Habis' : '+ Keranjang' }}
+                                </button>
+                            </div>
+                            <div class="p-2.5">
+                                <p class="text-[10px] font-medium text-maroon-400 uppercase tracking-wide">{{ rp.category?.name || 'Kemeja' }}</p>
+                                <h3 class="text-xs font-semibold text-charcoal mt-0.5 leading-snug line-clamp-2">{{ rp.name }}</h3>
+                                <p class="text-sm font-bold text-maroon mt-1">Rp{{ formatPrice(rp.price) }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="!relatedProducts.length" class="text-center py-8">
+                        <p class="text-sm text-charcoal/50">Belum ada produk terkait.</p>
+                    </div>
+                </div>
+            </section>
         </div>
     </div>
 </template>
@@ -85,8 +157,30 @@ import { products, formatPrice } from '../mock-data'
 const route = useRoute()
 const { addItem } = useCartStore()
 const quantity = ref(1)
+const selectedImage = ref(0)
+const showDescriptionModal = ref(false)
+const wishlist = ref(new Set())
+const relatedCarousel = ref(null)
 
 const product = computed(() => products.find(p => p.slug === route.params.slug) || null)
+
+const relatedProducts = computed(() => {
+    if (!product.value) return []
+    const catSlug = product.value.category?.slug
+    if (!catSlug) return []
+    return products.filter(p => p.category?.slug === catSlug && p.id !== product.value.id).slice(0, 10)
+})
+
+const isDescriptionShort = computed(() => {
+    if (!product.value?.description) return true
+    return product.value.description.length < 150
+})
+
+function productImage(p, index) {
+    if (p.images && p.images[index]) return p.images[index].path
+    if (index === 0 && p.thumbnail) return p.thumbnail
+    return `https://picsum.photos/seed/${p.id || p.slug}${index > 0 ? '-' + (index + 1) : ''}/600/800`
+}
 
 function decrementQty() {
     if (quantity.value > 1) quantity.value--
@@ -96,5 +190,21 @@ function addToCart() {
     if (product.value && quantity.value > 0) {
         addItem(product.value, quantity.value)
     }
+}
+
+function toggleWishlist(id) {
+    const set = wishlist.value
+    if (set.has(id)) set.delete(id)
+    else set.add(id)
+    wishlist.value = new Set(set)
+}
+
+function isWishlisted(id) {
+    return wishlist.value.has(id)
+}
+
+function scrollRelated(dir) {
+    if (!relatedCarousel.value) return
+    relatedCarousel.value.scrollBy({ left: dir === 'right' ? 340 : -340, behavior: 'smooth' })
 }
 </script>

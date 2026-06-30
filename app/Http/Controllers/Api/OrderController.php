@@ -21,13 +21,12 @@ class OrderController extends Controller
                 $request->only(['customer_name', 'customer_email', 'customer_phone', 'shipping_address', 'shipping_cost'])
             );
 
-            $paymentInfo = $this->orderService->processPayment($order);
-
-            $order->load('items', 'payment');
+            $order->load('items');
 
             return response()->json([
                 'order' => new OrderResource($order),
-                'payment' => $paymentInfo,
+                'payment' => null,
+                'whatsapp_number' => config('services.whatsapp.number'),
             ], 201);
         } catch (\RuntimeException $e) {
             return response()->json(['message' => $e->getMessage()], 422);
@@ -40,7 +39,10 @@ class OrderController extends Controller
             ->with(['items', 'payment'])
             ->firstOrFail();
 
-        return new OrderResource($order);
+        return response()->json([
+            'data' => new OrderResource($order),
+            'whatsapp_number' => config('services.whatsapp.number'),
+        ]);
     }
 
     public function myOrders()

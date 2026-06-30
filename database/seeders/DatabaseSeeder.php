@@ -3,20 +3,22 @@ namespace Database\Seeders;
 
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
-use App\Models\Category;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\User;
-use App\Services\StockService;
-use App\Enums\StockMovementType;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        if (app()->environment('production')) {
+            $this->command?->warn('Seeder tidak dapat dijalankan di lingkungan production!');
+            return;
+        }
+
         // Admin user
         $admin = User::factory()->create([
             'name' => 'Admin',
@@ -33,29 +35,9 @@ class DatabaseSeeder extends Seeder
             'role' => 'customer',
         ]);
 
-        // Categories
-        $categories = Category::factory(5)->create();
-
-        // Products
-        $stockService = app(StockService::class);
-        $products = Product::factory(30)
-            ->sequence(fn($sequence) => ['category_id' => $categories->random()->id])
-            ->create(['stock' => 0]);
-
-        // Initial stock for all active products
-        $stockLevels = [0, 2, 3, 5, 10, 15, 20, 25, 50, 100];
-        foreach ($products as $product) {
-            $qty = $stockLevels[array_rand($stockLevels)];
-            if ($qty > 0) {
-                $stockService->adjustStock(
-                    $product->id,
-                    $qty,
-                    StockMovementType::Initial,
-                    'Initial stock',
-                    $admin
-                );
-            }
-        }
+        // Categories & Products (shirt-specific data)
+        $this->call(ProductSeeder::class);
+        $products = Product::all();
 
         // Sample orders
         foreach (range(1, 10) as $i) {

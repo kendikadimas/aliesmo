@@ -22,6 +22,11 @@ class SalesOverviewWidget extends BaseWidget
 
         $lowStockCount = Product::where('stock', '<=', 5)->where('is_active', true)->count();
 
+        $maxProducts = 30;
+        $productCount = Product::count();
+        $productPercent = round(($productCount / $maxProducts) * 100);
+        $canUpgrade = $productCount >= $maxProducts;
+
         return [
             Stat::make('Total Revenue', 'Rp ' . number_format($totalRevenue, 0, ',', '.'))
                 ->description('All time')
@@ -33,6 +38,10 @@ class SalesOverviewWidget extends BaseWidget
             Stat::make('Low Stock Products', $lowStockCount)
                 ->description('Stock ≤ 5')
                 ->descriptionIcon('heroicon-m-exclamation-triangle'),
+            Stat::make('Produk Terpakai', "{$productCount} / {$maxProducts} ({$productPercent}%)")
+                ->description($canUpgrade ? 'Hubungi 085196811722 untuk upgrade' : "Sisa " . ($maxProducts - $productCount) . " slot")
+                ->descriptionIcon('heroicon-m-cube')
+                ->color($canUpgrade ? 'danger' : ($productPercent > 80 ? 'warning' : 'success')),
         ];
     }
 }

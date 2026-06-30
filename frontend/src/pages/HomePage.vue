@@ -87,13 +87,11 @@
                     </div>
                 </div>
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-5">
-                    <div v-for="cat in categoriesList" :key="cat.id" @click="selectedCategory = cat.slug; scrollToShop()" class="group cursor-pointer">
-                        <div class="aspect-[4/5] bg-maroon-50 rounded-2xl overflow-hidden relative">
-                            <img :src="`https://picsum.photos/seed/kategori-${cat.slug}/400/500`" :alt="cat.name" class="w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-500" />
-                            <div class="absolute inset-0 bg-gradient-to-t from-charcoal/70 via-transparent to-transparent"></div>
-                            <div class="absolute bottom-0 left-0 right-0 p-4">
-                                <p class="text-base font-bold text-white">{{ cat.name }}</p>
-                                <p class="text-sm text-white/70">{{ cat.products_count || 0 }} produk</p>
+                    <div v-for="cat in categoriesList" :key="cat.id" @click="$router.push({ path: '/', query: { ...$route.query, category: cat.slug } })" class="group cursor-pointer">
+                        <div class="aspect-[21/9] bg-maroon-50 rounded-xl overflow-hidden relative">
+                            <img :src="`https://picsum.photos/seed/kategori-${cat.slug}/500/220`" :alt="cat.name" class="w-full h-full object-cover group-hover:scale-[1.06] transition-transform duration-500" />
+                            <div class="absolute inset-0 bg-charcoal/30 group-hover:bg-charcoal/40 transition-colors flex items-center justify-center p-3">
+                                <p class="text-xs sm:text-sm font-extrabold text-white tracking-[0.12em] uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] group-hover:scale-105 transition-transform duration-300 text-center">{{ cat.name }}</p>
                             </div>
                         </div>
                     </div>
@@ -108,14 +106,6 @@
                         <h2 class="text-2xl lg:text-3xl font-bold text-charcoal tracking-tight">Semua <span class="text-maroon">Produk</span></h2>
                         <p class="mt-1 text-sm text-charcoal/50">Temukan kemeja favoritmu</p>
                     </div>
-                    <div class="hidden sm:flex gap-2">
-                        <button @click="prevPage" :disabled="page <= 1" class="w-10 h-10 rounded-xl border-2 border-maroon-200/60 flex items-center justify-center text-charcoal/50 hover:border-maroon hover:text-maroon transition-colors disabled:opacity-30 disabled:cursor-not-allowed active:scale-95">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="15 18 9 12 15 6"/></svg>
-                        </button>
-                        <button @click="nextPage" :disabled="page >= totalPages" class="w-10 h-10 rounded-xl border-2 border-maroon-200/60 flex items-center justify-center text-charcoal/50 hover:border-maroon hover:text-maroon transition-colors disabled:opacity-30 disabled:cursor-not-allowed active:scale-95">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="9 18 15 12 9 6"/></svg>
-                        </button>
-                    </div>
                 </div>
 
                 <div class="flex flex-wrap gap-2 mb-6">
@@ -123,47 +113,65 @@
                     <button v-for="cat in categoriesList" :key="cat.id" @click="selectedCategory = cat.slug" class="px-4 py-2 text-xs font-semibold rounded-xl border-2 transition-all" :class="selectedCategory === cat.slug ? 'bg-maroon text-white border-maroon' : 'bg-white text-charcoal/60 border-maroon-100 hover:border-maroon/50'">{{ cat.name }}</button>
                 </div>
 
-                <div v-if="loading" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-                    <div v-for="n in 8" :key="n" class="animate-pulse">
-                        <div class="aspect-[3/4] bg-coklat-100/50 rounded-2xl"></div>
-                        <div class="mt-3 space-y-2 px-1">
-                            <div class="h-2.5 bg-coklat-100/50 rounded-full w-1/3"></div>
-                            <div class="h-3.5 bg-coklat-100/50 rounded-full w-2/3"></div>
-                            <div class="h-3.5 bg-coklat-100/50 rounded-full w-1/4"></div>
+                <div v-if="loading" class="space-y-10">
+                    <div v-for="n in 3" :key="n">
+                        <div class="h-5 bg-coklat-100/50 rounded-full w-1/4 mb-4"></div>
+                        <div class="flex gap-3 overflow-hidden">
+                            <div v-for="m in 4" :key="m" class="shrink-0 w-[160px] sm:w-[180px] animate-pulse">
+                                <div class="aspect-[3/4] bg-coklat-100/50 rounded-xl"></div>
+                                <div class="mt-2 space-y-1.5 px-1">
+                                    <div class="h-2 bg-coklat-100/50 rounded-full w-1/3"></div>
+                                    <div class="h-2.5 bg-coklat-100/50 rounded-full w-2/3"></div>
+                                    <div class="h-2.5 bg-coklat-100/50 rounded-full w-1/4"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div v-else-if="!displayProducts.length && !loading" class="text-center py-16">
+                <div v-else-if="!filteredProducts.length && !loading" class="text-center py-16">
                     <p class="text-lg text-charcoal/50">Belum ada produk nih, coba kategori lain yuk!</p>
                 </div>
 
-                <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-                    <div v-for="product in displayProducts" :key="product.id" class="group cursor-pointer bg-white rounded-2xl overflow-hidden border-2 border-maroon-50 hover:border-maroon-200 transition-all hover:shadow-lg active:scale-[0.98]" @click="$router.push(`/products/${product.slug}`)">
-                        <div class="aspect-[3/4] bg-maroon-50 overflow-hidden relative">
-                            <img v-if="product.thumbnail" :src="product.thumbnail" :alt="product.name" class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500" />
-                            <img v-else :src="`https://picsum.photos/seed/kemeja-${product.id || product.slug}/600/800`" :alt="product.name" class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500" />
-                            <div v-if="product.stock > 0 && product.stock <= 5" class="absolute top-2 left-2 bg-coklat text-white text-[10px] font-semibold px-2 py-1 rounded-lg">Sisa {{ product.stock }}</div>
-                            <div v-if="product.stock <= 3" class="absolute top-2 right-2 bg-red-500 text-white text-[10px] font-semibold px-2 py-1 rounded-lg animate-pulse">HOTS!</div>
-                            <div v-if="product.stock === 0" class="absolute inset-0 bg-white/80 flex items-center justify-center">
-                                <span class="bg-charcoal text-white text-xs font-semibold px-3 py-1.5 rounded-lg">Stok Habis</span>
+                <div v-else class="space-y-10">
+                    <div v-for="group in groupedProducts" :key="group.category.slug">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-charcoal">{{ group.category.name }}</h3>
+                                <p class="text-xs text-charcoal/50">{{ group.products.length }} produk</p>
                             </div>
-                            <button @click.stop="addToCart(product)" :disabled="product.stock === 0" class="absolute bottom-0 left-0 right-0 py-3 bg-maroon text-white text-xs font-semibold tracking-wide translate-y-full group-hover:translate-y-0 transition-transform duration-300 hover:bg-maroon-600 disabled:opacity-0">
-                                {{ product.stock === 0 ? 'Stok Habis' : '+ Masuk Keranjang' }}
-                            </button>
+                            <div class="flex gap-2">
+                                <button @click="scrollCarousel(group.category.slug, 'left')" class="w-8 h-8 rounded-lg border border-maroon-200/60 flex items-center justify-center text-charcoal/50 hover:border-maroon hover:text-maroon transition-colors active:scale-95">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="15 18 9 12 15 6"/></svg>
+                                </button>
+                                <button @click="scrollCarousel(group.category.slug, 'right')" class="w-8 h-8 rounded-lg border border-maroon-200/60 flex items-center justify-center text-charcoal/50 hover:border-maroon hover:text-maroon transition-colors active:scale-95">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="9 18 15 12 9 6"/></svg>
+                                </button>
+                            </div>
                         </div>
-                        <div class="p-3 lg:p-4">
-                            <p class="text-[11px] font-medium text-maroon-400 uppercase tracking-wide">{{ product.category?.name || 'Kemeja' }}</p>
-                            <h3 class="text-sm font-semibold text-charcoal mt-0.5 leading-snug line-clamp-2">{{ product.name }}</h3>
-                            <div class="flex items-center justify-between mt-2">
-                                <p class="text-base font-bold text-maroon">Rp{{ formatPrice(product.price) }}</p>
+
+                        <div :data-carousel="group.category.slug" class="flex gap-4 sm:gap-5 overflow-x-auto scroll-smooth pb-2" style="scrollbar-width:none;-ms-overflow-style:none;">
+                            <div v-for="product in group.products" :key="product.id" class="shrink-0 w-[200px] sm:w-[230px] group/card cursor-pointer bg-white rounded-xl overflow-hidden border border-maroon-50 hover:border-maroon-200 transition-all hover:shadow-md active:scale-[0.98]" @click="$router.push(`/products/${product.slug}`)">
+                                <div class="aspect-[3/4] bg-maroon-50 overflow-hidden relative">
+                                    <img :src="productImage(product, 0)" :alt="product.name" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 group-hover/card:opacity-0" />
+                                    <img :src="productImage(product, 1)" :alt="product.name" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 group-hover/card:opacity-100" />
+                                    <div v-if="product.stock > 0 && product.stock <= 5" class="absolute top-1.5 left-1.5 bg-coklat text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-md">Sisa {{ product.stock }}</div>
+                                    <div v-if="product.stock <= 3" class="absolute top-1.5 right-1.5 bg-red-500 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-md animate-pulse">HOTS!</div>
+                                    <div v-if="product.stock === 0" class="absolute inset-0 bg-white/80 flex items-center justify-center">
+                                        <span class="bg-charcoal text-white text-[10px] font-semibold px-2 py-1 rounded-lg">Stok Habis</span>
+                                    </div>
+                                    <button @click.stop="addToCart(product)" :disabled="product.stock === 0" class="absolute bottom-0 left-0 right-0 py-2.5 bg-maroon text-white text-[10px] font-semibold tracking-wide translate-y-full group-hover/card:translate-y-0 transition-transform duration-300 hover:bg-maroon-600 disabled:opacity-0">
+                                        {{ product.stock === 0 ? 'Stok Habis' : '+ Masuk Keranjang' }}
+                                    </button>
+                                </div>
+                                <div class="p-2.5">
+                                    <p class="text-[10px] font-medium text-maroon-400 uppercase tracking-wide">{{ product.category?.name || 'Kemeja' }}</p>
+                                    <h3 class="text-xs font-semibold text-charcoal mt-0.5 leading-snug line-clamp-2">{{ product.name }}</h3>
+                                    <p class="text-sm font-bold text-maroon mt-1.5">Rp{{ formatPrice(product.price) }}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div v-if="hasMore && displayProducts.length" class="text-center mt-10">
-                    <button @click="loadMore" class="px-8 py-3 bg-white text-charcoal text-sm font-semibold rounded-xl border-2 border-maroon-200 hover:border-maroon hover:bg-maroon-50 transition-all active:scale-[0.97]">Tampilkan Lainnya</button>
                 </div>
             </div>
         </section>
@@ -195,8 +203,6 @@ const { addItem } = useCartStore()
 const categoriesList = ref([])
 const products = ref([])
 const loading = ref(false)
-const page = ref(1)
-const perPage = 8
 const selectedCategory = ref('')
 const email = ref('')
 const subscribed = ref(false)
@@ -209,25 +215,41 @@ const filteredProducts = computed(() => {
     return source.filter(p => p.category?.slug === selectedCategory.value)
 })
 
-const totalPages = computed(() => Math.ceil(filteredProducts.value.length / perPage))
-const displayProducts = computed(() => filteredProducts.value.slice(0, page.value * perPage))
-const hasMore = computed(() => page.value * perPage < filteredProducts.value.length)
+const groupedProducts = computed(() => {
+    const source = filteredProducts.value
+    const groups = []
+    for (const cat of categoriesList.value) {
+        const catProducts = source.filter(p => p.category?.slug === cat.slug)
+        if (catProducts.length) {
+            groups.push({ category: cat, products: catProducts })
+        }
+    }
+    return groups
+})
+
+function productImage(product, index) {
+    if (product.images && product.images[index]) return product.images[index].path
+    if (index === 0 && product.thumbnail) return product.thumbnail
+    return `https://picsum.photos/seed/kemeja-${product.id || product.slug}${index > 0 ? '-' + (index + 1) : ''}/600/800`
+}
 
 function prevSlide() { activeSlide.value = activeSlide.value === 0 ? 2 : activeSlide.value - 1 }
 function nextSlide() { activeSlide.value = activeSlide.value === 2 ? 0 : activeSlide.value + 1 }
-function prevPage() { if (page.value > 1) page.value-- }
-function nextPage() { if (hasMore.value) page.value++ }
-function loadMore() { if (hasMore.value) page.value++ }
 function addToCart(product) { addItem(product, 1) }
+
+function scrollCarousel(catSlug, direction) {
+    const el = document.querySelector(`[data-carousel="${catSlug}"]`)
+    if (!el) return
+    const scrollAmount = 380
+    el.scrollBy({ left: direction === 'right' ? scrollAmount : -scrollAmount, behavior: 'smooth' })
+}
 
 function selectCategory(slug) {
     selectedCategory.value = slug
-    page.value = 1
     document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' })
 }
 
 function scrollToShop() {
-    page.value = 1
     document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' })
 }
 

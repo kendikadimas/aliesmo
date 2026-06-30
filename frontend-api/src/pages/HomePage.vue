@@ -133,10 +133,8 @@
                 <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
                     <div v-for="product in products" :key="product.id" class="group cursor-pointer" @click="$router.push(`/products/${product.slug}`)">
                         <div class="aspect-[3/4] bg-aliesmo-100 overflow-hidden relative">
-                            <img v-if="product.thumbnail" :src="product.thumbnail" :alt="product.name" class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out" />
-                            <div v-else class="w-full h-full flex items-center justify-center">
-                                <img :src="`https://picsum.photos/seed/kemeja-${product.id || product.slug}/600/800`" :alt="product.name" class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out" />
-                            </div>
+                            <img :src="productImage(product, 0)" :alt="product.name" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-out group-hover:opacity-0" />
+                            <img :src="productImage(product, 1)" :alt="product.name" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-out opacity-0 group-hover:opacity-100" />
                             <div v-if="product.stock > 0 && product.stock <= 5" class="absolute top-3 left-3 bg-bronze/90 text-white text-[10px] tracking-wider uppercase px-2 py-1">
                                 {{ product.stock <= 3 ? 'Hampir Habis' : 'Sisa ' + product.stock }}
                             </div>
@@ -284,6 +282,13 @@ const subscribed = ref(false)
 
 function formatPrice(price) {
     return new Intl.NumberFormat('id-ID').format(price)
+}
+
+function productImage(product, index) {
+    if (product.images && product.images[index]) return product.images[index].path
+    if (index === 0 && product.thumbnail) return product.thumbnail
+    const seed = product.id || product.slug || Math.random().toString(36)
+    return `https://picsum.photos/seed/${seed}${index > 0 ? '-' + (index + 1) : ''}/600/800`
 }
 
 async function fetchProducts() {

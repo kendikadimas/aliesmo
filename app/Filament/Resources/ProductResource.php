@@ -5,6 +5,8 @@ use App\Enums\StockMovementType;
 use App\Filament\Resources\ProductResource\Pages;
 use App\Models\Product;
 use Filament\Tables\Actions\Action;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -38,6 +40,11 @@ class ProductResource extends Resource
                         TextInput::make('slug')->required()->unique(Product::class, ignoreRecord: true),
                         Select::make('category_id')->relationship('category', 'name'),
                         Toggle::make('is_active'),
+                        FileUpload::make('thumbnail')
+                            ->image()
+                            ->directory('products')
+                            ->visibility('public')
+                            ->label('Thumbnail'),
                     ]),
                 Section::make('Pricing & Stock')
                     ->schema([
@@ -51,6 +58,30 @@ class ProductResource extends Resource
                     ->schema([
                         RichEditor::make('description'),
                     ]),
+                Section::make('Product Images')
+                    ->description('Upload multiple product images (different angles, variants). The first image will be used as the main image.')
+                    ->schema([
+                        Repeater::make('images')
+                            ->relationship('images')
+                            ->schema([
+                                FileUpload::make('path')
+                                    ->image()
+                                    ->directory('products')
+                                    ->visibility('public')
+                                    ->required()
+                                    ->label('Image'),
+                                TextInput::make('sort_order')
+                                    ->numeric()
+                                    ->default(0)
+                                    ->label('Sort Order'),
+                            ])
+                            ->orderColumn('sort_order')
+                            ->addActionLabel('+ Add Image')
+                            ->reorderable()
+                            ->collapsible()
+                            ->defaultItems(0)
+                            ->itemLabel(fn (array $state): string => 'Image #' . (($state['sort_order'] ?? 0) + 1)),
+                    ]),
             ]);
     }
 
@@ -58,7 +89,7 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                ImageColumn::make('thumbnail')->circular(),
+                ImageColumn::make('thumbnail')->circular()->disk('public'),
                 TextColumn::make('name')->searchable()->sortable(),
                 TextColumn::make('category.name')->badge()->sortable(),
                 TextColumn::make('price')

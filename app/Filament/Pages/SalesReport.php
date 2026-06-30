@@ -9,6 +9,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use OpenSpout\Writer\XLSX\Writer;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SalesReport extends Page implements HasTable
@@ -46,7 +47,10 @@ class SalesReport extends Page implements HasTable
             ->headerActions([
                 Action::make('export')
                     ->label('Export CSV')
-                    ->action('export'),
+                    ->action('exportCsv'),
+                Action::make('exportXlsx')
+                    ->label('Export XLSX')
+                    ->action('exportXlsx'),
             ])
             ->defaultSort('created_at', 'desc');
     }
@@ -64,12 +68,9 @@ class SalesReport extends Page implements HasTable
         ];
     }
 
-    public function export(): StreamedResponse
+    public function exportCsv(): StreamedResponse
     {
-        $orders = Order::whereIn('status', [OrderStatus::Paid, OrderStatus::Completed])
-            ->when($this->startDate, fn ($q) => $q->whereDate('created_at', '>=', $this->startDate))
-            ->when($this->endDate, fn ($q) => $q->whereDate('created_at', '<=', $this->endDate))
-            ->get();
+        $orders = $this->getFilteredOrders();
 
         return response()->streamDownload(function () use ($orders) {
             $handle = fopen('php://output', 'w');
@@ -87,5 +88,38 @@ class SalesReport extends Page implements HasTable
 
             fclose($handle);
         }, 'sales-report.csv');
+    }
+
+    public function exportXlsx(): StreamedResponse
+    {
+        $orders = $this->getFilteredOrders();
+
+        $fileName = 'sales-report-' . now()->format('Ymd') . '.xlsx';
+
+        return response()->streamDownload(function () use ($orders) {
+            $writer = new Writer();
+            $writer->openToBrowser('php://output');
+            $writer->addRow(['Order Number', 'Customer', 'Total', 'Status', 'Date']);
+
+            foreach ($orders as $order) {
+                $writer->addRow([
+                    $order->order_number,
+                    $order->customer_name,
+                    (float) $order->total,
+                    $order->status->value,
+                    $order->created_at->toDateTimeString(),
+                ]);
+            }
+
+            $writer->close();
+        }, $fileName);
+    }
+
+    private function getFilteredOrders()
+    {
+        return Order::whereIn('status', [OrderStatus::Paid, OrderStatus::Completed])
+            ->when($this->startDate, fn ($q) => $q->whereDate('created_at', '>=', $this->startDate))
+            ->when($this->endDate, fn ($q) => $q->whereDate('created_at', '<=', $this->endDate))
+            ->get();
     }
 }

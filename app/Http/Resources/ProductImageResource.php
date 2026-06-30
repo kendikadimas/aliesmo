@@ -10,7 +10,7 @@ class ProductImageResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'path' => asset('storage/' . $this->path),
+            'path' => str_starts_with($this->path, 'http') ? $this->path : asset('storage/' . $this->path),
             'sort_order' => $this->sort_order,
         ];
     }
