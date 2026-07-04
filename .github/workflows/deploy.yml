@@ -115,36 +115,41 @@ jobs:
         run: |
           cd public && zip -r ../deploy_public.zip .
 
-      # ─── 8. Upload deploy.php langsung via FTP curl ─────────────────
-      - name: Upload unzipper script via FTP
+      # ─── 8. Generate nama file deploy random + upload via FTP ────────
+      - name: Upload deploy script + zips via FTP
         run: |
-          curl -s --ftp-create-dirs -T deploy/deploy.php \
-            "ftp://${{ secrets.FTP_SERVER }}/public_html/deploy.php" \
-            --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}"
-          echo "deploy.php uploaded"
+          DEPLOY_FILENAME="dp_$(echo $RANDOM$RANDOM | md5sum | head -c 12).php"
+          echo "DEPLOY_FILENAME=$DEPLOY_FILENAME" >> $GITHUB_ENV
 
-      # ─── 9. Upload zip files langsung via curl FTP ──────────────────
-      - name: Upload app zip via FTP
-        run: |
+          # Upload deploy script dengan nama random
+          curl -s --ftp-create-dirs -T deploy/deploy.php \
+            "ftp://${{ secrets.FTP_SERVER }}/public_html/${DEPLOY_FILENAME}" \
+            --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}"
+          echo "deploy script uploaded as: $DEPLOY_FILENAME"
+
+          # Upload zip files
           curl -s --ftp-create-dirs -T deploy_app.zip \
             "ftp://${{ secrets.FTP_SERVER }}/aliesmo_deploy/deploy_app.zip" \
             --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}"
           echo "deploy_app.zip uploaded"
 
-      - name: Upload public zip via FTP
-        run: |
           curl -s --ftp-create-dirs -T deploy_public.zip \
             "ftp://${{ secrets.FTP_SERVER }}/aliesmo_deploy/deploy_public.zip" \
             --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}"
           echo "deploy_public.zip uploaded"
 
+      # ─── 9. Tunggu file tersedia di server ──────────────────────────
+      - name: Wait for files to be available
+        run: sleep 5
+
       # ─── 10. Trigger unzip via HTTP GET ─────────────────────────────
       - name: Trigger deploy unzip
         run: |
-          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" \
-            "${{ secrets.APP_URL }}/deploy.php?secret=${{ secrets.DEPLOY_SECRET }}&action=unzip")
+          URL="${{ secrets.APP_URL }}/${DEPLOY_FILENAME}?secret=${{ secrets.DEPLOY_SECRET }}&action=unzip"
+          echo "Calling: $URL"
+          RESPONSE=$(curl -v -s -w "\nHTTP_STATUS:%{http_code}" "$URL" 2>&1)
           HTTP_STATUS=$(echo "$RESPONSE" | grep "HTTP_STATUS:" | cut -d: -f2)
-          BODY=$(echo "$RESPONSE" | grep -v "HTTP_STATUS:")
+          BODY=$(echo "$RESPONSE" | grep -v "^[*<>{}]" | grep -v "HTTP_STATUS:")
           echo "HTTP Status: $HTTP_STATUS"
           echo "Response: $BODY"
           if [ "$HTTP_STATUS" != "200" ]; then
@@ -155,4 +160,4 @@ jobs:
       # ─── 11. Trigger cleanup (hapus zip + script) ───────────────────
       - name: Trigger deploy cleanup
         run: |
-          curl -s "${{ secrets.APP_URL }}/deploy.php?secret=${{ secrets.DEPLOY_SECRET }}&action=cleanup"
+          curl -s "${{ secrets.APP_URL }}/${DEPLOY_FILENAME}?secret=${{ secrets.DEPLOY_SECRET }}&action=cleanup"
