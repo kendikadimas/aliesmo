@@ -9,6 +9,9 @@ export default defineConfig({
         outDir: path.resolve(__dirname, '../public/build'),
         emptyOutDir: true,
         manifest: true,
+        rollupOptions: {
+            input: path.resolve(__dirname, 'src/main.js'),
+        },
     },
     server: {
         proxy: {
