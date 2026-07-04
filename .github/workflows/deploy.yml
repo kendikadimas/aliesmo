@@ -1,4 +1,4 @@
-name: Deploy to cPanel
+name: Deploy to cPanel via Git
 
 on:
   push:
@@ -7,13 +7,15 @@ on:
 
 jobs:
   deploy:
-    name: Build & Deploy
+    name: Build & Commit
     runs-on: ubuntu-latest
 
     steps:
       # ─── 1. Checkout ───────────────────────────────────────────────
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
 
       # ─── 2. Setup Node & build frontend ────────────────────────────
       - name: Setup Node.js
@@ -33,7 +35,7 @@ jobs:
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
-      # ─── 3. Setup PHP & install backend dependencies ────────────────
+      # ─── 3. Setup PHP & install dependencies ───────────────────────
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -41,16 +43,7 @@ jobs:
           extensions: mbstring, openssl, pdo_mysql, tokenizer, xml, ctype, json, fileinfo, curl, bcmath
           coverage: none
 
-      # Cache vendor/ berdasarkan composer.lock — skip install jika tidak berubah
-      - name: Cache vendor directory
-        id: vendor-cache
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: vendor-${{ hashFiles('composer.lock') }}
-
       - name: Install Composer dependencies
-        if: steps.vendor-cache.outputs.cache-hit != 'true'
         run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
       # ─── 4. Buat .env untuk production ─────────────────────────────
@@ -96,7 +89,7 @@ jobs:
           WHATSAPP_NUMBER=${{ secrets.WHATSAPP_NUMBER }}
           EOF
 
-      # ─── 5. Cache Laravel config & routes ──────────────────────────
+      # ─── 5. Cache Laravel config ────────────────────────────────────
       - name: Cache Laravel config
         run: |
           php artisan config:cache
@@ -104,52 +97,25 @@ jobs:
           php artisan view:cache
           php artisan event:cache
 
-      # ─── 6. Deploy seluruh app ke ~/aliesmo/ via FTP ────────────────
-      # vendor/ hanya diupload kalau composer.lock berubah
-      - name: Deploy app (tanpa vendor) via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./
-          server-dir: /aliesmo/
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/frontend/node_modules/**
-            **/frontend/src/**
-            **/tests/**
-            **/.env.example
-            **/DEPLOY.md
-            **/README.md
-            **/.github/**
-            **/deploy/**
-            **/vendor/**
-            **/deploy_app.zip
-            **/deploy_public.zip
+      # ─── 6. Commit vendor/ + public/build/ + .env ke repo ──────────
+      - name: Commit build artifacts
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
 
-      # vendor/ diupload hanya kalau cache miss (composer.lock berubah)
-      - name: Deploy vendor via FTP (only if dependencies changed)
-        if: steps.vendor-cache.outputs.cache-hit != 'true'
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./vendor/
-          server-dir: /aliesmo/vendor/
+          # Force add vendor/ dan public/build/ (di-ignore di .gitignore lokal)
+          git add -f vendor/
+          git add -f public/build/
+          git add -f .env
+          git add .
 
-      # ─── 7. Deploy isi public/ ke public_html/ via FTP ─────────────
-      - name: Deploy public/ to public_html/
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./public/
-          server-dir: /public_html/
+          # Hanya commit kalau ada perubahan
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "deploy: build artifacts [skip ci]"
+            git push origin main
+          fi
 
       - name: Deploy complete
-        run: echo "Deploy finished successfully!"
+        run: echo "Build artifacts committed. cPanel will pull automatically."
