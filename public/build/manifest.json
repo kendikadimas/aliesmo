@@ -1,0 +1,32 @@
+{
+  "_index-DhXgJQ-f.js": {
+    "file": "assets/index-DhXgJQ-f.js",
+    "name": "index"
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-DK_VTmnW.css",
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-D_MsKvSf.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "imports": [
+      "_index-DhXgJQ-f.js"
+    ]
+  },
+  "resources/js/storefront/app.js": {
+    "file": "assets/app-Bx94o9z3.js",
+    "name": "app",
+    "src": "resources/js/storefront/app.js",
+    "isEntry": true,
+    "imports": [
+      "_index-DhXgJQ-f.js"
+    ],
+    "css": [
+      "assets/app-ByDaIaKS.css"
+    ]
+  }
+}
