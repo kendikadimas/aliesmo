@@ -41,7 +41,16 @@ jobs:
           extensions: mbstring, openssl, pdo_mysql, tokenizer, xml, ctype, json, fileinfo, curl, bcmath
           coverage: none
 
+      # Cache vendor/ berdasarkan composer.lock — skip install jika tidak berubah
+      - name: Cache vendor directory
+        id: vendor-cache
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: vendor-${{ hashFiles('composer.lock') }}
+
       - name: Install Composer dependencies
+        if: steps.vendor-cache.outputs.cache-hit != 'true'
         run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
       # ─── 4. Buat .env untuk production ─────────────────────────────
@@ -81,8 +90,8 @@ jobs:
           MAIL_FROM_NAME="Aliesmo"
 
           RAJAONGKIR_API_KEY=${{ secrets.RAJAONGKIR_API_KEY }}
-          RAJAONGKIR_ORIGIN_CITY=153
-          RAJAONGKIR_BASE_URL=https://api.rajaongkir.com/starter
+          RAJAONGKIR_ORIGIN_CITY=${{ secrets.RAJAONGKIR_ORIGIN_CITY }}
+          RAJAONGKIR_BASE_URL=https://rajaongkir.komerce.id/api/v1
 
           WHATSAPP_NUMBER=${{ secrets.WHATSAPP_NUMBER }}
           EOF
@@ -95,103 +104,52 @@ jobs:
           php artisan view:cache
           php artisan event:cache
 
-      # ─── 6. Zip seluruh project Laravel (kecuali yang tidak perlu) ──
-      - name: Zip Laravel app
-        run: |
-          zip -r deploy_app.zip . \
-            --exclude "*.git*" \
-            --exclude "*/.git/*" \
-            --exclude "*/node_modules/*" \
-            --exclude "*/frontend/src/*" \
-            --exclude "*/tests/*" \
-            --exclude ".env.example" \
-            --exclude "DEPLOY.md" \
-            --exclude "README.md" \
-            --exclude ".github/*" \
-            --exclude "deploy_app.zip"
+      # ─── 6. Deploy seluruh app ke ~/aliesmo/ via FTP ────────────────
+      # vendor/ hanya diupload kalau composer.lock berubah
+      - name: Deploy app (tanpa vendor) via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./
+          server-dir: /aliesmo/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/frontend/node_modules/**
+            **/frontend/src/**
+            **/tests/**
+            **/.env.example
+            **/DEPLOY.md
+            **/README.md
+            **/.github/**
+            **/deploy/**
+            **/vendor/**
+            **/deploy_app.zip
+            **/deploy_public.zip
 
-      # ─── 7. Zip isi public/ untuk public_html ───────────────────────
-      - name: Zip public dir
-        run: |
-          cd public && zip -r ../deploy_public.zip .
+      # vendor/ diupload hanya kalau cache miss (composer.lock berubah)
+      - name: Deploy vendor via FTP (only if dependencies changed)
+        if: steps.vendor-cache.outputs.cache-hit != 'true'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./vendor/
+          server-dir: /aliesmo/vendor/
 
-      # ─── 8. Upload zip files via FTP ────────────────────────────────
-      - name: Upload zips via FTP
-        run: |
-          curl -s --ftp-create-dirs -T deploy_app.zip \
-            "ftp://${{ secrets.FTP_SERVER }}/aliesmo_deploy/deploy_app.zip" \
-            --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}"
-          echo "deploy_app.zip uploaded"
+      # ─── 7. Deploy isi public/ ke public_html/ via FTP ─────────────
+      - name: Deploy public/ to public_html/
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./public/
+          server-dir: /public_html/
 
-          curl -s --ftp-create-dirs -T deploy_public.zip \
-            "ftp://${{ secrets.FTP_SERVER }}/aliesmo_deploy/deploy_public.zip" \
-            --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}"
-          echo "deploy_public.zip uploaded"
-
-      # ─── 9. Jalankan unzip via cPanel UAPI (tidak lewat nginx WAF) ───
-      - name: Run unzip via cPanel UAPI
-        run: |
-          # Buat PHP script unzip inline, jalankan via cPanel UAPI LangManager
-          PHP_SCRIPT='<?php
-          $home = "/home/aliesmoi";
-          $appDir = $home . "/aliesmo";
-          $deployDir = $home . "/aliesmo_deploy";
-          $publicDir = $home . "/public_html";
-          $results = [];
-
-          // Unzip app
-          $appZip = $deployDir . "/deploy_app.zip";
-          if (file_exists($appZip)) {
-            $zip = new ZipArchive();
-            if ($zip->open($appZip) === true) {
-              $zip->extractTo($appDir);
-              $zip->close();
-              $results[] = "app extracted";
-            }
-          }
-
-          // Unzip public
-          $publicZip = $deployDir . "/deploy_public.zip";
-          if (file_exists($publicZip)) {
-            $zip = new ZipArchive();
-            if ($zip->open($publicZip) === true) {
-              $zip->extractTo($publicDir);
-              $zip->close();
-              $results[] = "public extracted";
-            }
-          }
-
-          // Chmod storage
-          chmod($appDir . "/storage", 0775);
-          chmod($appDir . "/bootstrap/cache", 0775);
-          $results[] = "chmod done";
-
-          // Cleanup zips
-          @unlink($appZip);
-          @unlink($publicZip);
-          $results[] = "cleanup done";
-
-          echo implode(", ", $results);
-          ?>'
-
-          # Encode script ke base64
-          ENCODED=$(echo "$PHP_SCRIPT" | base64 -w 0)
-
-          # Jalankan via cPanel UAPI - LangManager::exec_php
-          RESPONSE=$(curl -s -H "Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_API_TOKEN }}" \
-            "https://${{ secrets.CPANEL_HOST }}:2083/execute/LangManager/exec_php" \
-            -d "code=$ENCODED")
-
-          echo "cPanel UAPI Response: $RESPONSE"
-
-          # Cek apakah berhasil
-          if echo "$RESPONSE" | grep -q '"status":1'; then
-            echo "Unzip successful"
-          else
-            echo "Unzip may have failed, check response above"
-            exit 1
-          fi
-
-      # ─── 10. Cleanup (hapus state file FTP) ─────────────────────────
-      - name: Done
-        run: echo "Deploy complete!"
+      - name: Deploy complete
+        run: echo "Deploy finished successfully!"
