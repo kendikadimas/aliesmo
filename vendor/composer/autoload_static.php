@@ -914,6 +914,7 @@ class ComposerStaticInita09e60536313738ad4cb090569d68c24
         'Database\\Factories\\ProductImageFactory' => __DIR__ . '/../..' . '/database/factories/ProductImageFactory.php',
         'Database\\Factories\\UserFactory' => __DIR__ . '/../..' . '/database/factories/UserFactory.php',
         'Database\\Seeders\\DatabaseSeeder' => __DIR__ . '/../..' . '/database/seeders/DatabaseSeeder.php',
+        'Database\\Seeders\\KemejaProductSeeder' => __DIR__ . '/../..' . '/database/seeders/KemejaProductSeeder.php',
         'Database\\Seeders\\ProductSeeder' => __DIR__ . '/../..' . '/database/seeders/ProductSeeder.php',
         'DateError' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateError.php',
         'DateException' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateException.php',
