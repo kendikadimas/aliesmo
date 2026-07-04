@@ -53,10 +53,10 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
-          # Force add vendor/ dan public/build/
+          # Stage semua perubahan dulu, lalu force-add ignored files
+          git add .
           git add -f vendor/
           git add -f public/build/
-          git add .
 
           # Hanya commit kalau ada perubahan
           if git diff --staged --quiet; then
