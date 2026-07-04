@@ -66,5 +66,17 @@ jobs:
             git push origin main
           fi
 
+      # ─── 5. Upload public/build/ ke public_html/build/ via FTP ────
+      # Asset harus ada di public_html/build/ agar bisa di-serve langsung
+      - name: Upload build assets to public_html via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./public/build/
+          server-dir: /public_html/build/
+          dangerous-clean-slate: false
+
       - name: Deploy complete
-        run: echo "Build artifacts committed. Pull from cPanel Git Version Control to deploy."
+        run: echo "Build artifacts uploaded to public_html/build/ via FTP."
