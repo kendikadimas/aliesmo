@@ -8,6 +8,7 @@ export default defineConfig({
     build: {
         outDir: path.resolve(__dirname, '../public/build'),
         emptyOutDir: true,
+        manifest: true,
     },
     server: {
         proxy: {
