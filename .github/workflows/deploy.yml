@@ -115,19 +115,9 @@ jobs:
         run: |
           cd public && zip -r ../deploy_public.zip .
 
-      # ─── 8. Generate nama file deploy random + upload via FTP ────────
-      - name: Upload deploy script + zips via FTP
+      # ─── 8. Upload zip files via FTP ────────────────────────────────
+      - name: Upload zips via FTP
         run: |
-          DEPLOY_FILENAME="dp_$(echo $RANDOM$RANDOM | md5sum | head -c 12).php"
-          echo "DEPLOY_FILENAME=$DEPLOY_FILENAME" >> $GITHUB_ENV
-
-          # Upload deploy script dengan nama random
-          curl -s --ftp-create-dirs -T deploy/deploy.php \
-            "ftp://${{ secrets.FTP_SERVER }}/public_html/${DEPLOY_FILENAME}" \
-            --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}"
-          echo "deploy script uploaded as: $DEPLOY_FILENAME"
-
-          # Upload zip files
           curl -s --ftp-create-dirs -T deploy_app.zip \
             "ftp://${{ secrets.FTP_SERVER }}/aliesmo_deploy/deploy_app.zip" \
             --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}"
@@ -138,26 +128,70 @@ jobs:
             --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}"
           echo "deploy_public.zip uploaded"
 
-      # ─── 9. Tunggu file tersedia di server ──────────────────────────
-      - name: Wait for files to be available
-        run: sleep 5
-
-      # ─── 10. Trigger unzip via HTTP GET ─────────────────────────────
-      - name: Trigger deploy unzip
+      # ─── 9. Jalankan unzip via cPanel UAPI (tidak lewat nginx WAF) ───
+      - name: Run unzip via cPanel UAPI
         run: |
-          URL="${{ secrets.APP_URL }}/${DEPLOY_FILENAME}?secret=${{ secrets.DEPLOY_SECRET }}&action=unzip"
-          echo "Calling: $URL"
-          RESPONSE=$(curl -v -s -w "\nHTTP_STATUS:%{http_code}" "$URL" 2>&1)
-          HTTP_STATUS=$(echo "$RESPONSE" | grep "HTTP_STATUS:" | cut -d: -f2)
-          BODY=$(echo "$RESPONSE" | grep -v "^[*<>{}]" | grep -v "HTTP_STATUS:")
-          echo "HTTP Status: $HTTP_STATUS"
-          echo "Response: $BODY"
-          if [ "$HTTP_STATUS" != "200" ]; then
-            echo "Deploy unzip failed with status $HTTP_STATUS"
+          # Buat PHP script unzip inline, jalankan via cPanel UAPI LangManager
+          PHP_SCRIPT='<?php
+          $home = "/home/aliesmoi";
+          $appDir = $home . "/aliesmo";
+          $deployDir = $home . "/aliesmo_deploy";
+          $publicDir = $home . "/public_html";
+          $results = [];
+
+          // Unzip app
+          $appZip = $deployDir . "/deploy_app.zip";
+          if (file_exists($appZip)) {
+            $zip = new ZipArchive();
+            if ($zip->open($appZip) === true) {
+              $zip->extractTo($appDir);
+              $zip->close();
+              $results[] = "app extracted";
+            }
+          }
+
+          // Unzip public
+          $publicZip = $deployDir . "/deploy_public.zip";
+          if (file_exists($publicZip)) {
+            $zip = new ZipArchive();
+            if ($zip->open($publicZip) === true) {
+              $zip->extractTo($publicDir);
+              $zip->close();
+              $results[] = "public extracted";
+            }
+          }
+
+          // Chmod storage
+          chmod($appDir . "/storage", 0775);
+          chmod($appDir . "/bootstrap/cache", 0775);
+          $results[] = "chmod done";
+
+          // Cleanup zips
+          @unlink($appZip);
+          @unlink($publicZip);
+          $results[] = "cleanup done";
+
+          echo implode(", ", $results);
+          ?>'
+
+          # Encode script ke base64
+          ENCODED=$(echo "$PHP_SCRIPT" | base64 -w 0)
+
+          # Jalankan via cPanel UAPI - LangManager::exec_php
+          RESPONSE=$(curl -s -H "Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_API_TOKEN }}" \
+            "https://${{ secrets.CPANEL_HOST }}:2083/execute/LangManager/exec_php" \
+            -d "code=$ENCODED")
+
+          echo "cPanel UAPI Response: $RESPONSE"
+
+          # Cek apakah berhasil
+          if echo "$RESPONSE" | grep -q '"status":1'; then
+            echo "Unzip successful"
+          else
+            echo "Unzip may have failed, check response above"
             exit 1
           fi
 
-      # ─── 11. Trigger cleanup (hapus zip + script) ───────────────────
-      - name: Trigger deploy cleanup
-        run: |
-          curl -s "${{ secrets.APP_URL }}/${DEPLOY_FILENAME}?secret=${{ secrets.DEPLOY_SECRET }}&action=cleanup"
+      # ─── 10. Cleanup (hapus state file FTP) ─────────────────────────
+      - name: Done
+        run: echo "Deploy complete!"
