@@ -1,11 +1,11 @@
 {
-  "index.html": {
-    "file": "assets/index-BMBnLhhK.js",
-    "name": "index",
-    "src": "index.html",
+  "src/main.js": {
+    "file": "assets/main-5IAPwqUy.js",
+    "name": "main",
+    "src": "src/main.js",
     "isEntry": true,
     "css": [
-      "assets/index-B-2_Ze09.css"
+      "assets/main-B-2_Ze09.css"
     ]
   }
 }
