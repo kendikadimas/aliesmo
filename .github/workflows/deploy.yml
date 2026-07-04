@@ -46,67 +46,16 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
-      # ─── 4. Buat .env untuk production ─────────────────────────────
-      - name: Create .env file
-        run: |
-          cat > .env << EOF
-          APP_NAME="Aliesmo"
-          APP_ENV=production
-          APP_KEY=${{ secrets.APP_KEY }}
-          APP_DEBUG=false
-          APP_URL=${{ secrets.APP_URL }}
-
-          LOG_CHANNEL=stack
-          LOG_LEVEL=error
-
-          DB_CONNECTION=mysql
-          DB_HOST=${{ secrets.DB_HOST }}
-          DB_PORT=3306
-          DB_DATABASE=${{ secrets.DB_DATABASE }}
-          DB_USERNAME=${{ secrets.DB_USERNAME }}
-          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-
-          CACHE_STORE=file
-          SESSION_DRIVER=file
-          QUEUE_CONNECTION=sync
-
-          SESSION_DOMAIN=${{ secrets.SESSION_DOMAIN }}
-          SANCTUM_STATEFUL_DOMAINS=${{ secrets.SANCTUM_STATEFUL_DOMAINS }}
-
-          MAIL_MAILER=${{ secrets.MAIL_MAILER }}
-          MAIL_HOST=${{ secrets.MAIL_HOST }}
-          MAIL_PORT=${{ secrets.MAIL_PORT }}
-          MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
-          MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
-          MAIL_ENCRYPTION=${{ secrets.MAIL_ENCRYPTION }}
-          MAIL_FROM_ADDRESS=${{ secrets.MAIL_FROM_ADDRESS }}
-          MAIL_FROM_NAME="Aliesmo"
-
-          RAJAONGKIR_API_KEY=${{ secrets.RAJAONGKIR_API_KEY }}
-          RAJAONGKIR_ORIGIN_CITY=${{ secrets.RAJAONGKIR_ORIGIN_CITY }}
-          RAJAONGKIR_BASE_URL=https://rajaongkir.komerce.id/api/v1
-
-          WHATSAPP_NUMBER=${{ secrets.WHATSAPP_NUMBER }}
-          EOF
-
-      # ─── 5. Cache Laravel config ────────────────────────────────────
-      - name: Cache Laravel config
-        run: |
-          php artisan config:cache
-          php artisan route:cache
-          php artisan view:cache
-          php artisan event:cache
-
-      # ─── 6. Commit vendor/ + public/build/ + .env ke repo ──────────
+      # ─── 4. Commit vendor/ + public/build/ ke repo ─────────────────
+      # .env TIDAK di-commit — harus dibuat manual di server via cPanel File Manager
       - name: Commit build artifacts
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
-          # Force add vendor/ dan public/build/ (di-ignore di .gitignore lokal)
+          # Force add vendor/ dan public/build/
           git add -f vendor/
           git add -f public/build/
-          git add -f .env
           git add .
 
           # Hanya commit kalau ada perubahan
@@ -118,4 +67,4 @@ jobs:
           fi
 
       - name: Deploy complete
-        run: echo "Build artifacts committed. cPanel will pull automatically."
+        run: echo "Build artifacts committed. Pull from cPanel Git Version Control to deploy."
