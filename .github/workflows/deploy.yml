@@ -123,19 +123,20 @@ jobs:
             --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}"
           echo "deploy.php uploaded"
 
-      # ─── 9. Upload zip app ke ~/aliesmo_deploy/ via FTP ─────────────
+      # ─── 9. Upload zip files langsung via curl FTP ──────────────────
       - name: Upload app zip via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./
-          server-dir: /aliesmo_deploy/
-          exclude: |
-            **/*
-            !deploy_app.zip
-            !deploy_public.zip
+        run: |
+          curl -s --ftp-create-dirs -T deploy_app.zip \
+            "ftp://${{ secrets.FTP_SERVER }}/aliesmo_deploy/deploy_app.zip" \
+            --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}"
+          echo "deploy_app.zip uploaded"
+
+      - name: Upload public zip via FTP
+        run: |
+          curl -s --ftp-create-dirs -T deploy_public.zip \
+            "ftp://${{ secrets.FTP_SERVER }}/aliesmo_deploy/deploy_public.zip" \
+            --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}"
+          echo "deploy_public.zip uploaded"
 
       # ─── 10. Trigger unzip via HTTP ─────────────────────────────────
       - name: Trigger deploy unzip
