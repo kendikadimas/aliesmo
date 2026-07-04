@@ -6,28 +6,41 @@
  * PENTING: Jangan tinggalkan file ini di server setelah deploy selesai.
  */
 
+// Tampilkan semua error untuk debugging
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+// ─── Deteksi home directory secara otomatis ──────────────────────────────────
+$publicHtmlDir = __DIR__; // /home/username/public_html
+$homeDir       = dirname($publicHtmlDir); // /home/username
+$appDir        = $homeDir . '/aliesmo';
+$deployDir     = $homeDir . '/aliesmo_deploy';
+
 // ─── Autentikasi ────────────────────────────────────────────────────────────
 $secret = $_POST['secret'] ?? '';
-$expectedSecret = getenv('DEPLOY_SECRET') ?: ''; // dibaca dari env server
 
-// Fallback: baca dari file .deploy_secret di home directory
-if (empty($expectedSecret)) {
-    $secretFile = dirname(__DIR__) . '/.deploy_secret';
-    if (file_exists($secretFile)) {
-        $expectedSecret = trim(file_get_contents($secretFile));
-    }
+// Baca dari file .deploy_secret di home directory
+$secretFile    = $homeDir . '/.deploy_secret';
+$expectedSecret = '';
+
+if (file_exists($secretFile)) {
+    $expectedSecret = trim(file_get_contents($secretFile));
+} else {
+    http_response_code(500);
+    die(json_encode([
+        'error'       => '.deploy_secret file not found',
+        'looked_in'   => $secretFile,
+        'home_dir'    => $homeDir,
+        'public_html' => $publicHtmlDir,
+    ]));
 }
 
 if (empty($expectedSecret) || !hash_equals($expectedSecret, $secret)) {
     http_response_code(403);
-    die(json_encode(['error' => 'Forbidden']));
+    die(json_encode(['error' => 'Forbidden — secret mismatch']));
 }
 
 $action = $_POST['action'] ?? '';
-$homeDir  = dirname(__DIR__); // /home/username
-$appDir   = $homeDir . '/aliesmo';
-$deployDir = $homeDir . '/aliesmo_deploy';
-$publicDir = $homeDir . '/public_html';
 
 // ─── Action: unzip ──────────────────────────────────────────────────────────
 if ($action === 'unzip') {
@@ -36,37 +49,38 @@ if ($action === 'unzip') {
     // 1. Unzip app ke ~/aliesmo/
     $appZip = $deployDir . '/deploy_app.zip';
     if (file_exists($appZip)) {
+        if (!is_dir($appDir)) {
+            mkdir($appDir, 0755, true);
+        }
         $zip = new ZipArchive();
-        if ($zip->open($appZip) === true) {
-            // Buat folder jika belum ada
-            if (!is_dir($appDir)) {
-                mkdir($appDir, 0755, true);
-            }
+        $opened = $zip->open($appZip);
+        if ($opened === true) {
             $zip->extractTo($appDir);
             $zip->close();
             $results['app'] = 'extracted to ' . $appDir;
         } else {
             http_response_code(500);
-            die(json_encode(['error' => 'Failed to open deploy_app.zip']));
+            die(json_encode(['error' => 'Failed to open deploy_app.zip', 'code' => $opened]));
         }
     } else {
-        $results['app'] = 'deploy_app.zip not found, skipped';
+        $results['app'] = 'deploy_app.zip not found at ' . $appZip;
     }
 
     // 2. Unzip public ke ~/public_html/
     $publicZip = $deployDir . '/deploy_public.zip';
     if (file_exists($publicZip)) {
         $zip = new ZipArchive();
-        if ($zip->open($publicZip) === true) {
-            $zip->extractTo($publicDir);
+        $opened = $zip->open($publicZip);
+        if ($opened === true) {
+            $zip->extractTo($publicHtmlDir);
             $zip->close();
-            $results['public'] = 'extracted to ' . $publicDir;
+            $results['public'] = 'extracted to ' . $publicHtmlDir;
         } else {
             http_response_code(500);
-            die(json_encode(['error' => 'Failed to open deploy_public.zip']));
+            die(json_encode(['error' => 'Failed to open deploy_public.zip', 'code' => $opened]));
         }
     } else {
-        $results['public'] = 'deploy_public.zip not found, skipped';
+        $results['public'] = 'deploy_public.zip not found at ' . $publicZip;
     }
 
     // 3. Set permission storage & bootstrap/cache
@@ -89,7 +103,6 @@ if ($action === 'unzip') {
 if ($action === 'cleanup') {
     $cleaned = [];
 
-    // Hapus zip files
     $appZip    = $deployDir . '/deploy_app.zip';
     $publicZip = $deployDir . '/deploy_public.zip';
 
@@ -102,17 +115,15 @@ if ($action === 'cleanup') {
         $cleaned[] = 'deploy_public.zip';
     }
 
-    // Hapus folder aliesmo_deploy jika kosong
     if (is_dir($deployDir) && count(scandir($deployDir)) === 2) {
         rmdir($deployDir);
         $cleaned[] = 'aliesmo_deploy/';
     }
 
-    // Hapus script ini sendiri (self-destruct)
-    $selfDestruct = $publicDir . '/deploy.php';
+    // Self-destruct setelah response
+    $selfDestruct = $publicHtmlDir . '/deploy.php';
     if (file_exists($selfDestruct)) {
         $cleaned[] = 'deploy.php';
-        // Hapus setelah response dikirim
         register_shutdown_function(function () use ($selfDestruct) {
             @unlink($selfDestruct);
         });
@@ -122,9 +133,22 @@ if ($action === 'cleanup') {
     exit;
 }
 
-// ─── Action tidak dikenal ────────────────────────────────────────────────────
+// ─── Debug: info path (hanya jika action=info + secret valid) ───────────────
+if ($action === 'info') {
+    echo json_encode([
+        'home_dir'    => $homeDir,
+        'public_html' => $publicHtmlDir,
+        'app_dir'     => $appDir,
+        'deploy_dir'  => $deployDir,
+        'app_zip'     => file_exists($deployDir . '/deploy_app.zip') ? 'EXISTS' : 'NOT FOUND',
+        'public_zip'  => file_exists($deployDir . '/deploy_public.zip') ? 'EXISTS' : 'NOT FOUND',
+        'secret_file' => file_exists($homeDir . '/.deploy_secret') ? 'EXISTS' : 'NOT FOUND',
+    ]);
+    exit;
+}
+
 http_response_code(400);
-echo json_encode(['error' => 'Unknown action']);
+echo json_encode(['error' => 'Unknown action: ' . $action]);
 
 // ─── Helper: chmod recursive ────────────────────────────────────────────────
 function chmod_recursive(string $path, int $mode): void
@@ -135,7 +159,7 @@ function chmod_recursive(string $path, int $mode): void
             new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS),
             RecursiveIteratorIterator::SELF_FIRST
         ) as $item) {
-            chmod($item->getPathname(), $mode);
+            @chmod($item->getPathname(), $mode);
         }
     }
 }
