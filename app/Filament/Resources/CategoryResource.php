@@ -14,6 +14,15 @@ class CategoryResource extends Resource
 {
     protected static ?string $model = Category::class;
 
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-tag';
+
+    protected static ?int $navigationSort = 2;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Katalog';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -36,7 +45,9 @@ class CategoryResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->withCount('products');
+        return parent::getEloquentQuery()->withCount(['products as products_count' => function ($query) {
+            $query->where('is_active', true);
+        }]);
     }
 
     public static function getRelations(): array

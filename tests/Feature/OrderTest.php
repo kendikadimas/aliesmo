@@ -2,13 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Contracts\PaymentGatewayInterface;
 use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
-use App\Services\OrderService;
-use App\Services\StockService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -22,11 +19,6 @@ class OrderTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        $gatewayMock = $this->createMock(PaymentGatewayInterface::class);
-        $gatewayMock->method('createTransaction')
-            ->willReturn(['token' => 'test-token', 'redirect_url' => 'https://test.midtrans.com']);
-        $this->instance(PaymentGatewayInterface::class, $gatewayMock);
 
         $this->product = Product::factory()->create([
             'stock' => 10,
@@ -52,7 +44,8 @@ class OrderTest extends TestCase
         ]);
 
         $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['items.' . $this->product->id . '.quantity']);
+        // Error key pakai index array (0), bukan product_id
+        $response->assertJsonValidationErrors(['items.0.quantity']);
     }
 
     public function test_order_creation_succeeds_with_valid_stock(): void
@@ -65,11 +58,13 @@ class OrderTest extends TestCase
         ]);
 
         $response->assertStatus(201);
+        // WhatsApp flow: response berisi order + whatsapp_number + whatsapp_message
         $response->assertJsonStructure([
             'order' => [
                 'order_number', 'customer_name', 'total', 'status',
             ],
-            'payment' => ['token', 'redirect_url'],
+            'whatsapp_number',
+            'whatsapp_message',
         ]);
 
         $this->assertEquals(OrderStatus::Pending->value, $response->json('order.status'));
@@ -84,6 +79,7 @@ class OrderTest extends TestCase
             ...$this->customerData,
         ]);
 
+        // Stok tidak berkurang saat order dibuat — hanya berkurang setelah paid
         $this->assertEquals(10, $this->product->fresh()->stock);
     }
 
@@ -102,8 +98,9 @@ class OrderTest extends TestCase
         $response->assertJsonPath('data.status', OrderStatus::Pending->value);
     }
 
-    public function test_webhook_with_invalid_signature_is_rejected(): void
+    public function test_payment_callback_endpoint_is_disabled(): void
     {
+        // Endpoint di-abort 410 Gone — payment dihandle via WhatsApp, callback Midtrans dinonaktifkan
         $response = $this->postJson('/api/v1/payments/callback/midtrans', [
             'order_id' => 'ORD-20260627-0001',
             'status_code' => '200',
@@ -113,7 +110,7 @@ class OrderTest extends TestCase
             'transaction_id' => 'TRX-123',
         ]);
 
-        $response->assertStatus(403);
+        $response->assertStatus(410);
     }
 
     public function test_authenticated_user_can_view_their_orders(): void

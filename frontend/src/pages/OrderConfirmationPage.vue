@@ -20,7 +20,9 @@
                 <span class="font-bold text-maroon">{{ order.order_number }}</span>
             </div>
 
-            <p class="mt-2 text-sm text-maroon font-semibold">Status: Menunggu Pembayaran</p>
+            <p class="mt-2 text-sm font-semibold" :class="statusClass(order.status)">
+                Status: {{ statusLabel(order.status) }}
+            </p>
 
             <div class="mt-8 bg-white p-6 lg:p-8 rounded-2xl border-2 border-maroon-50 text-left">
                 <h2 class="text-sm font-bold text-charcoal tracking-wide mb-6">Detail Pesanan</h2>
@@ -34,6 +36,14 @@
                     <div class="flex justify-between text-charcoal/60">
                         <span>Subtotal</span>
                         <span class="font-medium">Rp{{ formatPrice(order.subtotal) }}</span>
+                    </div>
+                    <div v-if="order.coupon_discount > 0" class="flex justify-between text-green-600">
+                        <span>Diskon Kupon <span v-if="order.coupon_code" class="font-mono text-xs bg-green-50 px-1.5 py-0.5 rounded ml-1">{{ order.coupon_code }}</span></span>
+                        <span class="font-medium">-Rp{{ formatPrice(order.coupon_discount) }}</span>
+                    </div>
+                    <div v-if="order.shipping_cost > 0" class="flex justify-between text-charcoal/60">
+                        <span>Ongkir</span>
+                        <span class="font-medium">Rp{{ formatPrice(order.shipping_cost) }}</span>
                     </div>
                     <div class="flex justify-between font-bold text-lg text-charcoal pt-2 border-t-2 border-maroon-100">
                         <span>Total</span>
@@ -54,6 +64,21 @@
 
             <div class="mt-8">
                 <p class="text-sm text-charcoal/50">Konfirmasi bakal dikirim ke <strong class="text-charcoal">{{ order.customer_email }}</strong></p>
+
+                <!-- Link lacak pesanan untuk guest -->
+                <div v-if="order.lookup_token" class="mt-4 p-4 bg-maroon-50 rounded-xl text-left">
+                    <p class="text-xs font-semibold text-charcoal/60 mb-2">Simpan link ini untuk lacak pesananmu:</p>
+                    <div class="flex items-center gap-2">
+                        <code class="flex-1 text-xs bg-white border border-maroon-100 rounded-lg px-3 py-2 text-maroon font-mono truncate">
+                            {{ trackUrl }}
+                        </code>
+                        <button @click="copyTrackUrl" class="shrink-0 px-3 py-2 bg-maroon text-white text-xs font-semibold rounded-lg hover:bg-maroon-600 transition-colors">
+                            {{ copied ? 'Disalin!' : 'Salin' }}
+                        </button>
+                    </div>
+                    <p class="text-xs text-charcoal/40 mt-2">Atau kamu bisa lacak pesanan kapan saja di halaman <router-link to="/track-order" class="text-maroon font-semibold hover:underline">Lacak Pesanan</router-link></p>
+                </div>
+
                 <router-link to="/" class="inline-block mt-4 px-8 py-3 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25">
                     Belanja Lagi
                 </router-link>
@@ -63,22 +88,72 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { formatPrice } from '../mock-data'
+import api from '../api'
 
 const route = useRoute()
 const order = ref(null)
+const loading = ref(true)
+const copied = ref(false)
 
-onMounted(() => {
+const trackUrl = computed(() => {
+    if (!order.value?.lookup_token) return ''
+    return `${window.location.origin}/track-order?token=${order.value.lookup_token}`
+})
+
+function copyTrackUrl() {
+    if (!trackUrl.value) return
+    navigator.clipboard.writeText(trackUrl.value).then(() => {
+        copied.value = true
+        setTimeout(() => { copied.value = false }, 2000)
+    })
+}
+
+function statusLabel(status) {
+    const labels = {
+        pending: 'Menunggu Pembayaran',
+        paid: 'Dibayar',
+        processing: 'Diproses',
+        shipped: 'Dikirim',
+        completed: 'Selesai',
+        cancelled: 'Dibatalkan',
+        expired: 'Kadaluarsa',
+    }
+    return labels[status] || status
+}
+
+function statusClass(status) {
+    const classes = {
+        pending: 'text-yellow-600',
+        paid: 'text-blue-600',
+        processing: 'text-purple-600',
+        shipped: 'text-indigo-600',
+        completed: 'text-green-600',
+        cancelled: 'text-red-600',
+        expired: 'text-gray-500',
+    }
+    return classes[status] || 'text-maroon'
+}
+
+onMounted(async () => {
     try {
-        const stored = sessionStorage.getItem('lastOrder')
-        if (stored) {
-            const data = JSON.parse(stored)
-            if (data.order_number === route.params.orderNumber) {
-                order.value = data
+        const res = await api.get(`/orders/${route.params.orderNumber}/status`)
+        order.value = res.data.data || res.data
+    } catch (e) {
+        // fallback ke sessionStorage jika API gagal (misal belum login)
+        try {
+            const stored = sessionStorage.getItem('lastOrder')
+            if (stored) {
+                const data = JSON.parse(stored)
+                if (data.order_number === route.params.orderNumber) {
+                    order.value = data
+                }
             }
-        }
-    } catch (e) {}
+        } catch {}
+    } finally {
+        loading.value = false
+    }
 })
 </script>

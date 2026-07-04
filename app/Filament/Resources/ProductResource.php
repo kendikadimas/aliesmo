@@ -4,7 +4,7 @@ namespace App\Filament\Resources;
 use App\Enums\StockMovementType;
 use App\Filament\Resources\ProductResource\Pages;
 use App\Models\Product;
-use Filament\Tables\Actions\Action;
+use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
@@ -14,7 +14,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Support\Enums\ActionSize;
+
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -26,6 +26,15 @@ use Illuminate\Database\Eloquent\Builder;
 class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shopping-bag';
+
+    protected static ?int $navigationSort = 1;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Katalog';
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -106,7 +115,7 @@ class ProductResource extends Resource
                 Action::make('adjustStock')
                     ->label('Adjust Stock')
                     ->icon('heroicon-o-cube')
-                    ->size(ActionSize::Small)
+                    ->size('sm')
                     ->form([
                         \Filament\Forms\Components\Select::make('type')
                             ->options(collect(StockMovementType::cases())->mapWithKeys(fn ($case) => [$case->value => $case->name]))

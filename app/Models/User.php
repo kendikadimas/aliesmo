@@ -16,7 +16,7 @@ class User extends Authenticatable implements FilamentUser
         'name',
         'email',
         'password',
-        'role',
+        // 'role' sengaja tidak di-fillable — cegah privilege escalation via mass assignment
     ];
 
     protected $hidden = [

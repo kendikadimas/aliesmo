@@ -13,19 +13,21 @@ class Order extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'order_number', 'user_id', 'customer_name', 'customer_email',
+        'order_number', 'lookup_token', 'lookup_token_expires_at', 'user_id', 'customer_name', 'customer_email',
         'customer_phone', 'shipping_address', 'subtotal', 'shipping_cost',
-        'total', 'status', 'payment_method', 'paid_at'
+        'coupon_discount', 'coupon_code', 'total', 'status', 'payment_method', 'paid_at'
     ];
 
     protected function casts(): array
     {
         return [
-            'subtotal' => 'decimal:2',
-            'shipping_cost' => 'decimal:2',
-            'total' => 'decimal:2',
-            'status' => \App\Enums\OrderStatus::class,
-            'paid_at' => 'datetime',
+            'subtotal'                 => 'decimal:2',
+            'shipping_cost'            => 'decimal:2',
+            'coupon_discount'          => 'decimal:2',
+            'total'                    => 'decimal:2',
+            'status'                   => \App\Enums\OrderStatus::class,
+            'paid_at'                  => 'datetime',
+            'lookup_token_expires_at'  => 'datetime',
         ];
     }
 

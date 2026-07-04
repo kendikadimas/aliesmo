@@ -13,17 +13,20 @@ class RevenueChartWidget extends ChartWidget
     protected function getData(): array
     {
         $revenue = Order::whereIn('status', [OrderStatus::Paid, OrderStatus::Completed])
-            ->where('created_at', '>=', now()->subDays(30))
+            ->whereNotNull('paid_at')
+            ->where('paid_at', '>=', now()->subDays(30))
             ->select(DB::raw('DATE(paid_at) as date'), DB::raw('SUM(total) as total'))
-            ->groupBy('date')
+            ->groupBy(DB::raw('DATE(paid_at)'))
             ->orderBy('date')
             ->get();
 
         return [
             'datasets' => [
                 [
-                    'label' => 'Revenue',
+                    'label' => 'Revenue (IDR)',
                     'data' => $revenue->pluck('total')->map(fn ($v) => (float) $v)->toArray(),
+                    'borderColor' => 'rgb(136, 32, 32)',
+                    'backgroundColor' => 'rgba(136, 32, 32, 0.1)',
                 ],
             ],
             'labels' => $revenue->pluck('date')->toArray(),

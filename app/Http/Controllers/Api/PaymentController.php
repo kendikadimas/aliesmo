@@ -2,33 +2,24 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
-    public function __construct(
-        private OrderService $orderService
-    ) {}
-
+    /**
+     * Midtrans callback endpoint — dinonaktifkan karena payment sudah via WhatsApp.
+     * Endpoint ini sengaja di-abort agar tidak bisa disalahgunakan.
+     * JANGAN log $request->all() — bisa mengandung data sensitif kartu/token Midtrans.
+     */
     public function callback(Request $request)
     {
-        Log::channel('payment')->info('Payment callback received', $request->all());
+        Log::warning('Payment callback endpoint hit — endpoint disabled (WA flow active)', [
+            'ip'     => $request->ip(),
+            'method' => $request->method(),
+            'at'     => now()->toIso8601String(),
+        ]);
 
-        try {
-            $payment = $this->orderService->handlePaymentCallback($request->all());
-
-            return response()->json([
-                'status' => 'ok',
-                'payment_status' => $payment->status->value,
-            ]);
-        } catch (\RuntimeException $e) {
-            Log::channel('payment')->warning('Payment callback rejected', [
-                'error' => $e->getMessage(),
-            ]);
-
-            return response()->json(['error' => $e->getMessage()], 403);
-        }
+        abort(410, 'Payment callback endpoint is disabled.');
     }
 }

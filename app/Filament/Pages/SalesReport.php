@@ -19,6 +19,16 @@ class SalesReport extends Page implements HasTable
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-document-chart-bar';
     protected string $view = 'filament.pages.sales-report';
 
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Laporan';
+    }
+
+    public static function getNavigationSort(): ?int
+    {
+        return 1;
+    }
+
     public ?array $data = [];
     public $startDate;
     public $endDate;
@@ -58,12 +68,12 @@ class SalesReport extends Page implements HasTable
     public function getSummaryStats(): array
     {
         $query = Order::whereIn('status', [OrderStatus::Paid, OrderStatus::Completed])
-            ->when($this->startDate, fn ($q) => $q->whereDate('created_at', '>=', $this->startDate))
-            ->when($this->endDate, fn ($q) => $q->whereDate('created_at', '<=', $this->endDate));
+            ->when($this->startDate, fn ($q) => $q->whereDate('orders.created_at', '>=', $this->startDate))
+            ->when($this->endDate, fn ($q) => $q->whereDate('orders.created_at', '<=', $this->endDate));
 
         return [
-            'revenue' => (clone $query)->sum('total'),
-            'orders' => (clone $query)->count(),
+            'revenue'    => (clone $query)->sum('total'),
+            'orders'     => (clone $query)->count(),
             'items_sold' => (clone $query)->join('order_items', 'orders.id', '=', 'order_items.order_id')->sum('order_items.quantity'),
         ];
     }

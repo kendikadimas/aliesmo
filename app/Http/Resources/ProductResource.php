@@ -3,6 +3,8 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\CategoryResource;
+use App\Http\Resources\ProductImageResource;
 
 class ProductResource extends JsonResource
 {

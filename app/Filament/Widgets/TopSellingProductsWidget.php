@@ -15,7 +15,12 @@ class TopSellingProductsWidget extends BaseWidget
     {
         return $table
             ->query(
-                OrderItem::select('product_name', DB::raw('SUM(quantity) as total_qty'), DB::raw('SUM(subtotal) as total_revenue'))
+                OrderItem::select(
+                        DB::raw('MIN(id) as id'),
+                        'product_name',
+                        DB::raw('SUM(quantity) as total_qty'),
+                        DB::raw('SUM(subtotal) as total_revenue')
+                    )
                     ->groupBy('product_name')
                     ->orderByDesc('total_qty')
                     ->limit(5)

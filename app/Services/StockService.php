@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class StockService
 {
@@ -42,23 +43,16 @@ class StockService
 
     public function decrementForOrder(Order $order): void
     {
-        DB::transaction(function () use ($order) {
-            foreach ($order->items as $item) {
-                $product = Product::lockForUpdate()->findOrFail($item->product_id);
-
-                if ($product->stock < $item->quantity) {
-                    throw new \RuntimeException(
-                        "Insufficient stock for product '{$product->name}'. Available: {$product->stock}, requested: {$item->quantity}."
-                    );
-                }
-
-                $this->adjustStock(
-                    $product->id,
-                    -$item->quantity,
-                    StockMovementType::Sale,
-                    "Order #{$order->order_number}"
-                );
-            }
-        });
+        // Tidak pakai nested DB::transaction di sini karena adjustStock() sudah punya
+        // transaction sendiri — nested transaction pada SQLite/MySQL bisa deadlock.
+        // Caller (OrderService::createFromCart) sudah wrap dalam transaction.
+        foreach ($order->items as $item) {
+            $this->adjustStock(
+                $item->product_id,
+                -$item->quantity,
+                StockMovementType::Sale,
+                "Order #{$order->order_number}"
+            );
+        }
     }
 }

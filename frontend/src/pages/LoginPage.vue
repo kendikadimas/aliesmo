@@ -31,6 +31,10 @@
                 Belum punya akun?
                 <router-link to="/register" class="text-maroon hover:text-maroon-600 font-semibold">Daftar disini</router-link>
             </p>
+
+            <p class="mt-3 text-center text-sm text-charcoal/50">
+                <router-link to="/forgot-password" class="text-maroon hover:text-maroon-600 font-semibold">Lupa password?</router-link>
+            </p>
         </div>
     </div>
 </template>
@@ -38,7 +42,7 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { setToken } from '../api'
+import api, { setToken } from '../api'
 
 const router = useRouter()
 const submitting = ref(false)
@@ -58,8 +62,18 @@ async function handleLogin() {
         submitting.value = false
         return
     }
-    setToken('mock-token-' + Date.now())
-    success.value = true
-    setTimeout(() => router.push('/'), 800)
+    try {
+        const res = await api.post('/auth/login', {
+            email: form.email,
+            password: form.password,
+        })
+        setToken(res.data.token)
+        success.value = true
+        setTimeout(() => router.push('/'), 800)
+    } catch (e) {
+        error.value = e.response?.data?.message || 'Login gagal, coba lagi ya!'
+    } finally {
+        submitting.value = false
+    }
 }
 </script>

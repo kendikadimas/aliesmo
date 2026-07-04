@@ -4,11 +4,13 @@ namespace App\Filament\Resources;
 use App\Enums\OrderStatus;
 use App\Filament\Resources\OrderResource\Pages;
 use App\Models\Order;
+use App\Services\StockService;
+use App\Enums\StockMovementType;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Infolists\Components\RepeatableEntry;
-use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Section;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
@@ -16,11 +18,21 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shopping-cart';
+
+    protected static ?int $navigationSort = 1;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Transaksi';
+    }
 
     public static function infolist(Schema $schema): Schema
     {
@@ -95,6 +107,41 @@ class OrderResource extends Resource
                         $record->update(['status' => OrderStatus::from($data['status'])]);
                     })
                     ->hidden(fn (Order $record): bool => in_array($record->status, [OrderStatus::Completed, OrderStatus::Cancelled, OrderStatus::Expired])),
+
+                Action::make('cancelOrder')
+                    ->label('Cancel & Restock')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->modalHeading('Cancel Order')
+                    ->modalDescription('Batalkan order ini dan kembalikan stok produk secara otomatis?')
+                    ->modalSubmitActionLabel('Ya, Batalkan')
+                    ->action(function (Order $record) {
+                        DB::transaction(function () use ($record) {
+                            // Restock setiap item
+                            $stockService = app(StockService::class);
+                            $record->load('items');
+                            foreach ($record->items as $item) {
+                                try {
+                                    $stockService->adjustStock(
+                                        $item->product_id,
+                                        $item->quantity,
+                                        StockMovementType::Return,
+                                        "Restock - Order #{$record->order_number} dibatalkan"
+                                    );
+                                } catch (\Exception $e) {
+                                    // Produk mungkin sudah dihapus, skip saja
+                                }
+                            }
+                            $record->update(['status' => OrderStatus::Cancelled]);
+                        });
+                    })
+                    ->hidden(fn (Order $record): bool => in_array($record->status, [
+                        OrderStatus::Completed,
+                        OrderStatus::Cancelled,
+                        OrderStatus::Expired,
+                        OrderStatus::Shipped,
+                    ])),
             ])
             ->filters([
                 SelectFilter::make('status')

@@ -7,6 +7,7 @@ const api = axios.create({
     },
 })
 
+// Request interceptor — inject token
 api.interceptors.request.use(config => {
     const token = localStorage.getItem('token')
     if (token) {
@@ -14,6 +15,34 @@ api.interceptors.request.use(config => {
     }
     return config
 })
+
+// Response interceptor — handle auth expired & server errors
+api.interceptors.response.use(
+    response => response,
+    error => {
+        if (error.response?.status === 401) {
+            // Token expired atau tidak valid — clear dan redirect ke login
+            localStorage.removeItem('token')
+            localStorage.removeItem('user')
+            // Hanya redirect kalau bukan dari halaman auth itu sendiri
+            const currentPath = window.location.pathname
+            const authPaths = ['/login', '/register', '/forgot-password', '/reset-password']
+            if (!authPaths.some(p => currentPath.endsWith(p))) {
+                // Dispatch custom event supaya Vue Router yang handle navigate
+                window.dispatchEvent(new CustomEvent('auth:expired'))
+            }
+        }
+
+        if (error.response?.status >= 500) {
+            // Server error — tampilkan toast global jika tersedia
+            if (window.__showToast) {
+                window.__showToast('Terjadi kesalahan pada server. Coba lagi sebentar.', 'error')
+            }
+        }
+
+        return Promise.reject(error)
+    }
+)
 
 export function setToken(token) {
     localStorage.setItem('token', token)
@@ -24,3 +53,4 @@ export function clearToken() {
 }
 
 export default api
+

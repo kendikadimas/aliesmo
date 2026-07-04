@@ -1,6 +1,11 @@
 <template>
     <div class="min-h-screen bg-white">
-        <div v-if="!product" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 text-center">
+        <div v-if="loading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 text-center">
+            <div class="inline-block w-10 h-10 border-4 border-maroon-100 border-t-maroon rounded-full animate-spin"></div>
+            <p class="mt-4 text-base text-charcoal/50">Memuat produk...</p>
+        </div>
+
+        <div v-else-if="notFound || !product" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 text-center">
             <p class="text-base text-charcoal/50">Produk gak ditemukan nih :(</p>
             <router-link to="/" class="inline-block mt-3 text-sm font-semibold text-maroon hover:text-maroon-700 transition-colors">Kembali ke Beranda</router-link>
         </div>
@@ -101,6 +106,41 @@
                 </div>
             </teleport>
 
+            <!-- Reviews Section -->
+            <section class="py-8 lg:py-12 border-t border-maroon-50 mt-6">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center gap-3 mb-6">
+                        <h2 class="text-lg lg:text-xl font-bold text-charcoal tracking-tight">Ulasan Pembeli</h2>
+                        <span v-if="reviews.length" class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-maroon-50 rounded-full text-xs font-semibold text-maroon">
+                            ★ {{ avgRating }} · {{ reviews.length }} ulasan
+                        </span>
+                    </div>
+
+                    <div v-if="reviewsLoading" class="flex justify-center py-8">
+                        <div class="w-6 h-6 border-2 border-maroon-100 border-t-maroon rounded-full animate-spin"></div>
+                    </div>
+
+                    <div v-else-if="!reviews.length" class="py-8 text-center">
+                        <p class="text-sm text-charcoal/40">Belum ada ulasan untuk produk ini.</p>
+                    </div>
+
+                    <div v-else class="space-y-4">
+                        <div v-for="review in reviews" :key="review.id" class="bg-maroon-50/40 rounded-xl p-4">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="text-sm font-semibold text-charcoal">{{ review.user?.name || 'Pembeli' }}</p>
+                                    <div class="flex items-center gap-0.5 mt-0.5">
+                                        <span v-for="i in 5" :key="i" class="text-xs" :class="i <= review.rating ? 'text-yellow-400' : 'text-charcoal/20'">★</span>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-charcoal/40 shrink-0">{{ formatDate(review.created_at) }}</p>
+                            </div>
+                            <p v-if="review.comment" class="mt-2 text-sm text-charcoal/70 leading-relaxed">{{ review.comment }}</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <section class="py-8 lg:py-12 bg-coklat-50/20 mt-6">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex items-center justify-between mb-5">
@@ -149,10 +189,11 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useCartStore } from '../cart'
-import { products, formatPrice } from '../mock-data'
+import { formatPrice } from '../mock-data'
+import api from '../api'
 
 const route = useRoute()
 const { addItem } = useCartStore()
@@ -161,20 +202,74 @@ const selectedImage = ref(0)
 const showDescriptionModal = ref(false)
 const wishlist = ref(new Set())
 const relatedCarousel = ref(null)
+const product = ref(null)
+const relatedProducts = ref([])
+const reviews = ref([])
+const reviewsLoading = ref(false)
+const loading = ref(true)
+const notFound = ref(false)
 
-const product = computed(() => products.find(p => p.slug === route.params.slug) || null)
-
-const relatedProducts = computed(() => {
-    if (!product.value) return []
-    const catSlug = product.value.category?.slug
-    if (!catSlug) return []
-    return products.filter(p => p.category?.slug === catSlug && p.id !== product.value.id).slice(0, 10)
+const avgRating = computed(() => {
+    if (!reviews.value.length) return 0
+    return (reviews.value.reduce((sum, r) => sum + r.rating, 0) / reviews.value.length).toFixed(1)
 })
+
+async function fetchProduct(slug) {
+    loading.value = true
+    notFound.value = false
+    selectedImage.value = 0
+    quantity.value = 1
+    reviews.value = []
+    try {
+        const res = await api.get(`/products/${slug}`)
+        product.value = res.data.data || res.data
+        fetchRelated(product.value)
+        fetchReviews(slug)
+    } catch (e) {
+        if (e.response?.status === 404) {
+            notFound.value = true
+        }
+        product.value = null
+    } finally {
+        loading.value = false
+    }
+}
+
+async function fetchReviews(slug) {
+    reviewsLoading.value = true
+    try {
+        const res = await api.get(`/products/${slug}/reviews`)
+        reviews.value = res.data.data || res.data || []
+    } catch {
+        reviews.value = []
+    } finally {
+        reviewsLoading.value = false
+    }
+}
+
+async function fetchRelated(p) {
+    if (!p?.category?.slug) return
+    try {
+        const res = await api.get('/products', { params: { category: p.category.slug, per_page: 10 } })
+        const all = res.data.data || res.data
+        relatedProducts.value = all.filter(r => r.id !== p.id).slice(0, 10)
+    } catch {
+        relatedProducts.value = []
+    }
+}
+
+onMounted(() => fetchProduct(route.params.slug))
+watch(() => route.params.slug, (slug) => { if (slug) fetchProduct(slug) })
 
 const isDescriptionShort = computed(() => {
     if (!product.value?.description) return true
     return product.value.description.length < 150
 })
+
+function formatDate(dateString) {
+    if (!dateString) return ''
+    return new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(dateString))
+}
 
 function productImage(p, index) {
     if (p.images && p.images[index]) return p.images[index].path

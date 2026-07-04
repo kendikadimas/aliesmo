@@ -1,12 +1,10 @@
 <?php
 namespace App\Services;
 
-use App\Contracts\PaymentGatewayInterface;
 use App\Enums\OrderStatus;
-use App\Enums\PaymentStatus;
 use App\Enums\StockMovementType;
+use App\Models\Coupon;
 use App\Models\Order;
-use App\Models\Payment;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -14,14 +12,13 @@ use Illuminate\Support\Facades\Log;
 class OrderService
 {
     public function __construct(
-        private StockService $stockService,
-        private PaymentGatewayInterface $paymentGateway
+        private StockService $stockService
     ) {}
 
-    public function createFromCart(array $items, array $customerData): Order
+    public function createFromCart(array $items, array $customerData, ?Coupon $coupon = null): Order
     {
-        return DB::transaction(function () use ($items, $customerData) {
-            $subtotal = 0;
+        return DB::transaction(function () use ($items, $customerData, $coupon) {
+            $subtotal   = 0;
             $orderItems = [];
 
             foreach ($items as $item) {
@@ -38,31 +35,48 @@ class OrderService
                 }
 
                 $lineSubtotal = $product->price * $item['quantity'];
-                $subtotal += $lineSubtotal;
+                $subtotal    += $lineSubtotal;
 
                 $orderItems[] = [
-                    'product_id' => $product->id,
+                    'product_id'   => $product->id,
                     'product_name' => $product->name,
-                    'price' => $product->price,
-                    'quantity' => $item['quantity'],
-                    'subtotal' => $lineSubtotal,
+                    'price'        => $product->price,
+                    'quantity'     => $item['quantity'],
+                    'subtotal'     => $lineSubtotal,
                 ];
             }
 
-            $shippingCost = $customerData['shipping_cost'] ?? 0;
-            $total = $subtotal + $shippingCost;
+            $shippingCost    = $customerData['shipping_cost'] ?? 0;
+            $couponDiscount  = 0;
+            $couponCode      = null;
+
+            if ($coupon) {
+                // lockForUpdate — cegah race condition coupon double-redeem
+                $coupon = Coupon::lockForUpdate()->find($coupon->id);
+                if ($coupon && $coupon->isValid()) {
+                    $couponDiscount = $coupon->calculateDiscount($subtotal);
+                    $couponCode     = $coupon->code;
+                    $coupon->increment('used_count');
+                }
+            }
+
+            $total = max(0, $subtotal - $couponDiscount + $shippingCost);
 
             $order = Order::create([
-                'order_number' => $this->generateOrderNumber(),
-                'user_id' => auth()->id(),
-                'customer_name' => $customerData['customer_name'],
-                'customer_email' => $customerData['customer_email'],
-                'customer_phone' => $customerData['customer_phone'] ?? null,
-                'shipping_address' => $customerData['shipping_address'],
-                'subtotal' => $subtotal,
-                'shipping_cost' => $shippingCost,
-                'total' => $total,
-                'status' => OrderStatus::Pending,
+                'order_number'           => $this->generateOrderNumber(),
+                'lookup_token'           => \Illuminate\Support\Str::random(32),
+                'lookup_token_expires_at' => now()->addDays(7),
+                'user_id'                => auth()->id(),
+                'customer_name'   => $customerData['customer_name'],
+                'customer_email'  => $customerData['customer_email'],
+                'customer_phone'  => $customerData['customer_phone'] ?? null,
+                'shipping_address'=> $customerData['shipping_address'],
+                'subtotal'        => $subtotal,
+                'shipping_cost'   => $shippingCost,
+                'coupon_discount' => $couponDiscount,
+                'coupon_code'     => $couponCode,
+                'total'           => $total,
+                'status'          => OrderStatus::Pending,
             ]);
 
             $order->items()->createMany($orderItems);
@@ -71,25 +85,18 @@ class OrderService
         });
     }
 
-    public function processPayment(Order $order): array
+    public function markAsPaid(Order $order, string $paymentMethod = 'whatsapp'): void
     {
-        return $this->paymentGateway->createTransaction($order);
-    }
-
-    public function markAsPaid(Order $order, Payment $payment): void
-    {
-        DB::transaction(function () use ($order, $payment) {
+        DB::transaction(function () use ($order, $paymentMethod) {
             $order->update([
-                'status' => OrderStatus::Paid,
-                'payment_method' => $payment->gateway,
-                'paid_at' => now(),
+                'status'         => OrderStatus::Paid,
+                'payment_method' => $paymentMethod,
+                'paid_at'        => now(),
             ]);
 
             $this->stockService->decrementForOrder($order);
 
-            Log::channel('payment')->info('Order marked as paid', [
-                'order' => $order->order_number,
-            ]);
+            Log::info('Order marked as paid', ['order' => $order->order_number]);
         });
     }
 
@@ -111,30 +118,6 @@ class OrderService
         });
     }
 
-    public function handlePaymentCallback(array $payload): Payment
-    {
-        if (!$this->paymentGateway->verifySignature($payload)) {
-            Log::channel('payment')->warning('Invalid payment signature', $payload);
-            throw new \RuntimeException('Invalid payment signature');
-        }
-
-        $payment = $this->paymentGateway->handleCallback($payload);
-
-        $order = $payment->order;
-
-        if ($payment->status === PaymentStatus::Success && $order->status !== OrderStatus::Paid) {
-            $this->markAsPaid($order, $payment);
-        }
-
-        if ($payment->status === PaymentStatus::Failed) {
-            $order->update(['status' => OrderStatus::Cancelled]);
-        } elseif ($payment->status === PaymentStatus::Expired) {
-            $order->update(['status' => OrderStatus::Expired]);
-        }
-
-        return $payment;
-    }
-
     private function generateOrderNumber(): string
     {
         $date = now()->format('Ymd');
@@ -149,6 +132,9 @@ class OrderService
             $newNumber = 1;
         }
 
-        return sprintf('ORD-%s-%04d', $date, $newNumber);
+        // Tambah random suffix 3 karakter untuk cegah race condition saat concurrent orders
+        $suffix = strtoupper(\Illuminate\Support\Str::random(3));
+
+        return sprintf('ORD-%s-%04d-%s', $date, $newNumber, $suffix);
     }
 }

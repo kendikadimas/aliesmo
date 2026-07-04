@@ -1,0 +1,3914 @@
+[
+    {
+        "id": 1,
+        "province_id": 1,
+        "province_name": "NUSA TENGGARA BARAT (NTB)",
+        "type": "",
+        "city_name": "MATARAM",
+        "postal_code": ""
+    },
+    {
+        "id": 2,
+        "province_id": 1,
+        "province_name": "NUSA TENGGARA BARAT (NTB)",
+        "type": "",
+        "city_name": "BIMA",
+        "postal_code": ""
+    },
+    {
+        "id": 3,
+        "province_id": 1,
+        "province_name": "NUSA TENGGARA BARAT (NTB)",
+        "type": "",
+        "city_name": "DOMPU",
+        "postal_code": ""
+    },
+    {
+        "id": 4,
+        "province_id": 1,
+        "province_name": "NUSA TENGGARA BARAT (NTB)",
+        "type": "",
+        "city_name": "LOMBOK TENGAH",
+        "postal_code": ""
+    },
+    {
+        "id": 5,
+        "province_id": 1,
+        "province_name": "NUSA TENGGARA BARAT (NTB)",
+        "type": "",
+        "city_name": "LOMBOK TIMUR",
+        "postal_code": ""
+    },
+    {
+        "id": 7,
+        "province_id": 1,
+        "province_name": "NUSA TENGGARA BARAT (NTB)",
+        "type": "",
+        "city_name": "SUMBAWA",
+        "postal_code": ""
+    },
+    {
+        "id": 8,
+        "province_id": 1,
+        "province_name": "NUSA TENGGARA BARAT (NTB)",
+        "type": "",
+        "city_name": "LOMBOK BARAT",
+        "postal_code": ""
+    },
+    {
+        "id": 9,
+        "province_id": 1,
+        "province_name": "NUSA TENGGARA BARAT (NTB)",
+        "type": "",
+        "city_name": "LOMBOK UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 10,
+        "province_id": 1,
+        "province_name": "NUSA TENGGARA BARAT (NTB)",
+        "type": "",
+        "city_name": "SUMBAWA BARAT",
+        "postal_code": ""
+    },
+    {
+        "id": 11,
+        "province_id": 2,
+        "province_name": "MALUKU",
+        "type": "",
+        "city_name": "AMBON",
+        "postal_code": ""
+    },
+    {
+        "id": 12,
+        "province_id": 2,
+        "province_name": "MALUKU",
+        "type": "",
+        "city_name": "MALUKU TENGAH",
+        "postal_code": ""
+    },
+    {
+        "id": 14,
+        "province_id": 2,
+        "province_name": "MALUKU",
+        "type": "",
+        "city_name": "MALUKU TENGGARA",
+        "postal_code": ""
+    },
+    {
+        "id": 15,
+        "province_id": 2,
+        "province_name": "MALUKU",
+        "type": "",
+        "city_name": "TUAL",
+        "postal_code": ""
+    },
+    {
+        "id": 16,
+        "province_id": 2,
+        "province_name": "MALUKU",
+        "type": "",
+        "city_name": "BURU",
+        "postal_code": ""
+    },
+    {
+        "id": 17,
+        "province_id": 2,
+        "province_name": "MALUKU",
+        "type": "",
+        "city_name": "BURU SELATAN",
+        "postal_code": ""
+    },
+    {
+        "id": 19,
+        "province_id": 2,
+        "province_name": "MALUKU",
+        "type": "",
+        "city_name": "KEPULAUAN ARU",
+        "postal_code": ""
+    },
+    {
+        "id": 21,
+        "province_id": 2,
+        "province_name": "MALUKU",
+        "type": "",
+        "city_name": "SERAM BAGIAN BARAT",
+        "postal_code": ""
+    },
+    {
+        "id": 23,
+        "province_id": 2,
+        "province_name": "MALUKU",
+        "type": "",
+        "city_name": "SERAM BAGIAN TIMUR",
+        "postal_code": ""
+    },
+    {
+        "id": 24,
+        "province_id": 2,
+        "province_name": "MALUKU",
+        "type": "",
+        "city_name": "MALUKU BARAT DAYA",
+        "postal_code": ""
+    },
+    {
+        "id": 25,
+        "province_id": 2,
+        "province_name": "MALUKU",
+        "type": "",
+        "city_name": "MALUKU TENGGARA BARAT",
+        "postal_code": ""
+    },
+    {
+        "id": 29,
+        "province_id": 3,
+        "province_name": "KALIMANTAN SELATAN",
+        "type": "",
+        "city_name": "BANJARMASIN",
+        "postal_code": ""
+    },
+    {
+        "id": 30,
+        "province_id": 3,
+        "province_name": "KALIMANTAN SELATAN",
+        "type": "",
+        "city_name": "HULU SUNGAI TENGAH",
+        "postal_code": ""
+    },
+    {
+        "id": 32,
+        "province_id": 3,
+        "province_name": "KALIMANTAN SELATAN",
+        "type": "",
+        "city_name": "HULU SUNGAI SELATAN",
+        "postal_code": ""
+    },
+    {
+        "id": 34,
+        "province_id": 3,
+        "province_name": "KALIMANTAN SELATAN",
+        "type": "",
+        "city_name": "KOTABARU",
+        "postal_code": ""
+    },
+    {
+        "id": 35,
+        "province_id": 3,
+        "province_name": "KALIMANTAN SELATAN",
+        "type": "",
+        "city_name": "TABALONG",
+        "postal_code": ""
+    },
+    {
+        "id": 36,
+        "province_id": 3,
+        "province_name": "KALIMANTAN SELATAN",
+        "type": "",
+        "city_name": "BANJARBARU",
+        "postal_code": ""
+    },
+    {
+        "id": 38,
+        "province_id": 3,
+        "province_name": "KALIMANTAN SELATAN",
+        "type": "",
+        "city_name": "HULU SUNGAI UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 39,
+        "province_id": 3,
+        "province_name": "KALIMANTAN SELATAN",
+        "type": "",
+        "city_name": "BARITO KUALA",
+        "postal_code": ""
+    },
+    {
+        "id": 40,
+        "province_id": 3,
+        "province_name": "KALIMANTAN SELATAN",
+        "type": "",
+        "city_name": "BANJAR",
+        "postal_code": ""
+    },
+    {
+        "id": 42,
+        "province_id": 3,
+        "province_name": "KALIMANTAN SELATAN",
+        "type": "",
+        "city_name": "TANAH LAUT",
+        "postal_code": ""
+    },
+    {
+        "id": 44,
+        "province_id": 3,
+        "province_name": "KALIMANTAN SELATAN",
+        "type": "",
+        "city_name": "TAPIN",
+        "postal_code": ""
+    },
+    {
+        "id": 53,
+        "province_id": 3,
+        "province_name": "KALIMANTAN SELATAN",
+        "type": "",
+        "city_name": "BALANGAN",
+        "postal_code": ""
+    },
+    {
+        "id": 54,
+        "province_id": 3,
+        "province_name": "KALIMANTAN SELATAN",
+        "type": "",
+        "city_name": "TANAH BUMBU",
+        "postal_code": ""
+    },
+    {
+        "id": 46,
+        "province_id": 4,
+        "province_name": "KALIMANTAN TENGAH",
+        "type": "",
+        "city_name": "BARITO UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 48,
+        "province_id": 4,
+        "province_name": "KALIMANTAN TENGAH",
+        "type": "",
+        "city_name": "BARITO TIMUR",
+        "postal_code": ""
+    },
+    {
+        "id": 50,
+        "province_id": 4,
+        "province_name": "KALIMANTAN TENGAH",
+        "type": "",
+        "city_name": "MURUNG RAYA",
+        "postal_code": ""
+    },
+    {
+        "id": 52,
+        "province_id": 4,
+        "province_name": "KALIMANTAN TENGAH",
+        "type": "",
+        "city_name": "BARITO SELATAN",
+        "postal_code": ""
+    },
+    {
+        "id": 456,
+        "province_id": 4,
+        "province_name": "KALIMANTAN TENGAH",
+        "type": "",
+        "city_name": "PALANGKA RAYA",
+        "postal_code": ""
+    },
+    {
+        "id": 458,
+        "province_id": 4,
+        "province_name": "KALIMANTAN TENGAH",
+        "type": "",
+        "city_name": "KATINGAN",
+        "postal_code": ""
+    },
+    {
+        "id": 460,
+        "province_id": 4,
+        "province_name": "KALIMANTAN TENGAH",
+        "type": "",
+        "city_name": "KAPUAS",
+        "postal_code": ""
+    },
+    {
+        "id": 462,
+        "province_id": 4,
+        "province_name": "KALIMANTAN TENGAH",
+        "type": "",
+        "city_name": "GUNUNG MAS",
+        "postal_code": ""
+    },
+    {
+        "id": 464,
+        "province_id": 4,
+        "province_name": "KALIMANTAN TENGAH",
+        "type": "",
+        "city_name": "SERUYAN",
+        "postal_code": ""
+    },
+    {
+        "id": 466,
+        "province_id": 4,
+        "province_name": "KALIMANTAN TENGAH",
+        "type": "",
+        "city_name": "KOTAWARINGIN BARAT",
+        "postal_code": ""
+    },
+    {
+        "id": 468,
+        "province_id": 4,
+        "province_name": "KALIMANTAN TENGAH",
+        "type": "",
+        "city_name": "KOTAWARINGIN TIMUR",
+        "postal_code": ""
+    },
+    {
+        "id": 470,
+        "province_id": 4,
+        "province_name": "KALIMANTAN TENGAH",
+        "type": "",
+        "city_name": "LAMANDAU",
+        "postal_code": ""
+    },
+    {
+        "id": 471,
+        "province_id": 4,
+        "province_name": "KALIMANTAN TENGAH",
+        "type": "",
+        "city_name": "PULANG PISAU",
+        "postal_code": ""
+    },
+    {
+        "id": 472,
+        "province_id": 4,
+        "province_name": "KALIMANTAN TENGAH",
+        "type": "",
+        "city_name": "SUKAMARA",
+        "postal_code": ""
+    },
+    {
+        "id": 55,
+        "province_id": 5,
+        "province_name": "JAWA BARAT",
+        "type": "",
+        "city_name": "BANDUNG",
+        "postal_code": ""
+    },
+    {
+        "id": 56,
+        "province_id": 5,
+        "province_name": "JAWA BARAT",
+        "type": "",
+        "city_name": "CIMAHI",
+        "postal_code": ""
+    },
+    {
+        "id": 57,
+        "province_id": 5,
+        "province_name": "JAWA BARAT",
+        "type": "",
+        "city_name": "SUMEDANG",
+        "postal_code": ""
+    },
+    {
+        "id": 59,
+        "province_id": 5,
+        "province_name": "JAWA BARAT",
+        "type": "",
+        "city_name": "GARUT",
+        "postal_code": ""
+    },
+    {
+        "id": 60,
+        "province_id": 5,
+        "province_name": "JAWA BARAT",
+        "type": "",
+        "city_name": "BANDUNG BARAT",
+        "postal_code": ""
+    },
+    {
+        "id": 62,
+        "province_id": 5,
+        "province_name": "JAWA BARAT",
+        "type": "",
+        "city_name": "CIANJUR",
+        "postal_code": ""
+    },
+    {
+        "id": 63,
+        "province_id": 5,
+        "province_name": "JAWA BARAT",
+        "type": "",
+        "city_name": "BEKASI",
+        "postal_code": ""
+    },
+    {
+        "id": 77,
+        "province_id": 5,
+        "province_name": "JAWA BARAT",
+        "type": "",
+        "city_name": "BOGOR",
+        "postal_code": ""
+    },
+    {
+        "id": 129,
+        "province_id": 5,
+        "province_name": "JAWA BARAT",
+        "type": "",
+        "city_name": "CIREBON",
+        "postal_code": ""
+    },
+    {
+        "id": 131,
+        "province_id": 5,
+        "province_name": "JAWA BARAT",
+        "type": "",
+        "city_name": "INDRAMAYU",
+        "postal_code": ""
+    },
+    {
+        "id": 132,
+        "province_id": 5,
+        "province_name": "JAWA BARAT",
+        "type": "",
+        "city_name": "KUNINGAN",
+        "postal_code": ""
+    },
+    {
+        "id": 133,
+        "province_id": 5,
+        "province_name": "JAWA BARAT",
+        "type": "",
+        "city_name": "MAJALENGKA",
+        "postal_code": ""
+    },
+    {
+        "id": 199,
+        "province_id": 5,
+        "province_name": "JAWA BARAT",
+        "type": "",
+        "city_name": "DEPOK",
+        "postal_code": ""
+    },
+    {
+        "id": 329,
+        "province_id": 5,
+        "province_name": "JAWA BARAT",
+        "type": "",
+        "city_name": "KARAWANG",
+        "postal_code": ""
+    },
+    {
+        "id": 532,
+        "province_id": 5,
+        "province_name": "JAWA BARAT",
+        "type": "",
+        "city_name": "PURWAKARTA",
+        "postal_code": ""
+    },
+    {
+        "id": 533,
+        "province_id": 5,
+        "province_name": "JAWA BARAT",
+        "type": "",
+        "city_name": "SUBANG",
+        "postal_code": ""
+    },
+    {
+        "id": 538,
+        "province_id": 5,
+        "province_name": "JAWA BARAT",
+        "type": "",
+        "city_name": "SUKABUMI",
+        "postal_code": ""
+    },
+    {
+        "id": 632,
+        "province_id": 5,
+        "province_name": "JAWA BARAT",
+        "type": "",
+        "city_name": "TASIKMALAYA",
+        "postal_code": ""
+    },
+    {
+        "id": 633,
+        "province_id": 5,
+        "province_name": "JAWA BARAT",
+        "type": "",
+        "city_name": "BANJAR",
+        "postal_code": ""
+    },
+    {
+        "id": 634,
+        "province_id": 5,
+        "province_name": "JAWA BARAT",
+        "type": "",
+        "city_name": "CIAMIS",
+        "postal_code": ""
+    },
+    {
+        "id": 635,
+        "province_id": 5,
+        "province_name": "JAWA BARAT",
+        "type": "",
+        "city_name": "PANGANDARAN",
+        "postal_code": ""
+    },
+    {
+        "id": 64,
+        "province_id": 6,
+        "province_name": "BENGKULU",
+        "type": "",
+        "city_name": "BENGKULU",
+        "postal_code": ""
+    },
+    {
+        "id": 65,
+        "province_id": 6,
+        "province_name": "BENGKULU",
+        "type": "",
+        "city_name": "BENGKULU UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 66,
+        "province_id": 6,
+        "province_name": "BENGKULU",
+        "type": "",
+        "city_name": "BENGKULU TENGAH",
+        "postal_code": ""
+    },
+    {
+        "id": 67,
+        "province_id": 6,
+        "province_name": "BENGKULU",
+        "type": "",
+        "city_name": "REJANG LEBONG",
+        "postal_code": ""
+    },
+    {
+        "id": 68,
+        "province_id": 6,
+        "province_name": "BENGKULU",
+        "type": "",
+        "city_name": "BENGKULU SELATAN",
+        "postal_code": ""
+    },
+    {
+        "id": 69,
+        "province_id": 6,
+        "province_name": "BENGKULU",
+        "type": "",
+        "city_name": "KAUR",
+        "postal_code": ""
+    },
+    {
+        "id": 70,
+        "province_id": 6,
+        "province_name": "BENGKULU",
+        "type": "",
+        "city_name": "KEPAHIANG",
+        "postal_code": ""
+    },
+    {
+        "id": 71,
+        "province_id": 6,
+        "province_name": "BENGKULU",
+        "type": "",
+        "city_name": "LEBONG",
+        "postal_code": ""
+    },
+    {
+        "id": 73,
+        "province_id": 6,
+        "province_name": "BENGKULU",
+        "type": "",
+        "city_name": "MUKO MUKO",
+        "postal_code": ""
+    },
+    {
+        "id": 76,
+        "province_id": 6,
+        "province_name": "BENGKULU",
+        "type": "",
+        "city_name": "SELUMA",
+        "postal_code": ""
+    },
+    {
+        "id": 78,
+        "province_id": 7,
+        "province_name": "KALIMANTAN TIMUR",
+        "type": "",
+        "city_name": "BALIKPAPAN",
+        "postal_code": ""
+    },
+    {
+        "id": 79,
+        "province_id": 7,
+        "province_name": "KALIMANTAN TIMUR",
+        "type": "",
+        "city_name": "KUTAI KARTANEGARA",
+        "postal_code": ""
+    },
+    {
+        "id": 80,
+        "province_id": 7,
+        "province_name": "KALIMANTAN TIMUR",
+        "type": "",
+        "city_name": "PASER",
+        "postal_code": ""
+    },
+    {
+        "id": 81,
+        "province_id": 7,
+        "province_name": "KALIMANTAN TIMUR",
+        "type": "",
+        "city_name": "BERAU",
+        "postal_code": ""
+    },
+    {
+        "id": 83,
+        "province_id": 7,
+        "province_name": "KALIMANTAN TIMUR",
+        "type": "",
+        "city_name": "PENAJAM PASER UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 84,
+        "province_id": 7,
+        "province_name": "KALIMANTAN TIMUR",
+        "type": "",
+        "city_name": "BONTANG",
+        "postal_code": ""
+    },
+    {
+        "id": 86,
+        "province_id": 7,
+        "province_name": "KALIMANTAN TIMUR",
+        "type": "",
+        "city_name": "KUTAI TIMUR",
+        "postal_code": ""
+    },
+    {
+        "id": 534,
+        "province_id": 7,
+        "province_name": "KALIMANTAN TIMUR",
+        "type": "",
+        "city_name": "SAMARINDA",
+        "postal_code": ""
+    },
+    {
+        "id": 536,
+        "province_id": 7,
+        "province_name": "KALIMANTAN TIMUR",
+        "type": "",
+        "city_name": "KUTAI BARAT",
+        "postal_code": ""
+    },
+    {
+        "id": 537,
+        "province_id": 7,
+        "province_name": "KALIMANTAN TIMUR",
+        "type": "",
+        "city_name": "MAHAKAM ULU",
+        "postal_code": ""
+    },
+    {
+        "id": 90,
+        "province_id": 8,
+        "province_name": "KEPULAUAN RIAU",
+        "type": "",
+        "city_name": "BATAM",
+        "postal_code": ""
+    },
+    {
+        "id": 92,
+        "province_id": 8,
+        "province_name": "KEPULAUAN RIAU",
+        "type": "",
+        "city_name": "LINGGA",
+        "postal_code": ""
+    },
+    {
+        "id": 94,
+        "province_id": 8,
+        "province_name": "KEPULAUAN RIAU",
+        "type": "",
+        "city_name": "NATUNA",
+        "postal_code": ""
+    },
+    {
+        "id": 95,
+        "province_id": 8,
+        "province_name": "KEPULAUAN RIAU",
+        "type": "",
+        "city_name": "KEPULAUAN ANAMBAS",
+        "postal_code": ""
+    },
+    {
+        "id": 96,
+        "province_id": 8,
+        "province_name": "KEPULAUAN RIAU",
+        "type": "",
+        "city_name": "KARIMUN",
+        "postal_code": ""
+    },
+    {
+        "id": 619,
+        "province_id": 8,
+        "province_name": "KEPULAUAN RIAU",
+        "type": "",
+        "city_name": "TANJUNG PINANG",
+        "postal_code": ""
+    },
+    {
+        "id": 624,
+        "province_id": 8,
+        "province_name": "KEPULAUAN RIAU",
+        "type": "",
+        "city_name": "BINTAN",
+        "postal_code": ""
+    },
+    {
+        "id": 97,
+        "province_id": 9,
+        "province_name": "NANGGROE ACEH DARUSSALAM (NAD)",
+        "type": "",
+        "city_name": "BANDA ACEH",
+        "postal_code": ""
+    },
+    {
+        "id": 98,
+        "province_id": 9,
+        "province_name": "NANGGROE ACEH DARUSSALAM (NAD)",
+        "type": "",
+        "city_name": "LANGSA",
+        "postal_code": ""
+    },
+    {
+        "id": 100,
+        "province_id": 9,
+        "province_name": "NANGGROE ACEH DARUSSALAM (NAD)",
+        "type": "",
+        "city_name": "LHOKSEUMAWE",
+        "postal_code": ""
+    },
+    {
+        "id": 101,
+        "province_id": 9,
+        "province_name": "NANGGROE ACEH DARUSSALAM (NAD)",
+        "type": "",
+        "city_name": "ACEH BESAR",
+        "postal_code": ""
+    },
+    {
+        "id": 102,
+        "province_id": 9,
+        "province_name": "NANGGROE ACEH DARUSSALAM (NAD)",
+        "type": "",
+        "city_name": "BIREUEN",
+        "postal_code": ""
+    },
+    {
+        "id": 104,
+        "province_id": 9,
+        "province_name": "NANGGROE ACEH DARUSSALAM (NAD)",
+        "type": "",
+        "city_name": "ACEH TENGGARA",
+        "postal_code": ""
+    },
+    {
+        "id": 106,
+        "province_id": 9,
+        "province_name": "NANGGROE ACEH DARUSSALAM (NAD)",
+        "type": "",
+        "city_name": "ACEH BARAT",
+        "postal_code": ""
+    },
+    {
+        "id": 107,
+        "province_id": 9,
+        "province_name": "NANGGROE ACEH DARUSSALAM (NAD)",
+        "type": "",
+        "city_name": "PIDIE",
+        "postal_code": ""
+    },
+    {
+        "id": 109,
+        "province_id": 9,
+        "province_name": "NANGGROE ACEH DARUSSALAM (NAD)",
+        "type": "",
+        "city_name": "ACEH TENGAH",
+        "postal_code": ""
+    },
+    {
+        "id": 110,
+        "province_id": 9,
+        "province_name": "NANGGROE ACEH DARUSSALAM (NAD)",
+        "type": "",
+        "city_name": "ACEH SELATAN",
+        "postal_code": ""
+    },
+    {
+        "id": 111,
+        "province_id": 9,
+        "province_name": "NANGGROE ACEH DARUSSALAM (NAD)",
+        "type": "",
+        "city_name": "SABANG",
+        "postal_code": ""
+    },
+    {
+        "id": 112,
+        "province_id": 9,
+        "province_name": "NANGGROE ACEH DARUSSALAM (NAD)",
+        "type": "",
+        "city_name": "ACEH BARAT DAYA",
+        "postal_code": ""
+    },
+    {
+        "id": 113,
+        "province_id": 9,
+        "province_name": "NANGGROE ACEH DARUSSALAM (NAD)",
+        "type": "",
+        "city_name": "ACEH JAYA",
+        "postal_code": ""
+    },
+    {
+        "id": 114,
+        "province_id": 9,
+        "province_name": "NANGGROE ACEH DARUSSALAM (NAD)",
+        "type": "",
+        "city_name": "ACEH SINGKIL",
+        "postal_code": ""
+    },
+    {
+        "id": 116,
+        "province_id": 9,
+        "province_name": "NANGGROE ACEH DARUSSALAM (NAD)",
+        "type": "",
+        "city_name": "ACEH TAMIANG",
+        "postal_code": ""
+    },
+    {
+        "id": 117,
+        "province_id": 9,
+        "province_name": "NANGGROE ACEH DARUSSALAM (NAD)",
+        "type": "",
+        "city_name": "ACEH TIMUR",
+        "postal_code": ""
+    },
+    {
+        "id": 118,
+        "province_id": 9,
+        "province_name": "NANGGROE ACEH DARUSSALAM (NAD)",
+        "type": "",
+        "city_name": "ACEH UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 120,
+        "province_id": 9,
+        "province_name": "NANGGROE ACEH DARUSSALAM (NAD)",
+        "type": "",
+        "city_name": "BENER MERIAH",
+        "postal_code": ""
+    },
+    {
+        "id": 122,
+        "province_id": 9,
+        "province_name": "NANGGROE ACEH DARUSSALAM (NAD)",
+        "type": "",
+        "city_name": "GAYO LUES",
+        "postal_code": ""
+    },
+    {
+        "id": 124,
+        "province_id": 9,
+        "province_name": "NANGGROE ACEH DARUSSALAM (NAD)",
+        "type": "",
+        "city_name": "NAGAN RAYA",
+        "postal_code": ""
+    },
+    {
+        "id": 125,
+        "province_id": 9,
+        "province_name": "NANGGROE ACEH DARUSSALAM (NAD)",
+        "type": "",
+        "city_name": "PIDIE JAYA",
+        "postal_code": ""
+    },
+    {
+        "id": 127,
+        "province_id": 9,
+        "province_name": "NANGGROE ACEH DARUSSALAM (NAD)",
+        "type": "",
+        "city_name": "SIMEULUE",
+        "postal_code": ""
+    },
+    {
+        "id": 128,
+        "province_id": 9,
+        "province_name": "NANGGROE ACEH DARUSSALAM (NAD)",
+        "type": "",
+        "city_name": "SUBULUSSALAM",
+        "postal_code": ""
+    },
+    {
+        "id": 135,
+        "province_id": 10,
+        "province_name": "DKI JAKARTA",
+        "type": "",
+        "city_name": "JAKARTA BARAT",
+        "postal_code": ""
+    },
+    {
+        "id": 136,
+        "province_id": 10,
+        "province_name": "DKI JAKARTA",
+        "type": "",
+        "city_name": "JAKARTA SELATAN",
+        "postal_code": ""
+    },
+    {
+        "id": 137,
+        "province_id": 10,
+        "province_name": "DKI JAKARTA",
+        "type": "",
+        "city_name": "JAKARTA PUSAT",
+        "postal_code": ""
+    },
+    {
+        "id": 138,
+        "province_id": 10,
+        "province_name": "DKI JAKARTA",
+        "type": "",
+        "city_name": "JAKARTA UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 139,
+        "province_id": 10,
+        "province_name": "DKI JAKARTA",
+        "type": "",
+        "city_name": "JAKARTA TIMUR",
+        "postal_code": ""
+    },
+    {
+        "id": 141,
+        "province_id": 10,
+        "province_name": "DKI JAKARTA",
+        "type": "",
+        "city_name": "KEPULAUAN SERIBU",
+        "postal_code": ""
+    },
+    {
+        "id": 143,
+        "province_id": 11,
+        "province_name": "BANTEN",
+        "type": "",
+        "city_name": "CILEGON",
+        "postal_code": ""
+    },
+    {
+        "id": 144,
+        "province_id": 11,
+        "province_name": "BANTEN",
+        "type": "",
+        "city_name": "PANDEGLANG",
+        "postal_code": ""
+    },
+    {
+        "id": 147,
+        "province_id": 11,
+        "province_name": "BANTEN",
+        "type": "",
+        "city_name": "LEBAK",
+        "postal_code": ""
+    },
+    {
+        "id": 148,
+        "province_id": 11,
+        "province_name": "BANTEN",
+        "type": "",
+        "city_name": "SERANG",
+        "postal_code": ""
+    },
+    {
+        "id": 592,
+        "province_id": 11,
+        "province_name": "BANTEN",
+        "type": "",
+        "city_name": "TANGERANG",
+        "postal_code": ""
+    },
+    {
+        "id": 594,
+        "province_id": 11,
+        "province_name": "BANTEN",
+        "type": "",
+        "city_name": "TANGERANG SELATAN",
+        "postal_code": ""
+    },
+    {
+        "id": 149,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "CILACAP",
+        "postal_code": ""
+    },
+    {
+        "id": 383,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "MAGELANG",
+        "postal_code": ""
+    },
+    {
+        "id": 384,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "KEBUMEN",
+        "postal_code": ""
+    },
+    {
+        "id": 385,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "WONOSOBO",
+        "postal_code": ""
+    },
+    {
+        "id": 386,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "PURWOREJO",
+        "postal_code": ""
+    },
+    {
+        "id": 387,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "TEMANGGUNG",
+        "postal_code": ""
+    },
+    {
+        "id": 539,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "SURAKARTA",
+        "postal_code": ""
+    },
+    {
+        "id": 540,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "BOYOLALI",
+        "postal_code": ""
+    },
+    {
+        "id": 541,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "KARANGANYAR",
+        "postal_code": ""
+    },
+    {
+        "id": 542,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "KLATEN",
+        "postal_code": ""
+    },
+    {
+        "id": 543,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "SRAGEN",
+        "postal_code": ""
+    },
+    {
+        "id": 544,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "SUKOHARJO",
+        "postal_code": ""
+    },
+    {
+        "id": 545,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "WONOGIRI",
+        "postal_code": ""
+    },
+    {
+        "id": 560,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "SEMARANG",
+        "postal_code": ""
+    },
+    {
+        "id": 561,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "JEPARA",
+        "postal_code": ""
+    },
+    {
+        "id": 562,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "KUDUS",
+        "postal_code": ""
+    },
+    {
+        "id": 563,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "PEKALONGAN",
+        "postal_code": ""
+    },
+    {
+        "id": 564,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "BATANG",
+        "postal_code": ""
+    },
+    {
+        "id": 565,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "BLORA",
+        "postal_code": ""
+    },
+    {
+        "id": 567,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "DEMAK",
+        "postal_code": ""
+    },
+    {
+        "id": 568,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "KENDAL",
+        "postal_code": ""
+    },
+    {
+        "id": 569,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "PATI",
+        "postal_code": ""
+    },
+    {
+        "id": 570,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "PEMALANG",
+        "postal_code": ""
+    },
+    {
+        "id": 571,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "GROBOGAN",
+        "postal_code": ""
+    },
+    {
+        "id": 572,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "REMBANG",
+        "postal_code": ""
+    },
+    {
+        "id": 573,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "SALATIGA",
+        "postal_code": ""
+    },
+    {
+        "id": 575,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "PURBALINGGA",
+        "postal_code": ""
+    },
+    {
+        "id": 576,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "BANJARNEGARA",
+        "postal_code": ""
+    },
+    {
+        "id": 588,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "TEGAL",
+        "postal_code": ""
+    },
+    {
+        "id": 589,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "BREBES",
+        "postal_code": ""
+    },
+    {
+        "id": 591,
+        "province_id": 12,
+        "province_name": "JAWA TENGAH",
+        "type": "",
+        "city_name": "BANYUMAS",
+        "postal_code": ""
+    },
+    {
+        "id": 150,
+        "province_id": 13,
+        "province_name": "JAMBI",
+        "type": "",
+        "city_name": "JAMBI",
+        "postal_code": ""
+    },
+    {
+        "id": 152,
+        "province_id": 13,
+        "province_name": "JAMBI",
+        "type": "",
+        "city_name": "TANJUNG JABUNG BARAT",
+        "postal_code": ""
+    },
+    {
+        "id": 153,
+        "province_id": 13,
+        "province_name": "JAMBI",
+        "type": "",
+        "city_name": "MERANGIN",
+        "postal_code": ""
+    },
+    {
+        "id": 154,
+        "province_id": 13,
+        "province_name": "JAMBI",
+        "type": "",
+        "city_name": "BATANG HARI",
+        "postal_code": ""
+    },
+    {
+        "id": 156,
+        "province_id": 13,
+        "province_name": "JAMBI",
+        "type": "",
+        "city_name": "BUNGO",
+        "postal_code": ""
+    },
+    {
+        "id": 157,
+        "province_id": 13,
+        "province_name": "JAMBI",
+        "type": "",
+        "city_name": "SUNGAIPENUH",
+        "postal_code": ""
+    },
+    {
+        "id": 158,
+        "province_id": 13,
+        "province_name": "JAMBI",
+        "type": "",
+        "city_name": "KERINCI",
+        "postal_code": ""
+    },
+    {
+        "id": 160,
+        "province_id": 13,
+        "province_name": "JAMBI",
+        "type": "",
+        "city_name": "MUARO JAMBI",
+        "postal_code": ""
+    },
+    {
+        "id": 161,
+        "province_id": 13,
+        "province_name": "JAMBI",
+        "type": "",
+        "city_name": "SAROLANGUN",
+        "postal_code": ""
+    },
+    {
+        "id": 163,
+        "province_id": 13,
+        "province_name": "JAMBI",
+        "type": "",
+        "city_name": "TANJUNG JABUNG TIMUR",
+        "postal_code": ""
+    },
+    {
+        "id": 164,
+        "province_id": 13,
+        "province_name": "JAMBI",
+        "type": "",
+        "city_name": "TEBO",
+        "postal_code": ""
+    },
+    {
+        "id": 165,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "JAYAPURA",
+        "postal_code": ""
+    },
+    {
+        "id": 166,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "BIAK NUMFOR",
+        "postal_code": ""
+    },
+    {
+        "id": 167,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "MERAUKE",
+        "postal_code": ""
+    },
+    {
+        "id": 168,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "NABIRE",
+        "postal_code": ""
+    },
+    {
+        "id": 169,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "DOGIYAI",
+        "postal_code": ""
+    },
+    {
+        "id": 171,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "KEPULAUAN YAPEN",
+        "postal_code": ""
+    },
+    {
+        "id": 172,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "JAYAWIJAYA",
+        "postal_code": ""
+    },
+    {
+        "id": 174,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "LANNY JAYA",
+        "postal_code": ""
+    },
+    {
+        "id": 175,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "YALIMO",
+        "postal_code": ""
+    },
+    {
+        "id": 176,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "NDUGA",
+        "postal_code": ""
+    },
+    {
+        "id": 177,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "MAMBERAMO TENGAH",
+        "postal_code": ""
+    },
+    {
+        "id": 178,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "ASMAT",
+        "postal_code": ""
+    },
+    {
+        "id": 180,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "BOVEN DIGOEL",
+        "postal_code": ""
+    },
+    {
+        "id": 181,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "KEEROM",
+        "postal_code": ""
+    },
+    {
+        "id": 183,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "MAPPI",
+        "postal_code": ""
+    },
+    {
+        "id": 184,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "INTAN JAYA",
+        "postal_code": ""
+    },
+    {
+        "id": 185,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "PANIAI",
+        "postal_code": ""
+    },
+    {
+        "id": 186,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "DEIYAI",
+        "postal_code": ""
+    },
+    {
+        "id": 187,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "PEGUNUNGAN BINTANG",
+        "postal_code": ""
+    },
+    {
+        "id": 188,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "PUNCAK JAYA",
+        "postal_code": ""
+    },
+    {
+        "id": 189,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "PUNCAK",
+        "postal_code": ""
+    },
+    {
+        "id": 190,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "SARMI",
+        "postal_code": ""
+    },
+    {
+        "id": 192,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "SUPIORI",
+        "postal_code": ""
+    },
+    {
+        "id": 193,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "TOLIKARA",
+        "postal_code": ""
+    },
+    {
+        "id": 195,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "WAROPEN",
+        "postal_code": ""
+    },
+    {
+        "id": 196,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "YAHUKIMO",
+        "postal_code": ""
+    },
+    {
+        "id": 198,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "MAMBERAMO RAYA",
+        "postal_code": ""
+    },
+    {
+        "id": 595,
+        "province_id": 14,
+        "province_name": "PAPUA",
+        "type": "",
+        "city_name": "MIMIKA",
+        "postal_code": ""
+    },
+    {
+        "id": 201,
+        "province_id": 15,
+        "province_name": "BALI",
+        "type": "",
+        "city_name": "DENPASAR",
+        "postal_code": ""
+    },
+    {
+        "id": 203,
+        "province_id": 15,
+        "province_name": "BALI",
+        "type": "",
+        "city_name": "KARANGASEM",
+        "postal_code": ""
+    },
+    {
+        "id": 204,
+        "province_id": 15,
+        "province_name": "BALI",
+        "type": "",
+        "city_name": "BANGLI",
+        "postal_code": ""
+    },
+    {
+        "id": 205,
+        "province_id": 15,
+        "province_name": "BALI",
+        "type": "",
+        "city_name": "GIANYAR",
+        "postal_code": ""
+    },
+    {
+        "id": 206,
+        "province_id": 15,
+        "province_name": "BALI",
+        "type": "",
+        "city_name": "JEMBRANA",
+        "postal_code": ""
+    },
+    {
+        "id": 208,
+        "province_id": 15,
+        "province_name": "BALI",
+        "type": "",
+        "city_name": "KLUNGKUNG",
+        "postal_code": ""
+    },
+    {
+        "id": 210,
+        "province_id": 15,
+        "province_name": "BALI",
+        "type": "",
+        "city_name": "BULELENG",
+        "postal_code": ""
+    },
+    {
+        "id": 211,
+        "province_id": 15,
+        "province_name": "BALI",
+        "type": "",
+        "city_name": "TABANAN",
+        "postal_code": ""
+    },
+    {
+        "id": 212,
+        "province_id": 15,
+        "province_name": "BALI",
+        "type": "",
+        "city_name": "BADUNG",
+        "postal_code": ""
+    },
+    {
+        "id": 218,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "TOBA SAMOSIR",
+        "postal_code": ""
+    },
+    {
+        "id": 219,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "GUNUNGSITOLI",
+        "postal_code": ""
+    },
+    {
+        "id": 220,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "NIAS",
+        "postal_code": ""
+    },
+    {
+        "id": 221,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "NIAS BARAT",
+        "postal_code": ""
+    },
+    {
+        "id": 222,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "NIAS SELATAN",
+        "postal_code": ""
+    },
+    {
+        "id": 223,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "NIAS UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 225,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "SIBOLGA",
+        "postal_code": ""
+    },
+    {
+        "id": 226,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "TAPANULI TENGAH",
+        "postal_code": ""
+    },
+    {
+        "id": 227,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "PADANG SIDEMPUAN",
+        "postal_code": ""
+    },
+    {
+        "id": 228,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "TAPANULI SELATAN",
+        "postal_code": ""
+    },
+    {
+        "id": 229,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "TAPANULI UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 231,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "PADANG LAWAS UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 239,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "HUMBANG HASUNDUTAN",
+        "postal_code": ""
+    },
+    {
+        "id": 240,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "MANDAILING NATAL",
+        "postal_code": ""
+    },
+    {
+        "id": 243,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "PADANG LAWAS",
+        "postal_code": ""
+    },
+    {
+        "id": 361,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "MEDAN",
+        "postal_code": ""
+    },
+    {
+        "id": 363,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "ASAHAN",
+        "postal_code": ""
+    },
+    {
+        "id": 364,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "DAIRI",
+        "postal_code": ""
+    },
+    {
+        "id": 365,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "DELI SERDANG",
+        "postal_code": ""
+    },
+    {
+        "id": 366,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "BINJAI",
+        "postal_code": ""
+    },
+    {
+        "id": 368,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "SIMALUNGUN",
+        "postal_code": ""
+    },
+    {
+        "id": 370,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "LABUHANBATU UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 371,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "LABUHANBATU",
+        "postal_code": ""
+    },
+    {
+        "id": 372,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "LABUHANBATU SELATAN",
+        "postal_code": ""
+    },
+    {
+        "id": 374,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "KARO",
+        "postal_code": ""
+    },
+    {
+        "id": 375,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "LANGKAT",
+        "postal_code": ""
+    },
+    {
+        "id": 376,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "SERDANG BEDAGAI",
+        "postal_code": ""
+    },
+    {
+        "id": 377,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "TEBING TINGGI",
+        "postal_code": ""
+    },
+    {
+        "id": 378,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "BATU BARA",
+        "postal_code": ""
+    },
+    {
+        "id": 379,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "PAKPAK BHARAT",
+        "postal_code": ""
+    },
+    {
+        "id": 380,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "SAMOSIR",
+        "postal_code": ""
+    },
+    {
+        "id": 381,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "TANJUNG BALAI",
+        "postal_code": ""
+    },
+    {
+        "id": 382,
+        "province_id": 16,
+        "province_name": "SUMATERA UTARA",
+        "type": "",
+        "city_name": "PEMATANG SIANTAR",
+        "postal_code": ""
+    },
+    {
+        "id": 251,
+        "province_id": 17,
+        "province_name": "GORONTALO",
+        "type": "",
+        "city_name": "GORONTALO",
+        "postal_code": ""
+    },
+    {
+        "id": 252,
+        "province_id": 17,
+        "province_name": "GORONTALO",
+        "type": "",
+        "city_name": "GORONTALO UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 253,
+        "province_id": 17,
+        "province_name": "GORONTALO",
+        "type": "",
+        "city_name": "BOALEMO",
+        "postal_code": ""
+    },
+    {
+        "id": 254,
+        "province_id": 17,
+        "province_name": "GORONTALO",
+        "type": "",
+        "city_name": "BONE BOLANGO",
+        "postal_code": ""
+    },
+    {
+        "id": 255,
+        "province_id": 17,
+        "province_name": "GORONTALO",
+        "type": "",
+        "city_name": "POHUWATO",
+        "postal_code": ""
+    },
+    {
+        "id": 256,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "JEMBER",
+        "postal_code": ""
+    },
+    {
+        "id": 257,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "BANYUWANGI",
+        "postal_code": ""
+    },
+    {
+        "id": 258,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "BONDOWOSO",
+        "postal_code": ""
+    },
+    {
+        "id": 289,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "KEDIRI",
+        "postal_code": ""
+    },
+    {
+        "id": 353,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "MADIUN",
+        "postal_code": ""
+    },
+    {
+        "id": 355,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "MAGETAN",
+        "postal_code": ""
+    },
+    {
+        "id": 357,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "NGAWI",
+        "postal_code": ""
+    },
+    {
+        "id": 359,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "PACITAN",
+        "postal_code": ""
+    },
+    {
+        "id": 360,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "PONOROGO",
+        "postal_code": ""
+    },
+    {
+        "id": 388,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "MOJOKERTO",
+        "postal_code": ""
+    },
+    {
+        "id": 389,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "JOMBANG",
+        "postal_code": ""
+    },
+    {
+        "id": 390,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "NGANJUK",
+        "postal_code": ""
+    },
+    {
+        "id": 391,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "MALANG",
+        "postal_code": ""
+    },
+    {
+        "id": 392,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "BLITAR",
+        "postal_code": ""
+    },
+    {
+        "id": 393,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "BATU",
+        "postal_code": ""
+    },
+    {
+        "id": 394,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "PROBOLINGGO",
+        "postal_code": ""
+    },
+    {
+        "id": 395,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "LUMAJANG",
+        "postal_code": ""
+    },
+    {
+        "id": 396,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "SITUBONDO",
+        "postal_code": ""
+    },
+    {
+        "id": 531,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "PASURUAN",
+        "postal_code": ""
+    },
+    {
+        "id": 566,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "BOJONEGORO",
+        "postal_code": ""
+    },
+    {
+        "id": 577,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "SURABAYA",
+        "postal_code": ""
+    },
+    {
+        "id": 578,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "GRESIK",
+        "postal_code": ""
+    },
+    {
+        "id": 579,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "LAMONGAN",
+        "postal_code": ""
+    },
+    {
+        "id": 580,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "BANGKALAN",
+        "postal_code": ""
+    },
+    {
+        "id": 581,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "PAMEKASAN",
+        "postal_code": ""
+    },
+    {
+        "id": 582,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "SAMPANG",
+        "postal_code": ""
+    },
+    {
+        "id": 583,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "SIDOARJO",
+        "postal_code": ""
+    },
+    {
+        "id": 584,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "SUMENEP",
+        "postal_code": ""
+    },
+    {
+        "id": 585,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "TUBAN",
+        "postal_code": ""
+    },
+    {
+        "id": 586,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "TULUNGAGUNG",
+        "postal_code": ""
+    },
+    {
+        "id": 587,
+        "province_id": 18,
+        "province_name": "JAWA TIMUR",
+        "type": "",
+        "city_name": "TRENGGALEK",
+        "postal_code": ""
+    },
+    {
+        "id": 259,
+        "province_id": 19,
+        "province_name": "DI YOGYAKARTA",
+        "type": "",
+        "city_name": "YOGYAKARTA",
+        "postal_code": ""
+    },
+    {
+        "id": 260,
+        "province_id": 19,
+        "province_name": "DI YOGYAKARTA",
+        "type": "",
+        "city_name": "BANTUL",
+        "postal_code": ""
+    },
+    {
+        "id": 261,
+        "province_id": 19,
+        "province_name": "DI YOGYAKARTA",
+        "type": "",
+        "city_name": "SLEMAN",
+        "postal_code": ""
+    },
+    {
+        "id": 262,
+        "province_id": 19,
+        "province_name": "DI YOGYAKARTA",
+        "type": "",
+        "city_name": "KULON PROGO",
+        "postal_code": ""
+    },
+    {
+        "id": 263,
+        "province_id": 19,
+        "province_name": "DI YOGYAKARTA",
+        "type": "",
+        "city_name": "GUNUNG KIDUL",
+        "postal_code": ""
+    },
+    {
+        "id": 264,
+        "province_id": 20,
+        "province_name": "SULAWESI TENGGARA",
+        "type": "",
+        "city_name": "KENDARI",
+        "postal_code": ""
+    },
+    {
+        "id": 267,
+        "province_id": 20,
+        "province_name": "SULAWESI TENGGARA",
+        "type": "",
+        "city_name": "BAU-BAU",
+        "postal_code": ""
+    },
+    {
+        "id": 268,
+        "province_id": 20,
+        "province_name": "SULAWESI TENGGARA",
+        "type": "",
+        "city_name": "KOLAKA",
+        "postal_code": ""
+    },
+    {
+        "id": 269,
+        "province_id": 20,
+        "province_name": "SULAWESI TENGGARA",
+        "type": "",
+        "city_name": "KOLAKA TIMUR",
+        "postal_code": ""
+    },
+    {
+        "id": 271,
+        "province_id": 20,
+        "province_name": "SULAWESI TENGGARA",
+        "type": "",
+        "city_name": "BUTON UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 272,
+        "province_id": 20,
+        "province_name": "SULAWESI TENGGARA",
+        "type": "",
+        "city_name": "MUNA",
+        "postal_code": ""
+    },
+    {
+        "id": 273,
+        "province_id": 20,
+        "province_name": "SULAWESI TENGGARA",
+        "type": "",
+        "city_name": "MUNA BARAT",
+        "postal_code": ""
+    },
+    {
+        "id": 276,
+        "province_id": 20,
+        "province_name": "SULAWESI TENGGARA",
+        "type": "",
+        "city_name": "KONAWE",
+        "postal_code": ""
+    },
+    {
+        "id": 277,
+        "province_id": 20,
+        "province_name": "SULAWESI TENGGARA",
+        "type": "",
+        "city_name": "KONAWE UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 280,
+        "province_id": 20,
+        "province_name": "SULAWESI TENGGARA",
+        "type": "",
+        "city_name": "BOMBANA",
+        "postal_code": ""
+    },
+    {
+        "id": 281,
+        "province_id": 20,
+        "province_name": "SULAWESI TENGGARA",
+        "type": "",
+        "city_name": "BUTON",
+        "postal_code": ""
+    },
+    {
+        "id": 282,
+        "province_id": 20,
+        "province_name": "SULAWESI TENGGARA",
+        "type": "",
+        "city_name": "BUTON SELATAN",
+        "postal_code": ""
+    },
+    {
+        "id": 283,
+        "province_id": 20,
+        "province_name": "SULAWESI TENGGARA",
+        "type": "",
+        "city_name": "BUTON TENGAH",
+        "postal_code": ""
+    },
+    {
+        "id": 285,
+        "province_id": 20,
+        "province_name": "SULAWESI TENGGARA",
+        "type": "",
+        "city_name": "KOLAKA UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 286,
+        "province_id": 20,
+        "province_name": "SULAWESI TENGGARA",
+        "type": "",
+        "city_name": "KONAWE SELATAN",
+        "postal_code": ""
+    },
+    {
+        "id": 287,
+        "province_id": 20,
+        "province_name": "SULAWESI TENGGARA",
+        "type": "",
+        "city_name": "WAKATOBI",
+        "postal_code": ""
+    },
+    {
+        "id": 288,
+        "province_id": 20,
+        "province_name": "SULAWESI TENGGARA",
+        "type": "",
+        "city_name": "KONAWE KEPULAUAN",
+        "postal_code": ""
+    },
+    {
+        "id": 290,
+        "province_id": 21,
+        "province_name": "NUSA TENGGARA TIMUR (NTT)",
+        "type": "",
+        "city_name": "KUPANG",
+        "postal_code": ""
+    },
+    {
+        "id": 292,
+        "province_id": 21,
+        "province_name": "NUSA TENGGARA TIMUR (NTT)",
+        "type": "",
+        "city_name": "SUMBA TENGAH",
+        "postal_code": ""
+    },
+    {
+        "id": 293,
+        "province_id": 21,
+        "province_name": "NUSA TENGGARA TIMUR (NTT)",
+        "type": "",
+        "city_name": "BELU",
+        "postal_code": ""
+    },
+    {
+        "id": 294,
+        "province_id": 21,
+        "province_name": "NUSA TENGGARA TIMUR (NTT)",
+        "type": "",
+        "city_name": "MALAKA",
+        "postal_code": ""
+    },
+    {
+        "id": 296,
+        "province_id": 21,
+        "province_name": "NUSA TENGGARA TIMUR (NTT)",
+        "type": "",
+        "city_name": "ALOR",
+        "postal_code": ""
+    },
+    {
+        "id": 297,
+        "province_id": 21,
+        "province_name": "NUSA TENGGARA TIMUR (NTT)",
+        "type": "",
+        "city_name": "TIMOR TENGAH UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 298,
+        "province_id": 21,
+        "province_name": "NUSA TENGGARA TIMUR (NTT)",
+        "type": "",
+        "city_name": "FLORES TIMUR",
+        "postal_code": ""
+    },
+    {
+        "id": 300,
+        "province_id": 21,
+        "province_name": "NUSA TENGGARA TIMUR (NTT)",
+        "type": "",
+        "city_name": "SIKKA",
+        "postal_code": ""
+    },
+    {
+        "id": 301,
+        "province_id": 21,
+        "province_name": "NUSA TENGGARA TIMUR (NTT)",
+        "type": "",
+        "city_name": "MANGGARAI",
+        "postal_code": ""
+    },
+    {
+        "id": 308,
+        "province_id": 21,
+        "province_name": "NUSA TENGGARA TIMUR (NTT)",
+        "type": "",
+        "city_name": "TIMOR TENGAH SELATAN",
+        "postal_code": ""
+    },
+    {
+        "id": 309,
+        "province_id": 21,
+        "province_name": "NUSA TENGGARA TIMUR (NTT)",
+        "type": "",
+        "city_name": "ENDE",
+        "postal_code": ""
+    },
+    {
+        "id": 310,
+        "province_id": 21,
+        "province_name": "NUSA TENGGARA TIMUR (NTT)",
+        "type": "",
+        "city_name": "NGADA",
+        "postal_code": ""
+    },
+    {
+        "id": 313,
+        "province_id": 21,
+        "province_name": "NUSA TENGGARA TIMUR (NTT)",
+        "type": "",
+        "city_name": "SUMBA TIMUR",
+        "postal_code": ""
+    },
+    {
+        "id": 314,
+        "province_id": 21,
+        "province_name": "NUSA TENGGARA TIMUR (NTT)",
+        "type": "",
+        "city_name": "SUMBA BARAT",
+        "postal_code": ""
+    },
+    {
+        "id": 318,
+        "province_id": 21,
+        "province_name": "NUSA TENGGARA TIMUR (NTT)",
+        "type": "",
+        "city_name": "MANGGARAI BARAT",
+        "postal_code": ""
+    },
+    {
+        "id": 319,
+        "province_id": 21,
+        "province_name": "NUSA TENGGARA TIMUR (NTT)",
+        "type": "",
+        "city_name": "MANGGARAI TIMUR",
+        "postal_code": ""
+    },
+    {
+        "id": 321,
+        "province_id": 21,
+        "province_name": "NUSA TENGGARA TIMUR (NTT)",
+        "type": "",
+        "city_name": "NAGEKEO",
+        "postal_code": ""
+    },
+    {
+        "id": 323,
+        "province_id": 21,
+        "province_name": "NUSA TENGGARA TIMUR (NTT)",
+        "type": "",
+        "city_name": "ROTE NDAO",
+        "postal_code": ""
+    },
+    {
+        "id": 325,
+        "province_id": 21,
+        "province_name": "NUSA TENGGARA TIMUR (NTT)",
+        "type": "",
+        "city_name": "SUMBA BARAT DAYA",
+        "postal_code": ""
+    },
+    {
+        "id": 326,
+        "province_id": 21,
+        "province_name": "NUSA TENGGARA TIMUR (NTT)",
+        "type": "",
+        "city_name": "LEMBATA",
+        "postal_code": ""
+    },
+    {
+        "id": 328,
+        "province_id": 21,
+        "province_name": "NUSA TENGGARA TIMUR (NTT)",
+        "type": "",
+        "city_name": "SABU RAIJUA",
+        "postal_code": ""
+    },
+    {
+        "id": 330,
+        "province_id": 22,
+        "province_name": "SULAWESI UTARA",
+        "type": "",
+        "city_name": "MANADO",
+        "postal_code": ""
+    },
+    {
+        "id": 331,
+        "province_id": 22,
+        "province_name": "SULAWESI UTARA",
+        "type": "",
+        "city_name": "KOTAMOBAGU",
+        "postal_code": ""
+    },
+    {
+        "id": 332,
+        "province_id": 22,
+        "province_name": "SULAWESI UTARA",
+        "type": "",
+        "city_name": "BOLAANG MONGONDOW UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 333,
+        "province_id": 22,
+        "province_name": "SULAWESI UTARA",
+        "type": "",
+        "city_name": "BOLAANG MONGONDOW",
+        "postal_code": ""
+    },
+    {
+        "id": 335,
+        "province_id": 22,
+        "province_name": "SULAWESI UTARA",
+        "type": "",
+        "city_name": "BOLAANG MONGONDOW SELATAN",
+        "postal_code": ""
+    },
+    {
+        "id": 336,
+        "province_id": 22,
+        "province_name": "SULAWESI UTARA",
+        "type": "",
+        "city_name": "BOLAANG MONGONDOW TIMUR",
+        "postal_code": ""
+    },
+    {
+        "id": 338,
+        "province_id": 22,
+        "province_name": "SULAWESI UTARA",
+        "type": "",
+        "city_name": "KEPULAUAN SANGIHE",
+        "postal_code": ""
+    },
+    {
+        "id": 339,
+        "province_id": 22,
+        "province_name": "SULAWESI UTARA",
+        "type": "",
+        "city_name": "KEPULAUAN SIAU TAGULANDANG BIARO (SITARO)",
+        "postal_code": ""
+    },
+    {
+        "id": 341,
+        "province_id": 22,
+        "province_name": "SULAWESI UTARA",
+        "type": "",
+        "city_name": "MINAHASA",
+        "postal_code": ""
+    },
+    {
+        "id": 342,
+        "province_id": 22,
+        "province_name": "SULAWESI UTARA",
+        "type": "",
+        "city_name": "BITUNG",
+        "postal_code": ""
+    },
+    {
+        "id": 347,
+        "province_id": 22,
+        "province_name": "SULAWESI UTARA",
+        "type": "",
+        "city_name": "KEPULAUAN TALAUD",
+        "postal_code": ""
+    },
+    {
+        "id": 348,
+        "province_id": 22,
+        "province_name": "SULAWESI UTARA",
+        "type": "",
+        "city_name": "MINAHASA UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 349,
+        "province_id": 22,
+        "province_name": "SULAWESI UTARA",
+        "type": "",
+        "city_name": "MINAHASA SELATAN",
+        "postal_code": ""
+    },
+    {
+        "id": 351,
+        "province_id": 22,
+        "province_name": "SULAWESI UTARA",
+        "type": "",
+        "city_name": "MINAHASA TENGGARA",
+        "postal_code": ""
+    },
+    {
+        "id": 352,
+        "province_id": 22,
+        "province_name": "SULAWESI UTARA",
+        "type": "",
+        "city_name": "TOMOHON",
+        "postal_code": ""
+    },
+    {
+        "id": 397,
+        "province_id": 23,
+        "province_name": "SUMATERA BARAT",
+        "type": "",
+        "city_name": "PADANG",
+        "postal_code": ""
+    },
+    {
+        "id": 399,
+        "province_id": 23,
+        "province_name": "SUMATERA BARAT",
+        "type": "",
+        "city_name": "TANAH DATAR",
+        "postal_code": ""
+    },
+    {
+        "id": 401,
+        "province_id": 23,
+        "province_name": "SUMATERA BARAT",
+        "type": "",
+        "city_name": "BUKITTINGGI",
+        "postal_code": ""
+    },
+    {
+        "id": 402,
+        "province_id": 23,
+        "province_name": "SUMATERA BARAT",
+        "type": "",
+        "city_name": "PASAMAN",
+        "postal_code": ""
+    },
+    {
+        "id": 404,
+        "province_id": 23,
+        "province_name": "SUMATERA BARAT",
+        "type": "",
+        "city_name": "PESISIR SELATAN",
+        "postal_code": ""
+    },
+    {
+        "id": 405,
+        "province_id": 23,
+        "province_name": "SUMATERA BARAT",
+        "type": "",
+        "city_name": "PARIAMAN",
+        "postal_code": ""
+    },
+    {
+        "id": 406,
+        "province_id": 23,
+        "province_name": "SUMATERA BARAT",
+        "type": "",
+        "city_name": "PADANG PARIAMAN",
+        "postal_code": ""
+    },
+    {
+        "id": 407,
+        "province_id": 23,
+        "province_name": "SUMATERA BARAT",
+        "type": "",
+        "city_name": "LIMA PULUH KOTA",
+        "postal_code": ""
+    },
+    {
+        "id": 408,
+        "province_id": 23,
+        "province_name": "SUMATERA BARAT",
+        "type": "",
+        "city_name": "PAYAKUMBUH",
+        "postal_code": ""
+    },
+    {
+        "id": 410,
+        "province_id": 23,
+        "province_name": "SUMATERA BARAT",
+        "type": "",
+        "city_name": "SAWAH LUNTO",
+        "postal_code": ""
+    },
+    {
+        "id": 411,
+        "province_id": 23,
+        "province_name": "SUMATERA BARAT",
+        "type": "",
+        "city_name": "SOLOK",
+        "postal_code": ""
+    },
+    {
+        "id": 412,
+        "province_id": 23,
+        "province_name": "SUMATERA BARAT",
+        "type": "",
+        "city_name": "PADANG PANJANG",
+        "postal_code": ""
+    },
+    {
+        "id": 413,
+        "province_id": 23,
+        "province_name": "SUMATERA BARAT",
+        "type": "",
+        "city_name": "DHARMASRAYA",
+        "postal_code": ""
+    },
+    {
+        "id": 416,
+        "province_id": 23,
+        "province_name": "SUMATERA BARAT",
+        "type": "",
+        "city_name": "KEPULAUAN MENTAWAI",
+        "postal_code": ""
+    },
+    {
+        "id": 419,
+        "province_id": 23,
+        "province_name": "SUMATERA BARAT",
+        "type": "",
+        "city_name": "PASAMAN BARAT",
+        "postal_code": ""
+    },
+    {
+        "id": 424,
+        "province_id": 23,
+        "province_name": "SUMATERA BARAT",
+        "type": "",
+        "city_name": "SOLOK SELATAN",
+        "postal_code": ""
+    },
+    {
+        "id": 426,
+        "province_id": 23,
+        "province_name": "SUMATERA BARAT",
+        "type": "",
+        "city_name": "SIJUNJUNG",
+        "postal_code": ""
+    },
+    {
+        "id": 427,
+        "province_id": 23,
+        "province_name": "SUMATERA BARAT",
+        "type": "",
+        "city_name": "AGAM",
+        "postal_code": ""
+    },
+    {
+        "id": 428,
+        "province_id": 24,
+        "province_name": "BANGKA BELITUNG",
+        "type": "",
+        "city_name": "PANGKAL PINANG",
+        "postal_code": ""
+    },
+    {
+        "id": 429,
+        "province_id": 24,
+        "province_name": "BANGKA BELITUNG",
+        "type": "",
+        "city_name": "BANGKA",
+        "postal_code": ""
+    },
+    {
+        "id": 430,
+        "province_id": 24,
+        "province_name": "BANGKA BELITUNG",
+        "type": "",
+        "city_name": "BANGKA BARAT",
+        "postal_code": ""
+    },
+    {
+        "id": 431,
+        "province_id": 24,
+        "province_name": "BANGKA BELITUNG",
+        "type": "",
+        "city_name": "BANGKA TENGAH",
+        "postal_code": ""
+    },
+    {
+        "id": 432,
+        "province_id": 24,
+        "province_name": "BANGKA BELITUNG",
+        "type": "",
+        "city_name": "BANGKA SELATAN",
+        "postal_code": ""
+    },
+    {
+        "id": 596,
+        "province_id": 24,
+        "province_name": "BANGKA BELITUNG",
+        "type": "",
+        "city_name": "BELITUNG",
+        "postal_code": ""
+    },
+    {
+        "id": 597,
+        "province_id": 24,
+        "province_name": "BANGKA BELITUNG",
+        "type": "",
+        "city_name": "BELITUNG TIMUR",
+        "postal_code": ""
+    },
+    {
+        "id": 433,
+        "province_id": 25,
+        "province_name": "RIAU",
+        "type": "",
+        "city_name": "PEKANBARU",
+        "postal_code": ""
+    },
+    {
+        "id": 434,
+        "province_id": 25,
+        "province_name": "RIAU",
+        "type": "",
+        "city_name": "DUMAI",
+        "postal_code": ""
+    },
+    {
+        "id": 435,
+        "province_id": 25,
+        "province_name": "RIAU",
+        "type": "",
+        "city_name": "KAMPAR",
+        "postal_code": ""
+    },
+    {
+        "id": 436,
+        "province_id": 25,
+        "province_name": "RIAU",
+        "type": "",
+        "city_name": "BENGKALIS",
+        "postal_code": ""
+    },
+    {
+        "id": 438,
+        "province_id": 25,
+        "province_name": "RIAU",
+        "type": "",
+        "city_name": "INDRAGIRI HULU",
+        "postal_code": ""
+    },
+    {
+        "id": 439,
+        "province_id": 25,
+        "province_name": "RIAU",
+        "type": "",
+        "city_name": "INDRAGIRI HILIR",
+        "postal_code": ""
+    },
+    {
+        "id": 441,
+        "province_id": 25,
+        "province_name": "RIAU",
+        "type": "",
+        "city_name": "ROKAN HILIR",
+        "postal_code": ""
+    },
+    {
+        "id": 443,
+        "province_id": 25,
+        "province_name": "RIAU",
+        "type": "",
+        "city_name": "KUANTAN SINGINGI",
+        "postal_code": ""
+    },
+    {
+        "id": 444,
+        "province_id": 25,
+        "province_name": "RIAU",
+        "type": "",
+        "city_name": "PELALAWAN",
+        "postal_code": ""
+    },
+    {
+        "id": 447,
+        "province_id": 25,
+        "province_name": "RIAU",
+        "type": "",
+        "city_name": "ROKAN HULU",
+        "postal_code": ""
+    },
+    {
+        "id": 451,
+        "province_id": 25,
+        "province_name": "RIAU",
+        "type": "",
+        "city_name": "SIAK",
+        "postal_code": ""
+    },
+    {
+        "id": 454,
+        "province_id": 25,
+        "province_name": "RIAU",
+        "type": "",
+        "city_name": "KEPULAUAN MERANTI",
+        "postal_code": ""
+    },
+    {
+        "id": 473,
+        "province_id": 26,
+        "province_name": "SUMATERA SELATAN",
+        "type": "",
+        "city_name": "PALEMBANG",
+        "postal_code": ""
+    },
+    {
+        "id": 475,
+        "province_id": 26,
+        "province_name": "SUMATERA SELATAN",
+        "type": "",
+        "city_name": "MUSI RAWAS",
+        "postal_code": ""
+    },
+    {
+        "id": 476,
+        "province_id": 26,
+        "province_name": "SUMATERA SELATAN",
+        "type": "",
+        "city_name": "MUSI RAWAS UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 479,
+        "province_id": 26,
+        "province_name": "SUMATERA SELATAN",
+        "type": "",
+        "city_name": "OGAN KOMERING ULU",
+        "postal_code": ""
+    },
+    {
+        "id": 480,
+        "province_id": 26,
+        "province_name": "SUMATERA SELATAN",
+        "type": "",
+        "city_name": "OGAN KOMERING ILIR",
+        "postal_code": ""
+    },
+    {
+        "id": 482,
+        "province_id": 26,
+        "province_name": "SUMATERA SELATAN",
+        "type": "",
+        "city_name": "LAHAT",
+        "postal_code": ""
+    },
+    {
+        "id": 485,
+        "province_id": 26,
+        "province_name": "SUMATERA SELATAN",
+        "type": "",
+        "city_name": "MUARA ENIM",
+        "postal_code": ""
+    },
+    {
+        "id": 486,
+        "province_id": 26,
+        "province_name": "SUMATERA SELATAN",
+        "type": "",
+        "city_name": "PENUKAL ABAB LEMATANG ILIR",
+        "postal_code": ""
+    },
+    {
+        "id": 487,
+        "province_id": 26,
+        "province_name": "SUMATERA SELATAN",
+        "type": "",
+        "city_name": "PAGAR ALAM",
+        "postal_code": ""
+    },
+    {
+        "id": 488,
+        "province_id": 26,
+        "province_name": "SUMATERA SELATAN",
+        "type": "",
+        "city_name": "PRABUMULIH",
+        "postal_code": ""
+    },
+    {
+        "id": 489,
+        "province_id": 26,
+        "province_name": "SUMATERA SELATAN",
+        "type": "",
+        "city_name": "MUSI BANYUASIN",
+        "postal_code": ""
+    },
+    {
+        "id": 491,
+        "province_id": 26,
+        "province_name": "SUMATERA SELATAN",
+        "type": "",
+        "city_name": "BANYUASIN",
+        "postal_code": ""
+    },
+    {
+        "id": 492,
+        "province_id": 26,
+        "province_name": "SUMATERA SELATAN",
+        "type": "",
+        "city_name": "EMPAT LAWANG",
+        "postal_code": ""
+    },
+    {
+        "id": 493,
+        "province_id": 26,
+        "province_name": "SUMATERA SELATAN",
+        "type": "",
+        "city_name": "OGAN ILIR",
+        "postal_code": ""
+    },
+    {
+        "id": 494,
+        "province_id": 26,
+        "province_name": "SUMATERA SELATAN",
+        "type": "",
+        "city_name": "OGAN KOMERING ULU TIMUR",
+        "postal_code": ""
+    },
+    {
+        "id": 495,
+        "province_id": 26,
+        "province_name": "SUMATERA SELATAN",
+        "type": "",
+        "city_name": "OGAN KOMERING ULU SELATAN",
+        "postal_code": ""
+    },
+    {
+        "id": 496,
+        "province_id": 26,
+        "province_name": "SUMATERA SELATAN",
+        "type": "",
+        "city_name": "LUBUK LINGGAU",
+        "postal_code": ""
+    },
+    {
+        "id": 497,
+        "province_id": 27,
+        "province_name": "SULAWESI TENGAH",
+        "type": "",
+        "city_name": "PALU",
+        "postal_code": ""
+    },
+    {
+        "id": 498,
+        "province_id": 27,
+        "province_name": "SULAWESI TENGAH",
+        "type": "",
+        "city_name": "BANGGAI",
+        "postal_code": ""
+    },
+    {
+        "id": 499,
+        "province_id": 27,
+        "province_name": "SULAWESI TENGAH",
+        "type": "",
+        "city_name": "POSO",
+        "postal_code": ""
+    },
+    {
+        "id": 500,
+        "province_id": 27,
+        "province_name": "SULAWESI TENGAH",
+        "type": "",
+        "city_name": "TOLI-TOLI",
+        "postal_code": ""
+    },
+    {
+        "id": 501,
+        "province_id": 27,
+        "province_name": "SULAWESI TENGAH",
+        "type": "",
+        "city_name": "BANGGAI LAUT",
+        "postal_code": ""
+    },
+    {
+        "id": 502,
+        "province_id": 27,
+        "province_name": "SULAWESI TENGAH",
+        "type": "",
+        "city_name": "BANGGAI KEPULAUAN",
+        "postal_code": ""
+    },
+    {
+        "id": 504,
+        "province_id": 27,
+        "province_name": "SULAWESI TENGAH",
+        "type": "",
+        "city_name": "BUOL",
+        "postal_code": ""
+    },
+    {
+        "id": 505,
+        "province_id": 27,
+        "province_name": "SULAWESI TENGAH",
+        "type": "",
+        "city_name": "DONGGALA",
+        "postal_code": ""
+    },
+    {
+        "id": 507,
+        "province_id": 27,
+        "province_name": "SULAWESI TENGAH",
+        "type": "",
+        "city_name": "SIGI",
+        "postal_code": ""
+    },
+    {
+        "id": 509,
+        "province_id": 27,
+        "province_name": "SULAWESI TENGAH",
+        "type": "",
+        "city_name": "MOROWALI",
+        "postal_code": ""
+    },
+    {
+        "id": 510,
+        "province_id": 27,
+        "province_name": "SULAWESI TENGAH",
+        "type": "",
+        "city_name": "MOROWALI UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 511,
+        "province_id": 27,
+        "province_name": "SULAWESI TENGAH",
+        "type": "",
+        "city_name": "PARIGI MOUTONG",
+        "postal_code": ""
+    },
+    {
+        "id": 512,
+        "province_id": 27,
+        "province_name": "SULAWESI TENGAH",
+        "type": "",
+        "city_name": "TOJO UNA-UNA",
+        "postal_code": ""
+    },
+    {
+        "id": 513,
+        "province_id": 28,
+        "province_name": "KALIMANTAN BARAT",
+        "type": "",
+        "city_name": "PONTIANAK",
+        "postal_code": ""
+    },
+    {
+        "id": 514,
+        "province_id": 28,
+        "province_name": "KALIMANTAN BARAT",
+        "type": "",
+        "city_name": "KETAPANG",
+        "postal_code": ""
+    },
+    {
+        "id": 515,
+        "province_id": 28,
+        "province_name": "KALIMANTAN BARAT",
+        "type": "",
+        "city_name": "SANGGAU",
+        "postal_code": ""
+    },
+    {
+        "id": 516,
+        "province_id": 28,
+        "province_name": "KALIMANTAN BARAT",
+        "type": "",
+        "city_name": "SINGKAWANG",
+        "postal_code": ""
+    },
+    {
+        "id": 517,
+        "province_id": 28,
+        "province_name": "KALIMANTAN BARAT",
+        "type": "",
+        "city_name": "SINTANG",
+        "postal_code": ""
+    },
+    {
+        "id": 519,
+        "province_id": 28,
+        "province_name": "KALIMANTAN BARAT",
+        "type": "",
+        "city_name": "KAPUAS HULU",
+        "postal_code": ""
+    },
+    {
+        "id": 522,
+        "province_id": 28,
+        "province_name": "KALIMANTAN BARAT",
+        "type": "",
+        "city_name": "BENGKAYANG",
+        "postal_code": ""
+    },
+    {
+        "id": 523,
+        "province_id": 28,
+        "province_name": "KALIMANTAN BARAT",
+        "type": "",
+        "city_name": "LANDAK",
+        "postal_code": ""
+    },
+    {
+        "id": 524,
+        "province_id": 28,
+        "province_name": "KALIMANTAN BARAT",
+        "type": "",
+        "city_name": "MELAWI",
+        "postal_code": ""
+    },
+    {
+        "id": 526,
+        "province_id": 28,
+        "province_name": "KALIMANTAN BARAT",
+        "type": "",
+        "city_name": "MEMPAWAH",
+        "postal_code": ""
+    },
+    {
+        "id": 527,
+        "province_id": 28,
+        "province_name": "KALIMANTAN BARAT",
+        "type": "",
+        "city_name": "KUBU RAYA",
+        "postal_code": ""
+    },
+    {
+        "id": 528,
+        "province_id": 28,
+        "province_name": "KALIMANTAN BARAT",
+        "type": "",
+        "city_name": "SAMBAS",
+        "postal_code": ""
+    },
+    {
+        "id": 529,
+        "province_id": 28,
+        "province_name": "KALIMANTAN BARAT",
+        "type": "",
+        "city_name": "SEKADAU",
+        "postal_code": ""
+    },
+    {
+        "id": 530,
+        "province_id": 28,
+        "province_name": "KALIMANTAN BARAT",
+        "type": "",
+        "city_name": "KAYONG UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 546,
+        "province_id": 29,
+        "province_name": "PAPUA BARAT",
+        "type": "",
+        "city_name": "SORONG",
+        "postal_code": ""
+    },
+    {
+        "id": 547,
+        "province_id": 29,
+        "province_name": "PAPUA BARAT",
+        "type": "",
+        "city_name": "TAMBRAUW",
+        "postal_code": ""
+    },
+    {
+        "id": 548,
+        "province_id": 29,
+        "province_name": "PAPUA BARAT",
+        "type": "",
+        "city_name": "FAKFAK",
+        "postal_code": ""
+    },
+    {
+        "id": 549,
+        "province_id": 29,
+        "province_name": "PAPUA BARAT",
+        "type": "",
+        "city_name": "KAIMANA",
+        "postal_code": ""
+    },
+    {
+        "id": 551,
+        "province_id": 29,
+        "province_name": "PAPUA BARAT",
+        "type": "",
+        "city_name": "RAJA AMPAT",
+        "postal_code": ""
+    },
+    {
+        "id": 552,
+        "province_id": 29,
+        "province_name": "PAPUA BARAT",
+        "type": "",
+        "city_name": "SORONG SELATAN",
+        "postal_code": ""
+    },
+    {
+        "id": 553,
+        "province_id": 29,
+        "province_name": "PAPUA BARAT",
+        "type": "",
+        "city_name": "MAYBRAT",
+        "postal_code": ""
+    },
+    {
+        "id": 554,
+        "province_id": 29,
+        "province_name": "PAPUA BARAT",
+        "type": "",
+        "city_name": "TELUK BINTUNI",
+        "postal_code": ""
+    },
+    {
+        "id": 556,
+        "province_id": 29,
+        "province_name": "PAPUA BARAT",
+        "type": "",
+        "city_name": "TELUK WONDAMA",
+        "postal_code": ""
+    },
+    {
+        "id": 557,
+        "province_id": 29,
+        "province_name": "PAPUA BARAT",
+        "type": "",
+        "city_name": "MANOKWARI",
+        "postal_code": ""
+    },
+    {
+        "id": 558,
+        "province_id": 29,
+        "province_name": "PAPUA BARAT",
+        "type": "",
+        "city_name": "PEGUNUNGAN ARFAK",
+        "postal_code": ""
+    },
+    {
+        "id": 559,
+        "province_id": 29,
+        "province_name": "PAPUA BARAT",
+        "type": "",
+        "city_name": "MANOKWARI SELATAN",
+        "postal_code": ""
+    },
+    {
+        "id": 598,
+        "province_id": 30,
+        "province_name": "LAMPUNG",
+        "type": "",
+        "city_name": "BANDAR LAMPUNG",
+        "postal_code": ""
+    },
+    {
+        "id": 599,
+        "province_id": 30,
+        "province_name": "LAMPUNG",
+        "type": "",
+        "city_name": "LAMPUNG SELATAN",
+        "postal_code": ""
+    },
+    {
+        "id": 600,
+        "province_id": 30,
+        "province_name": "LAMPUNG",
+        "type": "",
+        "city_name": "LAMPUNG UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 601,
+        "province_id": 30,
+        "province_name": "LAMPUNG",
+        "type": "",
+        "city_name": "METRO",
+        "postal_code": ""
+    },
+    {
+        "id": 603,
+        "province_id": 30,
+        "province_name": "LAMPUNG",
+        "type": "",
+        "city_name": "LAMPUNG BARAT",
+        "postal_code": ""
+    },
+    {
+        "id": 604,
+        "province_id": 30,
+        "province_name": "LAMPUNG",
+        "type": "",
+        "city_name": "PESISIR BARAT",
+        "postal_code": ""
+    },
+    {
+        "id": 605,
+        "province_id": 30,
+        "province_name": "LAMPUNG",
+        "type": "",
+        "city_name": "LAMPUNG TENGAH",
+        "postal_code": ""
+    },
+    {
+        "id": 607,
+        "province_id": 30,
+        "province_name": "LAMPUNG",
+        "type": "",
+        "city_name": "LAMPUNG TIMUR",
+        "postal_code": ""
+    },
+    {
+        "id": 608,
+        "province_id": 30,
+        "province_name": "LAMPUNG",
+        "type": "",
+        "city_name": "WAY KANAN",
+        "postal_code": ""
+    },
+    {
+        "id": 609,
+        "province_id": 30,
+        "province_name": "LAMPUNG",
+        "type": "",
+        "city_name": "TULANG BAWANG",
+        "postal_code": ""
+    },
+    {
+        "id": 610,
+        "province_id": 30,
+        "province_name": "LAMPUNG",
+        "type": "",
+        "city_name": "MESUJI",
+        "postal_code": ""
+    },
+    {
+        "id": 611,
+        "province_id": 30,
+        "province_name": "LAMPUNG",
+        "type": "",
+        "city_name": "TULANG BAWANG BARAT",
+        "postal_code": ""
+    },
+    {
+        "id": 615,
+        "province_id": 30,
+        "province_name": "LAMPUNG",
+        "type": "",
+        "city_name": "PRINGSEWU",
+        "postal_code": ""
+    },
+    {
+        "id": 616,
+        "province_id": 30,
+        "province_name": "LAMPUNG",
+        "type": "",
+        "city_name": "TANGGAMUS",
+        "postal_code": ""
+    },
+    {
+        "id": 618,
+        "province_id": 30,
+        "province_name": "LAMPUNG",
+        "type": "",
+        "city_name": "PESAWARAN",
+        "postal_code": ""
+    },
+    {
+        "id": 626,
+        "province_id": 31,
+        "province_name": "KALIMANTAN UTARA",
+        "type": "",
+        "city_name": "TARAKAN",
+        "postal_code": ""
+    },
+    {
+        "id": 627,
+        "province_id": 31,
+        "province_name": "KALIMANTAN UTARA",
+        "type": "",
+        "city_name": "BULUNGAN",
+        "postal_code": ""
+    },
+    {
+        "id": 628,
+        "province_id": 31,
+        "province_name": "KALIMANTAN UTARA",
+        "type": "",
+        "city_name": "MALINAU",
+        "postal_code": ""
+    },
+    {
+        "id": 629,
+        "province_id": 31,
+        "province_name": "KALIMANTAN UTARA",
+        "type": "",
+        "city_name": "NUNUKAN",
+        "postal_code": ""
+    },
+    {
+        "id": 631,
+        "province_id": 31,
+        "province_name": "KALIMANTAN UTARA",
+        "type": "",
+        "city_name": "TANA TIDUNG",
+        "postal_code": ""
+    },
+    {
+        "id": 636,
+        "province_id": 32,
+        "province_name": "MALUKU UTARA",
+        "type": "",
+        "city_name": "TERNATE",
+        "postal_code": ""
+    },
+    {
+        "id": 637,
+        "province_id": 32,
+        "province_name": "MALUKU UTARA",
+        "type": "",
+        "city_name": "HALMAHERA BARAT",
+        "postal_code": ""
+    },
+    {
+        "id": 639,
+        "province_id": 32,
+        "province_name": "MALUKU UTARA",
+        "type": "",
+        "city_name": "HALMAHERA SELATAN",
+        "postal_code": ""
+    },
+    {
+        "id": 640,
+        "province_id": 32,
+        "province_name": "MALUKU UTARA",
+        "type": "",
+        "city_name": "HALMAHERA TENGAH",
+        "postal_code": ""
+    },
+    {
+        "id": 641,
+        "province_id": 32,
+        "province_name": "MALUKU UTARA",
+        "type": "",
+        "city_name": "HALMAHERA TIMUR",
+        "postal_code": ""
+    },
+    {
+        "id": 642,
+        "province_id": 32,
+        "province_name": "MALUKU UTARA",
+        "type": "",
+        "city_name": "HALMAHERA UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 643,
+        "province_id": 32,
+        "province_name": "MALUKU UTARA",
+        "type": "",
+        "city_name": "PULAU MOROTAI",
+        "postal_code": ""
+    },
+    {
+        "id": 644,
+        "province_id": 32,
+        "province_name": "MALUKU UTARA",
+        "type": "",
+        "city_name": "KEPULAUAN SULA",
+        "postal_code": ""
+    },
+    {
+        "id": 646,
+        "province_id": 32,
+        "province_name": "MALUKU UTARA",
+        "type": "",
+        "city_name": "PULAU TALIABU",
+        "postal_code": ""
+    },
+    {
+        "id": 647,
+        "province_id": 32,
+        "province_name": "MALUKU UTARA",
+        "type": "",
+        "city_name": "TIDORE KEPULAUAN",
+        "postal_code": ""
+    },
+    {
+        "id": 648,
+        "province_id": 33,
+        "province_name": "SULAWESI SELATAN",
+        "type": "",
+        "city_name": "MAKASSAR",
+        "postal_code": ""
+    },
+    {
+        "id": 649,
+        "province_id": 33,
+        "province_name": "SULAWESI SELATAN",
+        "type": "",
+        "city_name": "BANTAENG",
+        "postal_code": ""
+    },
+    {
+        "id": 650,
+        "province_id": 33,
+        "province_name": "SULAWESI SELATAN",
+        "type": "",
+        "city_name": "BARRU",
+        "postal_code": ""
+    },
+    {
+        "id": 651,
+        "province_id": 33,
+        "province_name": "SULAWESI SELATAN",
+        "type": "",
+        "city_name": "BULUKUMBA",
+        "postal_code": ""
+    },
+    {
+        "id": 652,
+        "province_id": 33,
+        "province_name": "SULAWESI SELATAN",
+        "type": "",
+        "city_name": "ENREKANG",
+        "postal_code": ""
+    },
+    {
+        "id": 653,
+        "province_id": 33,
+        "province_name": "SULAWESI SELATAN",
+        "type": "",
+        "city_name": "JENEPONTO",
+        "postal_code": ""
+    },
+    {
+        "id": 654,
+        "province_id": 33,
+        "province_name": "SULAWESI SELATAN",
+        "type": "",
+        "city_name": "TANA TORAJA",
+        "postal_code": ""
+    },
+    {
+        "id": 655,
+        "province_id": 33,
+        "province_name": "SULAWESI SELATAN",
+        "type": "",
+        "city_name": "TORAJA UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 659,
+        "province_id": 33,
+        "province_name": "SULAWESI SELATAN",
+        "type": "",
+        "city_name": "MAROS",
+        "postal_code": ""
+    },
+    {
+        "id": 663,
+        "province_id": 33,
+        "province_name": "SULAWESI SELATAN",
+        "type": "",
+        "city_name": "PALOPO",
+        "postal_code": ""
+    },
+    {
+        "id": 664,
+        "province_id": 33,
+        "province_name": "SULAWESI SELATAN",
+        "type": "",
+        "city_name": "PINRANG",
+        "postal_code": ""
+    },
+    {
+        "id": 667,
+        "province_id": 33,
+        "province_name": "SULAWESI SELATAN",
+        "type": "",
+        "city_name": "SIDENRENG RAPPANG",
+        "postal_code": ""
+    },
+    {
+        "id": 670,
+        "province_id": 33,
+        "province_name": "SULAWESI SELATAN",
+        "type": "",
+        "city_name": "WAJO",
+        "postal_code": ""
+    },
+    {
+        "id": 671,
+        "province_id": 33,
+        "province_name": "SULAWESI SELATAN",
+        "type": "",
+        "city_name": "SINJAI",
+        "postal_code": ""
+    },
+    {
+        "id": 673,
+        "province_id": 33,
+        "province_name": "SULAWESI SELATAN",
+        "type": "",
+        "city_name": "GOWA",
+        "postal_code": ""
+    },
+    {
+        "id": 674,
+        "province_id": 33,
+        "province_name": "SULAWESI SELATAN",
+        "type": "",
+        "city_name": "TAKALAR",
+        "postal_code": ""
+    },
+    {
+        "id": 676,
+        "province_id": 33,
+        "province_name": "SULAWESI SELATAN",
+        "type": "",
+        "city_name": "BONE",
+        "postal_code": ""
+    },
+    {
+        "id": 678,
+        "province_id": 33,
+        "province_name": "SULAWESI SELATAN",
+        "type": "",
+        "city_name": "SOPPENG",
+        "postal_code": ""
+    },
+    {
+        "id": 679,
+        "province_id": 33,
+        "province_name": "SULAWESI SELATAN",
+        "type": "",
+        "city_name": "KEPULAUAN SELAYAR",
+        "postal_code": ""
+    },
+    {
+        "id": 680,
+        "province_id": 33,
+        "province_name": "SULAWESI SELATAN",
+        "type": "",
+        "city_name": "PANGKAJENE KEPULAUAN",
+        "postal_code": ""
+    },
+    {
+        "id": 683,
+        "province_id": 33,
+        "province_name": "SULAWESI SELATAN",
+        "type": "",
+        "city_name": "PAREPARE",
+        "postal_code": ""
+    },
+    {
+        "id": 684,
+        "province_id": 33,
+        "province_name": "SULAWESI SELATAN",
+        "type": "",
+        "city_name": "LUWU",
+        "postal_code": ""
+    },
+    {
+        "id": 685,
+        "province_id": 33,
+        "province_name": "SULAWESI SELATAN",
+        "type": "",
+        "city_name": "LUWU TIMUR",
+        "postal_code": ""
+    },
+    {
+        "id": 686,
+        "province_id": 33,
+        "province_name": "SULAWESI SELATAN",
+        "type": "",
+        "city_name": "LUWU UTARA",
+        "postal_code": ""
+    },
+    {
+        "id": 657,
+        "province_id": 34,
+        "province_name": "SULAWESI BARAT",
+        "type": "",
+        "city_name": "MAMUJU",
+        "postal_code": ""
+    },
+    {
+        "id": 658,
+        "province_id": 34,
+        "province_name": "SULAWESI BARAT",
+        "type": "",
+        "city_name": "MAMUJU TENGAH",
+        "postal_code": ""
+    },
+    {
+        "id": 662,
+        "province_id": 34,
+        "province_name": "SULAWESI BARAT",
+        "type": "",
+        "city_name": "MAJENE",
+        "postal_code": ""
+    },
+    {
+        "id": 665,
+        "province_id": 34,
+        "province_name": "SULAWESI BARAT",
+        "type": "",
+        "city_name": "POLEWALI MANDAR",
+        "postal_code": ""
+    },
+    {
+        "id": 687,
+        "province_id": 34,
+        "province_name": "SULAWESI BARAT",
+        "type": "",
+        "city_name": "MAMASA",
+        "postal_code": ""
+    },
+    {
+        "id": 688,
+        "province_id": 34,
+        "province_name": "SULAWESI BARAT",
+        "type": "",
+        "city_name": "MAMUJU UTARA",
+        "postal_code": ""
+    }
+]

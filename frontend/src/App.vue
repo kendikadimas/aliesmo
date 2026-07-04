@@ -82,6 +82,12 @@
 
                     <!-- Right: Auth, Wishlist, Cart -->
                     <div class="flex items-center gap-2 lg:gap-4">
+                        <!-- Pesanan Saya (Desktop, hanya jika login) -->
+                        <router-link v-if="isLoggedIn" to="/orders" class="hidden lg:block text-[13px] font-semibold text-charcoal/80 hover:text-maroon transition-colors">Pesanan</router-link>
+
+                        <!-- Profile (Desktop, hanya jika login) -->
+                        <router-link v-if="isLoggedIn" to="/profile" class="hidden lg:block text-[13px] font-semibold text-charcoal/80 hover:text-maroon transition-colors">Profil</router-link>
+
                         <!-- Auth Link (Desktop) -->
                         <div class="hidden md:flex items-center gap-1.5 mr-2">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-charcoal/70">
@@ -162,6 +168,8 @@
             <div v-if="mobileOpen" class="lg:hidden border-t border-zinc-200/50 bg-putih shadow-xl fixed top-[110px] left-0 right-0 z-40 max-h-[calc(100vh-110px)] overflow-y-auto">
                 <nav class="px-5 py-6 space-y-5">
                     <router-link @click="mobileOpen = false" to="/" class="block text-sm font-bold text-charcoal/80 hover:text-maroon uppercase tracking-wide">Semua Koleksi</router-link>
+                    <router-link v-if="isLoggedIn" @click="mobileOpen = false" to="/orders" class="block text-sm font-bold text-charcoal/80 hover:text-maroon uppercase tracking-wide">Pesanan Saya</router-link>
+                    <router-link v-if="isLoggedIn" @click="mobileOpen = false" to="/profile" class="block text-sm font-bold text-charcoal/80 hover:text-maroon uppercase tracking-wide">Profil</router-link>
                     
                     <div class="h-[1px] bg-zinc-100"></div>
                     
@@ -241,7 +249,6 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useCartStore } from './cart'
-import { categories } from './mock-data'
 import api, { clearToken } from './api'
 
 const router = useRouter()
@@ -249,6 +256,7 @@ const route = useRoute()
 const { items } = useCartStore()
 const mobileOpen = ref(false)
 const isLoggedIn = ref(false)
+const categories = ref([])
 
 const cartCount = computed(() => items.value.reduce((sum, item) => sum + item.quantity, 0))
 
@@ -270,13 +278,21 @@ const promos = [
 const showToast = ref(false)
 const toastMessage = ref('')
 
-onMounted(() => {
+onMounted(async () => {
     isLoggedIn.value = !!localStorage.getItem('token')
-    
+
     // Auto-scroll promos on mobile
     setInterval(() => {
         activePromo.value = (activePromo.value + 1) % promos.length
     }, 4000)
+
+    // Fetch categories dari API
+    try {
+        const res = await api.get('/categories')
+        categories.value = res.data.data || res.data
+    } catch (e) {
+        console.error('Failed to fetch categories:', e)
+    }
 })
 
 function showWishlistToast() {

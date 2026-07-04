@@ -173,6 +173,14 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Load More -->
+                <div v-if="hasMorePages || loadingMore" class="mt-10 flex justify-center">
+                    <button @click="loadMore" :disabled="loadingMore" class="px-8 py-3 border-2 border-maroon text-maroon text-sm font-semibold rounded-xl hover:bg-maroon hover:text-white transition-all active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                        <span v-if="loadingMore" class="w-4 h-4 border-2 border-maroon/30 border-t-maroon rounded-full animate-spin"></span>
+                        {{ loadingMore ? 'Memuat...' : 'Tampilkan Lebih Banyak' }}
+                    </button>
+                </div>
             </div>
         </section>
 
@@ -197,6 +205,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useCartStore } from '../cart'
 import { categories as mockCategories, products as mockProducts, formatPrice } from '../mock-data'
+import api from '../api'
 
 const route = useRoute()
 const { addItem } = useCartStore()
@@ -209,10 +218,14 @@ const subscribed = ref(false)
 const activeSlide = ref(0)
 let slideTimer = null
 
+const loadingMore = ref(false)
+const hasMorePages = ref(false)
+const currentPage = ref(1)
+
 const filteredProducts = computed(() => {
-    const source = products.value.length ? products.value : mockProducts
-    if (!selectedCategory.value) return source
-    return source.filter(p => p.category?.slug === selectedCategory.value)
+    if (!products.value.length) return []
+    if (!selectedCategory.value) return products.value
+    return products.value.filter(p => p.category?.slug === selectedCategory.value)
 })
 
 const groupedProducts = computed(() => {
@@ -262,14 +275,52 @@ function handleSubscribe() {
 }
 
 onMounted(() => {
-    categoriesList.value = mockCategories
-    products.value = mockProducts
-    loading.value = false
+    fetchData()
     slideTimer = setInterval(() => { nextSlide() }, 5000)
     if (route.query.shop) {
         setTimeout(() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' }), 150)
     }
 })
+
+async function fetchData() {
+    loading.value = true
+    currentPage.value = 1
+    try {
+        const [categoriesRes, productsRes] = await Promise.all([
+            api.get('/categories'),
+            api.get('/products', { params: { per_page: 12, page: 1 } })
+        ])
+        categoriesList.value = categoriesRes.data.data || categoriesRes.data
+        const meta = productsRes.data.meta || productsRes.data.pagination || null
+        products.value = productsRes.data.data || productsRes.data
+        hasMorePages.value = meta ? meta.current_page < meta.last_page : false
+    } catch (e) {
+        console.error('Failed to fetch data:', e)
+        categoriesList.value = mockCategories
+        products.value = mockProducts
+        hasMorePages.value = false
+    } finally {
+        loading.value = false
+    }
+}
+
+async function loadMore() {
+    if (loadingMore.value || !hasMorePages.value) return
+    loadingMore.value = true
+    try {
+        const nextPage = currentPage.value + 1
+        const res = await api.get('/products', { params: { per_page: 12, page: nextPage } })
+        const newProducts = res.data.data || res.data
+        const meta = res.data.meta || res.data.pagination || null
+        products.value = [...products.value, ...newProducts]
+        currentPage.value = nextPage
+        hasMorePages.value = meta ? meta.current_page < meta.last_page : false
+    } catch (e) {
+        console.error('Failed to load more:', e)
+    } finally {
+        loadingMore.value = false
+    }
+}
 
 onUnmounted(() => {
     if (slideTimer) clearInterval(slideTimer)

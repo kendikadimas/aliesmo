@@ -50,7 +50,8 @@ return [
     |
     */
 
-    'expiration' => null,
+    // Token expired setelah 43200 menit (30 hari). null = tidak pernah expired (tidak aman).
+    'expiration' => 43200,
 
     /*
     |--------------------------------------------------------------------------

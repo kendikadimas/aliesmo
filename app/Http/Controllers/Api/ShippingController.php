@@ -29,17 +29,15 @@ class ShippingController extends Controller
     {
         $request->validate([
             'destination' => 'required|integer',
-            'weight' => 'required|integer|min:1',
-            'courier' => 'required|string|in:jne,tiki,pos',
+            'weight' => 'required|integer|min:1|max:100000',
         ]);
 
         $origin = config('services.rajaongkir.origin_city', 39);
 
-        $costs = $this->rajaOngkir->getShippingCost(
+        $costs = $this->rajaOngkir->getAllShippingCosts(
             (int) $origin,
             (int) $request->destination,
             (int) $request->weight,
-            $request->courier
         );
 
         return response()->json([
@@ -51,6 +49,17 @@ class ShippingController extends Controller
     {
         return response()->json([
             'data' => $this->rajaOngkir->getAvailableCouriers(),
+        ]);
+    }
+
+    public function search(Request $request)
+    {
+        $request->validate([
+            'q' => 'required|string|min:2',
+        ]);
+
+        return response()->json([
+            'data' => $this->rajaOngkir->searchDestinations($request->q),
         ]);
     }
 }

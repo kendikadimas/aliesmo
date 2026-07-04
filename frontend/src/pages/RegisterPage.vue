@@ -46,7 +46,7 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { setToken } from '../api'
+import api, { setToken } from '../api'
 
 const router = useRouter()
 const submitting = ref(false)
@@ -73,8 +73,25 @@ async function handleRegister() {
         submitting.value = false
         return
     }
-    setToken('mock-token-' + Date.now())
-    success.value = true
-    setTimeout(() => router.push('/'), 800)
+    try {
+        const res = await api.post('/auth/register', {
+            name: form.name,
+            email: form.email,
+            password: form.password,
+            password_confirmation: form.password_confirmation,
+        })
+        setToken(res.data.token)
+        success.value = true
+        setTimeout(() => router.push('/'), 800)
+    } catch (e) {
+        const errors = e.response?.data?.errors
+        if (errors) {
+            error.value = Object.values(errors).flat().join(' ')
+        } else {
+            error.value = e.response?.data?.message || 'Registrasi gagal, coba lagi ya!'
+        }
+    } finally {
+        submitting.value = false
+    }
 }
 </script>

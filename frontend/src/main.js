@@ -8,6 +8,16 @@ import CheckoutPage from './pages/CheckoutPage.vue'
 import OrderConfirmationPage from './pages/OrderConfirmationPage.vue'
 import LoginPage from './pages/LoginPage.vue'
 import RegisterPage from './pages/RegisterPage.vue'
+import MyOrdersPage from './pages/MyOrdersPage.vue'
+import ProfilePage from './pages/ProfilePage.vue'
+import ForgotPasswordPage from './pages/ForgotPasswordPage.vue'
+import ResetPasswordPage from './pages/ResetPasswordPage.vue'
+import NotFoundPage from './pages/NotFoundPage.vue'
+import PrivacyPage from './pages/PrivacyPage.vue'
+import TermsPage from './pages/TermsPage.vue'
+import ShippingInfoPage from './pages/ShippingInfoPage.vue'
+import SizeGuidePage from './pages/SizeGuidePage.vue'
+import TrackOrderPage from './pages/TrackOrderPage.vue'
 import './style.css'
 
 const routes = [
@@ -16,8 +26,18 @@ const routes = [
     { path: '/cart', name: 'cart', component: CartPage },
     { path: '/checkout', name: 'checkout', component: CheckoutPage },
     { path: '/order/:orderNumber', name: 'order-confirmation', component: OrderConfirmationPage },
+    { path: '/track-order', name: 'track-order', component: TrackOrderPage },
     { path: '/login', name: 'login', component: LoginPage },
     { path: '/register', name: 'register', component: RegisterPage },
+    { path: '/orders', name: 'my-orders', component: MyOrdersPage },
+    { path: '/profile', name: 'profile', component: ProfilePage },
+    { path: '/forgot-password', name: 'forgot-password', component: ForgotPasswordPage },
+    { path: '/reset-password', name: 'reset-password', component: ResetPasswordPage },
+    { path: '/privacy', name: 'privacy', component: PrivacyPage },
+    { path: '/terms', name: 'terms', component: TermsPage },
+    { path: '/shipping-info', name: 'shipping-info', component: ShippingInfoPage },
+    { path: '/size-guide', name: 'size-guide', component: SizeGuidePage },
+    { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFoundPage },
 ]
 
 const router = createRouter({
@@ -31,3 +51,9 @@ const router = createRouter({
 const app = createApp(App)
 app.use(router)
 app.mount('#app')
+
+// Handle auth expired event dari api.js interceptor
+// Pakai router.push supaya navigate di dalam Vue, bukan reload ke Laravel port
+window.addEventListener('auth:expired', () => {
+    router.push('/login')
+})
