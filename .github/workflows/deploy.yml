@@ -115,15 +115,13 @@ jobs:
         run: |
           cd public && zip -r ../deploy_public.zip .
 
-      # ─── 8. Upload deploy script + zip ke server via FTP ────────────
-      - name: Upload unzipper script
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./deploy/
-          server-dir: /public_html/
+      # ─── 8. Upload deploy.php langsung via FTP curl ─────────────────
+      - name: Upload unzipper script via FTP
+        run: |
+          curl -s --ftp-create-dirs -T deploy/deploy.php \
+            "ftp://${{ secrets.FTP_SERVER }}/public_html/deploy.php" \
+            --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}"
+          echo "deploy.php uploaded"
 
       # ─── 9. Upload zip app ke ~/aliesmo_deploy/ via FTP ─────────────
       - name: Upload app zip via FTP

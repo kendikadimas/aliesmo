@@ -46,6 +46,12 @@ $action = $_POST['action'] ?? '';
 if ($action === 'unzip') {
     $results = [];
 
+    // Cek ZipArchive extension tersedia
+    if (!class_exists('ZipArchive')) {
+        http_response_code(500);
+        die(json_encode(['error' => 'ZipArchive extension not available on this server']));
+    }
+
     // 1. Unzip app ke ~/aliesmo/
     $appZip = $deployDir . '/deploy_app.zip';
     if (file_exists($appZip)) {
