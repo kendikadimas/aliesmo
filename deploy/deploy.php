@@ -6,9 +6,135 @@
  * PENTING: Jangan tinggalkan file ini di server setelah deploy selesai.
  */
 
-// Tampilkan semua error untuk debugging
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
+
+// Terima via GET atau POST
+$secret = $_GET['secret'] ?? $_POST['secret'] ?? '';
+$action = $_GET['action'] ?? $_POST['action'] ?? '';
+
+$publicHtmlDir = __DIR__;
+$homeDir       = dirname($publicHtmlDir);
+$appDir        = $homeDir . '/aliesmo';
+$deployDir     = $homeDir . '/aliesmo_deploy';
+
+// ─── Autentikasi ────────────────────────────────────────────────────────────
+$secretFile     = $homeDir . '/.deploy_secret';
+$expectedSecret = '';
+
+if (file_exists($secretFile)) {
+    $expectedSecret = trim(file_get_contents($secretFile));
+} else {
+    http_response_code(500);
+    die(json_encode([
+        'error'     => '.deploy_secret file not found',
+        'looked_in' => $secretFile,
+    ]));
+}
+
+if (empty($expectedSecret) || !hash_equals($expectedSecret, $secret)) {
+    http_response_code(403);
+    die(json_encode(['error' => 'Forbidden']));
+}
+
+// ─── Action: unzip ──────────────────────────────────────────────────────────
+if ($action === 'unzip') {
+    $results = [];
+
+    if (!class_exists('ZipArchive')) {
+        http_response_code(500);
+        die(json_encode(['error' => 'ZipArchive extension not available']));
+    }
+
+    // Unzip app ke ~/aliesmo/
+    $appZip = $deployDir . '/deploy_app.zip';
+    if (file_exists($appZip)) {
+        if (!is_dir($appDir)) {
+            mkdir($appDir, 0755, true);
+        }
+        $zip    = new ZipArchive();
+        $opened = $zip->open($appZip);
+        if ($opened === true) {
+            $zip->extractTo($appDir);
+            $zip->close();
+            $results['app'] = 'extracted to ' . $appDir;
+        } else {
+            http_response_code(500);
+            die(json_encode(['error' => 'Failed to open deploy_app.zip', 'code' => $opened]));
+        }
+    } else {
+        $results['app'] = 'deploy_app.zip not found at ' . $appZip;
+    }
+
+    // Unzip public ke ~/public_html/
+    $publicZip = $deployDir . '/deploy_public.zip';
+    if (file_exists($publicZip)) {
+        $zip    = new ZipArchive();
+        $opened = $zip->open($publicZip);
+        if ($opened === true) {
+            $zip->extractTo($publicHtmlDir);
+            $zip->close();
+            $results['public'] = 'extracted to ' . $publicHtmlDir;
+        } else {
+            http_response_code(500);
+            die(json_encode(['error' => 'Failed to open deploy_public.zip', 'code' => $opened]));
+        }
+    } else {
+        $results['public'] = 'deploy_public.zip not found at ' . $publicZip;
+    }
+
+    // Set permission storage & bootstrap/cache
+    foreach ([$appDir . '/storage', $appDir . '/bootstrap/cache'] as $path) {
+        if (is_dir($path)) {
+            chmod_recursive($path, 0775);
+            $results['chmod_' . basename($path)] = 'done';
+        }
+    }
+
+    echo json_encode(['status' => 'ok', 'results' => $results]);
+    exit;
+}
+
+// ─── Action: cleanup ────────────────────────────────────────────────────────
+if ($action === 'cleanup') {
+    $cleaned = [];
+
+    foreach (['deploy_app.zip', 'deploy_public.zip'] as $file) {
+        $path = $deployDir . '/' . $file;
+        if (file_exists($path)) {
+            unlink($path);
+            $cleaned[] = $file;
+        }
+    }
+
+    if (is_dir($deployDir) && count(scandir($deployDir)) === 2) {
+        rmdir($deployDir);
+        $cleaned[] = 'aliesmo_deploy/';
+    }
+
+    $cleaned[] = 'deploy.php (self-destruct)';
+    register_shutdown_function(function () use ($publicHtmlDir) {
+        @unlink($publicHtmlDir . '/deploy.php');
+    });
+
+    echo json_encode(['status' => 'ok', 'cleaned' => $cleaned]);
+    exit;
+}
+
+http_response_code(400);
+echo json_encode(['error' => 'Unknown action: ' . $action]);
+
+function chmod_recursive(string $path, int $mode): void
+{
+    chmod($path, $mode);
+    foreach (new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::SELF_FIRST
+    ) as $item) {
+        @chmod($item->getPathname(), $mode);
+    }
+}
+
 
 // ─── Deteksi home directory secara otomatis ──────────────────────────────────
 $publicHtmlDir = __DIR__; // /home/username/public_html

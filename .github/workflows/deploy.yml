@@ -138,13 +138,11 @@ jobs:
             --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}"
           echo "deploy_public.zip uploaded"
 
-      # ─── 10. Trigger unzip via HTTP ─────────────────────────────────
+      # ─── 10. Trigger unzip via HTTP GET ─────────────────────────────
       - name: Trigger deploy unzip
         run: |
-          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X POST "${{ secrets.APP_URL }}/deploy.php" \
-            -H "Content-Type: application/x-www-form-urlencoded" \
-            --data-urlencode "secret=${{ secrets.DEPLOY_SECRET }}" \
-            --data-urlencode "action=unzip")
+          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" \
+            "${{ secrets.APP_URL }}/deploy.php?secret=${{ secrets.DEPLOY_SECRET }}&action=unzip")
           HTTP_STATUS=$(echo "$RESPONSE" | grep "HTTP_STATUS:" | cut -d: -f2)
           BODY=$(echo "$RESPONSE" | grep -v "HTTP_STATUS:")
           echo "HTTP Status: $HTTP_STATUS"
@@ -157,7 +155,4 @@ jobs:
       # ─── 11. Trigger cleanup (hapus zip + script) ───────────────────
       - name: Trigger deploy cleanup
         run: |
-          curl -s -X POST "${{ secrets.APP_URL }}/deploy.php" \
-            -H "Content-Type: application/x-www-form-urlencoded" \
-            --data-urlencode "secret=${{ secrets.DEPLOY_SECRET }}" \
-            --data-urlencode "action=cleanup"
+          curl -s "${{ secrets.APP_URL }}/deploy.php?secret=${{ secrets.DEPLOY_SECRET }}&action=cleanup"
