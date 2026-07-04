@@ -47,7 +47,7 @@ jobs:
       # ─── 4. Buat .env untuk production ─────────────────────────────
       - name: Create .env file
         run: |
-          cat > .env << 'EOF'
+          cat > .env << EOF
           APP_NAME="Aliesmo"
           APP_ENV=production
           APP_KEY=${{ secrets.APP_KEY }}
@@ -95,33 +95,60 @@ jobs:
           php artisan view:cache
           php artisan event:cache
 
-      # ─── 6. Deploy seluruh project ke ~/aliesmo/ via FTP ───────────
-      - name: Deploy Laravel app to ~/aliesmo/
+      # ─── 6. Zip seluruh project Laravel (kecuali yang tidak perlu) ──
+      - name: Zip Laravel app
+        run: |
+          zip -r deploy_app.zip . \
+            --exclude "*.git*" \
+            --exclude "*/.git/*" \
+            --exclude "*/node_modules/*" \
+            --exclude "*/frontend/src/*" \
+            --exclude "*/tests/*" \
+            --exclude ".env.example" \
+            --exclude "DEPLOY.md" \
+            --exclude "README.md" \
+            --exclude ".github/*" \
+            --exclude "deploy_app.zip"
+
+      # ─── 7. Zip isi public/ untuk public_html ───────────────────────
+      - name: Zip public dir
+        run: |
+          cd public && zip -r ../deploy_public.zip .
+
+      # ─── 8. Upload deploy script + zip ke server via FTP ────────────
+      - name: Upload unzipper script
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./deploy/
+          server-dir: /public_html/
+
+      # ─── 9. Upload zip app ke ~/aliesmo_deploy/ via FTP ─────────────
+      - name: Upload app zip via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./
-          server-dir: /aliesmo/
+          server-dir: /aliesmo_deploy/
           exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/frontend/node_modules/**
-            **/frontend/src/**
-            **/tests/**
-            **/.env.example
-            **/DEPLOY.md
-            **/README.md
-            **/.github/**
+            **/*
+            !deploy_app.zip
+            !deploy_public.zip
 
-      # ─── 7. Deploy isi public/ ke public_html/ via FTP ─────────────
-      - name: Deploy public/ to public_html/
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./public/
-          server-dir: /public_html/
+      # ─── 10. Trigger unzip via HTTP ─────────────────────────────────
+      - name: Trigger deploy unzip
+        run: |
+          curl -f -X POST "${{ secrets.APP_URL }}/deploy.php" \
+            -d "secret=${{ secrets.DEPLOY_SECRET }}" \
+            -d "action=unzip"
+
+      # ─── 11. Trigger cleanup (hapus zip + script) ───────────────────
+      - name: Trigger deploy cleanup
+        run: |
+          curl -f -X POST "${{ secrets.APP_URL }}/deploy.php" \
+            -d "secret=${{ secrets.DEPLOY_SECRET }}" \
+            -d "action=cleanup"
