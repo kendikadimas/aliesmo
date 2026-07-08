@@ -1,18 +1,22 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BannerController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CouponController;
 use App\Http\Controllers\Api\OrderController;
-use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\ShippingController;
+use App\Http\Controllers\Api\SiteSettingController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     // Public
+    Route::get('banners', [BannerController::class, 'index'])->middleware('throttle:60,1');
+    Route::get('settings', [SiteSettingController::class, 'index'])->middleware('throttle:60,1');
+    Route::get('settings/group/{group}', [SiteSettingController::class, 'group'])->middleware('throttle:60,1');
     Route::get('products', [ProductController::class, 'index'])->middleware('throttle:60,1');
     Route::get('products/{slug}', [ProductController::class, 'show'])->middleware('throttle:60,1');
     Route::get('categories', [CategoryController::class, 'index'])->middleware('throttle:60,1');
@@ -28,11 +32,6 @@ Route::prefix('v1')->group(function () {
 
     // Reviews (public read)
     Route::get('products/{slug}/reviews', [ReviewController::class, 'index']);
-
-    // Payment callback (no CSRF, no auth - server-to-server)
-    Route::post('payments/callback/midtrans', [PaymentController::class, 'callback'])
-        ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
-        ->middleware('throttle:20,1');
 
     // Shipping (RajaOngkir)
     Route::get('shipping/provinces', [ShippingController::class, 'provinces'])->middleware('throttle:30,1');
@@ -50,17 +49,36 @@ Route::prefix('v1')->group(function () {
     // Authenticated
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('auth/logout', [AuthController::class, 'logout']);
+        Route::post('auth/logout-all', [AuthController::class, 'logoutAll']);
+
+        // Email verification
+        Route::post('auth/email/verify/{id}/{hash}', function (\Illuminate\Foundation\Auth\EmailVerificationRequest $request) {
+            $request->fulfill();
+            return response()->json(['message' => 'Email berhasil diverifikasi.']);
+        })->middleware('signed')->name('verification.verify');
+
+        Route::post('auth/email/resend', function (\Illuminate\Http\Request $request) {
+            if ($request->user()->hasVerifiedEmail()) {
+                return response()->json(['message' => 'Email sudah terverifikasi.'], 422);
+            }
+            $request->user()->sendEmailVerificationNotification();
+            return response()->json(['message' => 'Link verifikasi sudah dikirim ke email kamu.']);
+        })->middleware('throttle:3,1')->name('verification.send');
 
         // Orders
         Route::get('me/orders', [OrderController::class, 'myOrders']);
+        Route::get('me/orders/{orderNumber}', [OrderController::class, 'myOrder']);
         Route::delete('me/orders/{orderNumber}', [OrderController::class, 'cancel']);
+        Route::post('me/orders/claim', [OrderController::class, 'claimGuestOrders']);
+        Route::get('me/orders/claimable-count', [OrderController::class, 'countClaimableOrders']);
 
         // Profile
         Route::get('me/profile', [ProfileController::class, 'show']);
         Route::put('me/profile', [ProfileController::class, 'update']);
         Route::put('me/password', [ProfileController::class, 'updatePassword']);
 
-        // Reviews (write)
+        // Reviews (write) — wajib email terverifikasi
+        // Reviews (write) — proteksi via ownership check order + status completed di controller
         Route::post('products/{slug}/reviews', [ReviewController::class, 'store']);
     });
 });

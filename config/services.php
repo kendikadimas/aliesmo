@@ -46,9 +46,24 @@ return [
     ],
 
     'rajaongkir' => [
-        'api_key' => env('RAJAONGKIR_API_KEY'),
-        'base_url' => env('RAJAONGKIR_BASE_URL', 'https://api.rajaongkir.com/starter'),
-        'origin_city' => env('RAJAONGKIR_ORIGIN_CITY', 39),
+        'api_key'     => env('RAJAONGKIR_API_KEY'),
+        'base_url'    => env('RAJAONGKIR_BASE_URL', 'https://rajaongkir.komerce.id/api/v1'),
+        'origin_city' => env('RAJAONGKIR_ORIGIN_CITY', 570),        // city ID Pemalang (static fallback)
+        'origin_id'   => env('RAJAONGKIR_ORIGIN_ID', 67550),        // subdistrict ID Sukorejo, Ulujami, Pemalang (akurasi tinggi)
+        'daily_limit' => env('RAJAONGKIR_DAILY_LIMIT', 95),
+    ],
+
+    'biteship' => [
+        'api_key'        => env('BITESHIP_API_KEY'),
+        'base_url'       => env('BITESHIP_BASE_URL', 'https://api.biteship.com'),
+        'origin_postal'  => env('BITESHIP_ORIGIN_POSTAL', '52371'),                          // kode pos Ulujami
+        'origin_area_id' => env('BITESHIP_ORIGIN_AREA_ID', 'IDNP10IDNC348IDND4071IDZ52371'), // area_id Ulujami, Pemalang
+    ],
+
+    'google' => [
+        'client_id'     => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect'      => env('GOOGLE_REDIRECT_URI', '/auth/google/callback'),
     ],
 
 ];

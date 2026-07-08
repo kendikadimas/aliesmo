@@ -28,6 +28,21 @@ class UserResource extends Resource
         return 'Pengguna';
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return 'Pengguna';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Pengguna';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Pengguna';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -71,7 +86,7 @@ class UserResource extends Resource
                     ->color(fn (UserRole $state) => $state === UserRole::Admin ? 'danger' : 'success'),
                 TextColumn::make('orders_count')
                     ->counts('orders')
-                    ->label('Orders')
+                    ->label('Pesanan')
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()

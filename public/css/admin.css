@@ -1,0 +1,190 @@
+/* ══════════════════════════════════════════
+   SIDEBAR
+   ══════════════════════════════════════════ */
+.fi-sidebar {
+  background-color: #0a0a0a !important;
+  border-right: 1px solid #1a1a1a !important;
+}
+
+.fi-sidebar-header {
+  background-color: #0a0a0a !important;
+  border-bottom: 1px solid #1a1a1a !important;
+}
+
+.fi-sidebar-header .fi-logo img,
+.fi-topbar .fi-logo img,
+.fi-logo img {
+  filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) !important;
+}
+
+.fi-sidebar-item a {
+  color: #a1a1aa !important;
+  border-radius: 0.5rem !important;
+  margin: 0 0.5rem !important;
+  transition: all 0.15s ease !important;
+}
+
+.fi-sidebar-item a:hover {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+}
+
+.fi-sidebar-item-active a {
+  background-color: #1e1e1e !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.fi-sidebar-item .fi-icon,
+.fi-sidebar-item svg {
+  color: #a1a1aa !important;
+}
+
+.fi-sidebar-item-active .fi-icon,
+.fi-sidebar-item-active svg,
+.fi-sidebar-item a:hover .fi-icon,
+.fi-sidebar-item a:hover svg {
+  color: #ffffff !important;
+}
+
+.fi-sidebar-collapse-button { color: #a1a1aa !important; }
+.fi-sidebar-collapse-button:hover {
+  color: #ffffff !important;
+  background-color: #1a1a1a !important;
+}
+
+.fi-sidebar-item-count {
+  background-color: #27272a !important;
+  color: #ffffff !important;
+}
+
+/* ══════════════════════════════════════════
+   WIDGET CONTAINERS
+   Biarkan Filament dark mode handle bg,
+   hapus override warna container
+   ══════════════════════════════════════════ */
+
+/* Main content: always fill available width when sidebar collapses */
+.fi-main-ctn {
+  max-width: 100% !important;
+  width: 100% !important;
+  flex: 1 1 0% !important;
+}
+
+.fi-main {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Body layout - ensure content stretches */
+.fi-body {
+  width: 100% !important;
+}
+
+.fi-layout {
+  width: 100% !important;
+}
+
+/* When sidebar is collapsed, remove margin/padding constraints */
+.fi-sidebar-close ~ .fi-main-ctn,
+.fi-main-ctn {
+  transition: all 0.15s ease !important;
+}
+
+/* Override any max-width on the content container */
+[class*="fi-main"] > div {
+  max-width: 100% !important;
+}
+
+/* Dashboard grid: ensure widgets fill width when sidebar collapses */
+.fi-page-dashboard .fi-wi-stats-overview {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.fi-page-dashboard .fi-wi-stats-overview-stats-ctn {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+  gap: 1rem !important;
+  width: 100% !important;
+}
+
+/* Ensure the page content wrapper expands fully */
+.fi-page {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+.fi-page .fi-page-content {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Widget grid container - fill full width */
+.fi-widgets {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.fi-widgets > .grid {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* ══════════════════════════════════════════
+   STAT CARDS — warna per widget (menu-based)
+   ══════════════════════════════════════════ */
+.fi-wi-stats-overview-stat {
+  border-radius: 0.75rem !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.fi-wi-stats-overview-stat:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4) !important;
+}
+
+/* OrdersWidget */
+.stat-widget-orders {
+  background: linear-gradient(135deg, #0a1220 0%, #111111 100%) !important;
+  border-color: #1a2840 !important;
+}
+
+.stat-widget-revenue {
+  background: linear-gradient(135deg, #0a1f14 0%, #111111 100%) !important;
+  border-color: #1a3d2b !important;
+}
+
+/* ProductsWidget */
+.stat-widget-products {
+  background: linear-gradient(135deg, #12102e 0%, #111111 100%) !important;
+  border-color: #221e45 !important;
+}
+
+.stat-widget-stock {
+  background: linear-gradient(135deg, #1a1200 0%, #111111 100%) !important;
+  border-color: #332500 !important;
+}
+
+/* UsersWidget */
+.stat-widget-users {
+  background: linear-gradient(135deg, #110820 0%, #111111 100%) !important;
+  border-color: #221035 !important;
+}
+
+.stat-widget-admins {
+  background: linear-gradient(135deg, #071a1e 0%, #111111 100%) !important;
+  border-color: #0e2e35 !important;
+}
+
+/* ReviewsWidget */
+.stat-widget-reviews {
+  background: linear-gradient(135deg, #1a0e00 0%, #111111 100%) !important;
+  border-color: #331c00 !important;
+}
+
+.stat-widget-rating {
+  background: linear-gradient(135deg, #071a1e 0%, #111111 100%) !important;
+  border-color: #0e2e35 !important;
+}

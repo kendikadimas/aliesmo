@@ -82,12 +82,12 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between mb-8">
                     <div>
-                        <h2 class="text-2xl lg:text-3xl font-bold text-charcoal tracking-tight">Kategori</h2>
-                        <p class="mt-1 text-sm text-charcoal/50">Cari berdasarkan jenis kemeja</p>
+                        <h2 class="text-2xl lg:text-3xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Kategori</h2>
+                        <p class="mt-1 text-sm text-charcoal/50 dark:text-slate-400">Cari berdasarkan jenis kemeja</p>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-5">
-                    <div v-for="cat in categoriesList" :key="cat.id" @click="$router.push({ path: '/', query: { ...$route.query, category: cat.slug } })" class="group cursor-pointer">
+                    <div v-for="cat in categoriesList" :key="cat.id" @click="$router.push(`/catalog/${cat.slug}`)" class="group cursor-pointer">
                         <div class="aspect-[21/9] bg-maroon-50 rounded-xl overflow-hidden relative">
                             <img :src="`https://picsum.photos/seed/kategori-${cat.slug}/500/220`" :alt="cat.name" class="w-full h-full object-cover group-hover:scale-[1.06] transition-transform duration-500" />
                             <div class="absolute inset-0 bg-charcoal/30 group-hover:bg-charcoal/40 transition-colors flex items-center justify-center p-3">
@@ -99,18 +99,18 @@
             </div>
         </section>
 
-        <section id="shop" class="py-12 lg:py-16 bg-coklat-50/20">
+        <section id="shop" class="py-12 lg:py-16 bg-coklat-50/20 dark:bg-slate-800/30">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between mb-8">
                     <div>
-                        <h2 class="text-2xl lg:text-3xl font-bold text-charcoal tracking-tight">Semua <span class="text-maroon">Produk</span></h2>
-                        <p class="mt-1 text-sm text-charcoal/50">Temukan kemeja favoritmu</p>
+                        <h2 class="text-2xl lg:text-3xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Semua <span class="text-maroon">Produk</span></h2>
+                        <p class="mt-1 text-sm text-charcoal/50 dark:text-slate-400">Temukan kemeja favoritmu</p>
                     </div>
                 </div>
 
                 <div class="flex flex-wrap gap-2 mb-6">
-                    <button @click="selectedCategory = ''" class="px-4 py-2 text-xs font-semibold rounded-xl border-2 transition-all" :class="!selectedCategory ? 'bg-maroon text-white border-maroon' : 'bg-white text-charcoal/60 border-maroon-100 hover:border-maroon/50'">Semua</button>
-                    <button v-for="cat in categoriesList" :key="cat.id" @click="selectedCategory = cat.slug" class="px-4 py-2 text-xs font-semibold rounded-xl border-2 transition-all" :class="selectedCategory === cat.slug ? 'bg-maroon text-white border-maroon' : 'bg-white text-charcoal/60 border-maroon-100 hover:border-maroon/50'">{{ cat.name }}</button>
+                    <button @click="$router.push('/catalog')" class="px-4 py-2 text-xs font-semibold rounded-xl border-2 transition-all bg-white dark:bg-slate-800 text-charcoal/60 dark:text-slate-400 border-maroon-100 dark:border-slate-600 hover:border-maroon/50">Semua</button>
+                    <button v-for="cat in categoriesList" :key="cat.id" @click="$router.push(`/catalog/${cat.slug}`)" class="px-4 py-2 text-xs font-semibold rounded-xl border-2 transition-all bg-white dark:bg-slate-800 text-charcoal/60 dark:text-slate-400 border-maroon-100 dark:border-slate-600 hover:border-maroon/50">{{ cat.name }}</button>
                 </div>
 
                 <div v-if="loading" class="space-y-10">
@@ -118,11 +118,11 @@
                         <div class="h-5 bg-coklat-100/50 rounded-full w-1/4 mb-4"></div>
                         <div class="flex gap-3 overflow-hidden">
                             <div v-for="m in 4" :key="m" class="shrink-0 w-[160px] sm:w-[180px] animate-pulse">
-                                <div class="aspect-[3/4] bg-coklat-100/50 rounded-xl"></div>
+                                <div class="aspect-[3/4] bg-coklat-100/50 dark:bg-slate-700/50 rounded-xl"></div>
                                 <div class="mt-2 space-y-1.5 px-1">
-                                    <div class="h-2 bg-coklat-100/50 rounded-full w-1/3"></div>
-                                    <div class="h-2.5 bg-coklat-100/50 rounded-full w-2/3"></div>
-                                    <div class="h-2.5 bg-coklat-100/50 rounded-full w-1/4"></div>
+                                    <div class="h-2 bg-coklat-100/50 dark:bg-slate-700/50 rounded-full w-1/3"></div>
+                                    <div class="h-2.5 bg-coklat-100/50 dark:bg-slate-700/50 rounded-full w-2/3"></div>
+                                    <div class="h-2.5 bg-coklat-100/50 dark:bg-slate-700/50 rounded-full w-1/4"></div>
                                 </div>
                             </div>
                         </div>
@@ -130,15 +130,15 @@
                 </div>
 
                 <div v-else-if="!filteredProducts.length && !loading" class="text-center py-16">
-                    <p class="text-lg text-charcoal/50">Belum ada produk nih, coba kategori lain yuk!</p>
+                    <p class="text-lg text-charcoal/50 dark:text-slate-400">Belum ada produk nih, coba kategori lain yuk!</p>
                 </div>
 
                 <div v-else class="space-y-10">
                     <div v-for="group in groupedProducts" :key="group.category.slug">
                         <div class="flex items-center justify-between mb-4">
                             <div>
-                                <h3 class="text-lg font-bold text-charcoal">{{ group.category.name }}</h3>
-                                <p class="text-xs text-charcoal/50">{{ group.products.length }} produk</p>
+                                <h3 class="text-lg font-bold text-charcoal dark:text-slate-100">{{ group.category.name }}</h3>
+                                <p class="text-xs text-charcoal/50 dark:text-slate-400">{{ group.products.length }} produk</p>
                             </div>
                             <div class="flex gap-2">
                                 <button @click="scrollCarousel(group.category.slug, 'left')" class="w-8 h-8 rounded-lg border border-maroon-200/60 flex items-center justify-center text-charcoal/50 hover:border-maroon hover:text-maroon transition-colors active:scale-95">
@@ -151,12 +151,12 @@
                         </div>
 
                         <div :data-carousel="group.category.slug" class="flex gap-4 sm:gap-5 overflow-x-auto scroll-smooth pb-2" style="scrollbar-width:none;-ms-overflow-style:none;">
-                            <div v-for="product in group.products" :key="product.id" class="shrink-0 w-[200px] sm:w-[230px] group/card cursor-pointer bg-white rounded-xl overflow-hidden border border-maroon-50 hover:border-maroon-200 transition-all hover:shadow-md active:scale-[0.98]" @click="$router.push(`/products/${product.slug}`)">
+                            <div v-for="product in group.products" :key="product.id" class="shrink-0 w-[200px] sm:w-[230px] group/card cursor-pointer bg-white dark:bg-slate-800 rounded-xl overflow-hidden border border-maroon-50 dark:border-slate-700 hover:border-maroon-200 dark:hover:border-slate-500 transition-all hover:shadow-md active:scale-[0.98]" @click="$router.push(`/products/${product.slug}`)">
                                 <div class="aspect-[3/4] bg-maroon-50 overflow-hidden relative">
                                     <img :src="productImage(product, 0)" :alt="product.name" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 group-hover/card:opacity-0" />
                                     <img :src="productImage(product, 1)" :alt="product.name" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 group-hover/card:opacity-100" />
                                     <div v-if="product.stock > 0 && product.stock <= 5" class="absolute top-1.5 left-1.5 bg-coklat text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-md">Sisa {{ product.stock }}</div>
-                                    <div v-if="product.stock <= 3" class="absolute top-1.5 right-1.5 bg-red-500 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-md animate-pulse">HOTS!</div>
+                                    <div v-if="product.stock <= 3" class="absolute top-1.5 right-1.5 bg-ink text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-md animate-pulse">HOTS!</div>
                                     <div v-if="product.stock === 0" class="absolute inset-0 bg-white/80 flex items-center justify-center">
                                         <span class="bg-charcoal text-white text-[10px] font-semibold px-2 py-1 rounded-lg">Stok Habis</span>
                                     </div>
@@ -166,7 +166,7 @@
                                 </div>
                                 <div class="p-2.5">
                                     <p class="text-[10px] font-medium text-maroon-400 uppercase tracking-wide">{{ product.category?.name || 'Kemeja' }}</p>
-                                    <h3 class="text-xs font-semibold text-charcoal mt-0.5 leading-snug line-clamp-2">{{ product.name }}</h3>
+                                    <h3 class="text-xs font-semibold text-charcoal dark:text-slate-200 mt-0.5 leading-snug line-clamp-2">{{ product.name }}</h3>
                                     <p class="text-sm font-bold text-maroon mt-1.5">Rp{{ formatPrice(product.price) }}</p>
                                 </div>
                             </div>
@@ -202,17 +202,20 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { watch } from 'vue'
 import { useCartStore } from '../cart'
 import { categories as mockCategories, products as mockProducts, formatPrice } from '../mock-data'
 import api from '../api'
 
 const route = useRoute()
+const router = useRouter()
 const { addItem } = useCartStore()
 const categoriesList = ref([])
 const products = ref([])
 const loading = ref(false)
 const selectedCategory = ref('')
+const searchTerm = ref('')
 const email = ref('')
 const subscribed = ref(false)
 const activeSlide = ref(0)
@@ -224,8 +227,19 @@ const currentPage = ref(1)
 
 const filteredProducts = computed(() => {
     if (!products.value.length) return []
-    if (!selectedCategory.value) return products.value
-    return products.value.filter(p => p.category?.slug === selectedCategory.value)
+    let result = products.value
+    if (selectedCategory.value) {
+        result = result.filter(p => p.category?.slug === selectedCategory.value)
+    }
+    if (searchTerm.value) {
+        const q = searchTerm.value.toLowerCase()
+        result = result.filter(p =>
+            p.name?.toLowerCase().includes(q) ||
+            p.description?.toLowerCase().includes(q) ||
+            p.category?.name?.toLowerCase().includes(q)
+        )
+    }
+    return result
 })
 
 const groupedProducts = computed(() => {
@@ -278,6 +292,20 @@ onMounted(() => {
     fetchData()
     slideTimer = setInterval(() => { nextSlide() }, 5000)
     if (route.query.shop) {
+        setTimeout(() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' }), 150)
+    }
+    // Sync state dengan URL query params saat mount
+    if (route.query.category) selectedCategory.value = route.query.category
+    if (route.query.search) searchTerm.value = route.query.search
+})
+
+// Watch perubahan URL query — sinkronisasi filter & search (H-03 + L-06)
+watch(() => route.query.category, (val) => {
+    selectedCategory.value = val || ''
+})
+watch(() => route.query.search, (val) => {
+    searchTerm.value = val || ''
+    if (val) {
         setTimeout(() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' }), 150)
     }
 })

@@ -3,11 +3,15 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderResource;
+use App\Http\Resources\PublicOrderResource;
 use App\Models\Order;
 use App\Models\Coupon;
 use App\Notifications\OrderConfirmationNotification;
 use App\Services\OrderService;
 use App\Http\Requests\Api\StoreOrderRequest;
+use App\Models\SiteSetting;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -41,7 +45,7 @@ class OrderController extends Controller
             return response()->json(['message' => 'Pesanan tidak ditemukan. Pastikan email dan nomor pesanan sudah benar.'], 404);
         }
 
-        return response()->json(['data' => new OrderResource($order)]);
+        return response()->json(['data' => new PublicOrderResource($order)]);
     }
 
     public function trackByToken(string $token)
@@ -65,7 +69,7 @@ class OrderController extends Controller
             return response()->json(['message' => 'Link pesanan tidak valid atau sudah kadaluarsa.'], 404);
         }
 
-        return response()->json(['data' => new OrderResource($order)]);
+        return response()->json(['data' => new PublicOrderResource($order)]);
     }
 
     public function store(StoreOrderRequest $request)
@@ -81,9 +85,20 @@ class OrderController extends Controller
                 }
             }
 
+            $customerData = $request->only([
+                'customer_name',
+                'customer_email',
+                'customer_phone',
+                'shipping_address',
+                'shipping_cache_key',
+                'shipping_courier',
+                'shipping_service',
+            ]);
+            $customerData['payment_method'] = $request->input('payment_method', 'bank_transfer');
+
             $order = $this->orderService->createFromCart(
                 $request->items,
-                $request->only(['customer_name', 'customer_email', 'customer_phone', 'shipping_address', 'shipping_cost']),
+                $customerData,
                 $coupon
             );
 
@@ -93,34 +108,77 @@ class OrderController extends Controller
             if ($order->user_id) {
                 $order->user->notify(new OrderConfirmationNotification($order));
             } else {
-                // Guest checkout — kirim ke customer_email
-                $guestUser = (object) ['email' => $order->customer_email, 'routeNotificationForMail' => fn() => $order->customer_email];
                 \Illuminate\Support\Facades\Notification::route('mail', $order->customer_email)
                     ->notify(new OrderConfirmationNotification($order));
             }
 
-            $whatsappNumber = config('services.whatsapp.number');
+            $whatsappNumber = $this->whatsappNumber();
             $message = $this->generateWhatsAppMessage($order);
+
+            // Kirim info pembayaran sesuai metode yang dipilih
+            $paymentInfo = $this->getPaymentInfo($order->payment_method ?? 'bank_transfer');
 
             return response()->json([
                 'order'             => new OrderResource($order),
                 'whatsapp_number'   => $whatsappNumber,
                 'whatsapp_message'  => $message,
                 'coupon_discount'   => (float) ($order->coupon_discount ?? 0),
+                'payment_info'      => $paymentInfo,
             ], 201);
         } catch (\RuntimeException $e) {
             return response()->json(['message' => $e->getMessage()], 422);
         }
     }
 
+    /**
+     * Ambil info pembayaran dari site_settings berdasarkan metode.
+     */
+    private function getPaymentInfo(?string $method): array
+    {
+        $method ??= 'bank_transfer';
+
+        return match ($method) {
+            'bank_transfer' => [
+                'method'       => 'bank_transfer',
+                'label'        => 'Transfer Bank',
+                'bank_name'    => \App\Models\SiteSetting::get('payment_bank_name', 'BCA'),
+                'account_name' => \App\Models\SiteSetting::get('payment_bank_account_name', '-'),
+                'account_no'   => \App\Models\SiteSetting::get('payment_bank_account_no', '-'),
+                'instruction'  => 'Setelah transfer, kirim bukti pembayaran via WhatsApp.',
+            ],
+            'qris' => [
+                'method'      => 'qris',
+                'label'       => 'QRIS',
+                'qris_image'  => \App\Models\SiteSetting::get('payment_qris_image', null),
+                'qris_name'   => \App\Models\SiteSetting::get('payment_qris_name', 'Aliesmo'),
+                'instruction' => 'Scan QRIS di atas, lalu kirim bukti pembayaran via WhatsApp.',
+            ],
+            'cod' => [
+                'method'      => 'cod',
+                'label'       => 'COD (Bayar di Tempat)',
+                'instruction' => 'Bayar langsung saat pesanan tiba. Konfirmasi via WhatsApp untuk penjadwalan.',
+            ],
+            default => [],
+        };
+    }
+
     private function generateWhatsAppMessage(Order $order): string
     {
+        $paymentLabels = [
+            'bank_transfer' => 'Transfer Bank',
+            'qris'          => 'QRIS',
+            'cod'           => 'COD (Bayar di Tempat)',
+        ];
+        $paymentLabel = $paymentLabels[$order->payment_method] ?? 'Transfer Bank';
+
         $message = "Halo, saya ingin konfirmasi pesanan:\n\n";
-        $message .= "*Order #{$order->order_number}*\n\n";
+        $message .= "*Order #{$order->order_number}*\n";
+        $message .= "*Metode Pembayaran: {$paymentLabel}*\n\n";
         $message .= "*Detail Pesanan:*\n";
 
         foreach ($order->items as $item) {
-            $message .= "• {$item->product_name} x{$item->quantity} - Rp" . number_format($item->subtotal, 0, ',', '.') . "\n";
+            $variantInfo = $item->variant_name ? " ({$item->variant_name})" : '';
+            $message .= "• {$item->product_name}{$variantInfo} x{$item->quantity} - Rp" . number_format($item->subtotal, 0, ',', '.') . "\n";
         }
 
         $message .= "\n*Subtotal:* Rp" . number_format($order->subtotal, 0, ',', '.') . "\n";
@@ -135,12 +193,30 @@ class OrderController extends Controller
         $message .= "Email: {$order->customer_email}\n";
         $message .= "Telepon: {$order->customer_phone}";
 
+        if ($order->payment_method === 'bank_transfer') {
+            $bankName    = \App\Models\SiteSetting::get('payment_bank_name', 'BCA');
+            $accountNo   = \App\Models\SiteSetting::get('payment_bank_account_no', '-');
+            $accountName = \App\Models\SiteSetting::get('payment_bank_account_name', '-');
+            $message .= "\n\n*Info Transfer:*\n";
+            $message .= "Bank: {$bankName}\n";
+            $message .= "No. Rekening: {$accountNo}\n";
+            $message .= "Atas Nama: {$accountName}\n";
+            $message .= "_Mohon lampirkan bukti transfer._";
+        } elseif ($order->payment_method === 'qris') {
+            $message .= "\n\n_Mohon lampirkan bukti pembayaran QRIS._";
+        }
+
         return urlencode($message);
     }
 
     public function status(string $orderNumber)
     {
-        $order = Order::where('order_number', $orderNumber)
+        // Validasi format order number sebelum hit DB (MED-4)
+        if (!preg_match('/^ORD-\d{8}-\d{4}-[A-Z0-9]{3}$/', strtoupper($orderNumber))) {
+            abort(404);
+        }
+
+        $order = Order::where('order_number', strtoupper($orderNumber))
             ->with(['items', 'payment'])
             ->firstOrFail();
 
@@ -180,8 +256,13 @@ class OrderController extends Controller
 
         return response()->json([
             'data'            => $data,
-            'whatsapp_number' => config('services.whatsapp.number'),
+            'whatsapp_number' => $this->whatsappNumber(),
         ]);
+    }
+
+    private function whatsappNumber(): string
+    {
+        return (string) SiteSetting::get('whatsapp_number', config('services.whatsapp.number', '6285196811722'));
     }
 
     private function maskEmail(string $email): string
@@ -201,6 +282,16 @@ class OrderController extends Controller
         return OrderResource::collection($orders);
     }
 
+    public function myOrder(string $orderNumber)
+    {
+        $order = auth()->user()->orders()
+            ->where('order_number', strtoupper($orderNumber))
+            ->with(['items', 'payment'])
+            ->firstOrFail();
+
+        return response()->json(['data' => new OrderResource($order)]);
+    }
+
     public function cancel(string $orderNumber)
     {
         $order = Order::where('order_number', $orderNumber)->firstOrFail();
@@ -217,5 +308,59 @@ class OrderController extends Controller
         $this->orderService->cancel($order, 'Dibatalkan oleh customer');
 
         return response()->json(['message' => 'Pesanan berhasil dibatalkan.']);
+    }
+
+    /**
+     * Claim semua guest order yang emailnya cocok dengan user yang sedang login.
+     * Order dengan user_id = null dan customer_email = email user akan di-assign ke user ini.
+     */
+    public function claimGuestOrders()
+    {
+        $user = auth()->user();
+
+        $claimed = DB::transaction(function () use ($user) {
+            // Ambil semua guest order dengan email yang sama, belum di-claim
+            $orders = Order::where('customer_email', $user->email)
+                ->whereNull('user_id')
+                ->lockForUpdate()
+                ->get();
+
+            if ($orders->isEmpty()) {
+                return 0;
+            }
+
+            foreach ($orders as $order) {
+                $order->update(['user_id' => $user->id]);
+            }
+
+            Log::info('Guest orders claimed', [
+                'user_id' => $user->id,
+                'count'   => $orders->count(),
+                'orders'  => $orders->pluck('order_number'),
+            ]);
+
+            return $orders->count();
+        });
+
+        return response()->json([
+            'message' => $claimed > 0
+                ? "{$claimed} pesanan berhasil diklaim ke akun kamu."
+                : 'Tidak ada pesanan guest yang bisa diklaim.',
+            'claimed_count' => $claimed,
+        ]);
+    }
+
+    /**
+     * Cek berapa banyak guest order yang bisa diklaim — untuk prompt di frontend.
+     */
+    public function countClaimableOrders()
+    {
+        $user = auth()->user();
+
+        $count = Order::where('customer_email', $user->email)
+            ->whereNull('user_id')
+            ->count();
+
+        return response()->json(['claimable_count' => $count]);
     }
 }

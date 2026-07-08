@@ -26,14 +26,29 @@ class ReviewResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Shop';
+        return 'Toko';
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return 'Ulasan';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Ulasan';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Ulasan';
     }
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->schema([
-                Section::make('Review Info')
+                Section::make('Informasi Ulasan')
                     ->schema([
                         Select::make('product_id')
                             ->label('Produk')
@@ -43,7 +58,7 @@ class ReviewResource extends Resource
                             ->disabled(fn($record) => $record !== null),
 
                         Select::make('user_id')
-                            ->label('User')
+                            ->label('Pengguna')
                             ->relationship('user', 'name')
                             ->required()
                             ->searchable()
@@ -90,7 +105,7 @@ class ReviewResource extends Resource
                     ->limit(30),
 
                 TextColumn::make('user.name')
-                    ->label('User')
+                    ->label('Pengguna')
                     ->searchable()
                     ->sortable(),
 
@@ -110,7 +125,7 @@ class ReviewResource extends Resource
                     ->wrap(),
 
                 IconColumn::make('is_approved')
-                    ->label('Approved')
+                    ->label('Disetujui')
                     ->boolean()
                     ->sortable(),
 
@@ -137,14 +152,14 @@ class ReviewResource extends Resource
             ])
             ->actions([
                 Actions\Action::make('approve')
-                    ->label('Approve')
+                    ->label('Setujui')
                     ->icon('heroicon-o-check')
                     ->color('success')
                     ->visible(fn($record) => !$record->is_approved)
                     ->action(fn($record) => $record->update(['is_approved' => true])),
 
                 Actions\Action::make('reject')
-                    ->label('Reject')
+                    ->label('Tolak')
                     ->icon('heroicon-o-x-mark')
                     ->color('danger')
                     ->visible(fn($record) => $record->is_approved)
@@ -156,7 +171,7 @@ class ReviewResource extends Resource
             ->bulkActions([
                 Actions\BulkActionGroup::make([
                     Actions\BulkAction::make('approve_all')
-                        ->label('Approve Selected')
+                        ->label('Setujui Terpilih')
                         ->icon('heroicon-o-check')
                         ->color('success')
                         ->action(fn($records) => $records->each->update(['is_approved' => true])),

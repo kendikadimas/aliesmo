@@ -1,9 +1,9 @@
 <template>
-    <div class="min-h-screen bg-ivory">
-        <header class="fixed top-0 left-0 right-0 z-50 bg-ivory/90 backdrop-blur-md border-b border-aliesmo-200/50">
+    <div class="min-h-screen bg-paper">
+        <header class="fixed top-0 left-0 right-0 z-50 bg-paper/90 backdrop-blur-md border-b border-ink-10/50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between h-16 lg:h-20">
-                    <button @click="mobileOpen = !mobileOpen" class="lg:hidden p-2 -ml-2 text-charcoal hover:text-bronze transition-colors" aria-label="Menu">
+                    <button @click="mobileOpen = !mobileOpen" class="lg:hidden p-2 -ml-2 text-charcoal hover:text-ink-60 transition-colors" aria-label="Menu">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
                             <path d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>
@@ -27,14 +27,14 @@
                                 <line x1="3" y1="6" x2="21" y2="6"/>
                                 <path d="M16 10a4 4 0 01-8 0"/>
                             </svg>
-                            <span v-if="cartCount" class="absolute -top-0.5 -right-0.5 bg-charcoal text-ivory text-[10px] font-medium rounded-full w-4.5 h-4.5 flex items-center justify-center leading-none">{{ cartCount > 9 ? '9+' : cartCount }}</span>
+                            <span v-if="cartCount" class="absolute -top-0.5 -right-0.5 bg-charcoal text-paper text-[10px] font-medium rounded-full w-4.5 h-4.5 flex items-center justify-center leading-none">{{ cartCount > 9 ? '9+' : cartCount }}</span>
                         </router-link>
                     </div>
                 </div>
             </div>
 
             <Transition name="mobile-nav">
-                <div v-if="mobileOpen" class="lg:hidden border-t border-aliesmo-200/50 bg-ivory">
+                <div v-if="mobileOpen" class="lg:hidden border-t border-ink-10 bg-paper">
                     <nav class="px-4 py-6 space-y-4">
                         <router-link @click="mobileOpen = false" to="/" class="block text-sm tracking-widest uppercase text-charcoal/70 hover:text-charcoal">Beranda</router-link>
                         <router-link @click="mobileOpen = false" to="/?shop=1" class="block text-sm tracking-widest uppercase text-charcoal/70 hover:text-charcoal">Koleksi</router-link>
@@ -49,7 +49,7 @@
             <router-view />
         </main>
 
-        <footer class="border-t border-aliesmo-200/50 bg-white">
+        <footer class="border-t border-ink-10 bg-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
                     <div>
@@ -73,7 +73,7 @@
                         </ul>
                     </div>
                 </div>
-                <div class="mt-8 pt-8 border-t border-aliesmo-200/50 text-center text-xs text-charcoal/40 tracking-wider">
+                <div class="mt-8 pt-8 border-t border-ink-10 text-center text-xs text-charcoal/40 tracking-wider">
                     &copy; {{ new Date().getFullYear() }} ALIESMO. All rights reserved.
                 </div>
             </div>

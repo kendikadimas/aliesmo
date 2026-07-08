@@ -20,9 +20,9 @@ class SecurityHeaders
         // Prevent MIME type sniffing — berlaku untuk semua
         $response->headers->set('X-Content-Type-Options', 'nosniff');
 
-        // HSTS — paksa HTTPS selama 1 tahun (hanya aktif di production/HTTPS)
+        // HSTS — paksa HTTPS selama 1 tahun + preload (hanya aktif di production/HTTPS)
         if ($request->isSecure()) {
-            $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+            $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
         }
 
         // Enable XSS protection (legacy browsers)
@@ -45,14 +45,23 @@ class SecurityHeaders
 
         // Web routes (termasuk /admin Filament) — CSP yang kompatibel
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
+
+        // Tambahkan Vite dev server sources hanya di environment local
+        // Pakai wildcard subdomain tidak bisa untuk IP, jadi allow semua port 517x
+        $isLocal = app()->environment('local');
+        $scriptDevSources = $isLocal ? ' http://127.0.0.1:5173 http://127.0.0.1:5174' : '';
+        $connectDevSources = $isLocal ? ' http://127.0.0.1:5173 ws://127.0.0.1:5173 http://127.0.0.1:5174 ws://127.0.0.1:5174 http://localhost:8000' : '';
+        $styleDevSources = $isLocal ? ' http://127.0.0.1:5173 http://127.0.0.1:5174' : '';
+        $scriptEvalSource = $request->is('admin*') ? " 'unsafe-eval'" : '';
+
         $response->headers->set(
             'Content-Security-Policy',
             "default-src 'self'; " .
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " .
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " .
+            "script-src 'self' 'unsafe-inline'{$scriptEvalSource}{$scriptDevSources}; " .
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com{$styleDevSources}; " .
             "font-src 'self' data: https://fonts.gstatic.com; " .
             "img-src 'self' data: https:; " .
-            "connect-src 'self' http://localhost:8000 ws://localhost:5173;"
+            "connect-src 'self'{$connectDevSources};"
         );
 
         return $response;

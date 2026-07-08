@@ -36,11 +36,26 @@ class ProductResource extends Resource
         return 'Katalog';
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return 'Produk';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Produk';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Produk';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->schema([
-                Section::make('General')
+                Section::make('Umum')
                     ->schema([
                         TextInput::make('name')
                             ->required()
@@ -51,38 +66,48 @@ class ProductResource extends Resource
                         Toggle::make('is_active'),
                         FileUpload::make('thumbnail')
                             ->image()
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                            ->maxSize(2048) // 2MB
                             ->directory('products')
                             ->visibility('public')
                             ->label('Thumbnail'),
                     ]),
-                Section::make('Pricing & Stock')
+                Section::make('Harga & Stok')
                     ->schema([
-                        TextInput::make('sku')->required()->unique(Product::class),
+                        TextInput::make('sku')->required()->unique(Product::class, ignoreRecord: true),
                         TextInput::make('price')->numeric()->prefix('Rp '),
+                        TextInput::make('weight')
+                            ->numeric()
+                            ->default(300)
+                            ->suffix('gram')
+                            ->helperText('Berat produk dalam gram. Digunakan untuk menghitung ongkir.')
+                            ->label('Berat'),
                         TextInput::make('stock')
                             ->numeric()
                             ->readOnly(fn ($livewire) => $livewire instanceof Pages\EditProduct),
                     ]),
-                Section::make('Description')
+                Section::make('Deskripsi')
                     ->schema([
                         RichEditor::make('description'),
                     ]),
-                Section::make('Product Images')
-                    ->description('Upload multiple product images (different angles, variants). The first image will be used as the main image.')
+                Section::make('Foto Produk')
+                    ->description('Upload beberapa foto produk (sudut berbeda, varian). Foto pertama akan digunakan sebagai gambar utama.')
                     ->schema([
                         Repeater::make('images')
                             ->relationship('images')
                             ->schema([
                                 FileUpload::make('path')
                                     ->image()
+                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                                    ->maxSize(2048) // 2MB
                                     ->directory('products')
                                     ->visibility('public')
                                     ->required()
-                                    ->label('Image'),
+                                    ->label('Foto'),
                                 TextInput::make('sort_order')
                                     ->numeric()
                                     ->default(0)
-                                    ->label('Sort Order'),
+                                    ->label('Urutan'),
                             ])
                             ->orderColumn('sort_order')
                             ->addActionLabel('+ Add Image')
@@ -90,6 +115,51 @@ class ProductResource extends Resource
                             ->collapsible()
                             ->defaultItems(0)
                             ->itemLabel(fn (array $state): string => 'Image #' . (($state['sort_order'] ?? 0) + 1)),
+                    ]),
+                Section::make('Varian')
+                    ->description('Tambahkan varian produk seperti ukuran (S, M, L, XL) atau warna. Setiap varian bisa punya harga dan stok berbeda. Jika produk tidak punya varian, kosongkan bagian ini.')
+                    ->schema([
+                        Repeater::make('variants')
+                            ->relationship('variants')
+                            ->schema([
+                                TextInput::make('name')
+                                    ->required()
+                                    ->placeholder('Contoh: S, M, L, XL, Merah, Biru...')
+                                    ->label('Nama Varian'),
+                                TextInput::make('sku')
+                                    ->nullable()
+                                    ->unique('product_variants', 'sku', ignoreRecord: true)
+                                    ->placeholder('Kosongkan untuk auto-generate')
+                                    ->label('SKU Varian'),
+                                TextInput::make('price')
+                                    ->required()
+                                    ->numeric()
+                                    ->prefix('Rp ')
+                                    ->label('Harga'),
+                                TextInput::make('stock')
+                                    ->required()
+                                    ->numeric()
+                                    ->default(0)
+                                    ->label('Stok'),
+                                TextInput::make('weight')
+                                    ->numeric()
+                                    ->suffix('gram')
+                                    ->placeholder('Kosongkan untuk pakai berat produk')
+                                    ->label('Berat (opsional)'),
+                                Toggle::make('is_active')
+                                    ->default(true)
+                                    ->label('Aktif'),
+                                TextInput::make('sort_order')
+                                    ->numeric()
+                                    ->default(0)
+                                    ->label('Urutan'),
+                            ])
+                            ->columns(2)
+                            ->addActionLabel('+ Tambah Varian')
+                            ->reorderable('sort_order')
+                            ->collapsible()
+                            ->defaultItems(0)
+                            ->itemLabel(fn (array $state): string => $state['name'] ?? 'Varian Baru'),
                     ]),
             ]);
     }
@@ -113,7 +183,7 @@ class ProductResource extends Resource
             ])
             ->recordActions([
                 Action::make('adjustStock')
-                    ->label('Adjust Stock')
+                    ->label('Sesuaikan Stok')
                     ->icon('heroicon-o-cube')
                     ->size('sm')
                     ->form([
@@ -138,12 +208,13 @@ class ProductResource extends Resource
             ->filters([
                 SelectFilter::make('category')->relationship('category', 'name'),
                 SelectFilter::make('is_active')
+                    ->label('Status Aktif')
                     ->options([
-                        '1' => 'Active',
-                        '0' => 'Inactive',
+                        '1' => 'Aktif',
+                        '0' => 'Tidak Aktif',
                     ]),
                 Filter::make('low_stock')
-                    ->label('Low Stock (≤ 5)')
+                    ->label('Stok Menipis (≤ 5)')
                     ->query(fn (Builder $query) => $query->where('stock', '<=', 5)),
             ]);
     }

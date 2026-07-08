@@ -14,15 +14,16 @@ class Product extends Model
 
     protected $fillable = [
         'category_id', 'name', 'slug', 'sku', 'description',
-        'price', 'stock', 'is_active', 'thumbnail'
+        'price', 'stock', 'weight', 'is_active', 'thumbnail'
     ];
 
     protected function casts(): array
     {
         return [
-            'price' => 'decimal:2',
+            'price'    => 'decimal:2',
             'is_active' => 'boolean',
-            'stock' => 'integer',
+            'stock'    => 'integer',
+            'weight'   => 'integer',
         ];
     }
 
@@ -44,6 +45,11 @@ class Product extends Model
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function variants(): HasMany
+    {
+        return $this->hasMany(ProductVariant::class)->orderBy('sort_order');
     }
 
     protected static function booted(): void

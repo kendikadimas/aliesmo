@@ -54,7 +54,7 @@ class ReviewController extends Controller
         // dan produk benar-benar ada di dalam order tersebut (cegah review tanpa beli)
         $order = Order::where('id', $request->order_id)
             ->where('user_id', $user->id)
-            ->where('status', \App\Enums\OrderStatus::Delivered)
+            ->where('status', \App\Enums\OrderStatus::Completed)
             ->first();
 
         if (!$order) {

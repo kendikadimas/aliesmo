@@ -2,16 +2,21 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class RajaOngkirService
 {
     protected ?string $apiKey;
     protected ?string $baseUrl;
+    protected ?int    $originId;   // subdistrict ID Ulujami dari search API (akurasi tinggi)
+    protected int     $originCity; // city ID Pemalang (fallback jika originId tidak di-set)
 
     public function __construct()
     {
-        $this->apiKey = config('services.rajaongkir.api_key');
-        $this->baseUrl = config('services.rajaongkir.base_url');
+        $this->apiKey     = config('services.rajaongkir.api_key');
+        $this->baseUrl    = config('services.rajaongkir.base_url');
+        $this->originId   = config('services.rajaongkir.origin_id') ? (int) config('services.rajaongkir.origin_id') : null;
+        $this->originCity = (int) config('services.rajaongkir.origin_city', 570);
     }
 
     public function getProvinces(): array
@@ -103,57 +108,100 @@ class RajaOngkirService
 
     public function getAllShippingCosts(int $originCity, int $destinationCity, int $weight): array
     {
-        if ($this->apiKey && $this->baseUrl) {
-            try {
-                $response = Http::timeout(10)
-                    ->withHeaders(['key' => $this->apiKey])
-                    ->asForm()
-                    ->post("{$this->baseUrl}/calculate/domestic-cost", [
-                        'origin'      => $originCity,
-                        'destination' => $destinationCity,
-                        'weight'      => $weight,
-                        'courier'     => self::ALL_COURIERS,
-                        'price'       => 'lowest',
-                    ]);
-
-                if ($response->successful()) {
-                    $results = $response->json()['data'] ?? [];
-                    if (!empty($results)) {
-                        $mapped = array_map(function ($cost) {
-                            $code = strtolower($cost['code'] ?? '');
-                            return [
-                                'code'        => $code,
-                                'courier'     => self::COURIER_NAMES[$code] ?? strtoupper($code),
-                                'service'     => $cost['service'],
-                                'description' => $cost['description'],
-                                'cost'        => (int) $cost['cost'],
-                                'etd'         => $cost['etd'] ?? '-',
-                            ];
-                        }, $results);
-
-                        // Filter out heavy cargo/trucking services not suitable for small parcels
-                        // (cost > Rp500.000 or service codes that are clearly cargo/motor tiers)
-                        $cargoKeywords = ['trucking', 'cargo', 'motor', 'freight'];
-                        $filtered = array_filter($mapped, function ($item) use ($cargoKeywords) {
-                            if ($item['cost'] > 500000) return false;
-                            $desc = strtolower($item['description']);
-                            foreach ($cargoKeywords as $kw) {
-                                if (str_contains($desc, $kw)) return false;
-                            }
-                            return true;
-                        });
-
-                        if (!empty($filtered)) {
-                            return array_values($filtered);
-                        }
-                    }
-                }
-            } catch (\Exception $e) {
-                // Fail silently and fallback
-            }
+        if (!$this->apiKey || !$this->baseUrl) {
+            throw new \RuntimeException('RajaOngkir API key tidak dikonfigurasi.');
         }
 
-        return $this->getStaticAllShippingCosts($originCity, $destinationCity, $weight);
+        // Cek daily hit counter — jika sudah mendekati limit, langsung throw
+        $dailyLimit = (int) config('services.rajaongkir.daily_limit', 95);
+        if ($this->getDailyHits() >= $dailyLimit) {
+            throw new \RuntimeException('RajaOngkir daily limit tercapai (' . $dailyLimit . ' hits).');
+        }
+
+        // Pakai subdistrict ID (origin_id) jika dikonfigurasi — akurasi lebih tinggi per docs Komerce.
+        // Jika tidak ada, fallback ke city ID (origin_city).
+        $origin = $this->originId ?? $originCity;
+
+        $response = Http::timeout(10)
+            ->withHeaders(['key' => $this->apiKey])
+            ->asForm()
+            ->post("{$this->baseUrl}/calculate/domestic-cost", [
+                'origin'      => $origin,
+                'destination' => $destinationCity,
+                'weight'      => $weight,
+                'courier'     => self::ALL_COURIERS,
+                'price'       => 'lowest',
+            ]);
+
+        if (!$response->successful()) {
+            throw new \RuntimeException('RajaOngkir API error: HTTP ' . $response->status());
+        }
+
+        $results = $response->json()['data'] ?? [];
+
+        if (empty($results)) {
+            throw new \RuntimeException('RajaOngkir tidak mengembalikan data harga.');
+        }
+
+        // Increment hit counter setelah request sukses
+        $this->incrementDailyHits();
+
+        $mapped = array_map(function ($cost) {
+            $code = strtolower($cost['code'] ?? '');
+            return [
+                'code'        => $code,
+                'courier'     => self::COURIER_NAMES[$code] ?? strtoupper($code),
+                'service'     => $cost['service'],
+                'description' => $cost['description'],
+                'cost'        => (int) $cost['cost'],
+                'etd'         => $cost['etd'] ?? '-',
+                'source'      => 'komerce',
+            ];
+        }, $results);
+
+        // Filter out heavy cargo/trucking services
+        $cargoKeywords = ['trucking', 'cargo', 'motor', 'freight'];
+        $filtered = array_filter($mapped, function ($item) use ($cargoKeywords) {
+            if ($item['cost'] > 500000) return false;
+            $desc = strtolower($item['description']);
+            foreach ($cargoKeywords as $kw) {
+                if (str_contains($desc, $kw)) return false;
+            }
+            return true;
+        });
+
+        if (empty($filtered)) {
+            throw new \RuntimeException('RajaOngkir tidak ada hasil setelah filter.');
+        }
+
+        return array_values($filtered);
+    }
+
+    /**
+     * Ambil jumlah hit hari ini dari cache.
+     */
+    public function getDailyHits(): int
+    {
+        return (int) cache()->get($this->dailyHitKey(), 0);
+    }
+
+    /**
+     * Increment daily hit counter, TTL sampai tengah malam.
+     */
+    private function incrementDailyHits(): void
+    {
+        $key     = $this->dailyHitKey();
+        $current = (int) cache()->get($key, 0);
+        $ttl     = now()->endOfDay();
+        cache()->put($key, $current + 1, $ttl);
+    }
+
+    /**
+     * Cache key untuk hit counter harian — reset otomatis tiap hari.
+     */
+    private function dailyHitKey(): string
+    {
+        return 'rajaongkir:daily_hits:' . now()->format('Y-m-d');
     }
 
     public function getAvailableCouriers(): array
@@ -212,33 +260,6 @@ class RajaOngkirService
                 'postal_code' => (string) ($c['postal_code'] ?? ''),
             ];
         }, array_values($filtered));
-    }
-
-    private function getStaticAllShippingCosts(int $originCity, int $destinationCity, int $weight): array
-    {
-        $rates = [
-            'jne'      => ['rate' => 15000, 'etd' => '3-5'],
-            'jnt'      => ['rate' => 15000, 'etd' => '2-4'],
-            'sicepat'  => ['rate' => 14000, 'etd' => '2-3'],
-            'ninja'    => ['rate' => 13000, 'etd' => '3-5'],
-            'anteraja' => ['rate' => 13000, 'etd' => '2-5'],
-            'tiki'     => ['rate' => 14000, 'etd' => '3-5'],
-            'pos'      => ['rate' => 12000, 'etd' => '5-7'],
-        ];
-
-        $kg = max(1, ceil($weight / 1000));
-        $results = [];
-        foreach ($rates as $code => $info) {
-            $results[] = [
-                'code'        => $code,
-                'courier'     => self::COURIER_NAMES[$code] ?? strtoupper($code),
-                'service'     => 'REG',
-                'description' => 'Layanan Reguler',
-                'cost'        => $info['rate'] * $kg,
-                'etd'         => $info['etd'],
-            ];
-        }
-        return $results;
     }
 
     public function searchDestinations(string $query): array

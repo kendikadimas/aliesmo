@@ -6,32 +6,32 @@
         </div>
 
         <div v-else-if="!order" class="py-16">
-            <svg class="w-12 h-12 mx-auto text-aliesmo-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+            <svg class="w-12 h-12 mx-auto text-ink-20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
             <p class="mt-4 text-lg text-charcoal/50">Pesanan tidak ditemukan.</p>
-            <router-link to="/" class="inline-block mt-6 text-sm tracking-widest uppercase text-bronze hover:text-charcoal transition-colors">Kembali ke Beranda</router-link>
+            <router-link to="/" class="inline-block mt-6 text-sm tracking-widest uppercase text-ink-60 hover:text-charcoal transition-colors underline underline-offset-4">Kembali ke Beranda</router-link>
         </div>
 
         <div v-else>
-            <div class="w-16 h-16 rounded-full bg-green-50 border border-green-200 flex items-center justify-center mx-auto">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="1.5" stroke-linecap="square">
+            <div class="w-16 h-16 rounded-full bg-ink-05 border border-ink-10 flex items-center justify-center mx-auto">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="1.5" stroke-linecap="square">
                     <polyline points="20 6 9 17 4 12"/>
                 </svg>
             </div>
             <h1 class="mt-6 text-3xl lg:text-4xl font-light text-charcoal">Pesanan Berhasil!</h1>
             <p class="mt-3 text-base text-charcoal/60">Terima kasih, <strong>{{ order.customer_name }}</strong>. Pesanan Anda telah tercatat.</p>
 
-            <div class="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-aliesmo-50 border border-aliesmo-200/50 text-sm text-charcoal/70">
+            <div class="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-ink-05 border border-ink-10 text-sm text-charcoal/70">
                 <span class="text-xs tracking-widest uppercase text-charcoal/50">No. Pesanan:</span>
                 <span class="font-medium tracking-wider">{{ order.order_number }}</span>
             </div>
 
-            <div class="mt-2 text-sm" :class="order.status === 'paid' ? 'text-green-600' : 'text-bronze'">
+            <div class="mt-2 text-sm text-ink-40">
                 Status: {{ statusLabel }}
             </div>
 
-            <div class="mt-8 bg-white p-6 lg:p-8 border border-aliesmo-200/50 text-left">
+            <div class="mt-8 bg-white p-6 lg:p-8 border border-ink-10 text-left">
                 <h2 class="text-sm tracking-widest uppercase text-charcoal/70 mb-6">Detail Pesanan</h2>
                 <div class="space-y-3">
                     <div v-for="item in order.items" :key="item.id" class="flex justify-between text-sm">
@@ -39,7 +39,7 @@
                         <span class="font-medium">Rp {{ formatPrice(item.subtotal) }}</span>
                     </div>
                 </div>
-                <div class="border-t border-aliesmo-200/50 mt-4 pt-4 space-y-1.5 text-sm">
+                <div class="border-t border-ink-10 mt-4 pt-4 space-y-1.5 text-sm">
                     <div class="flex justify-between text-charcoal/70">
                         <span>Subtotal</span>
                         <span>Rp {{ formatPrice(order.subtotal) }}</span>
@@ -48,14 +48,14 @@
                         <span>Ongkos Kirim</span>
                         <span>Rp {{ formatPrice(order.shipping_cost) }}</span>
                     </div>
-                    <div class="flex justify-between font-medium text-charcoal pt-2 border-t border-aliesmo-200/50 text-base">
+                    <div class="flex justify-between font-medium text-charcoal pt-2 border-t border-ink-10 text-base">
                         <span>Total</span>
                         <span>Rp {{ formatPrice(order.total) }}</span>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-6 bg-white p-6 lg:p-8 border border-aliesmo-200/50 text-left">
+            <div class="mt-6 bg-white p-6 lg:p-8 border border-ink-10 text-left">
                 <h2 class="text-sm tracking-widest uppercase text-charcoal/70 mb-4">Informasi Pengiriman</h2>
                 <div class="text-sm text-charcoal/70 space-y-1 leading-relaxed">
                     <p><span class="text-charcoal/50">Nama:</span> {{ order.customer_name }}</p>
@@ -67,7 +67,7 @@
 
             <div class="mt-10">
                 <p class="text-sm text-charcoal/50">Konfirmasi akan dikirim ke <strong class="text-charcoal/70">{{ order.customer_email }}</strong></p>
-                <router-link to="/" class="inline-block mt-6 px-8 py-3 bg-charcoal text-ivory text-sm tracking-widest uppercase hover:bg-charcoal/90 transition-all active:scale-[0.98]">
+                <router-link to="/" class="inline-block mt-6 px-8 py-3 bg-charcoal text-paper text-sm tracking-widest uppercase hover:bg-charcoal/90 transition-all active:scale-[0.98]">
                     Lanjut Belanja
                 </router-link>
             </div>

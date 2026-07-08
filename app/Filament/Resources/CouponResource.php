@@ -23,11 +23,28 @@ class CouponResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-ticket';
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static ?int $navigationSort = 4;
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Shop';
+        return 'Toko';
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return 'Kupon';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Kupon';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Kupon';
     }
 
     public static function form(Schema $schema): Schema
@@ -63,7 +80,7 @@ class CouponResource extends Resource
                             ->helperText('Untuk persen: masukkan angka 1–100. Untuk fixed: masukkan nominal Rp.'),
 
                         TextInput::make('min_order')
-                            ->label('Minimum Order (Rp)')
+                            ->label('Min. Pesanan (Rp)')
                             ->numeric()
                             ->minValue(0)
                             ->default(0),
@@ -133,7 +150,7 @@ class CouponResource extends Resource
                         : 'Rp' . number_format($record->value, 0, ',', '.')),
 
                 TextColumn::make('min_order')
-                    ->label('Min Order')
+                    ->label('Min. Pesanan')
                     ->money('IDR')
                     ->sortable(),
 
@@ -146,7 +163,7 @@ class CouponResource extends Resource
                     ->color(fn($state, $record) => $record->usage_limit && $state >= $record->usage_limit ? 'danger' : 'gray'),
 
                 TextColumn::make('expires_at')
-                    ->label('Expired')
+                    ->label('Kadaluarsa')
                     ->dateTime('d M Y')
                     ->sortable()
                     ->color(fn($record) => $record->expires_at && $record->expires_at->isPast() ? 'danger' : null),

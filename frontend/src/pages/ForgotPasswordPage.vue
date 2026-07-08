@@ -5,19 +5,19 @@
                 <div class="w-14 h-14 rounded-2xl bg-maroon flex items-center justify-center mx-auto">
                     <span class="text-2xl font-bold text-white">A</span>
                 </div>
-                <h1 class="mt-4 text-2xl font-bold text-charcoal">Lupa Password?</h1>
-                <p class="mt-1 text-sm text-charcoal/50">Masukkan email kamu, kami kirim link reset</p>
+                <h1 class="mt-4 text-2xl font-bold text-charcoal dark:text-slate-100">Lupa Password?</h1>
+                <p class="mt-1 text-sm text-charcoal/50 dark:text-slate-400">Masukkan email kamu, kami kirim link reset</p>
             </div>
 
             <form @submit.prevent="handleSubmit" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-charcoal/60 mb-1.5">Email</label>
+                    <label class="block text-xs font-semibold text-charcoal/60 dark:text-slate-400 mb-1.5">Email</label>
                     <input v-model="email" type="email" required placeholder="kamu@email.com"
-                        class="w-full border-2 border-maroon-100 rounded-xl px-4 py-2.5 text-sm text-charcoal placeholder:text-charcoal/30 focus:border-maroon focus:outline-none transition-colors">
+                        class="w-full border-2 border-maroon-100 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-slate-100 placeholder:text-charcoal/30 dark:placeholder:text-slate-500 bg-white dark:bg-slate-700 focus:border-maroon focus:outline-none transition-colors">
                 </div>
 
-                <div v-if="error" class="p-3 bg-red-50 rounded-xl border border-red-200 text-red-700 text-sm">{{ error }}</div>
-                <div v-if="success" class="p-3 bg-green-50 rounded-xl border border-green-200 text-green-700 text-sm font-medium">
+                <div v-if="error" class="p-3 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm">{{ error }}</div>
+                <div v-if="success" class="p-3 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 text-sm font-medium">
                     Link reset password sudah dikirim ke email kamu! Cek inbox atau spam ya.
                 </div>
 
@@ -27,7 +27,7 @@
                 </button>
             </form>
 
-            <p class="mt-6 text-center text-sm text-charcoal/50">
+            <p class="mt-6 text-center text-sm text-charcoal/50 dark:text-slate-400">
                 Ingat passwordnya?
                 <router-link to="/login" class="text-maroon hover:text-maroon-600 font-semibold">Masuk sekarang</router-link>
             </p>

@@ -23,6 +23,21 @@ class CategoryResource extends Resource
         return 'Katalog';
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return 'Kategori';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Kategori';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Kategori';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -36,10 +51,10 @@ class CategoryResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')->searchable(),
+                TextColumn::make('name')->label('Nama')->searchable(),
                 TextColumn::make('slug')->searchable(),
-                TextColumn::make('products_count')->label('Products'),
-                TextColumn::make('created_at')->dateTime()->sortable(),
+                TextColumn::make('products_count')->label('Produk'),
+                TextColumn::make('created_at')->label('Dibuat')->dateTime()->sortable(),
             ]);
     }
 

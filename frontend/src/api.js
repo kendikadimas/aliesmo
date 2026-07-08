@@ -33,6 +33,14 @@ api.interceptors.response.use(
             }
         }
 
+        if (error.response?.status === 403) {
+            const msg = error.response?.data?.message || ''
+            // Deteksi 403 dari middleware verified — arahkan user untuk verifikasi email
+            if (msg.toLowerCase().includes('verify') || msg.toLowerCase().includes('verif')) {
+                window.dispatchEvent(new CustomEvent('auth:unverified'))
+            }
+        }
+
         if (error.response?.status >= 500) {
             // Server error — tampilkan toast global jika tersedia
             if (window.__showToast) {
@@ -53,4 +61,3 @@ export function clearToken() {
 }
 
 export default api
-

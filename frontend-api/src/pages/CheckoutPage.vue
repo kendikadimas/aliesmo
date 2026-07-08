@@ -9,37 +9,37 @@
 
         <form v-else @submit.prevent="submitOrder" class="mt-8 lg:mt-10 grid lg:grid-cols-5 gap-8 lg:gap-12">
             <div class="lg:col-span-3 space-y-6">
-                <div class="bg-white p-6 lg:p-8 border border-aliesmo-200/50">
+                <div class="bg-white p-6 lg:p-8 border border-ink-10">
                     <h2 class="text-sm tracking-widest uppercase text-charcoal/70 mb-6">Informasi Pelanggan</h2>
                     <div class="space-y-4">
                         <div>
                             <label class="block text-xs tracking-wider uppercase text-charcoal/50 mb-1.5">Nama Lengkap</label>
-                            <input v-model="form.customer_name" required placeholder="John Doe" class="w-full border border-aliesmo-200/70 px-4 py-2.5 text-sm text-charcoal placeholder:text-charcoal/30 focus:border-charcoal/50 focus:outline-none transition-colors">
+                            <input v-model="form.customer_name" required placeholder="John Doe" class="w-full border border-ink-10 px-4 py-2.5 text-sm text-charcoal placeholder:text-charcoal/30 focus:border-charcoal/50 focus:outline-none transition-colors">
                         </div>
                         <div class="grid sm:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs tracking-wider uppercase text-charcoal/50 mb-1.5">Email</label>
-                                <input v-model="form.customer_email" type="email" required placeholder="john@example.com" class="w-full border border-aliesmo-200/70 px-4 py-2.5 text-sm text-charcoal placeholder:text-charcoal/30 focus:border-charcoal/50 focus:outline-none transition-colors">
+                                <input v-model="form.customer_email" type="email" required placeholder="john@example.com" class="w-full border border-ink-10 px-4 py-2.5 text-sm text-charcoal placeholder:text-charcoal/30 focus:border-charcoal/50 focus:outline-none transition-colors">
                             </div>
                             <div>
                                 <label class="block text-xs tracking-wider uppercase text-charcoal/50 mb-1.5">Telepon</label>
-                                <input v-model="form.customer_phone" placeholder="0812-3456-7890" class="w-full border border-aliesmo-200/70 px-4 py-2.5 text-sm text-charcoal placeholder:text-charcoal/30 focus:border-charcoal/50 focus:outline-none transition-colors">
+                                <input v-model="form.customer_phone" placeholder="0812-3456-7890" class="w-full border border-ink-10 px-4 py-2.5 text-sm text-charcoal placeholder:text-charcoal/30 focus:border-charcoal/50 focus:outline-none transition-colors">
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white p-6 lg:p-8 border border-aliesmo-200/50">
+                <div class="bg-white p-6 lg:p-8 border border-ink-10">
                     <h2 class="text-sm tracking-widest uppercase text-charcoal/70 mb-6">Alamat Pengiriman</h2>
                     <div>
                         <label class="block text-xs tracking-wider uppercase text-charcoal/50 mb-1.5">Alamat Lengkap</label>
-                        <textarea v-model="form.shipping_address" required placeholder="Jl. Merdeka No. 123, RT 01/RW 02, Kelurahan Contoh, Kecamatan Contoh, Jakarta Pusat, DKI Jakarta" rows="3" class="w-full border border-aliesmo-200/70 px-4 py-2.5 text-sm text-charcoal placeholder:text-charcoal/30 focus:border-charcoal/50 focus:outline-none transition-colors resize-none"></textarea>
+                        <textarea v-model="form.shipping_address" required placeholder="Jl. Merdeka No. 123, RT 01/RW 02, Kelurahan Contoh, Kecamatan Contoh, Jakarta Pusat, DKI Jakarta" rows="3" class="w-full border border-ink-10 px-4 py-2.5 text-sm text-charcoal placeholder:text-charcoal/30 focus:border-charcoal/50 focus:outline-none transition-colors resize-none"></textarea>
                     </div>
                 </div>
             </div>
 
             <div class="lg:col-span-2">
-                <div class="bg-white p-6 lg:p-8 border border-aliesmo-200/50 lg:sticky lg:top-28">
+                <div class="bg-white p-6 lg:p-8 border border-ink-10 lg:sticky lg:top-28">
                     <h2 class="text-sm tracking-widest uppercase text-charcoal/70 mb-6">Ringkasan Pesanan</h2>
                     <div class="space-y-3">
                         <div v-for="item in items" :key="item.product_id" class="flex justify-between text-sm">
@@ -47,7 +47,7 @@
                             <span class="text-charcoal font-medium shrink-0">Rp {{ formatPrice(item.price * item.quantity) }}</span>
                         </div>
                     </div>
-                    <div class="border-t border-aliesmo-200/50 mt-4 pt-4 space-y-2">
+                    <div class="border-t border-ink-10 mt-4 pt-4 space-y-2">
                         <div class="flex justify-between text-sm text-charcoal/70">
                             <span>Subtotal</span>
                             <span>Rp {{ formatPrice(total()) }}</span>
@@ -56,15 +56,15 @@
                             <span>Ongkos Kirim</span>
                             <span>Dihitung kemudian</span>
                         </div>
-                        <div class="flex justify-between text-base font-medium text-charcoal pt-2 border-t border-aliesmo-200/50">
+                        <div class="flex justify-between text-base font-medium text-charcoal pt-2 border-t border-ink-10">
                             <span>Total</span>
                             <span>Rp {{ formatPrice(total()) }}</span>
                         </div>
                     </div>
 
-                    <div v-if="error" class="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm">{{ error }}</div>
+                    <div v-if="error" class="mt-4 p-3 bg-ink-05 border border-ink-10 text-ink-60 text-sm">{{ error }}</div>
 
-                    <button type="submit" class="w-full mt-6 px-8 py-3.5 bg-charcoal text-ivory text-sm tracking-widest uppercase hover:bg-charcoal/90 transition-all active:scale-[0.98]">
+                    <button type="submit" class="w-full mt-6 px-8 py-3.5 bg-charcoal text-paper text-sm tracking-widest uppercase hover:bg-charcoal/90 transition-all active:scale-[0.98]">
                         Pesan Sekarang
                     </button>
 

@@ -26,6 +26,8 @@ class OrderResource extends JsonResource
             'total'            => (float) $this->total,
             'status'           => $this->status->value,
             'payment_method'   => $this->payment_method,
+            'tracking_number'  => $this->tracking_number,
+            'tracking_url'     => $this->tracking_url,
             'paid_at'          => $this->paid_at,
             'items'            => OrderItemResource::collection($this->whenLoaded('items')),
             'payment'          => new PaymentResource($this->whenLoaded('payment')),

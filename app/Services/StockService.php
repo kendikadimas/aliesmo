@@ -4,6 +4,7 @@ namespace App\Services;
 use App\Enums\StockMovementType;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\StockMovement;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -47,12 +48,53 @@ class StockService
         // transaction sendiri — nested transaction pada SQLite/MySQL bisa deadlock.
         // Caller (OrderService::createFromCart) sudah wrap dalam transaction.
         foreach ($order->items as $item) {
-            $this->adjustStock(
-                $item->product_id,
-                -$item->quantity,
-                StockMovementType::Sale,
-                "Order #{$order->order_number}"
-            );
+            if ($item->variant_id) {
+                // Deduct dari stok varian
+                $this->adjustVariantStock(
+                    $item->variant_id,
+                    -$item->quantity,
+                    StockMovementType::Sale,
+                    "Order #{$order->order_number}"
+                );
+            } else {
+                // Produk tanpa varian — deduct dari stok produk langsung
+                $this->adjustStock(
+                    $item->product_id,
+                    -$item->quantity,
+                    StockMovementType::Sale,
+                    "Order #{$order->order_number}"
+                );
+            }
         }
+    }
+
+    public function adjustVariantStock(
+        int $variantId,
+        int $quantity,
+        StockMovementType $type,
+        ?string $note = null,
+        ?User $user = null
+    ): StockMovement {
+        return DB::transaction(function () use ($variantId, $quantity, $type, $note, $user) {
+            $variant = ProductVariant::lockForUpdate()->findOrFail($variantId);
+
+            if ($variant->stock + $quantity < 0) {
+                throw new \RuntimeException(
+                    "Insufficient stock for variant '{$variant->name}'. Available: {$variant->stock}, requested: " . abs($quantity) . "."
+                );
+            }
+
+            $movement = StockMovement::create([
+                'product_id' => $variant->product_id,
+                'type'       => $type,
+                'quantity'   => $quantity,
+                'note'       => $note ? "{$note} [variant: {$variant->name}]" : "[variant: {$variant->name}]",
+                'user_id'    => $user?->id,
+            ]);
+
+            $variant->increment('stock', $quantity);
+
+            return $movement;
+        });
     }
 }

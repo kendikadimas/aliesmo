@@ -2,19 +2,19 @@
     <div class="min-h-screen">
         <div v-if="loading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
             <div class="grid lg:grid-cols-2 gap-8 lg:gap-12">
-                <div class="aspect-[3/4] bg-aliesmo-100 animate-pulse"></div>
+                <div class="aspect-[3/4] bg-ink-05 animate-pulse"></div>
                 <div class="space-y-4">
-                    <div class="h-3 bg-aliesmo-200/50 w-1/4 animate-pulse"></div>
-                    <div class="h-6 bg-aliesmo-200/50 w-3/4 animate-pulse"></div>
-                    <div class="h-5 bg-aliesmo-200/50 w-1/3 animate-pulse"></div>
-                    <div class="h-20 bg-aliesmo-200/50 w-full animate-pulse mt-6"></div>
+                    <div class="h-3 bg-ink-05 w-1/4 animate-pulse"></div>
+                    <div class="h-6 bg-ink-05 w-3/4 animate-pulse"></div>
+                    <div class="h-5 bg-ink-05 w-1/3 animate-pulse"></div>
+                    <div class="h-20 bg-ink-05 w-full animate-pulse mt-6"></div>
                 </div>
             </div>
         </div>
 
         <div v-else-if="!product" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 text-center">
             <p class="text-lg text-charcoal/50">Produk tidak ditemukan.</p>
-            <router-link to="/" class="inline-block mt-4 text-sm tracking-widest uppercase text-bronze hover:text-charcoal transition-colors">Kembali</router-link>
+            <router-link to="/" class="inline-block mt-4 text-sm tracking-widest uppercase text-ink-60 hover:text-charcoal transition-colors underline underline-offset-4">Kembali</router-link>
         </div>
 
         <div v-else class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
@@ -28,21 +28,21 @@
 
             <div class="grid lg:grid-cols-2 gap-8 lg:gap-12">
                 <div>
-                    <div class="aspect-[3/4] bg-aliesmo-100 overflow-hidden relative">
+                    <div class="aspect-[3/4] bg-ink-05 overflow-hidden relative">
                         <img v-if="product.thumbnail" :src="product.thumbnail" :alt="product.name" class="w-full h-full object-cover" />
                         <div v-else class="w-full h-full flex items-center justify-center">
-                            <span class="text-8xl font-light text-aliesmo-300/40 select-none">A</span>
+                            <span class="text-8xl font-light text-ink-20 select-none">A</span>
                         </div>
                     </div>
                     <div v-if="product.images?.length" class="flex gap-3 mt-4 overflow-x-auto pb-2">
-                        <div v-for="(img, i) in product.images" :key="i" class="w-20 h-20 shrink-0 bg-aliesmo-100 overflow-hidden cursor-pointer" @click="selectedImage = i">
+                        <div v-for="(img, i) in product.images" :key="i" class="w-20 h-20 shrink-0 bg-ink-05 overflow-hidden cursor-pointer" @click="selectedImage = i">
                             <img :src="img.path" :alt="`${product.name} ${i + 1}`" class="w-full h-full object-cover" />
                         </div>
                     </div>
                 </div>
 
                 <div class="lg:sticky lg:top-28 lg:self-start">
-                    <p class="text-xs tracking-[0.25em] uppercase text-bronze/70">{{ product.category?.name || 'Kemeja' }}</p>
+                    <p class="text-xs tracking-[0.25em] uppercase text-ink-40">{{ product.category?.name || 'Kemeja' }}</p>
                     <h1 class="text-3xl lg:text-4xl font-light text-charcoal mt-2">{{ product.name }}</h1>
 
                     <div class="mt-6 flex items-baseline gap-3">
@@ -59,24 +59,24 @@
                     <div class="mt-8">
                         <p class="text-xs tracking-widest uppercase text-charcoal/50 mb-3">Jumlah</p>
                         <div class="flex items-center gap-4">
-                            <button @click="decrementQty" class="w-10 h-10 border border-aliesmo-200/70 flex items-center justify-center text-lg hover:border-charcoal/30 transition-colors active:scale-95" :disabled="quantity <= 1">−</button>
-                            <span class="w-12 text-center text-lg font-medium">{{ quantity }}</span>
-                            <button @click="quantity++" class="w-10 h-10 border border-aliesmo-200/70 flex items-center justify-center text-lg hover:border-charcoal/30 transition-colors active:scale-95" :disabled="quantity >= product.stock">+</button>
+                            <button @click="decrementQty" class="w-10 h-10 border border-ink-10 flex items-center justify-center text-lg hover:border-charcoal/30 transition-colors active:scale-95" :disabled="quantity <= 1">−</button>
+                            <span class="w-12 text-center text-base font-medium">{{ quantity }}</span>
+                            <button @click="quantity++" class="w-10 h-10 border border-ink-10 flex items-center justify-center text-lg hover:border-charcoal/30 transition-colors active:scale-95" :disabled="quantity >= product.stock">+</button>
                         </div>
                     </div>
 
                     <div class="mt-8 flex flex-col sm:flex-row gap-3">
-                        <button @click="addToCart" :disabled="product.stock === 0" class="flex-1 px-8 py-3.5 bg-charcoal text-ivory text-sm tracking-widest uppercase hover:bg-charcoal/90 transition-all active:scale-[0.98] disabled:bg-aliesmo-300 disabled:cursor-not-allowed disabled:active:scale-100">
+                        <button @click="addToCart" :disabled="product.stock === 0" class="flex-1 px-8 py-3.5 bg-charcoal text-paper text-sm tracking-widest uppercase hover:bg-charcoal/90 transition-all active:scale-[0.98] disabled:bg-ink-20 disabled:cursor-not-allowed disabled:active:scale-100">
                             {{ product.stock === 0 ? 'Stok Habis' : 'Tambahkan ke Keranjang' }}
                         </button>
                     </div>
 
-                    <div class="mt-8 pt-8 border-t border-aliesmo-200/50">
+                    <div class="mt-8 pt-8 border-t border-ink-10">
                         <p class="text-xs tracking-widest uppercase text-charcoal/50 mb-4">Deskripsi</p>
                         <p class="text-base text-charcoal/70 leading-relaxed">{{ product.description || 'Tidak ada deskripsi.' }}</p>
                     </div>
 
-                    <div class="mt-6 pt-6 border-t border-aliesmo-200/50">
+                    <div class="mt-6 pt-6 border-t border-ink-10">
                         <div class="flex items-center gap-6 text-sm text-charcoal/60">
                             <span class="flex items-center gap-2">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">

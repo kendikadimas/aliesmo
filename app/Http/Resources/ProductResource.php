@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\ProductImageResource;
+use App\Http\Resources\ProductVariantResource;
 
 class ProductResource extends JsonResource
 {
@@ -16,14 +17,16 @@ class ProductResource extends JsonResource
             'slug' => $this->slug,
             'sku' => $this->sku,
             'description' => $this->description,
-            'price' => (float) $this->price,
-            'stock' => $this->stock,
+            'price'  => (float) $this->price,
+            'stock'  => $this->stock,
+            'weight' => (int) ($this->weight ?? 300), // gram, default 300g
             'is_active' => $this->is_active,
             'thumbnail' => $this->thumbnail
                 ? (str_starts_with($this->thumbnail, 'http') ? $this->thumbnail : asset('storage/' . $this->thumbnail))
                 : null,
             'category' => new CategoryResource($this->whenLoaded('category')),
             'images' => ProductImageResource::collection($this->whenLoaded('images')),
+            'variants' => ProductVariantResource::collection($this->whenLoaded('variants')),
             'created_at' => $this->created_at,
         ];
     }

@@ -9,35 +9,51 @@
 @theme {
     --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif;
 
-    --color-maroon: #be123c;
-    --color-maroon-50: #fff1f2;
-    --color-maroon-100: #ffe4e6;
-    --color-maroon-200: #fecdd3;
-    --color-maroon-300: #fda4af;
-    --color-maroon-400: #fb7185;
-    --color-maroon-500: #f43f5e;
-    --color-maroon-600: #e11d48;
-    --color-maroon-700: #be123c;
-    --color-maroon-800: #9f1239;
-    --color-maroon-900: #881337;
+    /* Monochrome scale — primary palette */
+    --color-ink:        #0a0a0a;
+    --color-ink-90:     #111111;
+    --color-ink-80:     #1a1a1a;
+    --color-ink-60:     #404040;
+    --color-ink-40:     #737373;
+    --color-ink-20:     #a3a3a3;
+    --color-ink-10:     #d4d4d4;
+    --color-ink-05:     #e5e5e5;
+    --color-ink-02:     #f5f5f5;
+    --color-paper:      #fafafa;
+    --color-white:      #ffffff;
 
-    --color-coklat: #854d0e;
-    --color-coklat-50: #ffffff;
+    /* Semantic aliases */
+    --color-charcoal:   #0a0a0a;
+    --color-surface:    #ffffff;
+    --color-putih:      #ffffff;
+    --color-putih-off:  #fafafa;
+    --color-muted:      #737373;
+
+    /* Keep maroon tokens so existing classes don't crash — mapped to ink */
+    --color-maroon:     #171717;
+    --color-maroon-50:  #f5f5f5;
+    --color-maroon-100: #e5e5e5;
+    --color-maroon-200: #d4d4d4;
+    --color-maroon-300: #a3a3a3;
+    --color-maroon-400: #737373;
+    --color-maroon-500: #525252;
+    --color-maroon-600: #404040;
+    --color-maroon-700: #262626;
+    --color-maroon-800: #171717;
+    --color-maroon-900: #0a0a0a;
+
+    /* coklat — mapped to neutral */
+    --color-coklat:     #404040;
+    --color-coklat-50:  #ffffff;
     --color-coklat-100: #fafafa;
-    --color-coklat-200: #f4f4f5;
-    --color-coklat-300: #e4e4e7;
-    --color-coklat-400: #a1a1aa;
-    --color-coklat-500: #854d0e;
-    --color-coklat-600: #713f12;
-    --color-coklat-700: #a16207;
-    --color-coklat-800: #854d0e;
-    --color-coklat-900: #422006;
-
-    --color-charcoal: #0f172a;
-    --color-muted: #64748b;
-    --color-surface: #ffffff;
-    --color-putih: #ffffff;
-    --color-putih-off: #fafafa;
+    --color-coklat-200: #f5f5f5;
+    --color-coklat-300: #e5e5e5;
+    --color-coklat-400: #a3a3a3;
+    --color-coklat-500: #737373;
+    --color-coklat-600: #525252;
+    --color-coklat-700: #404040;
+    --color-coklat-800: #262626;
+    --color-coklat-900: #171717;
 }
 
 @layer base {
@@ -46,11 +62,13 @@
     }
 
     body {
-        @apply bg-putih text-charcoal antialiased;
+        @apply bg-white text-ink antialiased;
+        font-feature-settings: 'kern' 1, 'liga' 1;
     }
 
     ::selection {
-        @apply bg-maroon/15 text-charcoal;
+        background: #0a0a0a;
+        color: #fafafa;
     }
 }
 
@@ -64,5 +82,16 @@
     }
     .scrollbar-none::-webkit-scrollbar {
         display: none;
+    }
+
+    /* Elegant border style */
+    .border-elegant {
+        border-color: #e5e5e5;
+    }
+
+    /* Monochrome focus ring */
+    .focus-ring {
+        outline: none;
+        box-shadow: 0 0 0 2px #0a0a0a;
     }
 }

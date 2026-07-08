@@ -13,7 +13,7 @@
         </div>
 
         <div v-else-if="!product" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 text-center">
-            <p class="text-base text-charcoal/50">Produk tidak ditemukan.</p>
+            <p class="text-base text-charcoal/50">{{ loadError || 'Produk tidak ditemukan.' }}</p>
             <router-link to="/" class="inline-block mt-3 text-sm font-semibold text-maroon hover:text-maroon-700 transition-colors">Kembali ke Beranda</router-link>
         </div>
 
@@ -27,9 +27,9 @@
                     Kembali
                 </router-link>
 
-                <div class="lg:flex lg:items-start lg:gap-8 xl:gap-12">
-                    <div class="lg:sticky lg:top-24 lg:self-start w-full max-w-md mx-auto lg:mx-0 shrink-0">
-                        <div class="aspect-[3/4] bg-maroon-50 rounded-xl overflow-hidden relative max-h-[420px] lg:max-h-[520px]">
+                <div class="md:flex md:items-start md:gap-6 lg:gap-8 xl:gap-12">
+                    <div class="md:sticky md:top-24 md:self-start w-full max-w-md mx-auto md:mx-0 shrink-0">
+                        <div class="aspect-[3/4] bg-maroon-50 rounded-xl overflow-hidden relative max-h-[380px] sm:max-h-[420px] lg:max-h-[520px]">
                             <img v-if="product.thumbnail" :src="selectedImage === 0 && product.thumbnail || product.images?.[selectedImage]?.path || product.thumbnail" :alt="product.name" class="w-full h-full object-cover" />
                             <div v-else class="w-full h-full flex items-center justify-center">
                                 <span class="text-7xl font-bold text-maroon-200/40 select-none">A</span>
@@ -42,19 +42,37 @@
                         </div>
                     </div>
 
-                    <div class="flex-1 min-w-0 max-w-md mx-auto lg:mx-0 lg:pt-0">
+                    <div class="flex-1 min-w-0 mx-auto md:mx-0 md:pt-0 mt-4 md:mt-0">
                         <p class="text-[10px] font-medium text-maroon-400 uppercase tracking-wide">{{ product.category?.name || 'Kemeja' }}</p>
                         <h1 class="text-xl lg:text-2xl font-bold text-charcoal mt-1 leading-tight">{{ product.name }}</h1>
 
                         <div class="mt-3 flex items-baseline gap-2">
-                            <span class="text-xl lg:text-2xl font-bold text-maroon">Rp{{ formatPrice(product.price) }}</span>
+                            <span class="text-xl lg:text-2xl font-bold text-maroon">Rp{{ formatPrice(activePrice) }}</span>
                         </div>
 
                         <div class="mt-2 flex items-center gap-1.5">
-                            <span class="w-1.5 h-1.5 rounded-full" :class="product.stock > 0 ? 'bg-green-500' : 'bg-red-400'"></span>
-                            <span class="text-xs font-medium" :class="product.stock > 0 ? 'text-green-700' : 'text-red-600'">
-                                {{ product.stock > 0 ? `Tersedia (${product.stock} pcs)` : 'Stok Habis' }}
+                            <span class="w-1.5 h-1.5 rounded-full" :class="activeStock > 0 ? 'bg-green-500' : 'bg-red-400'"></span>
+                            <span class="text-xs font-medium" :class="activeStock > 0 ? 'text-green-700' : 'text-red-600'">
+                                {{ activeStock > 0 ? `Tersedia (${activeStock} pcs)` : 'Stok Habis' }}
                             </span>
+                        </div>
+
+                        <div v-if="activeVariants.length" class="mt-4">
+                            <p class="text-[10px] font-semibold text-charcoal/50 mb-2">Varian</p>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                <button
+                                    v-for="variant in activeVariants"
+                                    :key="variant.id"
+                                    @click="selectVariant(variant)"
+                                    :disabled="variant.stock <= 0"
+                                    class="text-left rounded-xl border-2 p-3 transition-all disabled:opacity-45 disabled:cursor-not-allowed"
+                                    :class="selectedVariant?.id === variant.id ? 'border-maroon bg-maroon-50/50' : 'border-maroon-100 hover:border-maroon/50 bg-white'"
+                                >
+                                    <span class="block text-xs font-bold text-charcoal">{{ variant.name }}</span>
+                                    <span class="block mt-1 text-[11px] text-maroon font-semibold">Rp{{ formatPrice(variant.price) }}</span>
+                                    <span class="block mt-0.5 text-[10px] text-charcoal/45">Stok {{ variant.stock }}</span>
+                                </button>
+                            </div>
                         </div>
 
                         <div class="mt-4">
@@ -62,13 +80,13 @@
                             <div class="flex items-center gap-3">
                                 <button @click="decrementQty" class="w-8 h-8 rounded-lg border-2 border-maroon-200/60 flex items-center justify-center text-sm font-semibold text-charcoal/50 hover:border-maroon hover:text-maroon transition-colors active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed" :disabled="quantity <= 1">−</button>
                                 <span class="w-10 text-center text-base font-bold text-charcoal">{{ quantity }}</span>
-                                <button @click="quantity++" class="w-8 h-8 rounded-lg border-2 border-maroon-200/60 flex items-center justify-center text-sm font-semibold text-charcoal/50 hover:border-maroon hover:text-maroon transition-colors active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed" :disabled="quantity >= product.stock">+</button>
+                                <button @click="quantity++" class="w-8 h-8 rounded-lg border-2 border-maroon-200/60 flex items-center justify-center text-sm font-semibold text-charcoal/50 hover:border-maroon hover:text-maroon transition-colors active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed" :disabled="quantity >= activeStock">+</button>
                             </div>
                         </div>
 
                         <div class="mt-4 flex gap-2">
-                            <button @click="addToCart" :disabled="product.stock === 0" class="flex-1 px-6 py-3 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.98] disabled:bg-maroon-200 disabled:cursor-not-allowed disabled:active:scale-100 shadow-lg">
-                                {{ product.stock === 0 ? 'Stok Habis' : 'Tambahkan ke Keranjang' }}
+                            <button @click="addToCart($event)" :disabled="activeStock === 0" class="flex-1 px-4 sm:px-6 py-3 bg-maroon text-white text-xs sm:text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.98] disabled:bg-maroon-200 disabled:cursor-not-allowed disabled:active:scale-100 shadow-lg">
+                                {{ activeStock === 0 ? 'Stok Habis' : 'Tambahkan ke Keranjang' }}
                             </button>
                             <button @click="toggleWishlist(product.id)" class="w-12 h-11 flex items-center justify-center rounded-xl border-2 transition-all active:scale-95" :class="isWishlisted(product.id) ? 'bg-red-50 border-red-200 text-red-500' : 'border-maroon-200/60 text-charcoal/50 hover:border-maroon hover:text-maroon'">
                                 <svg width="18" height="18" viewBox="0 0 24 24" :fill="isWishlisted(product.id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -145,7 +163,7 @@
                                 <div v-if="rp.stock === 0" class="absolute inset-0 bg-white/80 flex items-center justify-center">
                                     <span class="bg-charcoal text-white text-[10px] font-semibold px-2 py-1 rounded-lg">Stok Habis</span>
                                 </div>
-                                <button @click.stop="addToCartRelated(rp)" :disabled="rp.stock === 0" class="absolute bottom-0 left-0 right-0 py-2 bg-maroon text-white text-[10px] font-semibold tracking-wide translate-y-full group-hover/card:translate-y-0 transition-transform duration-300 hover:bg-maroon-600 disabled:opacity-0">
+                                <button @click.stop="addToCartRelated(rp, $event)" :disabled="rp.stock === 0" class="absolute bottom-0 left-0 right-0 py-2 bg-maroon text-white text-[10px] font-semibold tracking-wide translate-y-full group-hover/card:translate-y-0 transition-transform duration-300 hover:bg-maroon-600 disabled:opacity-0">
                                     {{ rp.stock === 0 ? 'Stok Habis' : '+ Keranjang' }}
                                 </button>
                             </div>
@@ -162,6 +180,60 @@
                     </div>
                 </div>
             </section>
+
+            <!-- Ulasan Pembeli -->
+            <section class="py-8 lg:py-12 mt-2">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="mb-6">
+                        <h2 class="text-lg lg:text-xl font-bold text-charcoal tracking-tight">Ulasan Pembeli</h2>
+                        <p class="text-xs text-charcoal/50 mt-0.5">{{ reviews.length ? reviews.length + ' ulasan' : 'Belum ada ulasan' }}</p>
+                    </div>
+
+                    <!-- Loading reviews -->
+                    <div v-if="loadingReviews" class="space-y-4">
+                        <div v-for="n in 3" :key="n" class="animate-pulse flex gap-3">
+                            <div class="w-8 h-8 rounded-full bg-maroon-50 shrink-0"></div>
+                            <div class="flex-1 space-y-2">
+                                <div class="h-2.5 bg-maroon-50 rounded w-1/4"></div>
+                                <div class="h-2 bg-maroon-50 rounded w-3/4"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Review list -->
+                    <div v-else-if="reviews.length" class="space-y-4">
+                        <div v-for="review in reviews" :key="review.id"
+                            class="flex gap-3 p-4 rounded-xl bg-coklat-50/30 border border-maroon-50">
+                            <div class="w-9 h-9 rounded-full bg-maroon flex items-center justify-center text-white text-xs font-bold shrink-0">
+                                {{ review.user_name?.charAt(0)?.toUpperCase() || 'A' }}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="text-xs font-bold text-charcoal">{{ review.user_name || 'Pembeli' }}</span>
+                                    <div class="flex items-center gap-0.5">
+                                        <svg v-for="s in 5" :key="s" width="11" height="11" viewBox="0 0 24 24"
+                                            :fill="s <= review.rating ? '#171717' : 'none'"
+                                            stroke="#171717" stroke-width="2">
+                                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                        </svg>
+                                    </div>
+                                    <span class="text-[10px] text-charcoal/40">{{ formatDate(review.created_at) }}</span>
+                                </div>
+                                <p class="text-xs text-charcoal/70 mt-1 leading-relaxed">{{ review.body }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty state -->
+                    <div v-else class="text-center py-10 bg-coklat-50/20 rounded-xl border border-maroon-50">
+                        <svg class="mx-auto mb-3 text-charcoal/20" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        <p class="text-sm text-charcoal/50">Belum ada ulasan untuk produk ini.</p>
+                        <p class="text-xs text-charcoal/40 mt-1">Jadilah yang pertama memberikan ulasan!</p>
+                    </div>
+                </div>
+            </section>
         </div>
     </div>
 </template>
@@ -172,7 +244,7 @@ import { useRoute } from 'vue-router'
 import api from '../api'
 import { useCartStore } from '../cart'
 import { useToast } from '../toast'
-import { products as mockProducts, formatPrice } from '../mock-data'
+import { formatPrice } from '../mock-data'
 
 const route = useRoute()
 const { addItem } = useCartStore()
@@ -180,19 +252,27 @@ const { show: showToast } = useToast()
 const product = ref(null)
 const allProducts = ref([])
 const loading = ref(true)
+const loadError = ref('')
 const quantity = ref(1)
 const selectedImage = ref(0)
+const selectedVariant = ref(null)
 const showDescriptionModal = ref(false)
 const wishlist = ref(new Set())
 const relatedCarousel = ref(null)
+const reviews = ref([])
+const loadingReviews = ref(false)
 
 const relatedProducts = computed(() => {
     if (!product.value) return []
     const catSlug = product.value.category?.slug
     if (!catSlug) return []
-    const source = allProducts.value.length ? allProducts.value : mockProducts
+    const source = allProducts.value
     return source.filter(p => p.category?.slug === catSlug && p.id !== product.value.id).slice(0, 10)
 })
+
+const activeVariants = computed(() => (product.value?.variants || []).filter(v => v.is_active !== false))
+const activePrice = computed(() => selectedVariant.value?.price ?? product.value?.price ?? 0)
+const activeStock = computed(() => selectedVariant.value?.stock ?? product.value?.stock ?? 0)
 
 const isDescriptionShort = computed(() => {
     if (!product.value?.description) return true
@@ -209,16 +289,24 @@ function decrementQty() {
     if (quantity.value > 1) quantity.value--
 }
 
-function addToCart() {
+function selectVariant(variant) {
+    selectedVariant.value = variant
+    if (quantity.value > variant.stock) quantity.value = Math.max(1, variant.stock)
+}
+
+function addToCart(event) {
     if (product.value && quantity.value > 0) {
-        addItem(product.value, quantity.value)
-        showToast(`${product.value.name} ditambahkan ke keranjang!`)
+        const sourceRect = event?.currentTarget?.getBoundingClientRect() || null
+        addItem({ ...product.value, selectedVariant: selectedVariant.value }, quantity.value, sourceRect)
+        const variantText = selectedVariant.value ? ` (${selectedVariant.value.name})` : ''
+        showToast(`${product.value.name}${variantText} ditambahkan ke keranjang!`)
     }
 }
 
-function addToCartRelated(rp) {
+function addToCartRelated(rp, event) {
     if (rp.stock > 0) {
-        addItem(rp, 1)
+        const sourceRect = event?.currentTarget?.getBoundingClientRect() || null
+        addItem(rp, 1, sourceRect)
         showToast(`${rp.name} ditambahkan ke keranjang!`)
     }
 }
@@ -239,17 +327,32 @@ function scrollRelated(dir) {
     relatedCarousel.value.scrollBy({ left: dir === 'right' ? 340 : -340, behavior: 'smooth' })
 }
 
+function formatDate(dateStr) {
+    if (!dateStr) return ''
+    return new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(dateStr))
+}
+
 onMounted(async () => {
     try {
+        loadError.value = ''
         const [prodRes, allRes] = await Promise.all([
             api.get(`/products/${route.params.slug}`),
             api.get('/products', { params: { per_page: 50 } }).catch(() => ({ data: { data: [] } })),
         ])
         product.value = prodRes.data.data
+        if (activeVariants.value.length) selectedVariant.value = activeVariants.value.find(v => v.stock > 0) || activeVariants.value[0]
         allProducts.value = allRes.data?.data || []
         document.title = `${product.value.name} — Aliesmo`
+
+        // Fetch reviews setelah produk loaded
+        loadingReviews.value = true
+        api.get(`/products/${route.params.slug}/reviews`)
+            .then(res => { reviews.value = res.data.data || [] })
+            .catch(() => { reviews.value = [] })
+            .finally(() => { loadingReviews.value = false })
     } catch (e) {
         console.error(e)
+        loadError.value = 'Gagal memuat produk. Silakan coba lagi.'
     } finally {
         loading.value = false
     }

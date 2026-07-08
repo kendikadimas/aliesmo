@@ -6,6 +6,7 @@ use App\Enums\StockMovementType;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -28,25 +29,61 @@ class OrderService
                     throw new \RuntimeException("Product '{$product->name}' is not available.");
                 }
 
-                if ($product->stock < $item['quantity']) {
-                    throw new \RuntimeException(
-                        "Insufficient stock for '{$product->name}'. Available: {$product->stock}, requested: {$item['quantity']}."
-                    );
+                // Jika ada variant_id, validasi dan pakai stok + harga varian
+                $variant     = null;
+                $itemPrice   = $product->price;
+                $variantName = null;
+
+                if (!empty($item['variant_id'])) {
+                    $variant = ProductVariant::lockForUpdate()
+                        ->where('id', $item['variant_id'])
+                        ->where('product_id', $product->id)
+                        ->firstOrFail();
+
+                    if (!$variant->is_active) {
+                        throw new \RuntimeException(
+                            "Variant '{$variant->name}' of product '{$product->name}' is not available."
+                        );
+                    }
+
+                    if ($variant->stock < $item['quantity']) {
+                        throw new \RuntimeException(
+                            "Insufficient stock for '{$product->name}' variant '{$variant->name}'. Available: {$variant->stock}, requested: {$item['quantity']}."
+                        );
+                    }
+
+                    $itemPrice   = $variant->price;
+                    $variantName = $variant->name;
+                } else {
+                    // Tidak ada varian — pakai stok produk langsung
+                    if ($product->stock < $item['quantity']) {
+                        throw new \RuntimeException(
+                            "Insufficient stock for '{$product->name}'. Available: {$product->stock}, requested: {$item['quantity']}."
+                        );
+                    }
                 }
 
-                $lineSubtotal = $product->price * $item['quantity'];
+                $lineSubtotal = $itemPrice * $item['quantity'];
                 $subtotal    += $lineSubtotal;
 
                 $orderItems[] = [
                     'product_id'   => $product->id,
                     'product_name' => $product->name,
-                    'price'        => $product->price,
+                    'variant_id'   => $variant?->id,
+                    'variant_name' => $variantName,
+                    'price'        => $itemPrice,
                     'quantity'     => $item['quantity'],
                     'subtotal'     => $lineSubtotal,
                 ];
             }
 
-            $shippingCost    = $customerData['shipping_cost'] ?? 0;
+            // Resolve shipping cost dari cache server-side — TIDAK dari client input
+            // Ini mencegah manipulasi ongkir oleh client (CRIT-2)
+            $shippingCost = $this->resolveShippingCost(
+                $customerData['shipping_cache_key'],
+                $customerData['shipping_courier'],
+                $customerData['shipping_service']
+            );
             $couponDiscount  = 0;
             $couponCode      = null;
 
@@ -66,7 +103,7 @@ class OrderService
                 'order_number'           => $this->generateOrderNumber(),
                 'lookup_token'           => \Illuminate\Support\Str::random(32),
                 'lookup_token_expires_at' => now()->addDays(7),
-                'user_id'                => auth()->id(),
+                'user_id'                => request()->user('sanctum')?->id,
                 'customer_name'   => $customerData['customer_name'],
                 'customer_email'  => $customerData['customer_email'],
                 'customer_phone'  => $customerData['customer_phone'] ?? null,
@@ -77,6 +114,7 @@ class OrderService
                 'coupon_code'     => $couponCode,
                 'total'           => $total,
                 'status'          => OrderStatus::Pending,
+                'payment_method'  => $customerData['payment_method'] ?? 'bank_transfer',
             ]);
 
             $order->items()->createMany($orderItems);
@@ -116,6 +154,40 @@ class OrderService
 
             $order->update(['status' => OrderStatus::Cancelled]);
         });
+    }
+
+    /**
+     * Resolve ongkir dari cache server-side berdasarkan cache_key, courier, dan service.
+     * Mencegah manipulasi ongkir oleh client (CRIT-2).
+     *
+     * @throws \RuntimeException jika cache tidak ditemukan atau kombinasi courier/service tidak valid
+     */
+    private function resolveShippingCost(string $cacheKey, string $courier, string $service): int
+    {
+        $cachedCosts = cache()->get($cacheKey);
+
+        if (!$cachedCosts) {
+            throw new \RuntimeException(
+                'Data ongkir tidak ditemukan atau sudah kadaluarsa. Silakan hitung ulang ongkir sebelum checkout.'
+            );
+        }
+
+        // Format cache: array of ['courier' => 'jne', 'service' => 'REG', 'cost' => 12000, ...]
+        $courierLower  = strtolower(trim($courier));
+        $serviceUpper  = strtoupper(trim($service));
+
+        foreach ($cachedCosts as $option) {
+            if (
+                strtolower($option['courier'] ?? '') === $courierLower &&
+                strtoupper($option['service'] ?? '') === $serviceUpper
+            ) {
+                return (int) $option['cost'];
+            }
+        }
+
+        throw new \RuntimeException(
+            "Pilihan pengiriman '{$courier} {$service}' tidak valid. Silakan pilih kurir dari opsi yang tersedia."
+        );
     }
 
     private function generateOrderNumber(): string

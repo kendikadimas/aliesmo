@@ -24,6 +24,21 @@ class StockMovementResource extends Resource
         return 'Transaksi';
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return 'Mutasi Stok';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Mutasi Stok';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Mutasi Stok';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema;
@@ -33,12 +48,12 @@ class StockMovementResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('product.name')->label('Product')->searchable()->sortable(),
-                TextColumn::make('type')->badge()->sortable(),
-                TextColumn::make('quantity')->sortable(),
-                TextColumn::make('note')->limit(50),
-                TextColumn::make('user.name')->label('User'),
-                TextColumn::make('created_at')->dateTime()->sortable(),
+                TextColumn::make('product.name')->label('Produk')->searchable()->sortable(),
+                TextColumn::make('type')->label('Tipe')->badge()->sortable(),
+                TextColumn::make('quantity')->label('Jumlah')->sortable(),
+                TextColumn::make('note')->label('Catatan')->limit(50),
+                TextColumn::make('user.name')->label('Pengguna'),
+                TextColumn::make('created_at')->label('Waktu')->dateTime()->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

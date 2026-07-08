@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Services\StockService;
 use App\Enums\StockMovementType;
 use Filament\Actions\Action;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -34,41 +35,67 @@ class OrderResource extends Resource
         return 'Transaksi';
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return 'Pesanan';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Pesanan';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Pesanan';
+    }
+
     public static function infolist(Schema $schema): Schema
     {
         return $schema
             ->schema([
-                Section::make('Order Information')
+                Section::make('Informasi Pesanan')
                     ->schema([
-                        TextEntry::make('order_number'),
-                        TextEntry::make('customer_name'),
-                        TextEntry::make('customer_email'),
-                        TextEntry::make('customer_phone'),
-                        TextEntry::make('status')->badge(),
-                        TextEntry::make('created_at')->dateTime(),
+                        TextEntry::make('order_number')->label('No. Pesanan'),
+                        TextEntry::make('customer_name')->label('Nama Pelanggan'),
+                        TextEntry::make('customer_email')->label('Email'),
+                        TextEntry::make('customer_phone')->label('No. Telepon'),
+                        TextEntry::make('status')->label('Status')->badge(),
+                        TextEntry::make('created_at')->label('Tanggal')->dateTime(),
                     ])->columns(2),
-                Section::make('Shipping Address')
+                Section::make('Alamat Pengiriman')
                     ->schema([
-                        TextEntry::make('shipping_address'),
+                        TextEntry::make('shipping_address')->label('Alamat'),
                     ]),
-                Section::make('Order Items')
+                Section::make('Informasi Resi')
+                    ->schema([
+                        TextEntry::make('tracking_number')
+                            ->label('No. Resi')
+                            ->placeholder('Belum diinput'),
+                        TextEntry::make('tracking_url')
+                            ->label('Link Tracking Kurir')
+                            ->url(fn (?string $state): ?string => $state)
+                            ->openUrlInNewTab()
+                            ->placeholder('Belum diinput'),
+                    ])->columns(2),
+                Section::make('Item Pesanan')
                     ->schema([
                         RepeatableEntry::make('items')
                             ->schema([
-                                TextEntry::make('product_name'),
-                                TextEntry::make('price')->money('IDR'),
-                                TextEntry::make('quantity'),
-                                TextEntry::make('subtotal')->money('IDR'),
+                                TextEntry::make('product_name')->label('Produk'),
+                                TextEntry::make('price')->label('Harga')->money('IDR'),
+                                TextEntry::make('quantity')->label('Qty'),
+                                TextEntry::make('subtotal')->label('Subtotal')->money('IDR'),
                             ])
                             ->columns(4),
                     ]),
-                Section::make('Payment Information')
+                Section::make('Informasi Pembayaran')
                     ->schema([
-                        TextEntry::make('subtotal')->money('IDR'),
-                        TextEntry::make('shipping_cost')->money('IDR'),
-                        TextEntry::make('total')->money('IDR'),
-                        TextEntry::make('payment_method'),
-                        TextEntry::make('paid_at')->dateTime(),
+                        TextEntry::make('subtotal')->label('Subtotal')->money('IDR'),
+                        TextEntry::make('shipping_cost')->label('Ongkir')->money('IDR'),
+                        TextEntry::make('total')->label('Total')->money('IDR'),
+                        TextEntry::make('payment_method')->label('Metode Pembayaran'),
+                        TextEntry::make('paid_at')->label('Waktu Bayar')->dateTime(),
                     ])->columns(2),
             ]);
     }
@@ -82,24 +109,26 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('order_number')->searchable()->sortable(),
-                TextColumn::make('customer_name')->searchable(),
-                TextColumn::make('total')->money('IDR')->sortable(),
-                TextColumn::make('status')->badge()->sortable(),
-                TextColumn::make('payment_method'),
-                TextColumn::make('created_at')->dateTime()->sortable(),
+                TextColumn::make('order_number')->label('No. Pesanan')->searchable()->sortable(),
+                TextColumn::make('customer_name')->label('Nama Pelanggan')->searchable(),
+                TextColumn::make('total')->label('Total')->money('IDR')->sortable(),
+                TextColumn::make('status')->label('Status')->badge()->sortable(),
+                TextColumn::make('payment_method')->label('Metode Bayar'),
+                TextColumn::make('tracking_number')->label('No. Resi')->searchable()->toggleable(),
+                TextColumn::make('created_at')->label('Tanggal')->dateTime()->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([
                 Action::make('updateStatus')
-                    ->label('Update Status')
+                    ->label('Ubah Status')
                     ->icon('heroicon-o-arrow-path')
                     ->form([
                         Select::make('status')
+                            ->label('Status')
                             ->options([
-                                'processing' => 'Processing',
-                                'shipped' => 'Shipped',
-                                'completed' => 'Completed',
+                                'processing' => 'Diproses',
+                                'shipped' => 'Dikirim',
+                                'completed' => 'Selesai',
                             ])
                             ->required(),
                     ])
@@ -108,12 +137,36 @@ class OrderResource extends Resource
                     })
                     ->hidden(fn (Order $record): bool => in_array($record->status, [OrderStatus::Completed, OrderStatus::Cancelled, OrderStatus::Expired])),
 
+                Action::make('updateTracking')
+                    ->label('Input Resi')
+                    ->icon('heroicon-o-truck')
+                    ->form([
+                        TextInput::make('tracking_number')
+                            ->label('No. Resi')
+                            ->maxLength(255),
+                        TextInput::make('tracking_url')
+                            ->label('Link Website Tracking Kurir')
+                            ->url()
+                            ->maxLength(255)
+                            ->placeholder('https://www.jne.co.id/id/tracking/trace'),
+                    ])
+                    ->fillForm(fn (Order $record): array => [
+                        'tracking_number' => $record->tracking_number,
+                        'tracking_url' => $record->tracking_url,
+                    ])
+                    ->action(function (array $data, Order $record) {
+                        $record->update([
+                            'tracking_number' => $data['tracking_number'] ?: null,
+                            'tracking_url' => $data['tracking_url'] ?: null,
+                        ]);
+                    }),
+
                 Action::make('cancelOrder')
-                    ->label('Cancel & Restock')
+                    ->label('Batalkan & Restock')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->requiresConfirmation()
-                    ->modalHeading('Cancel Order')
+                    ->modalHeading('Batalkan Pesanan')
                     ->modalDescription('Batalkan order ini dan kembalikan stok produk secara otomatis?')
                     ->modalSubmitActionLabel('Ya, Batalkan')
                     ->action(function (Order $record) {
