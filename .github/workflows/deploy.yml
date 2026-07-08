@@ -61,9 +61,11 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: /public_html/
           local-dir: ./
+          timeout: 60000
           exclude: |
             **/.git/**
             **/.gitignore
+            **/.gitattributes
             **/node_modules/**
             **/frontend/**
             **/.env
@@ -76,5 +78,12 @@ jobs:
             **/public/build/**
             **/.github/**
             **/tests/**
+            **/.agents/**
+            **/*.md
+            **/package.json
+            **/package-lock.json
+            **/vite.config.js
+            **/tailwind.config.js
+            **/postcss.config.js
 
 
