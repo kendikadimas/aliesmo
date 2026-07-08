@@ -1,4 +1,4 @@
-name: Deploy to cPanel via Git
+name: Deploy to cPanel via FTP
 
 on:
   push:
@@ -7,15 +7,13 @@ on:
 
 jobs:
   deploy:
-    name: Build & Commit
+    name: Build & Deploy
     runs-on: ubuntu-latest
 
     steps:
       # ─── 1. Checkout ───────────────────────────────────────────────
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GH_PAT }}
 
       # ─── 2. Setup Node & build assets ──────────────────────────────
       - name: Setup Node.js
@@ -44,26 +42,23 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
-      # ─── 4. Commit vendor/ + public/build/ ke repo ─────────────────
-      # .env TIDAK di-commit — harus dibuat manual di server via cPanel File Manager
-      - name: Commit build artifacts
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-
-          # Stage semua perubahan dulu, lalu force-add ignored files
-          git add .
-          git add -f vendor/
-          git add -f public/build/
-
-          # Hanya commit kalau ada perubahan
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "deploy: build artifacts [skip ci]"
-            git push origin main
-          fi
-
-      # ─── 5. Deploy complete ─────────────────────────────────────────
-      - name: Deploy complete
-        run: echo "Build artifacts committed. Pull from cPanel Git Version Control to deploy."
+      # ─── 4. Deploy via FTP ─────────────────────────────────────────
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /public_html/
+          local-dir: ./
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/frontend/node_modules/**
+            **/.env
+            **/.env.*
+            **/storage/logs/**
+            **/storage/framework/cache/**
+            **/storage/framework/sessions/**
+            **/storage/framework/views/**
