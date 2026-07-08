@@ -5,6 +5,7 @@
 @source "../**/*.blade.php";
 @source "../**/*.js";
 @source "../**/*.vue";
+@source '../../frontend/src/**/*.vue';
 
 @theme {
     --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif;
@@ -42,6 +43,9 @@
     --color-maroon-800: #171717;
     --color-maroon-900: #0a0a0a;
 
+    --color-gold:       #c9a96e;
+    --color-gold-hover: #b8914f;
+
     /* coklat — mapped to neutral */
     --color-coklat:     #404040;
     --color-coklat-50:  #ffffff;
@@ -66,8 +70,18 @@
         font-feature-settings: 'kern' 1, 'liga' 1;
     }
 
+    html.dark body {
+        background-color: #0a0a0a;
+        color: #fafafa;
+    }
+
     ::selection {
-        background: #0a0a0a;
+        background-color: rgba(201, 169, 110, 0.2);
+        color: #0a0a0a;
+    }
+
+    html.dark ::selection {
+        background-color: rgba(201, 169, 110, 0.25);
         color: #fafafa;
     }
 }
@@ -93,5 +107,18 @@
     .focus-ring {
         outline: none;
         box-shadow: 0 0 0 2px #0a0a0a;
+    }
+
+    /* Gold accent utility */
+    .text-gold { color: #c9a96e; }
+    .bg-gold { background-color: #c9a96e; }
+    .border-gold { border-color: #c9a96e; }
+    .hover\:text-gold:hover { color: #c9a96e; }
+    .hover\:bg-gold:hover { background-color: #b8914f; }
+    .hover\:border-gold:hover { border-color: #c9a96e; }
+
+    /* Thin divider */
+    .divider {
+        @apply border-t border-ink-10 dark:border-white/10;
     }
 }

@@ -20,7 +20,6 @@ import ShippingInfoPage from './pages/ShippingInfoPage.vue'
 import SizeGuidePage from './pages/SizeGuidePage.vue'
 import TrackOrderPage from './pages/TrackOrderPage.vue'
 import EmailVerificationPage from './pages/EmailVerificationPage.vue'
-import './style.css'
 
 const routes = [
     { path: '/', name: 'home', component: HomePage },
