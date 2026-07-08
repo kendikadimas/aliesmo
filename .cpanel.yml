@@ -1,16 +1,4 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/aliesmoi/public_html
-    - /bin/cp -rf /home/aliesmoi/aliesmo/app $DEPLOYPATH
-    - /bin/cp -rf /home/aliesmoi/aliesmo/bootstrap $DEPLOYPATH
-    - /bin/cp -rf /home/aliesmoi/aliesmo/config $DEPLOYPATH
-    - /bin/cp -rf /home/aliesmoi/aliesmo/database $DEPLOYPATH
-    - /bin/cp -rf /home/aliesmoi/aliesmo/public $DEPLOYPATH
-    - /bin/cp -rf /home/aliesmoi/aliesmo/resources $DEPLOYPATH
-    - /bin/cp -rf /home/aliesmoi/aliesmo/routes $DEPLOYPATH
-    - /bin/cp -rf /home/aliesmoi/aliesmo/storage $DEPLOYPATH
-    - /bin/cp -rf /home/aliesmoi/aliesmo/vendor $DEPLOYPATH
-    - /bin/cp -f /home/aliesmoi/aliesmo/artisan $DEPLOYPATH
-    - /bin/cp -f /home/aliesmoi/aliesmo/composer.json $DEPLOYPATH
-    - /bin/cp -f /home/aliesmoi/aliesmo/composer.lock $DEPLOYPATH
+    - /usr/local/bin/php /home/aliesmoi/public_html/artisan optimize:clear
