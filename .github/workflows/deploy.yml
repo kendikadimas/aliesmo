@@ -52,25 +52,4 @@ jobs:
           server-dir: /public_html/public/build/
           local-dir: ./public/build/
 
-      # ─── 5. Deploy app code via FTP (exclude vendor & node_modules) ─
-      - name: Deploy app code via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /public_html/
-          local-dir: ./
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/frontend/**
-            **/.env
-            **/.env.*
-            **/storage/logs/**
-            **/storage/framework/cache/**
-            **/storage/framework/sessions/**
-            **/storage/framework/views/**
-            **/vendor/**
-            **/public/build/**
+
