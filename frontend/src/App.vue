@@ -283,12 +283,12 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useCartStore } from './cart'
 import api, { clearToken } from './api'
-import { useDarkMode } from './useDarkMode'
 
 const router = useRouter()
 const route = useRoute()
 const { items } = useCartStore()
-const { isDark, toggle, init } = useDarkMode()
+const isDark = ref(false)
+const toggle = () => { isDark.value = !isDark.value; document.documentElement.classList.toggle('dark', isDark.value) }
 const mobileOpen = ref(false)
 const isLoggedIn = ref(false)
 const categories = ref([])
@@ -315,8 +315,8 @@ const showToast = ref(false)
 const toastMessage = ref('')
 
 onMounted(async () => {
-    // Init dark mode from localStorage / system preference
-    init()
+    // Ensure light mode on mount
+    document.documentElement.classList.remove('dark')
 
     isLoggedIn.value = !!localStorage.getItem('token')
 
