@@ -3,9 +3,11 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\CategoryResource\Pages;
 use App\Models\Category;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -43,7 +45,15 @@ class CategoryResource extends Resource
         return $schema
             ->schema([
                 TextInput::make('name')->required(),
-                TextInput::make('slug')->required()->unique(Category::class),
+                TextInput::make('slug')->required()->unique(Category::class, ignorable: fn ($record) => $record),
+                FileUpload::make('image_url')
+                    ->label('Foto Kategori')
+                    ->image()
+                    ->imageResizeMode('cover')
+                    ->imageCropAspectRatio('21:9')
+                    ->directory('categories')
+                    ->disk('public')
+                    ->nullable(),
             ]);
     }
 
@@ -51,6 +61,7 @@ class CategoryResource extends Resource
     {
         return $table
             ->columns([
+                ImageColumn::make('image_url')->label('Foto')->disk('public')->square(),
                 TextColumn::make('name')->label('Nama')->searchable(),
                 TextColumn::make('slug')->searchable(),
                 TextColumn::make('products_count')->label('Produk'),

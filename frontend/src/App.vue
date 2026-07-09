@@ -1,7 +1,7 @@
 <template>
     <div class="min-h-screen bg-paper dark:bg-ink transition-colors duration-200">
         <!-- Promo / Announcement Bar -->
-        <div class="bg-ink dark:bg-ink-80 border-b border-white/5 text-[10px] font-medium tracking-[0.18em] text-white/40 uppercase">
+        <div class="bg-white dark:bg-slate-800 border-b border-zinc-200 dark:border-slate-700 text-[10px] font-medium tracking-[0.18em] text-charcoal/60 dark:text-slate-400 uppercase">
             <div class="max-w-7xl mx-auto px-4 py-2">
                 <!-- Desktop View (3 columns) -->
                 <div class="hidden lg:grid grid-cols-3 gap-4 text-center">
@@ -11,7 +11,7 @@
                         </svg>
                         Gratis Ongkir Seluruh Indonesia | Min. Belanja Rp 200rb
                     </router-link>
-                    <router-link to="/?shop=1" class="hover:text-maroon transition-colors flex items-center justify-center gap-1.5 border-x border-zinc-200">
+                    <router-link to="/?shop=1" class="hover:text-maroon transition-colors flex items-center justify-center gap-1.5 border-x border-zinc-200 dark:border-slate-600">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                         </svg>
@@ -226,43 +226,43 @@
             <router-view />
         </main>
 
-        <footer class="bg-slate-900 dark:bg-slate-950 text-white">
+        <footer class="bg-zinc-100 dark:bg-slate-900 text-charcoal dark:text-white border-t border-zinc-200 dark:border-slate-800">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
                     <div>
                         <div class="flex items-center gap-2">
-                            <span class="text-xl font-bold tracking-[0.15em] text-putih font-serif">ALIESMO</span>
+                            <span class="text-xl font-bold tracking-[0.15em] text-charcoal dark:text-white font-serif">ALIESMO</span>
                         </div>
-                        <p class="mt-3 text-sm text-putih/60 leading-relaxed max-w-xs">Kemeja batik dan casual berkualitas. Nyaman dipakai, bangga dengan budaya Indonesia.</p>
+                        <p class="mt-3 text-sm text-charcoal/60 dark:text-slate-400 leading-relaxed max-w-xs">Kemeja batik dan casual berkualitas. Nyaman dipakai, bangga dengan budaya Indonesia.</p>
                     </div>
                     <div>
-                        <h4 class="text-sm font-semibold text-maroon-200 mb-4">Menu</h4>
+                        <h4 class="text-sm font-semibold text-maroon mb-4">Menu</h4>
                         <ul class="space-y-2">
-                            <li><router-link to="/" class="text-sm text-putih/60 hover:text-putih transition-colors">Beranda</router-link></li>
-                            <li><router-link to="/?shop=1" class="text-sm text-putih/60 hover:text-putih transition-colors">Koleksi</router-link></li>
-                            <li><router-link to="/cart" class="text-sm text-putih/60 hover:text-putih transition-colors">Keranjang</router-link></li>
+                            <li><router-link to="/" class="text-sm text-charcoal/60 dark:text-slate-400 hover:text-maroon dark:hover:text-maroon transition-colors">Beranda</router-link></li>
+                            <li><router-link to="/?shop=1" class="text-sm text-charcoal/60 dark:text-slate-400 hover:text-maroon dark:hover:text-maroon transition-colors">Koleksi</router-link></li>
+                            <li><router-link to="/cart" class="text-sm text-charcoal/60 dark:text-slate-400 hover:text-maroon dark:hover:text-maroon transition-colors">Keranjang</router-link></li>
                         </ul>
                     </div>
                     <div>
-                        <h4 class="text-sm font-semibold text-maroon-200 mb-4">Informasi</h4>
+                        <h4 class="text-sm font-semibold text-maroon mb-4">Informasi</h4>
                         <ul class="space-y-2">
-                            <li><router-link to="/track-order" class="text-sm text-putih/60 hover:text-putih transition-colors">Lacak Pesanan</router-link></li>
-                            <li><router-link to="/shipping-info" class="text-sm text-putih/60 hover:text-putih transition-colors">Info Pengiriman</router-link></li>
-                            <li><router-link to="/size-guide" class="text-sm text-putih/60 hover:text-putih transition-colors">Panduan Ukuran</router-link></li>
-                            <li><router-link to="/terms" class="text-sm text-putih/60 hover:text-putih transition-colors">Syarat & Ketentuan</router-link></li>
-                            <li><router-link to="/privacy" class="text-sm text-putih/60 hover:text-putih transition-colors">Kebijakan Privasi</router-link></li>
+                            <li><router-link to="/track-order" class="text-sm text-charcoal/60 dark:text-slate-400 hover:text-maroon dark:hover:text-maroon transition-colors">Lacak Pesanan</router-link></li>
+                            <li><router-link to="/shipping-info" class="text-sm text-charcoal/60 dark:text-slate-400 hover:text-maroon dark:hover:text-maroon transition-colors">Info Pengiriman</router-link></li>
+                            <li><router-link to="/size-guide" class="text-sm text-charcoal/60 dark:text-slate-400 hover:text-maroon dark:hover:text-maroon transition-colors">Panduan Ukuran</router-link></li>
+                            <li><router-link to="/terms" class="text-sm text-charcoal/60 dark:text-slate-400 hover:text-maroon dark:hover:text-maroon transition-colors">Syarat & Ketentuan</router-link></li>
+                            <li><router-link to="/privacy" class="text-sm text-charcoal/60 dark:text-slate-400 hover:text-maroon dark:hover:text-maroon transition-colors">Kebijakan Privasi</router-link></li>
                         </ul>
                     </div>
                     <div>
-                        <h4 class="text-sm font-semibold text-maroon-200 mb-4">Kontak</h4>
-                        <ul class="space-y-2 text-sm text-putih/60">
+                        <h4 class="text-sm font-semibold text-maroon mb-4">Kontak</h4>
+                        <ul class="space-y-2 text-sm text-charcoal/60 dark:text-slate-400">
                             <li>{{ get('contact_email', 'hello@aliesmo.com') }}</li>
                             <li>{{ get('contact_phone', '+62 851-9681-1722') }}</li>
                             <li>{{ get('contact_address', 'Ulujami, Pemalang, Jawa Tengah') }}</li>
                         </ul>
                     </div>
                 </div>
-                <div class="mt-8 pt-8 border-t border-putih/10 text-center text-sm text-putih/40">
+                <div class="mt-8 pt-8 border-t border-zinc-200 dark:border-slate-700 text-center text-sm text-charcoal/40 dark:text-slate-500">
                     &copy; {{ new Date().getFullYear() }} aliesmo. Terinspirasi dari kekayaan batik Nusantara.
                 </div>
             </div>

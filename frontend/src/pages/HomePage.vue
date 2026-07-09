@@ -5,20 +5,7 @@
                 <div class="relative flex transition-all duration-500" :style="{ transform: `translateX(-${activeSlide * 100}%)` }">
                     <div v-for="banner in banners" :key="banner.id"
                         class="w-full shrink-0 relative min-h-[35vh] lg:min-h-[50vh]">
-                        <img :src="banner.image_url" :alt="banner.title" class="absolute inset-0 w-full h-full object-cover" />
-                        <div class="absolute inset-0 bg-gradient-to-r from-charcoal/60 via-charcoal/30 to-transparent"></div>
-                        <div class="relative z-10 flex flex-col justify-center h-full px-6 sm:px-10 lg:px-14 py-10 lg:py-14">
-                            <div v-if="banner.badge_text" class="inline-flex items-center gap-2 px-3 py-1.5 bg-maroon/90 rounded-full text-white text-xs font-medium mb-4 w-fit">
-                                <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
-                                {{ banner.badge_text }}
-                            </div>
-                            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white max-w-lg leading-tight" v-html="banner.title?.replace(/\n/g, '<br>')"></h2>
-                            <p v-if="banner.subtitle" class="mt-2 text-sm sm:text-base text-white/80 max-w-md">{{ banner.subtitle }}</p>
-                            <a v-if="banner.button_text" :href="banner.button_link || '#shop'"
-                                class="mt-4 inline-flex items-center gap-2 px-6 py-2.5 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] w-fit shadow-lg">
-                                {{ banner.button_text }}
-                            </a>
-                        </div>
+                        <img :src="banner.image_url" :alt="banner.title" class="w-full h-full object-cover" style="display:block;" />
                     </div>
                 </div>
                 <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2.5 z-20">
@@ -60,8 +47,8 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between mb-8">
                     <div>
-                        <h2 class="text-2xl lg:text-3xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Kategori</h2>
-                        <p class="mt-1 text-sm text-charcoal/50 dark:text-slate-400">Cari berdasarkan jenis kemeja</p>
+                        <h2 class="text-2xl lg:text-3xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Collection</h2>
+                        <p class="mt-1 text-sm text-charcoal/50 dark:text-slate-400">Temukan koleksi yang cocok untukmu</p>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-5">
@@ -163,19 +150,7 @@
             </div>
         </section>
 
-        <section class="py-14 lg:py-20 bg-gradient-to-br from-maroon to-maroon-800">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="max-w-xl mx-auto text-center text-white">
-                    <h2 class="text-3xl lg:text-4xl font-bold tracking-tight">Dapatkan Info Terbaru!</h2>
-                    <p class="mt-2 text-white/80">Daftar sekarang dan dapatkan promo spesial + notifikasi koleksi baru.</p>
-                    <form @submit.prevent="handleSubscribe" class="mt-8 flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-                        <input v-model="email" type="email" required placeholder="Masukkan email kamu" class="flex-1 px-4 py-3 rounded-xl text-sm text-charcoal placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-white/50">
-                        <button type="submit" class="px-8 py-3 bg-charcoal text-white text-sm font-semibold rounded-xl hover:bg-charcoal/90 transition-all active:scale-[0.97] whitespace-nowrap shadow-lg">Daftar Gratis</button>
-                    </form>
-                    <p v-if="subscribed" class="mt-4 text-sm text-white/90 font-medium">Makasih! Kamu udah terdaftar!</p>
-                </div>
-            </div>
-        </section>
+
     </div>
 </template>
 
