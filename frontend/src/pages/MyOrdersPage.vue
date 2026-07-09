@@ -108,7 +108,9 @@
 import { ref, onMounted } from 'vue'
 import { formatPrice } from '../mock-data'
 import api from '../api'
+import { useSettings } from '../useSettings'
 
+const { fetchSettings, get } = useSettings()
 const orders = ref([])
 const pagination = ref(null)
 const loading = ref(true)
@@ -195,13 +197,12 @@ function formatDate(dateString) {
 }
 
 function payNow(order) {
-    // WhatsApp flow: generate message dan redirect
-    const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '6285196811722'
+    const whatsappNumber = get('whatsapp_number', import.meta.env.VITE_WHATSAPP_NUMBER || '6285196811722')
     let message = `Halo, saya ingin konfirmasi pembayaran:\n\n`
     message += `*Order #${order.order_number}*\n`
     message += `Total: Rp${formatPrice(order.total)}\n\n`
     message += `Mohon info rekening untuk transfer. Terima kasih!`
-    
+
     const waUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`
     window.open(waUrl, '_blank')
 }
@@ -209,6 +210,7 @@ function payNow(order) {
 onMounted(() => {
     isLoggedIn.value = !!localStorage.getItem('token')
     if (isLoggedIn.value) {
+        fetchSettings()
         loadOrders()
         checkClaimable()
     } else {

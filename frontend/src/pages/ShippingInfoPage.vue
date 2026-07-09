@@ -73,14 +73,51 @@
 </template>
 
 <script setup>
-const waNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '6281234567890'
+import { ref, onMounted } from 'vue'
+import api from '../api'
+import { useSettings } from '../useSettings'
 
-const couriers = [
-    { code: 'JNE', name: 'JNE', desc: 'Reguler, YES, OKE' },
-    { code: 'J&T', name: 'J&T Express', desc: 'Ekonomi, Express' },
-    { code: 'SiCe', name: 'SiCepat', desc: 'Reguler, HALU' },
-    { code: 'POS', name: 'POS Indonesia', desc: 'Standar, Kilat Khusus' },
-    { code: 'TIKI', name: 'TIKI', desc: 'Reguler, Ekspress, ONS' },
-    { code: 'AnTr', name: 'Anteraja', desc: 'Same Day, Next Day' },
-]
+const { fetchSettings, get } = useSettings()
+const waNumber = ref(import.meta.env.VITE_WHATSAPP_NUMBER || '')
+
+const couriers = ref([])
+const loadingCouriers = ref(true)
+
+onMounted(async () => {
+    // Fetch settings dan couriers secara paralel
+    const [settingsResult, couriersResult] = await Promise.allSettled([
+        fetchSettings(),
+        api.get('/shipping/couriers'),
+    ])
+
+    // WA number dari settings, fallback ke env
+    if (!waNumber.value) {
+        waNumber.value = get('whatsapp_number', '6285196811722')
+    }
+
+    // Couriers dari API
+    if (couriersResult.status === 'fulfilled') {
+        const data = couriersResult.value.data?.data || []
+        // Normalise: API returns array of { code, name } or similar
+        couriers.value = data.map(c => ({
+            code: (c.code || c.courier_code || '').toUpperCase(),
+            name: c.name || c.courier_name || c.code || '',
+            desc: c.services || c.description || c.service || '',
+        })).filter(c => c.code)
+    }
+
+    // Fallback jika API tidak ada data
+    if (!couriers.value.length) {
+        couriers.value = [
+            { code: 'JNE', name: 'JNE', desc: 'Reguler, YES, OKE' },
+            { code: 'J&T', name: 'J&T Express', desc: 'Ekonomi, Express' },
+            { code: 'SICEPAT', name: 'SiCepat', desc: 'Reguler, HALU' },
+            { code: 'POS', name: 'POS Indonesia', desc: 'Standar, Kilat Khusus' },
+            { code: 'TIKI', name: 'TIKI', desc: 'Reguler, Ekspress, ONS' },
+            { code: 'ANTERAJA', name: 'Anteraja', desc: 'Same Day, Next Day' },
+        ]
+    }
+
+    loadingCouriers.value = false
+})
 </script>

@@ -89,7 +89,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCartStore } from '../cart'
-import { categories as mockCategories, products as mockProducts, formatPrice } from '../mock-data'
+import { formatPrice } from '../mock-data'
 import api from '../api'
 
 const route = useRoute()
@@ -127,7 +127,8 @@ function setCategory(slug) {
 function productImage(product, index) {
     if (product.images && product.images[index]) return product.images[index].path
     if (index === 0 && product.thumbnail) return product.thumbnail
-    return `https://picsum.photos/seed/kemeja-${product.id || product.slug}${index > 0 ? '-' + (index + 1) : ''}/600/800`
+    if (product.thumbnail) return product.thumbnail
+    return ''
 }
 
 function addToCart(product) {
@@ -148,8 +149,8 @@ async function fetchData() {
         hasMorePages.value = meta ? meta.current_page < meta.last_page : false
     } catch (e) {
         console.error('Failed to fetch data:', e)
-        categoriesList.value = mockCategories
-        products.value = mockProducts
+        categoriesList.value = []
+        products.value = []
         hasMorePages.value = false
     } finally {
         loading.value = false

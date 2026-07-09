@@ -274,7 +274,8 @@ function formatDate(dateString) {
 function productImage(p, index) {
     if (p.images && p.images[index]) return p.images[index].path
     if (index === 0 && p.thumbnail) return p.thumbnail
-    return `https://picsum.photos/seed/${p.id || p.slug}${index > 0 ? '-' + (index + 1) : ''}/600/800`
+    if (p.thumbnail) return p.thumbnail
+    return ''
 }
 
 function decrementQty() {

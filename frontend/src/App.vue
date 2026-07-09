@@ -256,9 +256,9 @@
                     <div>
                         <h4 class="text-sm font-semibold text-maroon-200 mb-4">Kontak</h4>
                         <ul class="space-y-2 text-sm text-putih/60">
-                            <li>hello@aliesmo.com</li>
-                            <li>+62 812 3456 7890</li>
-                            <li>Surakarta, Indonesia</li>
+                            <li>{{ get('contact_email', 'hello@aliesmo.com') }}</li>
+                            <li>{{ get('contact_phone', '+62 851-9681-1722') }}</li>
+                            <li>{{ get('contact_address', 'Ulujami, Pemalang, Jawa Tengah') }}</li>
                         </ul>
                     </div>
                 </div>
@@ -283,10 +283,12 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useCartStore } from './cart'
 import api, { clearToken } from './api'
+import { useSettings } from './useSettings'
 
 const router = useRouter()
 const route = useRoute()
 const { items } = useCartStore()
+const { fetchSettings, get } = useSettings()
 const isDark = ref(false)
 const toggle = () => { isDark.value = !isDark.value; document.documentElement.classList.toggle('dark', isDark.value) }
 const mobileOpen = ref(false)
@@ -304,11 +306,11 @@ watch(() => route.query.search, (newSearch) => {
 // Promo Carousel for Mobile
 const activePromo = ref(0)
 let promoTimer = null
-const promos = [
+const promos = ref([
     { text: 'Gratis Ongkir Seluruh Indonesia | Min. Belanja Rp 200rb', link: '/?shop=1' },
     { text: 'Bahan Premium Oxford & Linen | Garansi 30 Hari', link: '/?shop=1' },
     { text: 'Diskon 10% First Order | Kode: ALIESNEW10', link: '/login' }
-]
+])
 
 // Wishlist Toast state
 const showToast = ref(false)
@@ -340,12 +342,31 @@ onMounted(async () => {
         activePromo.value = (activePromo.value + 1) % promos.length
     }, 4000)
 
-    // Fetch categories dari API
+    // Fetch settings (promos, contact info) dan categories secara paralel
     try {
-        const res = await api.get('/categories')
-        categories.value = res.data.data || res.data
+        const [settingsRes, categoriesRes] = await Promise.allSettled([
+            fetchSettings(),
+            api.get('/categories'),
+        ])
+
+        if (categoriesRes.status === 'fulfilled') {
+            categories.value = categoriesRes.value.data?.data || categoriesRes.value.data
+        }
+
+        // Update promos dari settings jika tersedia
+        const s = settingsRes.status === 'fulfilled' ? settingsRes.value : {}
+        const p1 = s.announcement_1; const p1l = s.announcement_1_link
+        const p2 = s.announcement_2; const p2l = s.announcement_2_link
+        const p3 = s.announcement_3; const p3l = s.announcement_3_link
+        if (p1 || p2 || p3) {
+            promos.value = [
+                p1 ? { text: p1, link: p1l || '/?shop=1' } : null,
+                p2 ? { text: p2, link: p2l || '/?shop=1' } : null,
+                p3 ? { text: p3, link: p3l || '/login' } : null,
+            ].filter(Boolean)
+        }
     } catch (e) {
-        console.error('Failed to fetch categories:', e)
+        console.error('Failed to fetch initial data:', e)
     }
 })
 

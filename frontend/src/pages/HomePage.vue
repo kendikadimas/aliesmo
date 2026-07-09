@@ -3,48 +3,26 @@
         <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 lg:pt-8">
             <div class="relative rounded-2xl overflow-hidden shadow-lg">
                 <div class="relative flex transition-all duration-500" :style="{ transform: `translateX(-${activeSlide * 100}%)` }">
-                    <div class="w-full shrink-0 relative min-h-[35vh] lg:min-h-[50vh]">
-                        <img src="https://picsum.photos/seed/banner-kemeja-1/1400/600" alt="Koleksi Baru" class="absolute inset-0 w-full h-full object-cover" />
+                    <div v-for="banner in banners" :key="banner.id"
+                        class="w-full shrink-0 relative min-h-[35vh] lg:min-h-[50vh]">
+                        <img :src="banner.image_url" :alt="banner.title" class="absolute inset-0 w-full h-full object-cover" />
                         <div class="absolute inset-0 bg-gradient-to-r from-charcoal/60 via-charcoal/30 to-transparent"></div>
                         <div class="relative z-10 flex flex-col justify-center h-full px-6 sm:px-10 lg:px-14 py-10 lg:py-14">
-                            <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-maroon/90 rounded-full text-white text-xs font-medium mb-4 w-fit">
+                            <div v-if="banner.badge_text" class="inline-flex items-center gap-2 px-3 py-1.5 bg-maroon/90 rounded-full text-white text-xs font-medium mb-4 w-fit">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
-                                Koleksi Baru
+                                {{ banner.badge_text }}
                             </div>
-                            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white max-w-lg leading-tight">Kemeja Keren<br>Mulai Rp 149.000</h2>
-                            <p class="mt-2 text-sm sm:text-base text-white/80 max-w-md">Kualitas premium, harga merakyat. Cocok buat semua momen!</p>
-                            <a href="#shop" class="mt-4 inline-flex items-center gap-2 px-6 py-2.5 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] w-fit shadow-lg">Belanja Yuk</a>
-                        </div>
-                    </div>
-                    <div class="w-full shrink-0 relative min-h-[35vh] lg:min-h-[50vh]">
-                        <img src="https://picsum.photos/seed/banner-kemeja-2/1400/600" alt="Gratis Ongkir" class="absolute inset-0 w-full h-full object-cover" />
-                        <div class="absolute inset-0 bg-gradient-to-r from-charcoal/60 via-charcoal/30 to-transparent"></div>
-                        <div class="relative z-10 flex flex-col justify-center h-full px-6 sm:px-10 lg:px-14 py-10 lg:py-14">
-                            <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-maroon/90 rounded-full text-white text-xs font-medium mb-4 w-fit">
-                                <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
-                                Promo Spesial
-                            </div>
-                            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white max-w-lg leading-tight">Gratis Ongkir!<br>Min. Rp 200.000</h2>
-                            <p class="mt-2 text-sm sm:text-base text-white/80 max-w-md">Berlaku untuk JNE, J&T, dan SiCepat ke seluruh Indonesia.</p>
-                            <a href="#shop" class="mt-4 inline-flex items-center gap-2 px-6 py-2.5 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] w-fit shadow-lg">Belanja Sekarang</a>
-                        </div>
-                    </div>
-                    <div class="w-full shrink-0 relative min-h-[35vh] lg:min-h-[50vh]">
-                        <img src="https://picsum.photos/seed/banner-kemeja-3/1400/600" alt="Garansi 30 Hari" class="absolute inset-0 w-full h-full object-cover" />
-                        <div class="absolute inset-0 bg-gradient-to-r from-charcoal/60 via-charcoal/30 to-transparent"></div>
-                        <div class="relative z-10 flex flex-col justify-center h-full px-6 sm:px-10 lg:px-14 py-10 lg:py-14">
-                            <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-maroon/90 rounded-full text-white text-xs font-medium mb-4 w-fit">
-                                <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
-                                Garansi 30 Hari
-                            </div>
-                            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white max-w-lg leading-tight">Tidak Cocok?<br><span class="text-maroon-200">Ganti Baru!</span></h2>
-                            <p class="mt-2 text-sm sm:text-base text-white/80 max-w-md">Belanja tanpa risau dengan garansi return 30 hari.</p>
-                            <a href="#shop" class="mt-4 inline-flex items-center gap-2 px-6 py-2.5 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] w-fit shadow-lg">Mulai Belanja</a>
+                            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white max-w-lg leading-tight" v-html="banner.title?.replace(/\n/g, '<br>')"></h2>
+                            <p v-if="banner.subtitle" class="mt-2 text-sm sm:text-base text-white/80 max-w-md">{{ banner.subtitle }}</p>
+                            <a v-if="banner.button_text" :href="banner.button_link || '#shop'"
+                                class="mt-4 inline-flex items-center gap-2 px-6 py-2.5 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] w-fit shadow-lg">
+                                {{ banner.button_text }}
+                            </a>
                         </div>
                     </div>
                 </div>
                 <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2.5 z-20">
-                    <button v-for="(_, i) in 3" :key="i" @click="activeSlide = i" class="h-2 rounded-full transition-all" :class="activeSlide === i ? 'w-6 bg-white' : 'w-2 bg-white/50 hover:bg-white/70'"></button>
+                    <button v-for="(_, i) in banners" :key="i" @click="activeSlide = i" class="h-2 rounded-full transition-all" :class="activeSlide === i ? 'w-6 bg-white' : 'w-2 bg-white/50 hover:bg-white/70'"></button>
                 </div>
                 <button @click="prevSlide" class="absolute top-1/2 -translate-y-1/2 left-3 z-20 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow hover:bg-white transition-all">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="15 18 9 12 15 6"/></svg>
@@ -59,20 +37,20 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-8">
                     <div class="text-center">
-                        <p class="text-3xl lg:text-4xl font-bold text-maroon">12.000+</p>
-                        <p class="text-sm text-charcoal/60 mt-1">Kemeja Terjual</p>
+                        <p class="text-3xl lg:text-4xl font-bold text-maroon">{{ get('stat_kemeja_terjual', '12.000+') }}</p>
+                        <p class="text-sm text-charcoal/60 mt-1">{{ get('stat_kemeja_terjual_label', 'Kemeja Terjual') }}</p>
                     </div>
                     <div class="text-center">
-                        <p class="text-3xl lg:text-4xl font-bold text-maroon">15+</p>
-                        <p class="text-sm text-charcoal/60 mt-1">Kota di Indonesia</p>
+                        <p class="text-3xl lg:text-4xl font-bold text-maroon">{{ get('stat_kota', '15+') }}</p>
+                        <p class="text-sm text-charcoal/60 mt-1">{{ get('stat_kota_label', 'Kota di Indonesia') }}</p>
                     </div>
                     <div class="text-center">
-                        <p class="text-3xl lg:text-4xl font-bold text-maroon">100%</p>
-                        <p class="text-sm text-charcoal/60 mt-1">Kualitas Original</p>
+                        <p class="text-3xl lg:text-4xl font-bold text-maroon">{{ get('stat_kualitas', '100%') }}</p>
+                        <p class="text-sm text-charcoal/60 mt-1">{{ get('stat_kualitas_label', 'Kualitas Original') }}</p>
                     </div>
                     <div class="text-center">
-                        <p class="text-3xl lg:text-4xl font-bold text-maroon">30</p>
-                        <p class="text-sm text-charcoal/60 mt-1">Hari Garansi</p>
+                        <p class="text-3xl lg:text-4xl font-bold text-maroon">{{ get('stat_garansi', '30') }}</p>
+                        <p class="text-sm text-charcoal/60 mt-1">{{ get('stat_garansi_label', 'Hari Garansi') }}</p>
                     </div>
                 </div>
             </div>
@@ -89,7 +67,8 @@
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-5">
                     <div v-for="cat in categoriesList" :key="cat.id" @click="$router.push(`/catalog/${cat.slug}`)" class="group cursor-pointer">
                         <div class="aspect-[21/9] bg-maroon-50 rounded-xl overflow-hidden relative">
-                            <img :src="`https://picsum.photos/seed/kategori-${cat.slug}/500/220`" :alt="cat.name" class="w-full h-full object-cover group-hover:scale-[1.06] transition-transform duration-500" />
+                            <img v-if="cat.image_url" :src="cat.image_url" :alt="cat.name" class="w-full h-full object-cover group-hover:scale-[1.06] transition-transform duration-500" />
+                            <div v-else class="w-full h-full bg-gradient-to-br from-maroon-50 to-maroon-100 dark:from-slate-700 dark:to-slate-600 group-hover:scale-[1.06] transition-transform duration-500"></div>
                             <div class="absolute inset-0 bg-charcoal/30 group-hover:bg-charcoal/40 transition-colors flex items-center justify-center p-3">
                                 <p class="text-xs sm:text-sm font-extrabold text-white tracking-[0.12em] uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] group-hover:scale-105 transition-transform duration-300 text-center">{{ cat.name }}</p>
                             </div>
@@ -205,12 +184,16 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { watch } from 'vue'
 import { useCartStore } from '../cart'
-import { categories as mockCategories, products as mockProducts, formatPrice } from '../mock-data'
+import { formatPrice } from '../mock-data'
 import api from '../api'
+import { useSettings } from '../useSettings'
+
+const { fetchSettings, get } = useSettings()
 
 const route = useRoute()
 const router = useRouter()
 const { addItem } = useCartStore()
+const banners = ref([])
 const categoriesList = ref([])
 const products = ref([])
 const loading = ref(false)
@@ -257,11 +240,12 @@ const groupedProducts = computed(() => {
 function productImage(product, index) {
     if (product.images && product.images[index]) return product.images[index].path
     if (index === 0 && product.thumbnail) return product.thumbnail
-    return `https://picsum.photos/seed/kemeja-${product.id || product.slug}${index > 0 ? '-' + (index + 1) : ''}/600/800`
+    if (product.thumbnail) return product.thumbnail
+    return ''
 }
 
-function prevSlide() { activeSlide.value = activeSlide.value === 0 ? 2 : activeSlide.value - 1 }
-function nextSlide() { activeSlide.value = activeSlide.value === 2 ? 0 : activeSlide.value + 1 }
+function prevSlide() { activeSlide.value = activeSlide.value === 0 ? Math.max(banners.value.length - 1, 0) : activeSlide.value - 1 }
+function nextSlide() { activeSlide.value = activeSlide.value >= banners.value.length - 1 ? 0 : activeSlide.value + 1 }
 function addToCart(product) { addItem(product, 1) }
 
 function scrollCarousel(catSlug, direction) {
@@ -314,18 +298,21 @@ async function fetchData() {
     loading.value = true
     currentPage.value = 1
     try {
-        const [categoriesRes, productsRes] = await Promise.all([
+        const [bannersRes, settingsRes, categoriesRes, productsRes] = await Promise.all([
+            api.get('/banners'),
+            fetchSettings(),
             api.get('/categories'),
             api.get('/products', { params: { per_page: 12, page: 1 } })
         ])
+        banners.value = (bannersRes.data.data || bannersRes.data).filter(b => b.is_active !== false)
         categoriesList.value = categoriesRes.data.data || categoriesRes.data
         const meta = productsRes.data.meta || productsRes.data.pagination || null
         products.value = productsRes.data.data || productsRes.data
         hasMorePages.value = meta ? meta.current_page < meta.last_page : false
     } catch (e) {
         console.error('Failed to fetch data:', e)
-        categoriesList.value = mockCategories
-        products.value = mockProducts
+        categoriesList.value = []
+        products.value = []
         hasMorePages.value = false
     } finally {
         loading.value = false
