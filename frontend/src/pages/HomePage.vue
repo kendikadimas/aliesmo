@@ -4,8 +4,8 @@
             <div class="relative rounded-2xl overflow-hidden shadow-lg">
                 <div class="relative flex transition-all duration-500" :style="{ transform: `translateX(-${activeSlide * 100}%)` }">
                     <div v-for="banner in banners" :key="banner.id"
-                        class="w-full shrink-0 relative min-h-[35vh] lg:min-h-[50vh]">
-                        <img :src="banner.image_url" :alt="banner.title" class="w-full h-full object-cover" style="display:block;" />
+                        class="w-full shrink-0 aspect-[2/1]">
+                        <img :src="banner.image_url" :alt="banner.title" class="w-full h-full object-cover block" />
                     </div>
                 </div>
                 <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2.5 z-20">
