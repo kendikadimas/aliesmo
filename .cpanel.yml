@@ -1,4 +1,5 @@
 ---
 deployment:
   tasks:
+    - /usr/local/bin/php /home/aliesmoi/public_html/artisan migrate --force
     - /usr/local/bin/php /home/aliesmoi/public_html/artisan optimize:clear
