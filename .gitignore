@@ -4,7 +4,8 @@
 /public/storage
 /storage/*.key
 /storage/pail
-# vendor/ dan public/build/ di-commit untuk deploy ke cPanel via Git
+/vendor
+/public/build
 .env
 .env.backup
 .env.production

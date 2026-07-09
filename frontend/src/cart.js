@@ -24,6 +24,10 @@ export function useCartStore() {
             })
         }
         save()
+        // Emit event untuk toast notif di App.vue
+        window.dispatchEvent(new CustomEvent('cart:added', {
+            detail: { name: product.name, thumbnail: product.thumbnail, quantity }
+        }))
     }
 
     function updateQuantity(productId, quantity) {

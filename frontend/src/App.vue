@@ -118,7 +118,7 @@
 
                         <!-- Cart Bag -->
                         <router-link to="/cart" class="relative p-2 text-charcoal/70 hover:text-maroon transition-colors" aria-label="Cart">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <svg :class="['transition-transform', cartBounce ? 'cart-bounce' : '']" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
                                 <line x1="3" y1="6" x2="21" y2="6"/>
                                 <path d="M16 10a4 4 0 0 1-8 0"/>
@@ -268,9 +268,43 @@
             </div>
         </footer>
 
-        <!-- Wishlist Toast Notification -->
+        <!-- Cart Toast Notification -->
         <Transition name="toast">
-            <div v-if="showToast" class="fixed bottom-5 right-5 bg-charcoal text-white text-xs px-4 py-3.5 rounded-xl shadow-2xl z-[99] flex items-center gap-2.5 border border-white/10">
+            <div v-if="showToast" class="fixed bottom-5 right-5 z-[99] w-72 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-zinc-100 dark:border-slate-700 overflow-hidden">
+                <!-- Green accent bar -->
+                <div class="h-1 w-full bg-gradient-to-r from-emerald-400 to-emerald-500"></div>
+                <div class="p-3.5 flex items-center gap-3">
+                    <!-- Thumbnail -->
+                    <div class="w-12 h-12 rounded-xl overflow-hidden bg-zinc-100 dark:bg-slate-700 flex-shrink-0">
+                        <img v-if="cartToast.thumbnail" :src="cartToast.thumbnail" :alt="cartToast.name" class="w-full h-full object-cover">
+                        <div v-else class="w-full h-full flex items-center justify-center">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-zinc-400">
+                                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <!-- Info -->
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-1.5 mb-0.5">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500 flex-shrink-0">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">Ditambahkan ke keranjang</span>
+                        </div>
+                        <p class="text-sm font-semibold text-charcoal dark:text-slate-100 truncate">{{ cartToast.name }}</p>
+                        <p class="text-xs text-charcoal/50 dark:text-slate-400">{{ cartToast.quantity }} item</p>
+                    </div>
+                    <!-- Cart link -->
+                    <router-link to="/cart" @click="showToast = false" class="flex-shrink-0 px-3 py-1.5 bg-maroon text-white text-[11px] font-bold rounded-lg hover:bg-maroon-600 transition-colors">
+                        Lihat
+                    </router-link>
+                </div>
+            </div>
+        </Transition>
+
+        <!-- Wishlist Toast (generic) -->
+        <Transition name="toast">
+            <div v-if="showWishlistToastState" class="fixed bottom-5 right-5 bg-charcoal text-white text-xs px-4 py-3.5 rounded-xl shadow-2xl z-[98] flex items-center gap-2.5 border border-white/10">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" class="text-maroon" stroke="currentColor" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                 <span>{{ toastMessage }}</span>
             </div>
@@ -313,8 +347,16 @@ const promos = ref([
 ])
 
 // Wishlist Toast state
-const showToast = ref(false)
+const showWishlistToastState = ref(false)
 const toastMessage = ref('')
+
+// Cart Toast state
+const showToast = ref(false)
+const cartToast = ref({ name: '', thumbnail: '', quantity: 1 })
+let cartToastTimer = null
+
+// Cart icon bounce
+const cartBounce = ref(false)
 
 onMounted(async () => {
     // Ensure light mode on mount
@@ -335,6 +377,23 @@ onMounted(async () => {
     })
     window.addEventListener('auth:unverified', () => {
         // Tetap login, hanya redirect — isLoggedIn tidak perlu diubah
+    })
+
+    // Cart toast listener
+    window.addEventListener('cart:added', (e) => {
+        cartToast.value = {
+            name: e.detail.name,
+            thumbnail: e.detail.thumbnail,
+            quantity: e.detail.quantity,
+        }
+        showToast.value = true
+        // Trigger bounce animation on cart icon
+        cartBounce.value = true
+        setTimeout(() => { cartBounce.value = false }, 600)
+        if (cartToastTimer) clearTimeout(cartToastTimer)
+        cartToastTimer = setTimeout(() => {
+            showToast.value = false
+        }, 3500)
     })
 
     // Auto-scroll promos on mobile
@@ -372,9 +431,9 @@ onMounted(async () => {
 
 function showWishlistToast() {
     toastMessage.value = 'Fitur Favorit/Wishlist akan segera hadir!'
-    showToast.value = true
+    showWishlistToastState.value = true
     setTimeout(() => {
-        showToast.value = false
+        showWishlistToastState.value = false
     }, 3000)
 }
 
@@ -403,6 +462,7 @@ function triggerMobileLogout() {
 
 onUnmounted(() => {
     if (promoTimer) clearInterval(promoTimer)
+    if (cartToastTimer) clearTimeout(cartToastTimer)
 })
 </script>
 
@@ -429,6 +489,18 @@ onUnmounted(() => {
 .slide-up-leave-to {
     transform: translateY(-100%);
     opacity: 0;
+}
+
+/* Cart bounce animation */
+@keyframes cart-bounce {
+    0%   { transform: scale(1); }
+    30%  { transform: scale(1.35) rotate(-8deg); }
+    60%  { transform: scale(0.9) rotate(4deg); }
+    80%  { transform: scale(1.1) rotate(-2deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+.cart-bounce {
+    animation: cart-bounce 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
 }
 
 /* Toast Slide and Fade */

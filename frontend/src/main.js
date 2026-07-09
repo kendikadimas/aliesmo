@@ -20,6 +20,7 @@ import ShippingInfoPage from './pages/ShippingInfoPage.vue'
 import SizeGuidePage from './pages/SizeGuidePage.vue'
 import TrackOrderPage from './pages/TrackOrderPage.vue'
 import EmailVerificationPage from './pages/EmailVerificationPage.vue'
+import AuthCallbackPage from './pages/AuthCallbackPage.vue'
 
 const routes = [
     { path: '/', name: 'home', component: HomePage },
@@ -41,6 +42,7 @@ const routes = [
     { path: '/shipping-info', name: 'shipping-info', component: ShippingInfoPage },
     { path: '/size-guide', name: 'size-guide', component: SizeGuidePage },
     { path: '/email/verify', name: 'email-verify', component: EmailVerificationPage },
+    { path: '/auth/callback', name: 'auth-callback', component: AuthCallbackPage },
     { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFoundPage },
 ]
 
