@@ -16,6 +16,23 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     // Public
+    Route::get('debug-qris', function () {
+        $qrisValue = \App\Models\SiteSetting::where('key', 'payment_qris_image')->value('value');
+        $storagePath = storage_path('app/public/payment');
+        $files = is_dir($storagePath) ? scandir($storagePath) : [];
+
+        return response()->json([
+            'db_value' => $qrisValue,
+            'db_value_empty' => empty($qrisValue),
+            'storage_path' => $storagePath,
+            'storage_exists' => is_dir($storagePath),
+            'files_in_payment' => array_diff($files, ['.', '..']),
+            'public_storage_link' => file_exists(public_path('storage')),
+            'asset_url' => $qrisValue ? asset('storage/' . $qrisValue) : null,
+            'file_exists_in_storage' => $qrisValue ? file_exists(storage_path('app/public/' . $qrisValue)) : false,
+        ]);
+    });
+
     Route::get('banners', [BannerController::class, 'index'])->middleware('throttle:60,1');
     Route::get('homepage-videos', [HomepageVideoController::class, 'index'])->middleware('throttle:60,1');
     Route::get('settings', [SiteSettingController::class, 'index'])->middleware('throttle:60,1');
