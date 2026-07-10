@@ -42,19 +42,8 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
-      # ─── 4. Deploy public/build/ via FTP ──────────────────────────
-      - name: Deploy build assets via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /public_html/public/build/
-          local-dir: ./public/build/
-          dangerous-clean-slate: true
-
-      # ─── 5. Deploy app code via FTP (incremental, skip heavy dirs) ──
-      - name: Deploy app code via FTP
+      # ─── 4. Deploy semua file via FTP (incremental, skip heavy dirs) ──
+      - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -76,7 +65,6 @@ jobs:
             **/storage/framework/sessions/**
             **/storage/framework/views/**
             **/vendor/**
-            **/public/build/**
             **/.github/**
             **/tests/**
             **/.agents/**
