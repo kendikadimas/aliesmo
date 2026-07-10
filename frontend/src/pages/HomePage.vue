@@ -67,7 +67,7 @@
                         <div class="aspect-[21/9] bg-zinc-800 rounded-xl overflow-hidden relative">
                             <img v-if="cat.image_url" :src="cat.image_url" :alt="cat.name" class="w-full h-full object-cover group-hover:scale-[1.06] transition-transform duration-500" />
                             <div v-else class="w-full h-full bg-zinc-800 group-hover:scale-[1.06] transition-transform duration-500"></div>
-                            <div class="absolute inset-0 bg-charcoal/30 group-hover:bg-charcoal/40 transition-colors flex items-center justify-center p-3">
+                            <div class="absolute inset-0 bg-charcoal/30 group-hover:bg-charcoal dark:hover:bg-[#d0ceca]/40 transition-colors flex items-center justify-center p-3">
                                 <p class="text-xs sm:text-sm font-extrabold text-white tracking-[0.12em] uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] group-hover:scale-105 transition-transform duration-300 text-center">{{ cat.name }}</p>
                             </div>
                         </div>
@@ -108,7 +108,7 @@
                             <img :src="productImage(product, 0)" :alt="product.name" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 group-hover/card:opacity-0" />
                             <img :src="productImage(product, 1)" :alt="product.name" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 group-hover/card:opacity-100" />
                             <div v-if="product.stock > 0 && product.stock <= 5" class="absolute top-1.5 left-1.5 bg-coklat text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-md">Sisa {{ product.stock }}</div>
-                            <div v-if="product.stock <= 3" class="absolute top-1.5 right-1.5 bg-ink text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-md animate-pulse">HOTS!</div>
+                            <div v-if="product.stock <= 3" class="absolute top-1.5 right-1.5 bg-ink dark:bg-[#f0eeeb] text-white dark:text-[#161618] text-[9px] font-semibold px-1.5 py-0.5 rounded-md animate-pulse">HOTS!</div>
                             <div v-if="product.stock === 0" class="absolute inset-0 bg-white/80 dark:bg-[#1c1c1e]/80 flex items-center justify-center">
                                 <span class="bg-charcoal dark:bg-[#303032] text-white text-[10px] font-semibold px-2 py-1 rounded-lg">Stok Habis</span>
                             </div>

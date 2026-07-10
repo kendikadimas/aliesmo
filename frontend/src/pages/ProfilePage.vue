@@ -6,7 +6,7 @@
         <div v-if="!isLoggedIn" class="py-24 text-center">
             <UserIcon class="w-16 h-16 mx-auto text-ink-20 dark:text-[#303032]" />
             <h2 class="mt-4 text-xl font-bold text-charcoal dark:text-[#f0eeeb]">Login dulu yuk!</h2>
-            <router-link to="/login" class="inline-block mt-6 px-8 py-3 bg-ink text-white text-sm font-semibold rounded-xl hover:bg-ink-60 transition-all shadow-lg">
+            <router-link to="/login" class="inline-block mt-6 px-8 py-3 bg-ink dark:bg-[#f0eeeb] text-white dark:text-[#161618] text-sm font-semibold rounded-xl hover:bg-ink-60 dark:hover:bg-[#d0ceca] transition-all shadow-lg">
                 Login Sekarang
             </router-link>
         </div>
@@ -30,7 +30,7 @@
                     class="relative px-5 py-3 text-xs font-bold tracking-wide uppercase whitespace-nowrap transition-all"
                     :class="activeTab === tab.key
                         ? 'text-maroon after:absolute after:bottom-[-2px] after:left-0 after:right-0 after:h-[2px] after:bg-maroon'
-                        : 'text-charcoal/40 dark:text-[#6a6a6e] hover:text-charcoal/70 dark:text-[#d0ceca]/80 dark:hover:text-[#d0ceca]'">
+                        : 'text-charcoal/40 dark:text-[#6a6a6e] hover:text-charcoal dark:hover:text-[#f0eeeb] hover:text-charcoal/70 dark:text-[#d0ceca]/80 dark:hover:text-[#d0ceca]'">
                     {{ tab.label }}
                 </button>
             </div>
@@ -43,19 +43,19 @@
                         <div>
                             <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Nama Lengkap</label>
                             <input v-model="profileForm.name" required
-                                class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] focus:border-ink focus:outline-none transition-colors bg-white dark:bg-[#28282a]">
+                                class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] focus:border-ink dark:focus:border-[#f0eeeb] dark:border-[#f0eeeb] focus:outline-none transition-colors bg-white dark:bg-[#28282a]">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Email</label>
                             <input v-model="profileForm.email" type="email" required
-                                class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] focus:border-ink focus:outline-none transition-colors bg-white dark:bg-[#28282a]">
+                                class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] focus:border-ink dark:focus:border-[#f0eeeb] dark:border-[#f0eeeb] focus:outline-none transition-colors bg-white dark:bg-[#28282a]">
                         </div>
 
-                        <div v-if="profileError" class="p-3 bg-ink-05 dark:bg-ink-80/40 rounded-xl border border-ink-10 dark:border-ink-60 text-ink-60 dark:text-[#8a8a8e] dark:text-ink-20 dark:text-[#303032] text-sm">{{ profileError }}</div>
-                        <div v-if="profileSuccess" class="p-3 bg-ink-05 dark:bg-ink-80/40 rounded-xl border border-ink-10 dark:border-ink-60 text-ink dark:text-[#f0eeeb] dark:text-ink-05 text-sm font-medium">Profil berhasil diperbarui!</div>
+                        <div v-if="profileError" class="p-3 bg-ink-05 dark:bg-[#242426] dark:bg-ink-80/40 rounded-xl border border-ink-10 dark:border-ink-60 text-ink-60 dark:text-[#8a8a8e] dark:text-ink-20 dark:text-[#303032] text-sm">{{ profileError }}</div>
+                        <div v-if="profileSuccess" class="p-3 bg-ink-05 dark:bg-[#242426] dark:bg-ink-80/40 rounded-xl border border-ink-10 dark:border-ink-60 text-ink dark:text-[#f0eeeb] dark:text-ink-05 text-sm font-medium">Profil berhasil diperbarui!</div>
 
                         <button type="submit" :disabled="profileSaving"
-                            class="px-8 py-2.5 bg-ink text-white text-sm font-semibold rounded-xl hover:bg-ink-60 transition-all active:scale-[0.97] shadow-lg disabled:opacity-50">
+                            class="px-8 py-2.5 bg-ink dark:bg-[#f0eeeb] text-white dark:text-[#161618] text-sm font-semibold rounded-xl hover:bg-ink-60 dark:hover:bg-[#d0ceca] transition-all active:scale-[0.97] shadow-lg disabled:opacity-50">
                             {{ profileSaving ? 'Menyimpan...' : 'Simpan Perubahan' }}
                         </button>
                     </form>
@@ -75,24 +75,24 @@
                         <div>
                             <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Password Lama</label>
                             <input v-model="passwordForm.current_password" type="password" required
-                                class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] focus:border-ink focus:outline-none transition-colors bg-white dark:bg-[#28282a]">
+                                class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] focus:border-ink dark:focus:border-[#f0eeeb] dark:border-[#f0eeeb] focus:outline-none transition-colors bg-white dark:bg-[#28282a]">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Password Baru</label>
                             <input v-model="passwordForm.password" type="password" required placeholder="Minimal 8 karakter"
-                                class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] focus:border-ink focus:outline-none transition-colors bg-white dark:bg-[#28282a]">
+                                class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] focus:border-ink dark:focus:border-[#f0eeeb] dark:border-[#f0eeeb] focus:outline-none transition-colors bg-white dark:bg-[#28282a]">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Ulangi Password Baru</label>
                             <input v-model="passwordForm.password_confirmation" type="password" required
-                                class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] focus:border-ink focus:outline-none transition-colors bg-white dark:bg-[#28282a]">
+                                class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] focus:border-ink dark:focus:border-[#f0eeeb] dark:border-[#f0eeeb] focus:outline-none transition-colors bg-white dark:bg-[#28282a]">
                         </div>
 
-                        <div v-if="passwordError" class="p-3 bg-ink-05 dark:bg-ink-80/40 rounded-xl border border-ink-10 dark:border-ink-60 text-ink-60 dark:text-[#8a8a8e] dark:text-ink-20 dark:text-[#303032] text-sm">{{ passwordError }}</div>
-                        <div v-if="passwordSuccess" class="p-3 bg-ink-05 dark:bg-ink-80/40 rounded-xl border border-ink-10 dark:border-ink-60 text-ink dark:text-[#f0eeeb] dark:text-ink-05 text-sm font-medium">Password berhasil diperbarui!</div>
+                        <div v-if="passwordError" class="p-3 bg-ink-05 dark:bg-[#242426] dark:bg-ink-80/40 rounded-xl border border-ink-10 dark:border-ink-60 text-ink-60 dark:text-[#8a8a8e] dark:text-ink-20 dark:text-[#303032] text-sm">{{ passwordError }}</div>
+                        <div v-if="passwordSuccess" class="p-3 bg-ink-05 dark:bg-[#242426] dark:bg-ink-80/40 rounded-xl border border-ink-10 dark:border-ink-60 text-ink dark:text-[#f0eeeb] dark:text-ink-05 text-sm font-medium">Password berhasil diperbarui!</div>
 
                         <button type="submit" :disabled="passwordSaving"
-                            class="px-8 py-2.5 bg-ink text-white text-sm font-semibold rounded-xl hover:bg-ink-60 transition-all active:scale-[0.97] shadow-lg disabled:opacity-50">
+                            class="px-8 py-2.5 bg-ink dark:bg-[#f0eeeb] text-white dark:text-[#161618] text-sm font-semibold rounded-xl hover:bg-ink-60 dark:hover:bg-[#d0ceca] transition-all active:scale-[0.97] shadow-lg disabled:opacity-50">
                             {{ passwordSaving ? 'Menyimpan...' : 'Ganti Password' }}
                         </button>
                     </form>

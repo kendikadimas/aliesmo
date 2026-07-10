@@ -1,7 +1,7 @@
 ﻿<template>
     <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div class="text-center mb-10">
-            <div class="w-14 h-14 rounded-2xl bg-ink-05 border-2 border-ink-10 flex items-center justify-center mx-auto mb-4">
+            <div class="w-14 h-14 rounded-2xl bg-ink-05 dark:bg-[#242426] border-2 border-ink-10 flex items-center justify-center mx-auto mb-4">
                 <MagnifyingGlassIcon class="w-6 h-6 text-charcoal dark:text-[#f0eeeb]" />
             </div>
             <h1 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Lacak Pesanan</h1>
@@ -14,22 +14,22 @@
                 <div>
                     <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Email</label>
                     <input v-model="form.email" type="email" required placeholder="email yang kamu pakai saat checkout"
-                        class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:text-[#6a6a6e]/60 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-ink focus:outline-none transition-colors">
+                        class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:text-[#6a6a6e]/60 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-ink dark:focus:border-[#f0eeeb] dark:border-[#f0eeeb] focus:outline-none transition-colors">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Nomor Pesanan</label>
                     <input v-model="form.order_number" required
                         placeholder="Contoh: ORD-20260706-0001-ABC"
-                        class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:text-[#6a6a6e]/60 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-ink focus:outline-none transition-colors uppercase"
+                        class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:text-[#6a6a6e]/60 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-ink dark:focus:border-[#f0eeeb] dark:border-[#f0eeeb] focus:outline-none transition-colors uppercase"
                         @input="form.order_number = form.order_number.toUpperCase()">
                 </div>
 
-                <div v-if="error" class="p-3 bg-ink-05 dark:bg-ink-80/40 border border-ink-10 dark:border-ink-60 rounded-xl text-xs text-ink-60 dark:text-[#8a8a8e] dark:text-ink-20 dark:text-[#303032] font-medium">
+                <div v-if="error" class="p-3 bg-ink-05 dark:bg-[#242426] dark:bg-ink-80/40 border border-ink-10 dark:border-ink-60 rounded-xl text-xs text-ink-60 dark:text-[#8a8a8e] dark:text-ink-20 dark:text-[#303032] font-medium">
                     {{ error }}
                 </div>
 
                 <button type="submit" :disabled="loading"
-                    class="w-full py-3 bg-ink text-white text-sm font-semibold rounded-xl hover:bg-ink-60 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                    class="w-full py-3 bg-ink dark:bg-[#f0eeeb] text-white dark:text-[#161618] text-sm font-semibold rounded-xl hover:bg-ink-60 dark:hover:bg-[#d0ceca] transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
                     <span v-if="loading" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                     {{ loading ? 'Mencari...' : 'Cari Pesanan' }}
                 </button>
@@ -50,7 +50,7 @@
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
                     <div>
                         <p class="text-xs text-charcoal/40 dark:text-[#6a6a6e] font-medium">No. Pesanan</p>
-                        <p class="text-lg font-bold text-ink dark:text-[#f0eeeb]">{{ order.order_number }}</p>
+                        <p class="text-lg font-bold text-ink dark:text-[#f0eeeb] dark:text-[#f0eeeb]">{{ order.order_number }}</p>
                         <p class="text-xs text-charcoal/40 dark:text-[#6a6a6e] mt-0.5">{{ formatDate(order.created_at) }}</p>
                     </div>
                     <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold self-start sm:self-center"
@@ -257,7 +257,7 @@ function statusClass(status) {
         cancelled: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/50',
         expired: 'bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-[#d0ceca] dark:text-gray-400 border border-gray-200 dark:border-gray-700',
     }
-    return classes[status] || 'bg-ink-05 dark:bg-ink-80/20 text-ink dark:text-[#f0eeeb] border border-ink-10 dark:border-ink-60/30'
+    return classes[status] || 'bg-ink-05 dark:bg-[#242426] dark:bg-ink-80/20 text-ink dark:text-[#f0eeeb] border border-ink-10 dark:border-ink-60/30'
 }
 
 function formatDate(dateString) {
