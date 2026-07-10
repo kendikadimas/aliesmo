@@ -68,7 +68,7 @@ class ProductController extends Controller
         ]);
 
         try {
-            $product = Product::with(['category', 'images', 'variants' => fn ($q) => $q->where('is_active', true)])
+            $product = Product::with(['category', 'images', 'variants' => fn ($q) => $q->where('is_active', true), 'videos'])
                 ->where('slug', $slug)
                 ->where('is_active', true)
                 ->firstOrFail();

@@ -52,6 +52,11 @@ class Product extends Model
         return $this->hasMany(ProductVariant::class)->orderBy('sort_order');
     }
 
+    public function videos(): HasMany
+    {
+        return $this->hasMany(ProductVideo::class)->orderBy('sort_order');
+    }
+
     protected static function booted(): void
     {
         static::creating(function (Product $product) {

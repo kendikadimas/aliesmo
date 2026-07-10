@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\BannerController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CouponController;
 use App\Http\Controllers\Api\HomepageVideoController;
+use App\Http\Controllers\Api\ProductVideoController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProfileController;
@@ -33,6 +34,7 @@ Route::prefix('v1')->group(function () {
     Route::post('coupons/validate', [CouponController::class, 'validate'])->middleware('throttle:10,1');
 
     // Reviews (public read)
+    Route::get('products/{slug}/videos', [ProductVideoController::class, 'index'])->middleware('throttle:60,1');
     Route::get('products/{slug}/reviews', [ReviewController::class, 'index']);
 
     // Shipping (RajaOngkir)

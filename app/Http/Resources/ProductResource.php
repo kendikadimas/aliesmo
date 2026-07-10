@@ -6,6 +6,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\ProductImageResource;
 use App\Http\Resources\ProductVariantResource;
+use App\Http\Resources\ProductVideoResource;
 
 class ProductResource extends JsonResource
 {
@@ -27,6 +28,7 @@ class ProductResource extends JsonResource
             'category' => new CategoryResource($this->whenLoaded('category')),
             'images' => ProductImageResource::collection($this->whenLoaded('images')),
             'variants' => ProductVariantResource::collection($this->whenLoaded('variants')),
+            'videos'   => ProductVideoResource::collection($this->whenLoaded('videos')),
             'created_at' => $this->created_at,
         ];
     }

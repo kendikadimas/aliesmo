@@ -19,11 +19,60 @@
 
                 <div class="lg:flex lg:items-start lg:gap-8 xl:gap-12">
                     <div class="lg:sticky lg:top-24 lg:self-start w-full max-w-md mx-auto lg:mx-0 shrink-0">
+                        <!-- Main media display -->
                         <div class="aspect-[3/4] bg-maroon-50 rounded-xl overflow-hidden relative max-h-[420px] lg:max-h-[520px]">
-                            <img :src="selectedImage === 0 ? product.thumbnail : (product.images?.[selectedImage]?.path || product.thumbnail)" :alt="product.name" class="w-full h-full object-cover" />
+                            <!-- Video embed -->
+                            <iframe
+                                v-if="selectedMedia.type === 'video'"
+                                :src="getYoutubeEmbedUrl(product.videos[selectedMedia.index].youtube_url)"
+                                class="w-full h-full"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen
+                            ></iframe>
+                            <!-- Image display -->
+                            <img
+                                v-else
+                                :src="selectedMedia.index === 0 ? product.thumbnail : (product.images?.[selectedMedia.index - 1]?.path || product.thumbnail)"
+                                :alt="product.name"
+                                class="w-full h-full object-cover"
+                            />
                         </div>
-                        <div v-if="product.images?.length" class="flex gap-2 mt-3 overflow-x-auto pb-1">
-                            <div v-for="(img, i) in product.images" :key="i" class="w-14 h-14 shrink-0 bg-maroon-50 rounded-lg overflow-hidden border-2 cursor-pointer" :class="selectedImage === i ? 'border-maroon' : 'border-transparent hover:border-maroon-200'" @click="selectedImage = i">
+
+                        <!-- Thumbnails strip: videos first, then images -->
+                        <div v-if="product.videos?.length || product.images?.length" class="flex gap-2 mt-3 overflow-x-auto pb-1">
+                            <!-- Thumbnail image (first = product.thumbnail) -->
+                            <div
+                                class="w-14 h-14 shrink-0 bg-maroon-50 rounded-lg overflow-hidden border-2 cursor-pointer"
+                                :class="selectedMedia.type === 'image' && selectedMedia.index === 0 ? 'border-maroon' : 'border-transparent hover:border-maroon-200'"
+                                @click="selectedMedia = { type: 'image', index: 0 }"
+                            >
+                                <img :src="product.thumbnail" :alt="product.name" class="w-full h-full object-cover" />
+                            </div>
+
+                            <!-- Video thumbnails -->
+                            <div
+                                v-for="(vid, i) in product.videos"
+                                :key="`vid-${i}`"
+                                class="w-14 h-14 shrink-0 bg-zinc-800 rounded-lg overflow-hidden border-2 cursor-pointer relative"
+                                :class="selectedMedia.type === 'video' && selectedMedia.index === i ? 'border-maroon' : 'border-transparent hover:border-maroon-200'"
+                                @click="selectedMedia = { type: 'video', index: i }"
+                            >
+                                <img :src="`https://img.youtube.com/vi/${getYoutubeVideoId(vid.youtube_url)}/mqdefault.jpg`" :alt="vid.title || `Video ${i + 1}`" class="w-full h-full object-cover" />
+                                <!-- Play icon overlay -->
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                </div>
+                            </div>
+
+                            <!-- Additional image thumbnails -->
+                            <div
+                                v-for="(img, i) in product.images"
+                                :key="`img-${i}`"
+                                class="w-14 h-14 shrink-0 bg-maroon-50 rounded-lg overflow-hidden border-2 cursor-pointer"
+                                :class="selectedMedia.type === 'image' && selectedMedia.index === i + 1 ? 'border-maroon' : 'border-transparent hover:border-maroon-200'"
+                                @click="selectedMedia = { type: 'image', index: i + 1 }"
+                            >
                                 <img :src="img.path" :alt="`${product.name} ${i + 1}`" class="w-full h-full object-cover" />
                             </div>
                         </div>
@@ -198,7 +247,7 @@ import api from '../api'
 const route = useRoute()
 const { addItem } = useCartStore()
 const quantity = ref(1)
-const selectedImage = ref(0)
+const selectedMedia = ref({ type: 'image', index: 0 })
 const showDescriptionModal = ref(false)
 const wishlist = ref(new Set())
 const relatedCarousel = ref(null)
@@ -217,7 +266,7 @@ const avgRating = computed(() => {
 async function fetchProduct(slug) {
     loading.value = true
     notFound.value = false
-    selectedImage.value = 0
+    selectedMedia.value = { type: 'image', index: 0 }
     quantity.value = 1
     reviews.value = []
     try {
@@ -276,6 +325,24 @@ function productImage(p, index) {
     if (index === 0 && p.thumbnail) return p.thumbnail
     if (p.thumbnail) return p.thumbnail
     return ''
+}
+
+function getYoutubeVideoId(url) {
+    if (!url) return ''
+    const patterns = [
+        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+        /youtube\.com\/shorts\/([^&\n?#]+)/,
+    ]
+    for (const pattern of patterns) {
+        const match = url.match(pattern)
+        if (match) return match[1]
+    }
+    return ''
+}
+
+function getYoutubeEmbedUrl(url) {
+    const id = getYoutubeVideoId(url)
+    return id ? `https://www.youtube.com/embed/${id}` : ''
 }
 
 function decrementQty() {

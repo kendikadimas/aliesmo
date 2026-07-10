@@ -90,6 +90,33 @@ class ProductResource extends Resource
                     ->schema([
                         RichEditor::make('description'),
                     ]),
+                Section::make('Video Produk')
+                    ->description('Tambahkan video YouTube untuk produk ini. Video akan ditampilkan di halaman detail produk.')
+                    ->schema([
+                        Repeater::make('videos')
+                            ->relationship('videos')
+                            ->schema([
+                                TextInput::make('youtube_url')
+                                    ->required()
+                                    ->url()
+                                    ->placeholder('https://www.youtube.com/watch?v=...')
+                                    ->label('URL YouTube'),
+                                TextInput::make('title')
+                                    ->placeholder('Judul video (opsional)')
+                                    ->label('Judul'),
+                                TextInput::make('sort_order')
+                                    ->numeric()
+                                    ->default(0)
+                                    ->label('Urutan'),
+                            ])
+                            ->columns(3)
+                            ->addActionLabel('+ Tambah Video')
+                            ->reorderable()
+                            ->collapsible()
+                            ->defaultItems(0)
+                            ->itemLabel(fn (array $state): string => $state['title'] ?: ($state['youtube_url'] ?: 'Video baru')),
+                    ])
+                    ->collapsible(),
                 Section::make('Foto Produk')
                     ->description('Upload beberapa foto produk (sudut berbeda, varian). Foto pertama akan digunakan sebagai gambar utama.')
                     ->schema([
