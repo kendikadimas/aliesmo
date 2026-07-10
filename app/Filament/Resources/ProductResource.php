@@ -68,10 +68,11 @@ class ProductResource extends Resource
                             ->preload()
                             ->label('Kategori'),
                         Toggle::make('is_active'),
-                        FileUpload::make('thumbnail')
+                         FileUpload::make('thumbnail')
                             ->image()
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                            ->maxSize(2048) // 2MB
+                            ->maxSize(4096)
+                            ->disk('public')
                             ->directory('products')
                             ->visibility('public')
                             ->label('Thumbnail'),

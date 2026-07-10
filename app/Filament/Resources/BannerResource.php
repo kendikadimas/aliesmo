@@ -72,6 +72,7 @@ class BannerResource extends Resource
                             ->image()
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                             ->maxSize(4096)
+                            ->disk('public')
                             ->directory('banners')
                             ->visibility('public')
                             ->helperText('Rasio ideal 3:1 (contoh: 1500×500px). Format JPG, PNG, atau WebP, maks 4MB. Kosongkan jika pakai YouTube.'),
