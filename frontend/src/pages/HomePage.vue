@@ -130,20 +130,35 @@
         </section>
 
         <!-- Section Video -->
-        <section v-if="get('homepage_video_url')" class="py-12 lg:py-16 bg-zinc-900">
-            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section v-if="videos.length" class="py-12 lg:py-16 bg-zinc-900">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-8">
-                    <h2 class="text-2xl lg:text-3xl font-bold text-white tracking-tight">{{ get('homepage_video_title', 'Tentang Aliesmo') }}</h2>
-                    <p class="mt-2 text-sm text-white/50">{{ get('homepage_video_subtitle', '') }}</p>
+                    <h2 class="text-2xl lg:text-3xl font-bold text-white tracking-tight">{{ get('homepage_video_title', 'Video') }}</h2>
+                    <p v-if="get('homepage_video_subtitle')" class="mt-2 text-sm text-white/50">{{ get('homepage_video_subtitle') }}</p>
                 </div>
-                <div class="aspect-video rounded-2xl overflow-hidden shadow-2xl">
-                    <iframe
-                        :src="getYoutubeEmbedUrl(get('homepage_video_url'))"
-                        class="w-full h-full"
-                        frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen
-                    ></iframe>
+
+                <!-- 1 video: full width. 2 video: 2 kolom. 3+: 3 kolom -->
+                <div :class="[
+                    'grid gap-5',
+                    videos.length === 1 ? 'grid-cols-1 max-w-3xl mx-auto' :
+                    videos.length === 2 ? 'grid-cols-1 sm:grid-cols-2' :
+                    'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+                ]">
+                    <div v-for="video in videos" :key="video.id" class="group">
+                        <div class="aspect-video rounded-2xl overflow-hidden shadow-xl bg-zinc-800">
+                            <iframe
+                                :src="getYoutubeEmbedUrl(video.youtube_url)"
+                                class="w-full h-full"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen
+                            ></iframe>
+                        </div>
+                        <div v-if="video.title || video.description" class="mt-3 px-1">
+                            <p v-if="video.title" class="text-sm font-semibold text-white">{{ video.title }}</p>
+                            <p v-if="video.description" class="text-xs text-white/50 mt-0.5 line-clamp-2">{{ video.description }}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -169,6 +184,7 @@ const { addItem } = useCartStore()
 const banners = ref([])
 const categoriesList = ref([])
 const products = ref([])
+const videos = ref([])
 const loading = ref(false)
 const selectedCategory = ref('')
 const searchTerm = ref('')
@@ -289,17 +305,19 @@ async function fetchData() {
     loading.value = true
     currentPage.value = 1
     try {
-        const [bannersRes, settingsRes, categoriesRes, productsRes] = await Promise.all([
+        const [bannersRes, settingsRes, categoriesRes, productsRes, videosRes] = await Promise.all([
             api.get('/banners'),
             fetchSettings(),
             api.get('/categories'),
-            api.get('/products', { params: { per_page: 12, page: 1 } })
+            api.get('/products', { params: { per_page: 12, page: 1 } }),
+            api.get('/homepage-videos'),
         ])
         banners.value = (bannersRes.data.data || bannersRes.data).filter(b => b.is_active !== false)
         categoriesList.value = categoriesRes.data.data || categoriesRes.data
         const meta = productsRes.data.meta || productsRes.data.pagination || null
         products.value = productsRes.data.data || productsRes.data
         hasMorePages.value = meta ? meta.current_page < meta.last_page : false
+        videos.value = videosRes.data.data || videosRes.data
     } catch (e) {
         console.error('Failed to fetch data:', e)
         categoriesList.value = []

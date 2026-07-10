@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BannerController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CouponController;
+use App\Http\Controllers\Api\HomepageVideoController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProfileController;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
     // Public
     Route::get('banners', [BannerController::class, 'index'])->middleware('throttle:60,1');
+    Route::get('homepage-videos', [HomepageVideoController::class, 'index'])->middleware('throttle:60,1');
     Route::get('settings', [SiteSettingController::class, 'index'])->middleware('throttle:60,1');
     Route::get('settings/group/{group}', [SiteSettingController::class, 'group'])->middleware('throttle:60,1');
     Route::get('products', [ProductController::class, 'index'])->middleware('throttle:60,1');
