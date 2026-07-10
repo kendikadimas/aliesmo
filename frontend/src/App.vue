@@ -5,19 +5,19 @@
             <div class="max-w-7xl mx-auto px-4 py-2">
                 <!-- Desktop View (3 columns) -->
                 <div class="hidden lg:grid grid-cols-3 gap-4 text-center">
-                    <router-link to="/?shop=1" class="hover:text-maroon transition-colors flex items-center justify-center gap-1.5">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
-                        </svg>
-                        Gratis Ongkir Seluruh Indonesia | Min. Belanja Rp 200rb
-                    </router-link>
-                    <router-link to="/?shop=1" class="hover:text-maroon transition-colors flex items-center justify-center gap-1.5 border-x border-zinc-200 dark:border-[#303032]">
+                    <router-link to="/?shop=1" class="hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors flex items-center justify-center gap-1.5">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                         </svg>
-                        Bahan Premium Oxford & Linen | Garansi 30 Hari
+                        Bahan Premium Oxford &amp; Linen | Garansi 30 Hari
                     </router-link>
-                    <router-link to="/login" class="hover:text-maroon transition-colors flex items-center justify-center gap-1.5">
+                    <router-link to="/?shop=1" class="hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors flex items-center justify-center gap-1.5 border-x border-zinc-200 dark:border-[#303032]">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                        Bahan Premium Oxford &amp; Linen | Garansi 30 Hari
+                    </router-link>
+                    <router-link to="/login" class="hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors flex items-center justify-center gap-1.5">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
                         </svg>
@@ -182,7 +182,7 @@
                             v-for="cat in categories"
                             :key="cat.slug"
                             :to="`/catalog/${cat.slug}`"
-                            class="text-xs font-bold tracking-wider text-charcoal/70 dark:text-[#d0ceca]/80 hover:text-maroon hover:border-b-2 hover:border-maroon transition-all py-2.5 uppercase"
+                            class="text-xs font-bold tracking-wider text-charcoal/70 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] hover:border-b-2 hover:border-maroon transition-all py-2.5 uppercase"
                             :class="{ 'border-b-2 border-maroon text-maroon font-bold': $route.params.slug === cat.slug }"
                         >
                             {{ cat.name }}
@@ -365,7 +365,6 @@ watch(() => route.fullPath, () => {
 const activePromo = ref(0)
 let promoTimer = null
 const promos = ref([
-    { text: 'Gratis Ongkir Seluruh Indonesia | Min. Belanja Rp 200rb', link: '/?shop=1' },
     { text: 'Bahan Premium Oxford & Linen | Garansi 30 Hari', link: '/?shop=1' },
     { text: 'Diskon 10% First Order | Kode: ALIESNEW10', link: '/login' }
 ])

@@ -121,9 +121,9 @@
                         <div class="mt-4">
                             <p class="text-[10px] font-semibold text-charcoal/50 dark:text-[#8a8a8e] mb-1.5">Jumlah</p>
                             <div class="flex items-center gap-3">
-                                <button @click="decrementQty" class="w-8 h-8 rounded-lg border-2 border-ink-10 dark:border-[#303032] flex items-center justify-center text-sm font-semibold text-charcoal/50 dark:text-[#8a8a8e] hover:border-ink dark:border-[#f0eeeb] hover:text-ink dark:text-[#f0eeeb] transition-colors active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed" :disabled="quantity <= 1">−</button>
+                                <button @click="decrementQty" class="w-8 h-8 rounded-lg border-2 border-ink-10 dark:border-[#303032] flex items-center justify-center text-sm font-semibold text-charcoal/50 dark:text-[#8a8a8e] hover:border-ink hover:text-ink dark:hover:border-[#f0eeeb] dark:hover:text-[#f0eeeb] transition-colors active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed" :disabled="quantity <= 1">−</button>
                                 <span class="w-10 text-center text-base font-bold text-charcoal dark:text-[#f0eeeb]">{{ quantity }}</span>
-                                <button @click="quantity++" class="w-8 h-8 rounded-lg border-2 border-ink-10 dark:border-[#303032] flex items-center justify-center text-sm font-semibold text-charcoal/50 dark:text-[#8a8a8e] hover:border-ink dark:border-[#f0eeeb] hover:text-ink dark:text-[#f0eeeb] transition-colors active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed" :disabled="quantity >= product.stock">+</button>
+                                <button @click="quantity++" class="w-8 h-8 rounded-lg border-2 border-ink-10 dark:border-[#303032] flex items-center justify-center text-sm font-semibold text-charcoal/50 dark:text-[#8a8a8e] hover:border-ink hover:text-ink dark:hover:border-[#f0eeeb] dark:hover:text-[#f0eeeb] transition-colors active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed" :disabled="quantity >= product.stock">+</button>
                             </div>
                         </div>
 
@@ -131,7 +131,7 @@
                             <button @click="addToCart" :disabled="product.stock === 0" class="flex-1 px-6 py-3 bg-ink dark:bg-[#f0eeeb] text-white dark:text-[#161618] text-sm font-semibold rounded-xl hover:bg-ink-60 dark:hover:bg-[#d0ceca] transition-all active:scale-[0.98] disabled:bg-ink-10 dark:disabled:bg-[#303032] disabled:cursor-not-allowed disabled:active:scale-100 shadow-lg">
                                 {{ product.stock === 0 ? 'Stok Habis' : 'Masukin ke Keranjang' }}
                             </button>
-                            <button @click="toggleWishlist(product.id)" class="w-12 h-11 flex items-center justify-center rounded-xl border-2 transition-all active:scale-95" :class="isWishlisted(product.id) ? 'bg-ink-05 dark:bg-[#242426] dark:bg-ink-80/20 border-ink dark:border-[#f0eeeb] dark:border-ink-60 text-ink dark:text-[#f0eeeb]' : 'border-ink-10 dark:border-[#303032] text-charcoal/50 dark:text-[#8a8a8e] hover:border-ink dark:border-[#f0eeeb] hover:text-ink dark:text-[#f0eeeb]'">
+                            <button @click="toggleWishlist(product.id)" class="w-12 h-11 flex items-center justify-center rounded-xl border-2 transition-all active:scale-95" :class="isWishlisted(product.id) ? 'bg-ink-05 dark:bg-[#242426] border-ink dark:border-[#f0eeeb] text-ink dark:text-[#f0eeeb]' : 'border-ink-10 dark:border-[#303032] text-charcoal/50 dark:text-[#8a8a8e] hover:border-ink hover:text-ink dark:hover:border-[#f0eeeb] dark:hover:text-[#f0eeeb]'">
                                 <HeartIcon class="w-[18px] h-[18px]" :class="isWishlisted(product.id) ? 'fill-current' : ''" />
                             </button>
                         </div>
@@ -152,10 +152,6 @@
                             <span class="flex items-center gap-1.5">
                                 <CheckIcon class="w-3.5 h-3.5" />
                                 Original 100%
-                            </span>
-                            <span class="flex items-center gap-1.5">
-                                <TruckIcon class="w-3.5 h-3.5" />
-                                Gratis Ongkir
                             </span>
                         </div>
                     </div>
@@ -220,10 +216,10 @@
                             <p class="text-xs text-charcoal/50 dark:text-[#8a8a8e] mt-0.5">Koleksi lain dari kategori yang sama</p>
                         </div>
                         <div class="flex gap-2">
-                            <button @click="scrollRelated('left')" class="w-7 h-7 rounded-lg border border-maroon-200/60 dark:border-[#303032] flex items-center justify-center text-charcoal/50 dark:text-[#8a8a8e] hover:border-maroon hover:text-maroon transition-colors active:scale-95">
+                            <button @click="scrollRelated('left')" class="w-7 h-7 rounded-lg border border-maroon-200/60 dark:border-[#303032] flex items-center justify-center text-charcoal/50 dark:text-[#8a8a8e] hover:border-maroon hover:text-maroon dark:hover:border-[#f0eeeb] dark:hover:text-[#f0eeeb] transition-colors active:scale-95">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="15 18 9 12 15 6"/></svg>
                             </button>
-                            <button @click="scrollRelated('right')" class="w-7 h-7 rounded-lg border border-maroon-200/60 dark:border-[#303032] flex items-center justify-center text-charcoal/50 dark:text-[#8a8a8e] hover:border-maroon hover:text-maroon transition-colors active:scale-95">
+                            <button @click="scrollRelated('right')" class="w-7 h-7 rounded-lg border border-maroon-200/60 dark:border-[#303032] flex items-center justify-center text-charcoal/50 dark:text-[#8a8a8e] hover:border-maroon hover:text-maroon dark:hover:border-[#f0eeeb] dark:hover:text-[#f0eeeb] transition-colors active:scale-95">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="9 18 15 12 9 6"/></svg>
                             </button>
                         </div>

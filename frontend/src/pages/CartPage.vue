@@ -17,11 +17,11 @@
                 <button @click="toggleAll" class="flex items-center gap-2.5 group" aria-label="Pilih semua">
                     <span class="w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all shrink-0"
                         :class="isAllSelected
-                            ? 'bg-maroon border-maroon'
+                            ? 'bg-maroon border-maroon dark:bg-[#f0eeeb] dark:border-[#f0eeeb]'
                             : isPartialSelected
                                 ? 'bg-maroon/20 border-maroon'
                                 : 'border-maroon-200 dark:border-[#303032] group-hover:border-maroon'">
-                        <CheckIcon v-if="isAllSelected" class="w-3 h-3 text-white" />
+                        <CheckIcon v-if="isAllSelected" class="w-3 h-3 text-white dark:text-[#161618]" />
                         <MinusIcon v-else-if="isPartialSelected" class="w-3 h-3 text-maroon" />
                     </span>
                     <span class="text-sm font-semibold text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#8a8a8e]">
@@ -42,9 +42,9 @@
                     <button @click="toggleItem(item.product_id)" class="shrink-0 flex items-center justify-center" aria-label="Pilih item">
                         <span class="w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all"
                             :class="selectedIds.has(item.product_id)
-                                ? 'bg-maroon border-maroon'
+                                ? 'bg-[#f0eeeb] border-[#f0eeeb] dark:bg-[#f0eeeb] dark:border-[#f0eeeb]'
                                 : 'border-maroon-200 dark:border-[#303032] hover:border-maroon'">
-                            <CheckIcon v-if="selectedIds.has(item.product_id)" class="w-3 h-3 text-white" />
+                            <CheckIcon v-if="selectedIds.has(item.product_id)" class="w-3 h-3 text-maroon dark:text-[#161618]" />
                         </span>
                     </button>
 
@@ -62,9 +62,9 @@
 
                     <!-- Qty controls -->
                     <div class="flex items-center gap-2">
-                        <button @click="decrease(item.product_id)" class="w-8 h-8 rounded-lg border-2 border-maroon-200 dark:border-[#303032] flex items-center justify-center text-sm font-bold text-charcoal dark:text-[#f0eeeb] dark:text-[#d0ceca] hover:border-maroon hover:text-maroon transition-colors active:scale-95">−</button>
+                        <button @click="decrease(item.product_id)" class="w-8 h-8 rounded-lg border-2 border-maroon-200 dark:border-[#303032] flex items-center justify-center text-sm font-bold text-charcoal dark:text-[#d0ceca] hover:border-maroon hover:text-maroon dark:hover:text-[#f0eeeb] dark:hover:border-[#f0eeeb] transition-colors active:scale-95">−</button>
                         <span class="w-8 text-center text-sm font-bold dark:text-[#f0eeeb]">{{ item.quantity }}</span>
-                        <button @click="updateQuantity(item.product_id, item.quantity + 1)" class="w-8 h-8 rounded-lg border-2 border-maroon-200 dark:border-[#303032] flex items-center justify-center text-sm font-bold text-charcoal dark:text-[#f0eeeb] dark:text-[#d0ceca] hover:border-maroon hover:text-maroon transition-colors active:scale-95">+</button>
+                        <button @click="updateQuantity(item.product_id, item.quantity + 1)" class="w-8 h-8 rounded-lg border-2 border-maroon-200 dark:border-[#303032] flex items-center justify-center text-sm font-bold text-charcoal dark:text-[#d0ceca] hover:border-maroon hover:text-maroon dark:hover:text-[#f0eeeb] dark:hover:border-[#f0eeeb] transition-colors active:scale-95">+</button>
                     </div>
 
                     <!-- Subtotal -->
@@ -95,7 +95,7 @@
                         :disabled="!selectedIds.size"
                         class="px-6 py-2.5 text-sm font-semibold rounded-xl transition-all active:scale-[0.97] text-center"
                         :class="selectedIds.size
-                            ? 'bg-maroon text-white hover:bg-maroon-600 shadow-lg shadow-maroon/25'
+                            ? 'bg-ink dark:bg-[#f0eeeb] text-white dark:text-[#161618] hover:bg-ink-60 dark:hover:bg-[#d0ceca] shadow-lg'
                             : 'bg-maroon-100 dark:bg-[#28282a] text-maroon-300 dark:text-[#6a6a6e] cursor-not-allowed'">
                         Checkout
                     </button>

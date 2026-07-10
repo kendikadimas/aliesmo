@@ -80,7 +80,7 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between mb-8">
                     <div>
-                        <h2 class="text-2xl lg:text-3xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Semua <span class="text-maroon">Produk</span></h2>
+                        <h2 class="text-2xl lg:text-3xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Semua <span class="text-maroon dark:text-[#f0eeeb]">Produk</span></h2>
                         <p class="mt-1 text-sm text-charcoal/50 dark:text-[#8a8a8e]">Temukan kemeja favoritmu</p>
                     </div>
                 </div>
