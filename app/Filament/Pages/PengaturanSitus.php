@@ -13,6 +13,8 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Storage;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class PengaturanSitus extends Page implements HasForms
 {
@@ -96,6 +98,23 @@ class PengaturanSitus extends Page implements HasForms
 
         // COD boolean
         $this->payment_cod_enabled = (bool) ($settings['payment_cod_enabled'] ?? false);
+    }
+
+    public function _finishUpload($name, $tmpPath, $isMultiple, $append = true)
+    {
+        $tmpPath = collect($tmpPath)->map(function ($signedPath) {
+            $path = TemporaryUploadedFile::extractPathFromSignedPath($signedPath);
+            if ($path === false) {
+                abort(403, 'Invalid upload reference.');
+            }
+            return $path;
+        })->toArray();
+
+        $file = TemporaryUploadedFile::createFromLivewire($tmpPath[0]);
+        $this->dispatch('upload:finished', name: $name, tmpFilenames: [$file->getFilename()])->self();
+
+        $storedPath = $file->store('site-settings', 'public');
+        $this->$name = $storedPath;
     }
 
     public function form(Schema $schema): Schema

@@ -61,6 +61,7 @@ class SecurityHeaders
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com{$styleDevSources}; " .
             "font-src 'self' data: https://fonts.gstatic.com; " .
             "img-src 'self' data: blob: https:; " .
+            "worker-src 'self' blob:; " .
             "connect-src 'self'{$connectDevSources};"
         );
 
