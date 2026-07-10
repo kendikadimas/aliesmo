@@ -7,22 +7,22 @@
  * Token diset via GitHub Secret: DEPLOY_TOKEN
  */
 
-$token = getenv('DEPLOY_TOKEN') ?: '';
-
-// Baca token dari file .env jika tidak ada di environment
-if (empty($token)) {
-    $envFile = __DIR__ . '/../.env';
-    if (file_exists($envFile)) {
-        foreach (file($envFile) as $line) {
-            if (str_starts_with(trim($line), 'DEPLOY_TOKEN=')) {
-                $token = trim(explode('=', $line, 2)[1]);
-                break;
-            }
+// Baca token dari file .env
+$token = '';
+$envFile = __DIR__ . '/../.env';
+if (file_exists($envFile)) {
+    foreach (file($envFile) as $line) {
+        if (str_starts_with(trim($line), 'DEPLOY_TOKEN=')) {
+            $token = trim(explode('=', $line, 2)[1]);
+            break;
         }
     }
 }
 
-$provided = $_GET['token'] ?? '';
+// Terima token dari header (GitHub Actions) atau query string (fallback)
+$provided = $_SERVER['HTTP_X_DEPLOY_TOKEN']
+    ?? $_GET['token']
+    ?? '';
 
 if (empty($token) || empty($provided) || !hash_equals($token, $provided)) {
     http_response_code(403);

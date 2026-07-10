@@ -87,9 +87,11 @@ jobs:
             **/tailwind.config.js
             **/postcss.config.js
 
-      # ─── 6. Run artisan commands via deploy script ────────────────────
+      # ─── 6. Run artisan migrate and optimize:clear ────────────────────
       - name: Run artisan migrate and optimize:clear
         run: |
           echo "Running migrate and optimize:clear via deploy script..."
-          curl -s "https://aliesmo.id/deploy-runner.php?token=${{ secrets.DEPLOY_TOKEN }}" || true
+          curl -s -X POST \
+            -H "X-Deploy-Token: ${{ secrets.DEPLOY_TOKEN }}" \
+            "https://aliesmo.id/deploy-runner.php" || true
           echo "Done."
