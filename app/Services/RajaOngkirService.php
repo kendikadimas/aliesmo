@@ -88,25 +88,15 @@ class RajaOngkirService
     // Whitelist kurir — hanya ini yang tampil di hasil cek ongkir
     private const ALLOWED_COURIERS = ['jne', 'jnt', 'sicepat', 'anteraja', 'ninja', 'pos', 'lion'];
 
-    // Human-readable name map for each courier code
+    // Human-readable name map — hanya kurir yang diizinkan
     private const COURIER_NAMES = [
         'jne'      => 'JNE',
         'jnt'      => 'J&T Express',
         'sicepat'  => 'SiCepat',
-        'ninja'    => 'Ninja Express',
         'anteraja' => 'AnterAja',
-        'tiki'     => 'TIKI',
+        'ninja'    => 'Ninja Express',
         'pos'      => 'POS Indonesia',
         'lion'     => 'Lion Parcel',
-        'sap'      => 'SAP Express',
-        'ide'      => 'ID Express',
-        'ncs'      => 'NCS',
-        'rex'      => 'REX',
-        'rpx'      => 'RPX',
-        'sentral'  => 'Sentral Cargo',
-        'star'     => 'Star Cargo',
-        'wahana'   => 'Wahana',
-        'dse'      => 'DSE',
     ];
 
     public function getAllShippingCosts(int $originCity, int $destinationCity, int $weight): array
