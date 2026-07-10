@@ -41,7 +41,7 @@ class PengaturanSitus extends Page implements HasSchemas
     {
         $settings = SiteSetting::all()->pluck('value', 'key');
 
-        Log::channel('admin-debug')->info('[PengaturanSitus] mount() - DB settings loaded', [
+        Log::info('[PengaturanSitus] mount() - DB settings loaded', [
             'payment_qris_image' => $settings['payment_qris_image'] ?? 'NULL',
             'payment_banks' => $settings['payment_banks'] ?? 'NULL',
             'all_keys' => $settings->keys()->toArray(),
@@ -71,7 +71,7 @@ class PengaturanSitus extends Page implements HasSchemas
 
         $data['payment_cod_enabled'] = (bool) ($settings['payment_cod_enabled'] ?? false);
 
-        Log::channel('admin-debug')->info('[PengaturanSitus] mount() - form fill data', [
+        Log::info('[PengaturanSitus] mount() - form fill data', [
             'payment_qris_image' => $data['payment_qris_image'],
             'payment_banks' => $data['payment_banks'],
         ]);
