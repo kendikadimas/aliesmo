@@ -54,7 +54,21 @@ const router = createRouter({
     },
 })
 
+// Trap semua JS errors ke DOM supaya bisa di-debug tanpa browser devtools
+const errBox = document.createElement('div')
+errBox.id = '__vue_errors__'
+errBox.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#fee2e2;color:#991b1b;font:12px monospace;padding:8px;z-index:99999;max-height:200px;overflow:auto;display:none'
+document.body.appendChild(errBox)
+function logErr(msg) {
+    errBox.style.display = 'block'
+    errBox.innerHTML += `<div>${String(msg).replace(/</g,'&lt;')}</div>`
+}
+window.onerror = (msg, src, line, col, err) => { logErr(`[onerror] ${msg} @ ${src}:${line}:${col}`) }
+window.addEventListener('unhandledrejection', e => { logErr(`[unhandledrejection] ${e.reason}`) })
+
 const app = createApp(App)
+app.config.errorHandler = (err, instance, info) => { logErr(`[vue] ${err?.message || err} (${info})`) }
+app.config.warnHandler = (msg) => { logErr(`[vue:warn] ${msg}`) }
 app.use(router)
 app.component('SkeletonLoader', SkeletonLoader)
 app.mount('#app')
