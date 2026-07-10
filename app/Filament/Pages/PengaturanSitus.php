@@ -187,7 +187,7 @@ class PengaturanSitus extends Page implements HasSchemas
     {
         $state = $this->form->getState();
 
-        Log::channel('admin-debug')->info('[PengaturanSitus] save() - form getState()', [
+        Log::info('[PengaturanSitus] save() - form getState()', [
             'full_state' => $state,
             'payment_qris_image_type' => gettype($state['payment_qris_image'] ?? null),
             'payment_qris_image_value' => $state['payment_qris_image'] ?? 'NULL',
@@ -204,15 +204,20 @@ class PengaturanSitus extends Page implements HasSchemas
         ];
 
         foreach ($textKeys as $key) {
-            SiteSetting::where('key', $key)->update(['value' => $state[$key] ?? '']);
+            SiteSetting::updateOrCreate(
+                ['key' => $key],
+                ['value' => $state[$key] ?? '']
+            );
         }
 
         $banks = array_values($state['payment_banks'] ?? []);
-        SiteSetting::where('key', 'payment_banks')
-            ->update(['value' => json_encode($banks)]);
+        SiteSetting::updateOrCreate(
+            ['key' => 'payment_banks'],
+            ['value' => json_encode($banks)]
+        );
 
         $qrisValue = $state['payment_qris_image'] ?? [];
-        Log::channel('admin-debug')->info('[PengaturanSitus] save() - QRIS before processing', [
+        Log::info('[PengaturanSitus] save() - QRIS before processing', [
             'type' => gettype($qrisValue),
             'value' => $qrisValue,
         ]);
@@ -221,17 +226,21 @@ class PengaturanSitus extends Page implements HasSchemas
             $qrisValue = $qrisValue[0] ?? '';
         }
 
-        Log::channel('admin-debug')->info('[PengaturanSitus] save() - QRIS after processing', [
+        Log::info('[PengaturanSitus] save() - QRIS after processing', [
             'final_value' => $qrisValue,
         ]);
 
-        SiteSetting::where('key', 'payment_qris_image')
-            ->update(['value' => $qrisValue ?? '']);
+        SiteSetting::updateOrCreate(
+            ['key' => 'payment_qris_image'],
+            ['value' => $qrisValue ?? '']
+        );
 
-        SiteSetting::where('key', 'payment_cod_enabled')
-            ->update(['value' => ($state['payment_cod_enabled'] ?? false) ? '1' : '0']);
+        SiteSetting::updateOrCreate(
+            ['key' => 'payment_cod_enabled'],
+            ['value' => ($state['payment_cod_enabled'] ?? false) ? '1' : '0']
+        );
 
-        Log::channel('admin-debug')->info('[PengaturanSitus] save() - completed');
+        Log::info('[PengaturanSitus] save() - completed');
 
         Notification::make()
             ->title('Pengaturan berhasil disimpan')
