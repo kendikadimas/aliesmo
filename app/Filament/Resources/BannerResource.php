@@ -58,8 +58,13 @@ class BannerResource extends Resource
                             ->maxSize(4096)
                             ->directory('banners')
                             ->visibility('public')
-                            ->required()
-                            ->helperText('Rasio ideal 2:1 (contoh: 1400×700px). Format JPG, PNG, atau WebP, maks 4MB.'),
+                            ->helperText('Rasio ideal 3:1 (contoh: 1500×500px). Format JPG, PNG, atau WebP, maks 4MB. Kosongkan jika pakai YouTube.'),
+
+                        TextInput::make('youtube_url')
+                            ->label('URL YouTube (opsional)')
+                            ->maxLength(200)
+                            ->placeholder('https://www.youtube.com/watch?v=xxxxx')
+                            ->helperText('Isi ini untuk menampilkan video YouTube sebagai banner. Jika diisi, gambar di atas diabaikan.'),
 
                         TextInput::make('button_link')
                             ->label('Link Tujuan')

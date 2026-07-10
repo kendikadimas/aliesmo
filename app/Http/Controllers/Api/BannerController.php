@@ -11,7 +11,7 @@ class BannerController extends Controller
     public function index(): JsonResponse
     {
         $banners = Banner::active()
-            ->get(['id', 'title', 'subtitle', 'badge_text', 'image_url', 'button_text', 'button_link', 'order'])
+            ->get(['id', 'title', 'subtitle', 'badge_text', 'image_url', 'youtube_url', 'button_text', 'button_link', 'order'])
             ->map(function (Banner $banner) {
                 if ($banner->image_url && ! str_starts_with($banner->image_url, 'http')) {
                     $banner->image_url = asset('storage/' . $banner->image_url);

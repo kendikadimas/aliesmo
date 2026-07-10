@@ -5,7 +5,17 @@
                 <div class="relative flex transition-all duration-500" :style="{ transform: `translateX(-${activeSlide * 100}%)` }">
                     <div v-for="banner in banners" :key="banner.id"
                         class="w-full shrink-0 aspect-[2/1] sm:aspect-[3/1]">
-                        <img :src="banner.image_url" :alt="banner.title" class="w-full h-full object-cover block" />
+                        <!-- YouTube embed banner -->
+                        <iframe
+                            v-if="banner.youtube_url"
+                            :src="getYoutubeEmbedUrl(banner.youtube_url)"
+                            class="w-full h-full"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen
+                        ></iframe>
+                        <!-- Image banner -->
+                        <img v-else :src="banner.image_url" :alt="banner.title" class="w-full h-full object-cover block" />
                     </div>
                 </div>
                 <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2.5 z-20">
@@ -119,6 +129,25 @@
             </div>
         </section>
 
+        <!-- Section Video -->
+        <section v-if="get('homepage_video_url')" class="py-12 lg:py-16 bg-zinc-900">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl lg:text-3xl font-bold text-white tracking-tight">{{ get('homepage_video_title', 'Tentang Aliesmo') }}</h2>
+                    <p class="mt-2 text-sm text-white/50">{{ get('homepage_video_subtitle', '') }}</p>
+                </div>
+                <div class="aspect-video rounded-2xl overflow-hidden shadow-2xl">
+                    <iframe
+                        :src="getYoutubeEmbedUrl(get('homepage_video_url'))"
+                        class="w-full h-full"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                    ></iframe>
+                </div>
+            </div>
+        </section>
+
 
     </div>
 </template>
@@ -183,6 +212,20 @@ function productImage(product, index) {
 function prevSlide() { activeSlide.value = activeSlide.value === 0 ? Math.max(banners.value.length - 1, 0) : activeSlide.value - 1 }
 function nextSlide() { activeSlide.value = activeSlide.value >= banners.value.length - 1 ? 0 : activeSlide.value + 1 }
 function addToCart(product) { addItem(product, 1) }
+
+// Konversi URL YouTube biasa ke embed URL
+function getYoutubeEmbedUrl(url) {
+    if (!url) return ''
+    // Sudah embed URL
+    if (url.includes('youtube.com/embed/')) return url
+    // youtu.be/VIDEO_ID
+    const shortMatch = url.match(/youtu\.be\/([^?&]+)/)
+    if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`
+    // youtube.com/watch?v=VIDEO_ID
+    const longMatch = url.match(/[?&]v=([^?&]+)/)
+    if (longMatch) return `https://www.youtube.com/embed/${longMatch[1]}`
+    return url
+}
 
 function scrollCarousel(catSlug, direction) {
     const el = document.querySelector(`[data-carousel="${catSlug}"]`)

@@ -117,6 +117,7 @@ class SiteSettingResource extends Resource
                         'announcement' => 'Announcement',
                         'stats'        => 'Statistik',
                         'payment'      => 'Pembayaran',
+                        'video'        => 'Video',
                         'general'      => 'General',
                     ]),
             ])

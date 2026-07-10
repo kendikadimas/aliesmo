@@ -11,6 +11,7 @@ class Banner extends Model
         'subtitle',
         'badge_text',
         'image_url',
+        'youtube_url',
         'button_text',
         'button_link',
         'order',
