@@ -71,7 +71,7 @@
                         />
                         <button
                             type="submit"
-                            class="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-charcoal hover:bg-maroon text-white flex items-center justify-center transition-colors"
+                            class="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-charcoal dark:bg-[#f0eeeb] hover:bg-maroon dark:hover:bg-maroon text-white dark:text-[#161618] flex items-center justify-center transition-colors"
                             aria-label="Cari"
                         >
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -85,7 +85,7 @@
                         <!-- User icon — guest: link to login, logged in: dropdown -->
                         <div class="hidden md:block relative">
                             <!-- Guest -->
-                            <router-link v-if="!isLoggedIn" to="/login" class="p-2 flex items-center justify-center text-charcoal/70 dark:text-[#d0ceca]/80 hover:text-maroon transition-colors" aria-label="Masuk">
+                            <router-link v-if="!isLoggedIn" to="/login" class="p-2 flex items-center justify-center text-charcoal/70 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors" aria-label="Masuk">
                                 <UserIcon class="w-[22px] h-[22px]" />
                             </router-link>
                             <!-- Logged in: icon + dropdown -->
@@ -127,14 +127,14 @@
                         </button>
 
                         <!-- Wishlist Heart -->
-                        <button @click="showWishlistToast" class="p-2 text-charcoal/70 dark:text-[#d0ceca]/80 hover:text-maroon transition-colors relative cursor-pointer" aria-label="Wishlist">
+                        <button @click="showWishlistToast" class="p-2 text-charcoal/70 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors relative cursor-pointer" aria-label="Wishlist">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                             </svg>
                         </button>
 
                         <!-- Cart Bag -->
-                        <router-link to="/cart" class="relative p-2 text-charcoal/70 dark:text-[#d0ceca]/80 hover:text-maroon transition-colors" aria-label="Cart">
+                        <router-link to="/cart" class="relative p-2 text-charcoal/70 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors" aria-label="Cart">
                             <svg :class="['transition-transform', cartBounce ? 'cart-bounce' : '']" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
                                 <line x1="3" y1="6" x2="21" y2="6"/>
@@ -156,7 +156,7 @@
                         />
                         <button
                             type="submit"
-                            class="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-charcoal hover:bg-maroon text-white flex items-center justify-center transition-colors"
+                            class="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-charcoal dark:bg-[#f0eeeb] hover:bg-maroon dark:hover:bg-maroon text-white dark:text-[#161618] flex items-center justify-center transition-colors"
                             aria-label="Cari"
                         >
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -232,7 +232,7 @@
 
                     <div class="space-y-3 pb-4">
                         <router-link v-if="!isLoggedIn" @click="mobileOpen = false" to="/login" class="block text-center text-xs font-bold text-white bg-maroon py-3 rounded-lg uppercase tracking-wider transition-colors hover:bg-maroon-600">Masuk / Daftar</router-link>
-                        <button v-else @click="triggerMobileLogout" class="block w-full text-center text-xs font-bold text-white bg-charcoal dark:bg-[#28282a] py-3 rounded-lg uppercase tracking-wider cursor-pointer">Keluar</button>
+                        <button v-else @click="triggerMobileLogout" class="block w-full text-center text-xs font-bold text-white bg-charcoal dark:bg-[#f0eeeb] dark:text-[#161618] py-3 rounded-lg uppercase tracking-wider cursor-pointer">Keluar</button>
                     </div>
                 </nav>
             </div>

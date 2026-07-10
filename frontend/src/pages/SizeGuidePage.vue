@@ -31,7 +31,7 @@
                     <tbody>
                         <tr v-for="(row, i) in sizeChart" :key="row.size"
                             :class="i % 2 === 0 ? 'bg-white dark:bg-[#1c1c1e]' : 'bg-maroon-50/30 dark:bg-[#28282a]/30'">
-                            <td class="px-4 py-3 font-bold text-maroon">{{ row.size }}</td>
+                            <td class="px-4 py-3 font-bold text-maroon dark:text-[#f0eeeb]">{{ row.size }}</td>
                             <td class="px-4 py-3 text-center text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca]">{{ row.chest }}</td>
                             <td class="px-4 py-3 text-center text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca]">{{ row.waist }}</td>
                             <td class="px-4 py-3 text-center text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca]">{{ row.hip }}</td>

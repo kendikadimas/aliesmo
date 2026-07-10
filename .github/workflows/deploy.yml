@@ -75,7 +75,7 @@ jobs:
             **/tailwind.config.js
             **/postcss.config.js
 
-      # ─── 6. Run artisan migrate and optimize:clear ────────────────────
+      # ─── 6. Run artisan migrate, storage:link dan optimize:clear ──────
       - name: Run artisan migrate and optimize:clear
         run: |
           echo "Running migrate and optimize:clear via deploy script..."

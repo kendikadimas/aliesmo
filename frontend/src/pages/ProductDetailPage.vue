@@ -31,7 +31,7 @@
 
         <div v-else-if="notFound || !product" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 text-center">
             <p class="text-base text-charcoal/50 dark:text-[#8a8a8e]">Produk gak ditemukan nih :(</p>
-            <router-link to="/" class="inline-block mt-3 text-sm font-semibold text-maroon hover:text-maroon-700 transition-colors">Kembali ke Beranda</router-link>
+            <router-link to="/" class="inline-block mt-3 text-sm font-semibold text-maroon dark:text-[#f0eeeb] hover:text-maroon-700 transition-colors">Kembali ke Beranda</router-link>
         </div>
 
         <div v-else>
@@ -182,7 +182,7 @@
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex items-center gap-3 mb-6">
                         <h2 class="text-lg lg:text-xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Ulasan Pembeli</h2>
-                        <span v-if="reviews.length" class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-maroon-50 dark:bg-maroon/20 rounded-full text-xs font-semibold text-maroon">
+                        <span v-if="reviews.length" class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-maroon-50 dark:bg-maroon/20 rounded-full text-xs font-semibold text-maroon dark:text-[#f0eeeb]">
                             ★ {{ avgRating }} · {{ reviews.length }} ulasan
                         </span>
                     </div>
@@ -245,7 +245,7 @@
                             <div class="p-2.5">
                                 <p class="text-[10px] font-medium text-maroon-400 uppercase tracking-wide">{{ rp.category?.name || 'Kemeja' }}</p>
                                 <h3 class="text-xs font-semibold text-charcoal dark:text-[#f0eeeb] mt-0.5 leading-snug line-clamp-2">{{ rp.name }}</h3>
-                                <p class="text-sm font-bold text-maroon mt-1">Rp{{ formatPrice(rp.price) }}</p>
+                                <p class="text-sm font-bold text-maroon dark:text-[#f0eeeb] mt-1">Rp{{ formatPrice(rp.price) }}</p>
                             </div>
                         </div>
                     </div>

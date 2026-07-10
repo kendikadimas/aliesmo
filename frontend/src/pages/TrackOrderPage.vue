@@ -110,7 +110,7 @@
                     </div>
                     <div class="flex justify-between font-bold text-base text-charcoal dark:text-[#f0eeeb] pt-2 border-t border-maroon-100 dark:border-[#303032]">
                         <span>Total</span>
-                        <span class="text-maroon">Rp{{ formatPrice(order.total) }}</span>
+                        <span class="text-maroon dark:text-[#f0eeeb]">Rp{{ formatPrice(order.total) }}</span>
                     </div>
                 </div>
 
@@ -145,7 +145,7 @@
         <div class="mt-6 text-center">
             <p class="text-xs text-charcoal/40 dark:text-[#6a6a6e]">
                 Punya akun?
-                <router-link to="/login" class="font-semibold text-maroon hover:text-maroon-600 transition-colors">Login</router-link>
+                <router-link to="/login" class="font-semibold text-maroon dark:text-[#f0eeeb] hover:text-maroon-600 transition-colors">Login</router-link>
                 untuk lihat semua riwayat pesananmu
             </p>
         </div>

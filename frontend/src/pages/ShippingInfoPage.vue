@@ -6,17 +6,17 @@
         <!-- Estimasi Waktu -->
         <div class="mt-10 grid grid-cols-3 gap-3 lg:gap-4">
             <div class="bg-white dark:bg-[#1c1c1e] p-6 rounded-2xl border-2 border-maroon-50 dark:border-[#303032] text-center">
-                <div class="text-2xl font-bold text-maroon">1-2</div>
+                <div class="text-2xl font-bold text-maroon dark:text-[#f0eeeb]">1-2</div>
                 <div class="text-xs font-semibold text-charcoal dark:text-[#f0eeeb] mt-1">Hari Kerja</div>
                 <div class="text-xs text-charcoal/50 dark:text-[#8a8a8e] mt-1">Proses Pesanan</div>
             </div>
             <div class="bg-white dark:bg-[#1c1c1e] p-6 rounded-2xl border-2 border-maroon-50 dark:border-[#303032] text-center">
-                <div class="text-2xl font-bold text-maroon">2-5</div>
+                <div class="text-2xl font-bold text-maroon dark:text-[#f0eeeb]">2-5</div>
                 <div class="text-xs font-semibold text-charcoal dark:text-[#f0eeeb] mt-1">Hari Kerja</div>
                 <div class="text-xs text-charcoal/50 dark:text-[#8a8a8e] mt-1">Pulau Jawa</div>
             </div>
             <div class="bg-white dark:bg-[#1c1c1e] p-6 rounded-2xl border-2 border-maroon-50 dark:border-[#303032] text-center">
-                <div class="text-2xl font-bold text-maroon">5-14</div>
+                <div class="text-2xl font-bold text-maroon dark:text-[#f0eeeb]">5-14</div>
                 <div class="text-xs font-semibold text-charcoal dark:text-[#f0eeeb] mt-1">Hari Kerja</div>
                 <div class="text-xs text-charcoal/50 dark:text-[#8a8a8e] mt-1">Luar Jawa</div>
             </div>

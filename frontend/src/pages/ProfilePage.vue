@@ -158,7 +158,7 @@
                             </div>
                             <div class="text-right">
                                 <p class="text-xs text-charcoal/50 dark:text-[#8a8a8e]">Total Pembayaran</p>
-                                <p class="text-lg font-bold text-maroon">Rp{{ formatPrice(order.total) }}</p>
+                                <p class="text-lg font-bold text-maroon dark:text-[#f0eeeb]">Rp{{ formatPrice(order.total) }}</p>
                             </div>
                         </div>
 

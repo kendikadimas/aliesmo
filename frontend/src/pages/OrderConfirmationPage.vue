@@ -18,7 +18,7 @@
         <div v-else-if="!order" class="py-16">
             <InformationCircleIcon class="w-12 h-12 mx-auto text-maroon-200" />
             <p class="mt-4 text-lg text-charcoal/50 dark:text-[#8a8a8e]">Pesanan gak ditemukan :(</p>
-            <router-link to="/" class="inline-block mt-6 text-sm font-semibold text-maroon hover:text-maroon-600 transition-colors">Kembali ke Beranda</router-link>
+            <router-link to="/" class="inline-block mt-6 text-sm font-semibold text-maroon dark:text-[#f0eeeb] hover:text-maroon-600 transition-colors">Kembali ke Beranda</router-link>
         </div>
 
         <div v-else>
@@ -30,7 +30,7 @@
 
             <div class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-maroon-50 dark:bg-maroon/20 rounded-xl text-sm max-w-full overflow-hidden">
                 <span class="font-semibold text-charcoal/60 dark:text-[#8a8a8e] shrink-0">No. Pesanan:</span>
-                <span class="font-bold text-maroon truncate">{{ order.order_number }}</span>
+                <span class="font-bold text-maroon dark:text-[#f0eeeb] truncate">{{ order.order_number }}</span>
             </div>
 
             <p class="mt-2 text-sm font-semibold" :class="statusClass(order.status)">
@@ -63,7 +63,7 @@
                     </div>
                     <div class="flex justify-between font-bold text-lg text-charcoal dark:text-[#f0eeeb] pt-2 border-t-2 border-maroon-100 dark:border-[#303032]">
                         <span>Total</span>
-                        <span class="text-maroon">Rp{{ formatPrice(order.total) }}</span>
+                        <span class="text-maroon dark:text-[#f0eeeb]">Rp{{ formatPrice(order.total) }}</span>
                     </div>
                 </div>
             </div>
@@ -135,7 +135,7 @@
                 <div v-if="order.lookup_token" class="mt-4 p-4 bg-maroon-50 dark:bg-maroon/10 rounded-xl text-left">
                     <p class="text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-2">Simpan link ini untuk lacak pesananmu:</p>
                     <div class="flex items-center gap-2">
-                        <code class="flex-1 text-xs bg-white dark:bg-[#1c1c1e] border border-maroon-100 dark:border-[#303032] rounded-lg px-3 py-2 text-maroon font-mono truncate">
+                        <code class="flex-1 text-xs bg-white dark:bg-[#1c1c1e] border border-maroon-100 dark:border-[#303032] rounded-lg px-3 py-2 text-maroon dark:text-[#f0eeeb] font-mono truncate">
                             {{ trackUrl }}
                         </code>
                         <button @click="copyTrackUrl" class="shrink-0 px-3 py-2 bg-maroon text-white text-xs font-semibold rounded-lg hover:bg-maroon-600 transition-colors">

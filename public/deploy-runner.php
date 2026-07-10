@@ -40,6 +40,9 @@ $results = [];
 $kernel->call('migrate', ['--force' => true]);
 $results['migrate'] = trim($kernel->output());
 
+$kernel->call('storage:link');
+$results['storage:link'] = trim($kernel->output());
+
 $kernel->call('optimize:clear');
 $results['optimize:clear'] = trim($kernel->output());
 

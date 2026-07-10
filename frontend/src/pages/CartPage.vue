@@ -57,7 +57,7 @@
                     <!-- Info -->
                     <div class="flex-1 min-w-0">
                         <h3 class="text-sm font-semibold text-charcoal dark:text-[#f0eeeb]">{{ item.name }}</h3>
-                        <p class="text-sm font-medium text-maroon mt-0.5">Rp{{ formatPrice(item.price) }}</p>
+                        <p class="text-sm font-medium text-maroon dark:text-[#f0eeeb] mt-0.5">Rp{{ formatPrice(item.price) }}</p>
                     </div>
 
                     <!-- Qty controls -->
@@ -84,7 +84,7 @@
                         Total Belanja
                         <span v-if="selectedIds.size" class="ml-1 text-charcoal/40 dark:text-[#6a6a6e]">({{ selectedIds.size }} produk dipilih)</span>
                     </p>
-                    <p class="text-xl lg:text-3xl font-bold text-maroon">Rp{{ formatPrice(selectedTotal) }}</p>
+                    <p class="text-xl lg:text-3xl font-bold text-maroon dark:text-[#f0eeeb]">Rp{{ formatPrice(selectedTotal) }}</p>
                     <p v-if="!selectedIds.size" class="text-xs text-charcoal/40 dark:text-[#6a6a6e] mt-1">Pilih produk untuk melanjutkan</p>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">

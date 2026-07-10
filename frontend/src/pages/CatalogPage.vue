@@ -70,7 +70,7 @@
                         <div class="p-2.5">
                             <p class="text-[10px] font-medium text-maroon-400 uppercase tracking-wide">{{ product.category?.name || 'Kemeja' }}</p>
                             <h3 class="text-xs font-semibold text-charcoal dark:text-[#f0eeeb] mt-0.5 leading-snug line-clamp-2">{{ product.name }}</h3>
-                            <p class="text-sm font-bold text-maroon mt-1.5">Rp{{ formatPrice(product.price) }}</p>
+                            <p class="text-sm font-bold text-maroon dark:text-[#f0eeeb] mt-1.5">Rp{{ formatPrice(product.price) }}</p>
                         </div>
                     </div>
                 </div>

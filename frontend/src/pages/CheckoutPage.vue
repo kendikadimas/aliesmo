@@ -133,7 +133,7 @@
                                                 <p class="text-xs text-charcoal/40 dark:text-[#6a6a6e]">Estimasi {{ opt.etd || '-' }} hari</p>
                                             </div>
                                         </div>
-                                        <span class="text-sm font-bold text-maroon shrink-0 ml-2">Rp{{ formatPrice(opt.cost || 0) }}</span>
+                                        <span class="text-sm font-bold text-maroon dark:text-[#f0eeeb] shrink-0 ml-2">Rp{{ formatPrice(opt.cost || 0) }}</span>
                                     </label>
                                 </div>
                             </div>
@@ -237,7 +237,7 @@
                         </div>
                         <div class="flex justify-between text-lg font-bold text-charcoal dark:text-[#f0eeeb] pt-3 border-t-2 border-maroon-100 dark:border-[#303032]">
                             <span>Total</span>
-                            <span class="text-maroon">Rp{{ formatPrice(grandTotal) }}</span>
+                            <span class="text-maroon dark:text-[#f0eeeb]">Rp{{ formatPrice(grandTotal) }}</span>
                         </div>
                     </div>
 
