@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
-import Skeleton from '@brayamvalero/vue3-skeleton'
+import Skeleton from '@brayamvalero/vue3-skeleton/dist/vue3-skeleton.js'
 import '@brayamvalero/vue3-skeleton/dist/style.css'
 import HomePage from './pages/HomePage.vue'
 import ProductDetailPage from './pages/ProductDetailPage.vue'
