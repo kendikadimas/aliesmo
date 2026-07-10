@@ -107,13 +107,13 @@
                         <h1 class="text-xl lg:text-2xl font-bold text-charcoal dark:text-[#f0eeeb] mt-1 leading-tight">{{ product.name }}</h1>
 
                         <div class="mt-3 flex items-baseline gap-2">
-                            <span class="text-xl lg:text-2xl font-bold text-ink">Rp{{ formatPrice(product.price) }}</span>
+                            <span class="text-xl lg:text-2xl font-bold text-ink dark:text-[#f0eeeb]">Rp{{ formatPrice(product.price) }}</span>
                             <span class="text-xs text-charcoal/40 dark:text-[#6a6a6e] line-through">Rp{{ formatPrice(product.price + 50000) }}</span>
                         </div>
 
                         <div class="mt-2 flex items-center gap-1.5">
                             <span class="w-1.5 h-1.5 rounded-full" :class="product.stock > 0 ? 'bg-ink-60' : 'bg-ink-20'"></span>
-                            <span class="text-xs font-medium" :class="product.stock > 0 ? 'text-ink-60' : 'text-ink-40'">
+                            <span class="text-xs font-medium" :class="product.stock > 0 ? 'text-ink-60 dark:text-[#8a8a8e]' : 'text-ink-40'">
                                 {{ product.stock > 0 ? `Tersedia (${product.stock} pcs)` : 'Stok habis kak :(' }}
                             </span>
                         </div>
@@ -121,9 +121,9 @@
                         <div class="mt-4">
                             <p class="text-[10px] font-semibold text-charcoal/50 dark:text-[#8a8a8e] mb-1.5">Jumlah</p>
                             <div class="flex items-center gap-3">
-                                <button @click="decrementQty" class="w-8 h-8 rounded-lg border-2 border-ink-10 dark:border-[#303032] flex items-center justify-center text-sm font-semibold text-charcoal/50 dark:text-[#8a8a8e] hover:border-ink hover:text-ink transition-colors active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed" :disabled="quantity <= 1">−</button>
+                                <button @click="decrementQty" class="w-8 h-8 rounded-lg border-2 border-ink-10 dark:border-[#303032] flex items-center justify-center text-sm font-semibold text-charcoal/50 dark:text-[#8a8a8e] hover:border-ink hover:text-ink dark:text-[#f0eeeb] transition-colors active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed" :disabled="quantity <= 1">−</button>
                                 <span class="w-10 text-center text-base font-bold text-charcoal dark:text-[#f0eeeb]">{{ quantity }}</span>
-                                <button @click="quantity++" class="w-8 h-8 rounded-lg border-2 border-ink-10 dark:border-[#303032] flex items-center justify-center text-sm font-semibold text-charcoal/50 dark:text-[#8a8a8e] hover:border-ink hover:text-ink transition-colors active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed" :disabled="quantity >= product.stock">+</button>
+                                <button @click="quantity++" class="w-8 h-8 rounded-lg border-2 border-ink-10 dark:border-[#303032] flex items-center justify-center text-sm font-semibold text-charcoal/50 dark:text-[#8a8a8e] hover:border-ink hover:text-ink dark:text-[#f0eeeb] transition-colors active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed" :disabled="quantity >= product.stock">+</button>
                             </div>
                         </div>
 
@@ -131,7 +131,7 @@
                             <button @click="addToCart" :disabled="product.stock === 0" class="flex-1 px-6 py-3 bg-ink text-white text-sm font-semibold rounded-xl hover:bg-ink-60 transition-all active:scale-[0.98] disabled:bg-ink-10 disabled:cursor-not-allowed disabled:active:scale-100 shadow-lg">
                                 {{ product.stock === 0 ? 'Stok Habis' : 'Masukin ke Keranjang' }}
                             </button>
-                            <button @click="toggleWishlist(product.id)" class="w-12 h-11 flex items-center justify-center rounded-xl border-2 transition-all active:scale-95" :class="isWishlisted(product.id) ? 'bg-ink-05 dark:bg-ink-80/20 border-ink dark:border-ink-60 text-ink' : 'border-ink-10 dark:border-[#303032] text-charcoal/50 dark:text-[#8a8a8e] hover:border-ink hover:text-ink'">
+                            <button @click="toggleWishlist(product.id)" class="w-12 h-11 flex items-center justify-center rounded-xl border-2 transition-all active:scale-95" :class="isWishlisted(product.id) ? 'bg-ink-05 dark:bg-ink-80/20 border-ink dark:border-ink-60 text-ink dark:text-[#f0eeeb]' : 'border-ink-10 dark:border-[#303032] text-charcoal/50 dark:text-[#8a8a8e] hover:border-ink hover:text-ink dark:text-[#f0eeeb]'">
                                 <HeartIcon class="w-[18px] h-[18px]" :class="isWishlisted(product.id) ? 'fill-current' : ''" />
                             </button>
                         </div>
@@ -140,7 +140,7 @@
                             <p v-if="isDescriptionShort" class="text-xs font-semibold text-charcoal/50 dark:text-[#8a8a8e] leading-relaxed">{{ product.description }}</p>
                             <div v-else>
                                 <p class="text-xs font-semibold text-charcoal/50 dark:text-[#8a8a8e] leading-relaxed line-clamp-3">{{ product.description }}</p>
-                                <button @click="showDescriptionModal = true" class="text-xs font-semibold text-ink hover:text-ink-60 mt-1">Lihat Selengkapnya</button>
+                                <button @click="showDescriptionModal = true" class="text-xs font-semibold text-ink dark:text-[#f0eeeb] hover:text-ink-60 dark:text-[#8a8a8e] mt-1">Lihat Selengkapnya</button>
                             </div>
                         </div>
 
@@ -172,7 +172,7 @@
                                 <XMarkIcon class="w-3.5 h-3.5" />
                             </button>
                         </div>
-                        <p class="text-sm text-charcoal/70 dark:text-[#d0ceca] leading-relaxed whitespace-pre-line">{{ product.description }}</p>
+                        <p class="text-sm text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca] leading-relaxed whitespace-pre-line">{{ product.description }}</p>
                     </div>
                 </div>
             </teleport>
@@ -206,7 +206,7 @@
                                 </div>
                                 <p class="text-xs text-charcoal/40 dark:text-[#6a6a6e] shrink-0">{{ formatDate(review.created_at) }}</p>
                             </div>
-                            <p v-if="review.comment" class="mt-2 text-sm text-charcoal/70 dark:text-[#d0ceca] leading-relaxed">{{ review.comment }}</p>
+                            <p v-if="review.comment" class="mt-2 text-sm text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca] leading-relaxed">{{ review.comment }}</p>
                         </div>
                     </div>
                 </div>

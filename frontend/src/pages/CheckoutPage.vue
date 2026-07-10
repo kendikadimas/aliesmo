@@ -24,16 +24,16 @@
                     <div class="space-y-4">
                         <div>
                             <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Nama Lengkap</label>
-                            <input v-model="form.customer_name" required placeholder="Masukkan nama kamu" class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-maroon focus:outline-none transition-colors">
+                            <input v-model="form.customer_name" required placeholder="Masukkan nama kamu" class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:text-[#6a6a6e]/60 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-maroon focus:outline-none transition-colors">
                         </div>
                         <div class="grid sm:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Email</label>
-                                <input v-model="form.customer_email" type="email" required placeholder="kamu@email.com" class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-maroon focus:outline-none transition-colors">
+                                <input v-model="form.customer_email" type="email" required placeholder="kamu@email.com" class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:text-[#6a6a6e]/60 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-maroon focus:outline-none transition-colors">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Telepon</label>
-                                <input v-model="form.customer_phone" placeholder="0812-xxxx-xxxx" class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-maroon focus:outline-none transition-colors">
+                                <input v-model="form.customer_phone" placeholder="0812-xxxx-xxxx" class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:text-[#6a6a6e]/60 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-maroon focus:outline-none transition-colors">
                             </div>
                         </div>
                     </div>
@@ -58,7 +58,7 @@
                                     @keydown.enter.prevent="onEnter"
                                     @keydown.escape="showDropdown = false"
                                     placeholder="Ketik nama kota atau kecamatan (misal: Denpasar, Tebet)"
-                                    class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-maroon focus:outline-none transition-colors"
+                                    class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:text-[#6a6a6e]/60 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-maroon focus:outline-none transition-colors"
                                     autocomplete="off"
                                     required
                                 >
@@ -106,7 +106,7 @@
                         <!-- Alamat Lengkap (patokan rumah) -->
                         <div>
                             <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Alamat Lengkap</label>
-                            <textarea v-model="form.shipping_address" required placeholder="Contoh: Jl. Merdeka No. 123, RT 01/RW 02, patokan dekat masjid Al-Ikhlas" rows="2" class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-maroon focus:outline-none transition-colors resize-none"></textarea>
+                            <textarea v-model="form.shipping_address" required placeholder="Contoh: Jl. Merdeka No. 123, RT 01/RW 02, patokan dekat masjid Al-Ikhlas" rows="2" class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:text-[#6a6a6e]/60 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-maroon focus:outline-none transition-colors resize-none"></textarea>
                             <p class="text-[10px] text-charcoal/40 dark:text-[#6a6a6e] mt-1">Nama jalan, nomor rumah, RT/RW, atau patokan terdekat.</p>
                         </div>
 
@@ -189,7 +189,7 @@
                                 v-model="couponCode"
                                 :disabled="!!appliedCoupon || couponLoading"
                                 placeholder="Masukkan kode kupon"
-                                class="flex-1 border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-3 py-2 text-xs text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-maroon focus:outline-none transition-colors disabled:opacity-50 uppercase"
+                                class="flex-1 border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-3 py-2 text-xs text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:text-[#6a6a6e]/60 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-maroon focus:outline-none transition-colors disabled:opacity-50 uppercase"
                                 @keyup.enter="applyCoupon"
                             >
                             <button
@@ -254,7 +254,7 @@
                                     : 'border-maroon-100 dark:border-[#303032] hover:border-maroon-200'">
                                 <input type="radio" :value="pm.value" v-model="paymentMethod" class="accent-maroon">
                                 <div class="flex items-center gap-2 flex-1 min-w-0">
-                                    <component :is="pm.icon" class="w-[18px] h-[18px] shrink-0 text-charcoal dark:text-[#d0ceca]" />
+                                    <component :is="pm.icon" class="w-[18px] h-[18px] shrink-0 text-charcoal dark:text-[#f0eeeb] dark:text-[#d0ceca]" />
                                     <div class="min-w-0">
                                         <p class="text-xs font-bold text-charcoal dark:text-[#f0eeeb]">{{ pm.label }}</p>
                                         <p class="text-[10px] text-charcoal/50 dark:text-[#6a6a6e]">{{ pm.desc }}</p>
@@ -290,7 +290,7 @@
                                 <div v-else-if="paymentMethod === 'qris'" class="bg-maroon-50/40 dark:bg-[#28282a]/50 rounded-xl p-4 text-center">
                                     <p class="text-xs font-bold text-charcoal dark:text-[#f0eeeb] mb-3">Scan QRIS untuk Pembayaran</p>
                                     <div v-if="get('payment_qris_image')" class="flex justify-center mb-3">
-                                        <img :src="get('payment_qris_image')" alt="QRIS" class="w-32 h-32 sm:w-40 sm:h-40 object-contain rounded-xl border-2 border-maroon-100 dark:border-[#303032] bg-white p-1" />
+                                        <img :src="get('payment_qris_image')" alt="QRIS" class="w-32 h-32 sm:w-40 sm:h-40 object-contain rounded-xl border-2 border-maroon-100 dark:border-[#303032] bg-white dark:bg-[#1c1c1e] p-1" />
                                     </div>
                                     <div v-else class="w-40 h-40 mx-auto rounded-xl border-2 border-dashed border-maroon-200 dark:border-[#303032] flex items-center justify-center mb-3">
                                         <DevicePhoneMobileIcon class="w-10 h-10 text-maroon-200 dark:text-slate-600" />

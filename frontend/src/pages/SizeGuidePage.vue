@@ -1,12 +1,12 @@
 ﻿<template>
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
         <h1 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Panduan Ukuran</h1>
-        <p class="mt-3 text-sm text-charcoal/70 dark:text-[#d0ceca] leading-relaxed">Temukan ukuran yang paling pas buat kamu dengan panduan di bawah ini.</p>
+        <p class="mt-3 text-sm text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca] leading-relaxed">Temukan ukuran yang paling pas buat kamu dengan panduan di bawah ini.</p>
 
         <!-- Tips -->
         <div class="mt-8 bg-maroon-50 dark:bg-maroon/10 border-2 border-maroon-100 dark:border-maroon/30 rounded-2xl p-5">
             <h3 class="text-sm font-bold text-charcoal dark:text-[#f0eeeb] mb-2">Tips Mengukur</h3>
-            <ul class="text-sm text-charcoal/70 dark:text-[#d0ceca] space-y-1.5 list-disc list-inside">
+            <ul class="text-sm text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca] space-y-1.5 list-disc list-inside">
                 <li>Gunakan pita ukur yang fleksibel, bukan penggaris kaku</li>
                 <li>Ukur dalam posisi berdiri tegak</li>
                 <li>Untuk hasil terbaik, minta bantuan orang lain saat mengukur</li>
@@ -32,10 +32,10 @@
                         <tr v-for="(row, i) in sizeChart" :key="row.size"
                             :class="i % 2 === 0 ? 'bg-white dark:bg-[#1c1c1e]' : 'bg-maroon-50/30 dark:bg-[#28282a]/30'">
                             <td class="px-4 py-3 font-bold text-maroon">{{ row.size }}</td>
-                            <td class="px-4 py-3 text-center text-charcoal/70 dark:text-[#d0ceca]">{{ row.chest }}</td>
-                            <td class="px-4 py-3 text-center text-charcoal/70 dark:text-[#d0ceca]">{{ row.waist }}</td>
-                            <td class="px-4 py-3 text-center text-charcoal/70 dark:text-[#d0ceca]">{{ row.hip }}</td>
-                            <td class="px-4 py-3 text-center text-charcoal/70 dark:text-[#d0ceca]">{{ row.length }}</td>
+                            <td class="px-4 py-3 text-center text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca]">{{ row.chest }}</td>
+                            <td class="px-4 py-3 text-center text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca]">{{ row.waist }}</td>
+                            <td class="px-4 py-3 text-center text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca]">{{ row.hip }}</td>
+                            <td class="px-4 py-3 text-center text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca]">{{ row.length }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -49,7 +49,7 @@
                 <div v-for="guide in measureGuides" :key="guide.title"
                     class="bg-white dark:bg-[#1c1c1e] p-5 rounded-2xl border-2 border-maroon-50 dark:border-[#303032]">
                     <div class="text-maroon font-bold text-xs mb-2 uppercase tracking-wide">{{ guide.title }}</div>
-                    <p class="text-sm text-charcoal/70 dark:text-[#d0ceca] leading-relaxed">{{ guide.desc }}</p>
+                    <p class="text-sm text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca] leading-relaxed">{{ guide.desc }}</p>
                 </div>
             </div>
         </div>

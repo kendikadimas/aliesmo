@@ -1,12 +1,12 @@
-<template>
+﻿<template>
     <div class="min-h-[80vh] flex items-center justify-center px-4 sm:px-6 py-12">
         <div class="w-full max-w-sm text-center">
             <div class="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 flex items-center justify-center mx-auto">
                 <EnvelopeIcon class="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
 
-            <h1 class="mt-6 text-2xl font-bold text-charcoal dark:text-slate-100">Verifikasi Emailmu</h1>
-            <p class="mt-2 text-sm text-charcoal/60 dark:text-slate-400 leading-relaxed">
+            <h1 class="mt-6 text-2xl font-bold text-charcoal dark:text-[#f0eeeb] dark:text-slate-100">Verifikasi Emailmu</h1>
+            <p class="mt-2 text-sm text-charcoal/60 dark:text-[#8a8a8e] dark:text-slate-400 leading-relaxed">
                 Kami sudah kirim link verifikasi ke emailmu. Klik link tersebut untuk mengaktifkan akun.
             </p>
 
@@ -25,7 +25,7 @@
                 {{ cooldown > 0 ? `Kirim ulang (${cooldown}s)` : loading ? 'Mengirim...' : 'Kirim Ulang Email Verifikasi' }}
             </button>
 
-            <p class="mt-4 text-xs text-charcoal/40 dark:text-slate-500">
+            <p class="mt-4 text-xs text-charcoal/40 dark:text-[#6a6a6e] dark:text-slate-500">
                 Sudah verifikasi?
                 <router-link to="/" class="text-maroon font-semibold hover:text-maroon-600">Kembali ke Beranda</router-link>
             </p>

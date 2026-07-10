@@ -64,7 +64,7 @@
 
                 <div class="border-t border-maroon-100 dark:border-[#303032] pt-4 space-y-2">
                     <div v-for="item in order.items" :key="item.id" class="flex justify-between text-sm">
-                        <span class="text-charcoal/70 dark:text-[#8a8a8e]">{{ item.product_name }} <span class="text-charcoal/40 dark:text-[#6a6a6e]">×{{ item.quantity }}</span></span>
+                        <span class="text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#8a8a8e]">{{ item.product_name }} <span class="text-charcoal/40 dark:text-[#6a6a6e]">×{{ item.quantity }}</span></span>
                         <span class="font-medium text-charcoal dark:text-[#f0eeeb]">Rp{{ formatPrice(item.subtotal) }}</span>
                     </div>
                     <!-- Diskon kupon — diarsipkan sementara -->
@@ -88,13 +88,13 @@
 
             <!-- Pagination -->
             <div v-if="pagination && pagination.last_page > 1" class="flex justify-center gap-2 mt-8">
-                <button @click="loadOrders(pagination.current_page - 1)" :disabled="!pagination.prev_page_url" class="px-4 py-2 border-2 border-maroon-100 dark:border-[#303032] text-charcoal dark:text-[#d0ceca] text-sm font-semibold rounded-xl hover:border-maroon dark:hover:border-maroon transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                <button @click="loadOrders(pagination.current_page - 1)" :disabled="!pagination.prev_page_url" class="px-4 py-2 border-2 border-maroon-100 dark:border-[#303032] text-charcoal dark:text-[#f0eeeb] dark:text-[#d0ceca] text-sm font-semibold rounded-xl hover:border-maroon dark:hover:border-maroon transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                     Prev
                 </button>
                 <span class="px-4 py-2 text-sm text-charcoal/60 dark:text-[#8a8a8e]">
                     Halaman {{ pagination.current_page }} dari {{ pagination.last_page }}
                 </span>
-                <button @click="loadOrders(pagination.current_page + 1)" :disabled="!pagination.next_page_url" class="px-4 py-2 border-2 border-maroon-100 dark:border-[#303032] text-charcoal dark:text-[#d0ceca] text-sm font-semibold rounded-xl hover:border-maroon dark:hover:border-maroon transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                <button @click="loadOrders(pagination.current_page + 1)" :disabled="!pagination.next_page_url" class="px-4 py-2 border-2 border-maroon-100 dark:border-[#303032] text-charcoal dark:text-[#f0eeeb] dark:text-[#d0ceca] text-sm font-semibold rounded-xl hover:border-maroon dark:hover:border-maroon transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                     Next
                 </button>
             </div>
@@ -179,9 +179,9 @@ function statusClass(status) {
         shipped: 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/50',
         completed: 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800/50',
         cancelled: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/50',
-        expired: 'bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-400 border border-gray-200 dark:border-gray-700',
+        expired: 'bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-[#d0ceca] dark:text-gray-400 border border-gray-200 dark:border-gray-700',
     }
-    return classes[status] || 'bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-400'
+    return classes[status] || 'bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-[#d0ceca] dark:text-gray-400'
 }
 
 function formatDate(dateString) {

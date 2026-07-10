@@ -6,12 +6,12 @@
         <div class="mt-10 prose prose-sm max-w-none space-y-8">
             <section>
                 <h2 class="text-base font-bold text-charcoal dark:text-[#f0eeeb] mb-3">1. Informasi yang Kami Kumpulkan</h2>
-                <p class="text-sm text-charcoal/70 dark:text-[#d0ceca] leading-relaxed">Kami mengumpulkan informasi yang kamu berikan secara langsung, seperti nama, alamat email, nomor telepon, dan alamat pengiriman saat melakukan pembelian atau membuat akun.</p>
+                <p class="text-sm text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca] leading-relaxed">Kami mengumpulkan informasi yang kamu berikan secara langsung, seperti nama, alamat email, nomor telepon, dan alamat pengiriman saat melakukan pembelian atau membuat akun.</p>
             </section>
 
             <section>
                 <h2 class="text-base font-bold text-charcoal dark:text-[#f0eeeb] mb-3">2. Cara Kami Menggunakan Informasi</h2>
-                <ul class="text-sm text-charcoal/70 dark:text-[#d0ceca] leading-relaxed space-y-1.5 list-disc list-inside">
+                <ul class="text-sm text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca] leading-relaxed space-y-1.5 list-disc list-inside">
                     <li>Memproses dan mengirimkan pesanan kamu</li>
                     <li>Mengirimkan konfirmasi dan update pesanan via email</li>
                     <li>Menghubungi kamu terkait pertanyaan atau keluhan</li>
@@ -21,22 +21,22 @@
 
             <section>
                 <h2 class="text-base font-bold text-charcoal dark:text-[#f0eeeb] mb-3">3. Keamanan Data</h2>
-                <p class="text-sm text-charcoal/70 dark:text-[#d0ceca] leading-relaxed">Kami menerapkan langkah-langkah keamanan teknis untuk melindungi data pribadimu. Data disimpan di server yang aman dan tidak kami jual atau bagikan ke pihak ketiga untuk keperluan pemasaran.</p>
+                <p class="text-sm text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca] leading-relaxed">Kami menerapkan langkah-langkah keamanan teknis untuk melindungi data pribadimu. Data disimpan di server yang aman dan tidak kami jual atau bagikan ke pihak ketiga untuk keperluan pemasaran.</p>
             </section>
 
             <section>
                 <h2 class="text-base font-bold text-charcoal dark:text-[#f0eeeb] mb-3">4. Cookie</h2>
-                <p class="text-sm text-charcoal/70 dark:text-[#d0ceca] leading-relaxed">Website kami menggunakan cookie untuk meningkatkan pengalaman browsing. Kamu bisa mengatur preferensi cookie melalui pengaturan browser.</p>
+                <p class="text-sm text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca] leading-relaxed">Website kami menggunakan cookie untuk meningkatkan pengalaman browsing. Kamu bisa mengatur preferensi cookie melalui pengaturan browser.</p>
             </section>
 
             <section>
                 <h2 class="text-base font-bold text-charcoal dark:text-[#f0eeeb] mb-3">5. Hak Kamu</h2>
-                <p class="text-sm text-charcoal/70 dark:text-[#d0ceca] leading-relaxed">Kamu berhak mengakses, memperbarui, atau menghapus data pribadimu kapan saja. Hubungi kami melalui WhatsApp atau email untuk permintaan terkait data.</p>
+                <p class="text-sm text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca] leading-relaxed">Kamu berhak mengakses, memperbarui, atau menghapus data pribadimu kapan saja. Hubungi kami melalui WhatsApp atau email untuk permintaan terkait data.</p>
             </section>
 
             <section>
                 <h2 class="text-base font-bold text-charcoal dark:text-[#f0eeeb] mb-3">6. Hubungi Kami</h2>
-                <p class="text-sm text-charcoal/70 dark:text-[#d0ceca] leading-relaxed">Pertanyaan tentang kebijakan privasi ini? Hubungi kami di <span class="text-maroon font-medium">admin@aliesmo.com</span></p>
+                <p class="text-sm text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca] leading-relaxed">Pertanyaan tentang kebijakan privasi ini? Hubungi kami di <span class="text-maroon font-medium">admin@aliesmo.com</span></p>
             </section>
         </div>
     </div>

@@ -21,10 +21,10 @@
                 <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2.5 z-20">
                     <button v-for="(_, i) in banners" :key="i" @click="activeSlide = i" class="h-2 rounded-full transition-all" :class="activeSlide === i ? 'w-6 bg-white' : 'w-2 bg-white/50 hover:bg-white/70'"></button>
                 </div>
-                <button @click="prevSlide" class="absolute top-1/2 -translate-y-1/2 left-3 z-20 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow hover:bg-white transition-all">
+                <button @click="prevSlide" class="absolute top-1/2 -translate-y-1/2 left-3 z-20 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow hover:bg-white dark:bg-[#1c1c1e] transition-all">
                     <ChevronLeftIcon class="w-4 h-4" />
                 </button>
-                <button @click="nextSlide" class="absolute top-1/2 -translate-y-1/2 right-3 z-20 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow hover:bg-white transition-all">
+                <button @click="nextSlide" class="absolute top-1/2 -translate-y-1/2 right-3 z-20 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow hover:bg-white dark:bg-[#1c1c1e] transition-all">
                     <ChevronRightIcon class="w-4 h-4" />
                 </button>
             </div>
@@ -36,19 +36,19 @@
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-8">
                     <div class="text-center">
                         <p class="text-3xl lg:text-4xl font-bold text-maroon">{{ get('stat_kemeja_terjual', '12.000+') }}</p>
-                        <p class="text-sm text-charcoal/60 mt-1">{{ get('stat_kemeja_terjual_label', 'Kemeja Terjual') }}</p>
+                        <p class="text-sm text-charcoal/60 dark:text-[#8a8a8e] mt-1">{{ get('stat_kemeja_terjual_label', 'Kemeja Terjual') }}</p>
                     </div>
                     <div class="text-center">
                         <p class="text-3xl lg:text-4xl font-bold text-maroon">{{ get('stat_kota', '15+') }}</p>
-                        <p class="text-sm text-charcoal/60 mt-1">{{ get('stat_kota_label', 'Kota di Indonesia') }}</p>
+                        <p class="text-sm text-charcoal/60 dark:text-[#8a8a8e] mt-1">{{ get('stat_kota_label', 'Kota di Indonesia') }}</p>
                     </div>
                     <div class="text-center">
                         <p class="text-3xl lg:text-4xl font-bold text-maroon">{{ get('stat_kualitas', '100%') }}</p>
-                        <p class="text-sm text-charcoal/60 mt-1">{{ get('stat_kualitas_label', 'Kualitas Original') }}</p>
+                        <p class="text-sm text-charcoal/60 dark:text-[#8a8a8e] mt-1">{{ get('stat_kualitas_label', 'Kualitas Original') }}</p>
                     </div>
                     <div class="text-center">
                         <p class="text-3xl lg:text-4xl font-bold text-maroon">{{ get('stat_garansi', '30') }}</p>
-                        <p class="text-sm text-charcoal/60 mt-1">{{ get('stat_garansi_label', 'Hari Garansi') }}</p>
+                        <p class="text-sm text-charcoal/60 dark:text-[#8a8a8e] mt-1">{{ get('stat_garansi_label', 'Hari Garansi') }}</p>
                     </div>
                 </div>
             </div>

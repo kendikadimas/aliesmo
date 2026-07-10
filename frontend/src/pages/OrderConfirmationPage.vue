@@ -41,7 +41,7 @@
                 <h2 class="text-sm font-bold text-charcoal dark:text-[#f0eeeb] tracking-wide mb-6">Detail Pesanan</h2>
                 <div v-if="order.items" class="space-y-3">
                     <div v-for="(item, i) in order.items" :key="i" class="flex justify-between text-sm">
-                        <span class="text-charcoal/70 dark:text-[#d0ceca]">{{ item.product_name }} <span class="text-charcoal/40 dark:text-[#6a6a6e]">×{{ item.quantity }}</span></span>
+                        <span class="text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca]">{{ item.product_name }} <span class="text-charcoal/40 dark:text-[#6a6a6e]">×{{ item.quantity }}</span></span>
                         <span class="font-bold dark:text-[#f0eeeb]">Rp{{ formatPrice(item.subtotal || item.price * item.quantity) }}</span>
                     </div>
                 </div>
@@ -85,7 +85,7 @@
                 <!-- Bank Transfer -->
                 <div v-if="paymentInfo.method === 'bank_transfer'" class="bg-maroon-50/40 dark:bg-[#28282a]/50 rounded-xl p-5 space-y-2">
                     <div class="flex items-center gap-2 mb-3">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-charcoal dark:text-[#d0ceca] shrink-0"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-charcoal dark:text-[#f0eeeb] dark:text-[#d0ceca] shrink-0"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
                         <span class="text-sm font-bold text-charcoal dark:text-[#f0eeeb]">{{ paymentInfo.label }}</span>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
@@ -108,11 +108,11 @@
                 <!-- QRIS -->
                 <div v-else-if="paymentInfo.method === 'qris'" class="bg-maroon-50/40 dark:bg-[#28282a]/50 rounded-xl p-5 text-center">
                     <div class="flex items-center justify-center gap-2 mb-3">
-                        <DevicePhoneMobileIcon class="w-[18px] h-[18px] text-charcoal dark:text-[#d0ceca] shrink-0" />
+                        <DevicePhoneMobileIcon class="w-[18px] h-[18px] text-charcoal dark:text-[#f0eeeb] dark:text-[#d0ceca] shrink-0" />
                         <span class="text-sm font-bold text-charcoal dark:text-[#f0eeeb]">{{ paymentInfo.label }}</span>
                     </div>
                     <div v-if="paymentInfo.qris_image" class="flex justify-center mb-3">
-                        <img :src="paymentInfo.qris_image" alt="QRIS" class="w-52 h-52 object-contain rounded-lg border border-maroon-100 dark:border-[#303032] bg-white p-2">
+                        <img :src="paymentInfo.qris_image" alt="QRIS" class="w-52 h-52 object-contain rounded-lg border border-maroon-100 dark:border-[#303032] bg-white dark:bg-[#1c1c1e] p-2">
                     </div>
                     <p class="text-sm font-semibold text-charcoal dark:text-[#f0eeeb]">{{ paymentInfo.qris_name }}</p>
                     <p class="text-xs text-charcoal/50 dark:text-[#8a8a8e] mt-1">{{ paymentInfo.instruction }}</p>
@@ -121,7 +121,7 @@
                 <!-- COD -->
                 <div v-else-if="paymentInfo.method === 'cod'" class="bg-maroon-50/40 dark:bg-[#28282a]/50 rounded-xl p-5">
                     <div class="flex items-center gap-2 mb-2">
-                        <CreditCardIcon class="w-[18px] h-[18px] text-charcoal dark:text-[#d0ceca] shrink-0" />
+                        <CreditCardIcon class="w-[18px] h-[18px] text-charcoal dark:text-[#f0eeeb] dark:text-[#d0ceca] shrink-0" />
                         <span class="text-sm font-bold text-charcoal dark:text-[#f0eeeb]">{{ paymentInfo.label }}</span>
                     </div>
                     <p class="text-sm text-charcoal/60 dark:text-[#8a8a8e]">{{ paymentInfo.instruction }}</p>

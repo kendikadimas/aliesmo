@@ -24,7 +24,7 @@
                         <CheckIcon v-if="isAllSelected" class="w-3 h-3 text-white" />
                         <MinusIcon v-else-if="isPartialSelected" class="w-3 h-3 text-maroon" />
                     </span>
-                    <span class="text-sm font-semibold text-charcoal/70 dark:text-[#8a8a8e]">
+                    <span class="text-sm font-semibold text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#8a8a8e]">
                         Pilih Semua ({{ items.length }} produk)
                     </span>
                 </button>
@@ -62,16 +62,16 @@
 
                     <!-- Qty controls -->
                     <div class="flex items-center gap-2">
-                        <button @click="decrease(item.product_id)" class="w-8 h-8 rounded-lg border-2 border-maroon-200 dark:border-[#303032] flex items-center justify-center text-sm font-bold text-charcoal dark:text-[#d0ceca] hover:border-maroon hover:text-maroon transition-colors active:scale-95">−</button>
+                        <button @click="decrease(item.product_id)" class="w-8 h-8 rounded-lg border-2 border-maroon-200 dark:border-[#303032] flex items-center justify-center text-sm font-bold text-charcoal dark:text-[#f0eeeb] dark:text-[#d0ceca] hover:border-maroon hover:text-maroon transition-colors active:scale-95">−</button>
                         <span class="w-8 text-center text-sm font-bold dark:text-[#f0eeeb]">{{ item.quantity }}</span>
-                        <button @click="updateQuantity(item.product_id, item.quantity + 1)" class="w-8 h-8 rounded-lg border-2 border-maroon-200 dark:border-[#303032] flex items-center justify-center text-sm font-bold text-charcoal dark:text-[#d0ceca] hover:border-maroon hover:text-maroon transition-colors active:scale-95">+</button>
+                        <button @click="updateQuantity(item.product_id, item.quantity + 1)" class="w-8 h-8 rounded-lg border-2 border-maroon-200 dark:border-[#303032] flex items-center justify-center text-sm font-bold text-charcoal dark:text-[#f0eeeb] dark:text-[#d0ceca] hover:border-maroon hover:text-maroon transition-colors active:scale-95">+</button>
                     </div>
 
                     <!-- Subtotal -->
                     <p class="font-bold text-xs lg:text-sm w-16 lg:w-20 text-right text-charcoal dark:text-[#f0eeeb] hidden sm:block">Rp{{ formatPrice(item.price * item.quantity) }}</p>
 
                     <!-- Remove -->
-                    <button @click="removeItem(item.product_id)" class="text-charcoal/30 dark:text-[#6a6a6e] hover:text-red-500 transition-colors p-1 active:scale-95" aria-label="Hapus">
+                    <button @click="removeItem(item.product_id)" class="text-charcoal/30 dark:text-[#6a6a6e]/60 dark:text-[#6a6a6e] hover:text-red-500 transition-colors p-1 active:scale-95" aria-label="Hapus">
                         <XMarkIcon class="w-[18px] h-[18px]" />
                     </button>
                 </div>

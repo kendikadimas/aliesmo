@@ -14,17 +14,17 @@
                 <div>
                     <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Email</label>
                     <input v-model="form.email" type="email" required placeholder="email yang kamu pakai saat checkout"
-                        class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-ink focus:outline-none transition-colors">
+                        class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:text-[#6a6a6e]/60 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-ink focus:outline-none transition-colors">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Nomor Pesanan</label>
                     <input v-model="form.order_number" required
                         placeholder="Contoh: ORD-20260706-0001-ABC"
-                        class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-ink focus:outline-none transition-colors uppercase"
+                        class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:text-[#6a6a6e]/60 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-ink focus:outline-none transition-colors uppercase"
                         @input="form.order_number = form.order_number.toUpperCase()">
                 </div>
 
-                <div v-if="error" class="p-3 bg-ink-05 dark:bg-ink-80/40 border border-ink-10 dark:border-ink-60 rounded-xl text-xs text-ink-60 dark:text-ink-20 font-medium">
+                <div v-if="error" class="p-3 bg-ink-05 dark:bg-ink-80/40 border border-ink-10 dark:border-ink-60 rounded-xl text-xs text-ink-60 dark:text-[#8a8a8e] dark:text-ink-20 dark:text-[#303032] font-medium">
                     {{ error }}
                 </div>
 
@@ -40,7 +40,7 @@
         <div v-else class="space-y-4">
             <div class="flex items-center justify-between">
                 <h2 class="text-sm font-bold text-charcoal/50 dark:text-[#8a8a8e] uppercase tracking-wide">Hasil Pencarian</h2>
-                <button @click="reset" class="text-xs font-semibold text-ink hover:text-ink-60 transition-colors">
+                <button @click="reset" class="text-xs font-semibold text-ink dark:text-[#f0eeeb] hover:text-ink-60 dark:text-[#8a8a8e] transition-colors">
                     Cari Pesanan Lain
                 </button>
             </div>
@@ -50,7 +50,7 @@
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
                     <div>
                         <p class="text-xs text-charcoal/40 dark:text-[#6a6a6e] font-medium">No. Pesanan</p>
-                        <p class="text-lg font-bold text-ink">{{ order.order_number }}</p>
+                        <p class="text-lg font-bold text-ink dark:text-[#f0eeeb]">{{ order.order_number }}</p>
                         <p class="text-xs text-charcoal/40 dark:text-[#6a6a6e] mt-0.5">{{ formatDate(order.created_at) }}</p>
                     </div>
                     <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold self-start sm:self-center"
@@ -71,7 +71,7 @@
                                     <div v-else class="w-2 h-2 rounded-full"                                     :class="isStepCurrent(step.key) ? 'bg-maroon' : 'bg-maroon-100 dark:bg-slate-600'"></div>
                                 </div>
                                 <p class="text-[9px] font-semibold mt-1 text-center w-14"
-                                    :class="isStepDone(step.key) || isStepCurrent(step.key) ? 'text-maroon' : 'text-charcoal/30 dark:text-slate-600'">
+                                    :class="isStepDone(step.key) || isStepCurrent(step.key) ? 'text-maroon' : 'text-charcoal/30 dark:text-[#6a6a6e]/60 dark:text-slate-600'">
                                     {{ step.label }}
                                 </p>
                             </div>
@@ -86,7 +86,7 @@
                 <!-- Items -->
                 <div class="border-t border-maroon-100 dark:border-[#303032] pt-4 space-y-2 mb-4">
                     <div v-for="item in order.items" :key="item.id" class="flex justify-between text-sm">
-                        <span class="text-charcoal/70 dark:text-[#d0ceca]">{{ item.product_name }} <span class="text-charcoal/40 dark:text-[#6a6a6e]">×{{ item.quantity }}</span></span>
+                        <span class="text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca]">{{ item.product_name }} <span class="text-charcoal/40 dark:text-[#6a6a6e]">×{{ item.quantity }}</span></span>
                         <span class="font-medium text-charcoal dark:text-[#f0eeeb]">Rp{{ formatPrice(item.subtotal) }}</span>
                     </div>
                 </div>
@@ -117,7 +117,7 @@
                 <!-- Alamat -->
                 <div class="border-t border-maroon-100 dark:border-[#303032] mt-4 pt-4">
                     <p class="text-xs font-semibold text-charcoal/50 dark:text-[#8a8a8e] mb-1">Alamat Pengiriman</p>
-                    <p class="text-sm text-charcoal/70 dark:text-[#d0ceca]">{{ order.shipping_address }}</p>
+                    <p class="text-sm text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca]">{{ order.shipping_address }}</p>
                 </div>
 
                 <!-- Bantuan via WhatsApp — selalu muncul -->
@@ -255,9 +255,9 @@ function statusClass(status) {
         shipped: 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/50',
         completed: 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800/50',
         cancelled: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/50',
-        expired: 'bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-400 border border-gray-200 dark:border-gray-700',
+        expired: 'bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-[#d0ceca] dark:text-gray-400 border border-gray-200 dark:border-gray-700',
     }
-    return classes[status] || 'bg-ink-05 dark:bg-ink-80/20 text-ink border border-ink-10 dark:border-ink-60/30'
+    return classes[status] || 'bg-ink-05 dark:bg-ink-80/20 text-ink dark:text-[#f0eeeb] border border-ink-10 dark:border-ink-60/30'
 }
 
 function formatDate(dateString) {

@@ -4,7 +4,7 @@
         <p class="mt-2 text-sm text-charcoal/50 dark:text-[#8a8a8e]">Kelola profil, keamanan, dan riwayat pesananmu</p>
 
         <div v-if="!isLoggedIn" class="py-24 text-center">
-            <UserIcon class="w-16 h-16 mx-auto text-ink-20" />
+            <UserIcon class="w-16 h-16 mx-auto text-ink-20 dark:text-[#303032]" />
             <h2 class="mt-4 text-xl font-bold text-charcoal dark:text-[#f0eeeb]">Login dulu yuk!</h2>
             <router-link to="/login" class="inline-block mt-6 px-8 py-3 bg-ink text-white text-sm font-semibold rounded-xl hover:bg-ink-60 transition-all shadow-lg">
                 Login Sekarang
@@ -30,7 +30,7 @@
                     class="relative px-5 py-3 text-xs font-bold tracking-wide uppercase whitespace-nowrap transition-all"
                     :class="activeTab === tab.key
                         ? 'text-maroon after:absolute after:bottom-[-2px] after:left-0 after:right-0 after:h-[2px] after:bg-maroon'
-                        : 'text-charcoal/40 dark:text-[#6a6a6e] hover:text-charcoal/70 dark:hover:text-[#d0ceca]'">
+                        : 'text-charcoal/40 dark:text-[#6a6a6e] hover:text-charcoal/70 dark:text-[#d0ceca]/80 dark:hover:text-[#d0ceca]'">
                     {{ tab.label }}
                 </button>
             </div>
@@ -51,8 +51,8 @@
                                 class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] focus:border-ink focus:outline-none transition-colors bg-white dark:bg-[#28282a]">
                         </div>
 
-                        <div v-if="profileError" class="p-3 bg-ink-05 dark:bg-ink-80/40 rounded-xl border border-ink-10 dark:border-ink-60 text-ink-60 dark:text-ink-20 text-sm">{{ profileError }}</div>
-                        <div v-if="profileSuccess" class="p-3 bg-ink-05 dark:bg-ink-80/40 rounded-xl border border-ink-10 dark:border-ink-60 text-ink dark:text-ink-05 text-sm font-medium">Profil berhasil diperbarui!</div>
+                        <div v-if="profileError" class="p-3 bg-ink-05 dark:bg-ink-80/40 rounded-xl border border-ink-10 dark:border-ink-60 text-ink-60 dark:text-[#8a8a8e] dark:text-ink-20 dark:text-[#303032] text-sm">{{ profileError }}</div>
+                        <div v-if="profileSuccess" class="p-3 bg-ink-05 dark:bg-ink-80/40 rounded-xl border border-ink-10 dark:border-ink-60 text-ink dark:text-[#f0eeeb] dark:text-ink-05 text-sm font-medium">Profil berhasil diperbarui!</div>
 
                         <button type="submit" :disabled="profileSaving"
                             class="px-8 py-2.5 bg-ink text-white text-sm font-semibold rounded-xl hover:bg-ink-60 transition-all active:scale-[0.97] shadow-lg disabled:opacity-50">
@@ -62,7 +62,7 @@
                 </div>
 
                 <!-- Logout -->
-                <button @click="handleLogout" class="mt-4 w-full sm:w-auto px-6 py-3 border-2 border-ink-10 text-ink-40 text-sm font-semibold rounded-xl hover:border-ink-60 hover:text-ink-60 transition-all">
+                <button @click="handleLogout" class="mt-4 w-full sm:w-auto px-6 py-3 border-2 border-ink-10 text-ink-40 text-sm font-semibold rounded-xl hover:border-ink-60 hover:text-ink-60 dark:text-[#8a8a8e] transition-all">
                     Keluar dari Akun
                 </button>
             </div>
@@ -88,8 +88,8 @@
                                 class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] focus:border-ink focus:outline-none transition-colors bg-white dark:bg-[#28282a]">
                         </div>
 
-                        <div v-if="passwordError" class="p-3 bg-ink-05 dark:bg-ink-80/40 rounded-xl border border-ink-10 dark:border-ink-60 text-ink-60 dark:text-ink-20 text-sm">{{ passwordError }}</div>
-                        <div v-if="passwordSuccess" class="p-3 bg-ink-05 dark:bg-ink-80/40 rounded-xl border border-ink-10 dark:border-ink-60 text-ink dark:text-ink-05 text-sm font-medium">Password berhasil diperbarui!</div>
+                        <div v-if="passwordError" class="p-3 bg-ink-05 dark:bg-ink-80/40 rounded-xl border border-ink-10 dark:border-ink-60 text-ink-60 dark:text-[#8a8a8e] dark:text-ink-20 dark:text-[#303032] text-sm">{{ passwordError }}</div>
+                        <div v-if="passwordSuccess" class="p-3 bg-ink-05 dark:bg-ink-80/40 rounded-xl border border-ink-10 dark:border-ink-60 text-ink dark:text-[#f0eeeb] dark:text-ink-05 text-sm font-medium">Password berhasil diperbarui!</div>
 
                         <button type="submit" :disabled="passwordSaving"
                             class="px-8 py-2.5 bg-ink text-white text-sm font-semibold rounded-xl hover:bg-ink-60 transition-all active:scale-[0.97] shadow-lg disabled:opacity-50">
@@ -165,7 +165,7 @@
                         <!-- Order items -->
                         <div class="border-t border-maroon-100 dark:border-[#303032] pt-4 space-y-2">
                             <div v-for="item in order.items" :key="item.id" class="flex justify-between text-sm">
-                                <span class="text-charcoal/70 dark:text-[#8a8a8e]">{{ item.product_name }} <span class="text-charcoal/40 dark:text-[#6a6a6e]">×{{ item.quantity }}</span></span>
+                                <span class="text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#8a8a8e]">{{ item.product_name }} <span class="text-charcoal/40 dark:text-[#6a6a6e]">×{{ item.quantity }}</span></span>
                                 <span class="font-medium text-charcoal dark:text-[#f0eeeb]">Rp{{ formatPrice(item.subtotal) }}</span>
                             </div>
                             <!-- Diskon kupon — diarsipkan sementara -->
@@ -184,7 +184,7 @@
                             <!-- Bank Transfer -->
                             <div v-if="order.payment_method === 'bank_transfer'" class="bg-maroon-50/40 dark:bg-[#28282a]/50 rounded-xl p-4 space-y-1.5">
                                 <div class="flex items-center gap-2 mb-2">
-                                    <BuildingLibraryIcon class="w-4 h-4 text-charcoal dark:text-[#d0ceca] shrink-0" />
+                                    <BuildingLibraryIcon class="w-4 h-4 text-charcoal dark:text-[#f0eeeb] dark:text-[#d0ceca] shrink-0" />
                                     <span class="text-xs font-bold text-charcoal dark:text-[#f0eeeb]">Transfer Bank</span>
                                 </div>
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
@@ -207,11 +207,11 @@
                             <!-- QRIS -->
                             <div v-else-if="order.payment_method === 'qris'" class="bg-maroon-50/40 dark:bg-[#28282a]/50 rounded-xl p-4">
                                 <div class="flex items-center gap-2 mb-3">
-                                    <DevicePhoneMobileIcon class="w-4 h-4 text-charcoal dark:text-[#d0ceca] shrink-0" />
+                                    <DevicePhoneMobileIcon class="w-4 h-4 text-charcoal dark:text-[#f0eeeb] dark:text-[#d0ceca] shrink-0" />
                                     <span class="text-xs font-bold text-charcoal dark:text-[#f0eeeb]">QRIS</span>
                                 </div>
                                 <div v-if="get('payment_qris_image')" class="flex justify-center mb-3">
-                                    <img :src="get('payment_qris_image')" alt="QRIS" class="w-48 h-48 object-contain rounded-lg border border-maroon-100 dark:border-[#303032] bg-white p-2">
+                                    <img :src="get('payment_qris_image')" alt="QRIS" class="w-48 h-48 object-contain rounded-lg border border-maroon-100 dark:border-[#303032] bg-white dark:bg-[#1c1c1e] p-2">
                                 </div>
                                 <p class="text-xs text-center font-semibold text-charcoal dark:text-[#f0eeeb]">{{ get('payment_qris_name', 'Aliesmo') }}</p>
                                 <p class="text-[10px] text-charcoal/40 dark:text-[#6a6a6e] text-center mt-1">Scan QRIS, lalu kirim bukti pembayaran via WhatsApp.</p>
@@ -220,7 +220,7 @@
                             <!-- COD -->
                             <div v-else-if="order.payment_method === 'cod'" class="bg-maroon-50/40 dark:bg-[#28282a]/50 rounded-xl p-4">
                                 <div class="flex items-center gap-2 mb-1">
-                                    <CreditCardIcon class="w-4 h-4 text-charcoal dark:text-[#d0ceca] shrink-0" />
+                                    <CreditCardIcon class="w-4 h-4 text-charcoal dark:text-[#f0eeeb] dark:text-[#d0ceca] shrink-0" />
                                     <span class="text-xs font-bold text-charcoal dark:text-[#f0eeeb]">COD (Bayar di Tempat)</span>
                                 </div>
                                 <p class="text-xs text-charcoal/60 dark:text-[#8a8a8e]">Bayar langsung saat pesanan tiba. Hubungi via WhatsApp untuk penjadwalan.</p>
@@ -242,13 +242,13 @@
 
                     <!-- Pagination -->
                     <div v-if="pagination && pagination.last_page > 1" class="flex justify-center gap-2 mt-8">
-                        <button @click="loadOrders(pagination.current_page - 1)" :disabled="!pagination.prev_page_url" class="px-4 py-2 border-2 border-maroon-100 dark:border-[#303032] text-charcoal dark:text-[#d0ceca] text-sm font-semibold rounded-xl hover:border-maroon dark:hover:border-maroon transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                        <button @click="loadOrders(pagination.current_page - 1)" :disabled="!pagination.prev_page_url" class="px-4 py-2 border-2 border-maroon-100 dark:border-[#303032] text-charcoal dark:text-[#f0eeeb] dark:text-[#d0ceca] text-sm font-semibold rounded-xl hover:border-maroon dark:hover:border-maroon transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                             Prev
                         </button>
                         <span class="px-4 py-2 text-sm text-charcoal/60 dark:text-[#8a8a8e]">
                             Halaman {{ pagination.current_page }} dari {{ pagination.last_page }}
                         </span>
-                        <button @click="loadOrders(pagination.current_page + 1)" :disabled="!pagination.next_page_url" class="px-4 py-2 border-2 border-maroon-100 dark:border-[#303032] text-charcoal dark:text-[#d0ceca] text-sm font-semibold rounded-xl hover:border-maroon dark:hover:border-maroon transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                        <button @click="loadOrders(pagination.current_page + 1)" :disabled="!pagination.next_page_url" class="px-4 py-2 border-2 border-maroon-100 dark:border-[#303032] text-charcoal dark:text-[#f0eeeb] dark:text-[#d0ceca] text-sm font-semibold rounded-xl hover:border-maroon dark:hover:border-maroon transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                             Next
                         </button>
                     </div>
@@ -458,9 +458,9 @@ function statusClass(status) {
         shipped: 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/50',
         completed: 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800/50',
         cancelled: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/50',
-        expired: 'bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-400 border border-gray-200 dark:border-gray-700',
+        expired: 'bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-[#d0ceca] dark:text-gray-400 border border-gray-200 dark:border-gray-700',
     }
-    return classes[status] || 'bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-400'
+    return classes[status] || 'bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-[#d0ceca] dark:text-gray-400'
 }
 
 function formatDate(dateString) {

@@ -1,7 +1,7 @@
 ﻿<template>
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
         <h1 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Info Pengiriman</h1>
-        <p class="mt-3 text-sm text-charcoal/70 dark:text-[#d0ceca] leading-relaxed">Semua yang perlu kamu tahu tentang pengiriman pesanan Aliesmo.</p>
+        <p class="mt-3 text-sm text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca] leading-relaxed">Semua yang perlu kamu tahu tentang pengiriman pesanan Aliesmo.</p>
 
         <!-- Estimasi Waktu -->
         <div class="mt-10 grid grid-cols-3 gap-3 lg:gap-4">
@@ -56,24 +56,24 @@
             <div class="space-y-4">
                 <div class="bg-white dark:bg-[#1c1c1e] p-5 rounded-2xl border-2 border-maroon-50 dark:border-[#303032]">
                     <h3 class="text-sm font-bold text-charcoal dark:text-[#f0eeeb] mb-2">Ongkos Kirim</h3>
-                    <p class="text-sm text-charcoal/70 dark:text-[#d0ceca] leading-relaxed">Ongkos kirim dihitung berdasarkan berat produk dan jarak pengiriman. Biaya akan tampil otomatis saat checkout setelah kamu memilih kota tujuan dan kurir.</p>
+                    <p class="text-sm text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca] leading-relaxed">Ongkos kirim dihitung berdasarkan berat produk dan jarak pengiriman. Biaya akan tampil otomatis saat checkout setelah kamu memilih kota tujuan dan kurir.</p>
                 </div>
 
                 <div class="bg-white dark:bg-[#1c1c1e] p-5 rounded-2xl border-2 border-maroon-50 dark:border-[#303032]">
                     <h3 class="text-sm font-bold text-charcoal dark:text-[#f0eeeb] mb-2">Pelacakan Pesanan</h3>
-                    <p class="text-sm text-charcoal/70 dark:text-[#d0ceca] leading-relaxed">Nomor resi akan dikirimkan melalui WhatsApp setelah paket dikirim. Kamu bisa melacak pesanan langsung di website kurir masing-masing.</p>
+                    <p class="text-sm text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca] leading-relaxed">Nomor resi akan dikirimkan melalui WhatsApp setelah paket dikirim. Kamu bisa melacak pesanan langsung di website kurir masing-masing.</p>
                 </div>
 
                 <div class="bg-white dark:bg-[#1c1c1e] p-5 rounded-2xl border-2 border-maroon-50 dark:border-[#303032]">
                     <h3 class="text-sm font-bold text-charcoal dark:text-[#f0eeeb] mb-2">Kerusakan saat Pengiriman</h3>
-                    <p class="text-sm text-charcoal/70 dark:text-[#d0ceca] leading-relaxed">Jika barang rusak saat pengiriman, segera foto kondisi paket dan produk sebelum dibuka sepenuhnya. Hubungi kami dalam 24 jam setelah menerima paket.</p>
+                    <p class="text-sm text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca] leading-relaxed">Jika barang rusak saat pengiriman, segera foto kondisi paket dan produk sebelum dibuka sepenuhnya. Hubungi kami dalam 24 jam setelah menerima paket.</p>
                 </div>
             </div>
         </div>
 
         <!-- CTA -->
         <div class="mt-10 bg-maroon-50 dark:bg-maroon/10 p-6 rounded-2xl border-2 border-maroon-100 dark:border-maroon/30">
-            <p class="text-sm text-charcoal/70 dark:text-[#d0ceca]">Ada pertanyaan tentang pengiriman? Hubungi kami langsung.</p>
+            <p class="text-sm text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca]">Ada pertanyaan tentang pengiriman? Hubungi kami langsung.</p>
             <a :href="`https://wa.me/${waNumber}`" target="_blank"
                 class="inline-flex items-center gap-2 mt-3 px-5 py-2.5 bg-maroon text-white text-xs font-semibold rounded-xl hover:bg-maroon-600 transition-all">
                 Chat via WhatsApp

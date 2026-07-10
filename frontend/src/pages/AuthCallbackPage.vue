@@ -1,4 +1,4 @@
-<template>
+﻿<template>
     <div class="min-h-[80vh] flex items-center justify-center px-4">
         <div class="text-center">
             <div class="w-14 h-14 rounded-2xl bg-maroon flex items-center justify-center mx-auto mb-4">
@@ -6,7 +6,7 @@
                     <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
                 </svg>
             </div>
-            <p v-if="!errorMsg" class="text-sm font-medium text-charcoal/70 dark:text-slate-400">Sedang masuk dengan Google...</p>
+            <p v-if="!errorMsg" class="text-sm font-medium text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-slate-400">Sedang masuk dengan Google...</p>
             <div v-else class="space-y-3">
                 <p class="text-sm font-medium text-red-600 dark:text-red-400">{{ errorMsg }}</p>
                 <router-link to="/login" class="inline-block px-6 py-2.5 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all">
