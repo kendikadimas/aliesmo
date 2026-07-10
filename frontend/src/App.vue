@@ -226,43 +226,43 @@
             <router-view />
         </main>
 
-        <footer class="bg-zinc-100 dark:bg-slate-900 text-charcoal dark:text-white border-t border-zinc-200 dark:border-slate-800">
+        <footer class="bg-zinc-800 text-white border-t border-zinc-700">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
                     <div>
                         <div class="flex items-center gap-2">
-                            <span class="text-xl font-bold tracking-[0.15em] text-charcoal dark:text-white font-serif">ALIESMO</span>
+                            <span class="text-xl font-bold tracking-[0.15em] text-white font-serif">ALIESMO</span>
                         </div>
-                        <p class="mt-3 text-sm text-charcoal/60 dark:text-slate-400 leading-relaxed max-w-xs">Kemeja batik dan casual berkualitas. Nyaman dipakai, bangga dengan budaya Indonesia.</p>
+                        <p class="mt-3 text-sm text-white/50 leading-relaxed max-w-xs">Kemeja batik dan casual berkualitas. Nyaman dipakai, bangga dengan budaya Indonesia.</p>
                     </div>
                     <div>
                         <h4 class="text-sm font-semibold text-maroon mb-4">Menu</h4>
                         <ul class="space-y-2">
-                            <li><router-link to="/" class="text-sm text-charcoal/60 dark:text-slate-400 hover:text-maroon dark:hover:text-maroon transition-colors">Beranda</router-link></li>
-                            <li><router-link to="/?shop=1" class="text-sm text-charcoal/60 dark:text-slate-400 hover:text-maroon dark:hover:text-maroon transition-colors">Koleksi</router-link></li>
-                            <li><router-link to="/cart" class="text-sm text-charcoal/60 dark:text-slate-400 hover:text-maroon dark:hover:text-maroon transition-colors">Keranjang</router-link></li>
+                            <li><router-link to="/" class="text-sm text-white/50 hover:text-white transition-colors">Beranda</router-link></li>
+                            <li><router-link to="/?shop=1" class="text-sm text-white/50 hover:text-white transition-colors">Koleksi</router-link></li>
+                            <li><router-link to="/cart" class="text-sm text-white/50 hover:text-white transition-colors">Keranjang</router-link></li>
                         </ul>
                     </div>
                     <div>
                         <h4 class="text-sm font-semibold text-maroon mb-4">Informasi</h4>
                         <ul class="space-y-2">
-                            <li><router-link to="/track-order" class="text-sm text-charcoal/60 dark:text-slate-400 hover:text-maroon dark:hover:text-maroon transition-colors">Lacak Pesanan</router-link></li>
-                            <li><router-link to="/shipping-info" class="text-sm text-charcoal/60 dark:text-slate-400 hover:text-maroon dark:hover:text-maroon transition-colors">Info Pengiriman</router-link></li>
-                            <li><router-link to="/size-guide" class="text-sm text-charcoal/60 dark:text-slate-400 hover:text-maroon dark:hover:text-maroon transition-colors">Panduan Ukuran</router-link></li>
-                            <li><router-link to="/terms" class="text-sm text-charcoal/60 dark:text-slate-400 hover:text-maroon dark:hover:text-maroon transition-colors">Syarat & Ketentuan</router-link></li>
-                            <li><router-link to="/privacy" class="text-sm text-charcoal/60 dark:text-slate-400 hover:text-maroon dark:hover:text-maroon transition-colors">Kebijakan Privasi</router-link></li>
+                            <li><router-link to="/track-order" class="text-sm text-white/50 hover:text-white transition-colors">Lacak Pesanan</router-link></li>
+                            <li><router-link to="/shipping-info" class="text-sm text-white/50 hover:text-white transition-colors">Info Pengiriman</router-link></li>
+                            <li><router-link to="/size-guide" class="text-sm text-white/50 hover:text-white transition-colors">Panduan Ukuran</router-link></li>
+                            <li><router-link to="/terms" class="text-sm text-white/50 hover:text-white transition-colors">Syarat & Ketentuan</router-link></li>
+                            <li><router-link to="/privacy" class="text-sm text-white/50 hover:text-white transition-colors">Kebijakan Privasi</router-link></li>
                         </ul>
                     </div>
                     <div>
                         <h4 class="text-sm font-semibold text-maroon mb-4">Kontak</h4>
-                        <ul class="space-y-2 text-sm text-charcoal/60 dark:text-slate-400">
+                        <ul class="space-y-2 text-sm text-white/50">
                             <li>{{ get('contact_email', 'hello@aliesmo.com') }}</li>
                             <li>{{ get('contact_phone', '+62 851-9681-1722') }}</li>
                             <li>{{ get('contact_address', 'Ulujami, Pemalang, Jawa Tengah') }}</li>
                         </ul>
                     </div>
                 </div>
-                <div class="mt-8 pt-8 border-t border-zinc-200 dark:border-slate-700 text-center text-sm text-charcoal/40 dark:text-slate-500">
+                <div class="mt-8 pt-8 border-t border-zinc-700 text-center text-sm text-white/30">
                     &copy; {{ new Date().getFullYear() }} aliesmo. Terinspirasi dari kekayaan batik Nusantara.
                 </div>
             </div>
