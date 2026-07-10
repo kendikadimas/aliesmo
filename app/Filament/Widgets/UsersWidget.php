@@ -14,11 +14,16 @@ class UsersWidget extends BaseWidget
 
     protected int | string | array $columnSpan = 'full';
 
-    protected int | array | null $columns = 2;
+    protected int | array | null $columns = 3;
 
     protected function getStats(): array
     {
         $totalCustomers = User::where('role', UserRole::Customer)->count();
+
+        $newThisWeek = User::where('role', UserRole::Customer)
+            ->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])
+            ->count();
+
         $newThisMonth = User::where('role', UserRole::Customer)
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
@@ -28,17 +33,23 @@ class UsersWidget extends BaseWidget
 
         return [
             Stat::make('Total Customer', $totalCustomers)
-                ->description($newThisMonth . ' baru bulan ini')
+                ->description('Semua pelanggan terdaftar')
                 ->descriptionIcon('heroicon-m-user-group')
                 ->color('primary')
                 ->url(route('filament.admin.resources.users.index'))
                 ->extraAttributes(['class' => 'stat-widget-users']),
-            Stat::make('Total Admin', $totalAdmins)
-                ->description('Akun dengan akses admin')
-                ->descriptionIcon('heroicon-m-shield-check')
+            Stat::make('Baru Minggu Ini', $newThisWeek)
+                ->description('Customer baru minggu ini')
+                ->descriptionIcon('heroicon-m-user-plus')
+                ->color('success')
+                ->url(route('filament.admin.resources.users.index'))
+                ->extraAttributes(['class' => 'stat-widget-week']),
+            Stat::make('Baru Bulan Ini', $newThisMonth)
+                ->description('Customer baru bulan ini')
+                ->descriptionIcon('heroicon-m-calendar')
                 ->color('info')
                 ->url(route('filament.admin.resources.users.index'))
-                ->extraAttributes(['class' => 'stat-widget-admins']),
+                ->extraAttributes(['class' => 'stat-widget-month']),
         ];
     }
 }

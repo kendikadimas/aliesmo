@@ -35,8 +35,8 @@ class SalesReport extends Page implements HasTable
     }
 
     public ?array $data = [];
-    public $startDate;
-    public $endDate;
+    public $startDate = null;
+    public $endDate = null;
 
     public function mount(): void
     {
@@ -44,14 +44,20 @@ class SalesReport extends Page implements HasTable
         $this->endDate = now()->format('Y-m-d');
     }
 
+    public function updatedStartDate(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedEndDate(): void
+    {
+        $this->resetPage();
+    }
+
     public function table(Table $table): Table
     {
         return $table
-            ->query(
-                Order::whereIn('status', [OrderStatus::Paid, OrderStatus::Completed, OrderStatus::Processing, OrderStatus::Shipped])
-                    ->when($this->startDate, fn ($q) => $q->whereDate('created_at', '>=', $this->startDate))
-                    ->when($this->endDate, fn ($q) => $q->whereDate('created_at', '<=', $this->endDate))
-            )
+            ->query(fn () => $this->buildFilteredQuery())
             ->columns([
                 TextColumn::make('order_number'),
                 TextColumn::make('customer_name'),
@@ -70,121 +76,47 @@ class SalesReport extends Page implements HasTable
 
     public function getSummaryStats(): array
     {
-        $query = Order::whereIn('status', [OrderStatus::Paid, OrderStatus::Completed, OrderStatus::Processing, OrderStatus::Shipped])
-            ->when($this->startDate, fn ($q) => $q->whereDate('orders.created_at', '>=', $this->startDate))
-            ->when($this->endDate, fn ($q) => $q->whereDate('orders.created_at', '<=', $this->endDate));
+        $orders = $this->buildFilteredQuery()->get();
+
+        $totalRevenue = $orders->sum(fn ($o) => (float) $o->total);
+        $totalOrders = $orders->count();
+        $itemsSold = $orders->sum(fn ($o) => $o->items()->count());
 
         return [
-            'revenue'    => (clone $query)->sum('total'),
-            'orders'     => (clone $query)->count(),
-            'items_sold' => (clone $query)->join('order_items', 'orders.id', '=', 'order_items.order_id')->sum('order_items.quantity'),
+            'revenue' => $totalRevenue,
+            'orders' => $totalOrders,
+            'items_sold' => $itemsSold,
         ];
     }
 
-    public function exportXlsx(): StreamedResponse
+    public function exportXlsx()
     {
-        $start  = $this->startDate;
-        $end    = $this->endDate;
+        $orders = $this->buildFilteredQuery()->orderByDesc('created_at')->get();
 
-        \Carbon\Carbon::setLocale('id');
+        $fileName = 'laporan-penjualan-'
+            . ($this->startDate ?? 'all') . '-sd-'
+            . ($this->endDate ?? 'all') . '.xlsx';
 
-        $orders = Order::whereIn('status', [OrderStatus::Paid, OrderStatus::Completed, OrderStatus::Processing, OrderStatus::Shipped])
-            ->when($start, fn ($q) => $q->whereDate('created_at', '>=', $start))
-            ->when($end,   fn ($q) => $q->whereDate('created_at', '<=', $end))
-            ->get();
+        $tempFile = tempnam(sys_get_temp_dir(), 'sales_');
 
-        $fileName       = 'laporan-penjualan-' . now()->format('Ymd') . '.xlsx';
-        $tempFile       = tempnam(sys_get_temp_dir(), 'xlsx_');
-        $startFormatted = $start ? \Carbon\Carbon::parse($start)->translatedFormat('d F Y') : '-';
-        $endFormatted   = $end   ? \Carbon\Carbon::parse($end)->translatedFormat('d F Y')   : '-';
-        $totalRevenue   = $orders->sum('total');
-        $totalOrders    = $orders->count();
-
-        // ── Styles ──────────────────────────────────────────────
-        $borderAll = new Border(
-            new BorderPart(Border::BOTTOM, Color::rgb(180, 180, 180), BorderPart::WIDTH_THIN, BorderPart::STYLE_SOLID),
-            new BorderPart(Border::TOP,    Color::rgb(180, 180, 180), BorderPart::WIDTH_THIN, BorderPart::STYLE_SOLID),
-            new BorderPart(Border::LEFT,   Color::rgb(180, 180, 180), BorderPart::WIDTH_THIN, BorderPart::STYLE_SOLID),
-            new BorderPart(Border::RIGHT,  Color::rgb(180, 180, 180), BorderPart::WIDTH_THIN, BorderPart::STYLE_SOLID),
-        );
-
-        // Judul utama — putih tebal di atas navy
-        $styleTitle = (new Style())
-            ->setFontBold()
-            ->setFontSize(14)
-            ->setFontColor(Color::WHITE)
-            ->setBackgroundColor(Color::rgb(15, 40, 80));
-
-        // Label info (Periode, Dicetak pada)
-        $styleLabel = (new Style())
-            ->setFontBold()
-            ->setFontSize(10)
-            ->setFontColor(Color::rgb(60, 60, 60))
-            ->setBackgroundColor(Color::rgb(235, 240, 250));
-
-        // Heading section (RINGKASAN, dll)
-        $styleSection = (new Style())
-            ->setFontBold()
-            ->setFontSize(10)
-            ->setFontColor(Color::WHITE)
-            ->setBackgroundColor(Color::rgb(30, 80, 150));
-
-        // Nilai ringkasan
-        $styleValue = (new Style())
-            ->setFontSize(10)
-            ->setFontColor(Color::rgb(20, 20, 20))
-            ->setBackgroundColor(Color::rgb(245, 248, 255))
-            ->setBorder($borderAll);
-
-        // Header kolom tabel
-        $styleHeader = (new Style())
-            ->setFontBold()
-            ->setFontSize(10)
-            ->setFontColor(Color::WHITE)
-            ->setBackgroundColor(Color::rgb(20, 60, 120))
-            ->setBorder($borderAll);
-
-        // Baris data ganjil
-        $styleRowOdd = (new Style())
-            ->setFontSize(10)
-            ->setFontColor(Color::rgb(30, 30, 30))
-            ->setBackgroundColor(Color::WHITE)
-            ->setBorder($borderAll);
-
-        // Baris data genap
-        $styleRowEven = (new Style())
-            ->setFontSize(10)
-            ->setFontColor(Color::rgb(30, 30, 30))
-            ->setBackgroundColor(Color::rgb(240, 245, 255))
-            ->setBorder($borderAll);
-
-        // Baris kosong
-        $styleEmpty = new Style();
-
-        // ── Writer ──────────────────────────────────────────────
         $writer = new Writer();
         $writer->openToFile($tempFile);
 
-        // Judul
-        $writer->addRow(Row::fromValues(['LAPORAN PENJUALAN — ALIESMO', '', '', '', ''], $styleTitle));
+        $headerStyle = (new Style())
+            ->setFontBold()
+            ->setFontColor(Color::WHITE)
+            ->setBackgroundColor(Color::rgb(128, 0, 0))
+            ->setBorder(new Border(
+                new BorderPart(BorderPart::BOTTOM, Color::BLACK, 1, Border::STYLE_THIN),
+            ));
 
-        // Info periode
-        $writer->addRow(Row::fromValues(['Periode', $startFormatted . ' s/d ' . $endFormatted, '', '', ''], $styleLabel));
-        $writer->addRow(Row::fromValues(['Dicetak pada', now()->translatedFormat('d F Y, H:i'), '', '', ''], $styleLabel));
-        $writer->addRow(Row::fromValues(['', '', '', '', ''], $styleEmpty));
+        $writer->addRow(Row::fromValues(
+            ['No. Pesanan', 'Pelanggan', 'Total (Rp)', 'Status', 'Tanggal'],
+            $headerStyle
+        ));
 
-        // Ringkasan
-        $writer->addRow(Row::fromValues(['RINGKASAN', '', '', '', ''], $styleSection));
-        $writer->addRow(Row::fromValues(['Total Pesanan', $totalOrders, '', '', ''], $styleValue));
-        $writer->addRow(Row::fromValues(['Total Pendapatan', 'Rp ' . number_format($totalRevenue, 0, ',', '.'), '', '', ''], $styleValue));
-        $writer->addRow(Row::fromValues(['', '', '', '', ''], $styleEmpty));
-
-        // Header tabel
-        $writer->addRow(Row::fromValues(['No. Pesanan', 'Nama Pelanggan', 'Total (Rp)', 'Status', 'Tanggal'], $styleHeader));
-
-        // Data
-        foreach ($orders as $i => $order) {
-            $style = $i % 2 === 0 ? $styleRowOdd : $styleRowEven;
+        $style = new Style();
+        foreach ($orders as $order) {
             $writer->addRow(Row::fromValues([
                 $order->order_number,
                 $order->customer_name,
@@ -204,11 +136,15 @@ class SalesReport extends Page implements HasTable
         ]);
     }
 
-    private function getFilteredOrders()
+    private function buildFilteredQuery()
     {
-        return Order::whereIn('status', [OrderStatus::Paid, OrderStatus::Completed])
+        return Order::whereIn('status', [
+            OrderStatus::Paid,
+            OrderStatus::Completed,
+            OrderStatus::Processing,
+            OrderStatus::Shipped,
+        ])
             ->when($this->startDate, fn ($q) => $q->whereDate('created_at', '>=', $this->startDate))
-            ->when($this->endDate, fn ($q) => $q->whereDate('created_at', '<=', $this->endDate))
-            ->get();
+            ->when($this->endDate, fn ($q) => $q->whereDate('created_at', '<=', $this->endDate));
     }
 }

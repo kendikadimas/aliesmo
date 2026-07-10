@@ -20,6 +20,12 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use OpenSpout\Common\Entity\Row;
+use OpenSpout\Common\Entity\Style\Border;
+use OpenSpout\Common\Entity\Style\BorderPart;
+use OpenSpout\Common\Entity\Style\Color;
+use OpenSpout\Common\Entity\Style\Style;
+use OpenSpout\Writer\XLSX\Writer;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class OrderResource extends Resource
@@ -210,7 +216,7 @@ class OrderResource extends Resource
             ])
             ->toolbarActions([
                 Action::make('exportSelected')
-                    ->label('Export CSV')
+                    ->label('Export Excel')
                     ->icon('heroicon-o-document-arrow-down')
                     ->action(function ($livewire) {
                         $records = $livewire->getTableRecords();
@@ -222,23 +228,44 @@ class OrderResource extends Resource
                             $records = $records->get();
                         }
 
-                        return response()->streamDownload(function () use ($records) {
-                            $handle = fopen('php://output', 'w');
-                            fputcsv($handle, ['Order Number', 'Customer', 'Total', 'Status', 'Payment Method', 'Date']);
+                        $tempFile = tempnam(sys_get_temp_dir(), 'orders_');
 
-                            foreach ($records as $order) {
-                                fputcsv($handle, [
-                                    $order->order_number,
-                                    $order->customer_name,
-                                    $order->total,
-                                    $order->status->value,
-                                    $order->payment_method,
-                                    $order->created_at->toDateTimeString(),
-                                ]);
-                            }
+                        $writer = new Writer();
+                        $writer->openToFile($tempFile);
 
-                            fclose($handle);
-                        }, 'orders-export.csv');
+                        $headerStyle = (new Style())
+                            ->setFontBold()
+                            ->setFontColor(Color::WHITE)
+                            ->setBackgroundColor(Color::rgb(128, 0, 0))
+                            ->setBorder(new Border(
+                                new BorderPart(BorderPart::BOTTOM, Color::BLACK, 1, Border::STYLE_THIN),
+                            ));
+
+                        $writer->addRow(Row::fromValues(
+                            ['No. Pesanan', 'Pelanggan', 'Total', 'Status', 'Metode Pembayaran', 'Tanggal'],
+                            $headerStyle
+                        ));
+
+                        $style = new Style();
+                        foreach ($records as $order) {
+                            $writer->addRow(Row::fromValues([
+                                $order->order_number,
+                                $order->customer_name,
+                                (float) $order->total,
+                                $order->status->value,
+                                $order->payment_method,
+                                $order->created_at->translatedFormat('d F Y H:i'),
+                            ], $style));
+                        }
+
+                        $writer->close();
+
+                        return response()->streamDownload(function () use ($tempFile) {
+                            readfile($tempFile);
+                            @unlink($tempFile);
+                        }, 'pesanan-export.xlsx', [
+                            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        ]);
                     }),
             ]);
     }
