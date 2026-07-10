@@ -67,7 +67,7 @@
                             v-model="searchQuery"
                             type="text"
                             placeholder="Cari kemeja, batik, atau koleksi..."
-                            class="w-full pl-5 pr-14 py-2.5 rounded-full border border-zinc-200 dark:border-[#303032] focus:outline-none focus:border-maroon focus:ring-2 focus:ring-maroon/10 text-sm transition-all bg-zinc-50/20 dark:bg-[#1c1c1e] dark:text-[#f0eeeb] dark:placeholder-[#8a8a8e]"
+                            class="w-full pl-5 pr-14 py-2.5 rounded-full border border-zinc-200 dark:border-[#303032] focus:outline-none focus:border-maroon focus:ring-2 focus:ring-maroon/10 text-sm transition-all bg-zinc-50/20 dark:bg-[#1c1c1e] dark:text-[#f0eeeb] placeholder-zinc-400 dark:placeholder-[#8a8a8e]"
                         />
                         <button
                             type="submit"
@@ -152,7 +152,7 @@
                             v-model="searchQuery"
                             type="text"
                             placeholder="Cari kemeja, batik, atau koleksi..."
-                            class="w-full pl-5 pr-12 py-2 rounded-full border border-zinc-200 dark:border-[#303032] focus:outline-none focus:border-maroon focus:ring-2 focus:ring-maroon/10 text-xs transition-all bg-zinc-50/20 dark:bg-[#1c1c1e] dark:text-[#f0eeeb] dark:placeholder-[#8a8a8e]"
+                            class="w-full pl-5 pr-12 py-2 rounded-full border border-zinc-200 dark:border-[#303032] focus:outline-none focus:border-maroon focus:ring-2 focus:ring-maroon/10 text-xs transition-all bg-zinc-50/20 dark:bg-[#1c1c1e] dark:text-[#f0eeeb] placeholder-zinc-400 dark:placeholder-[#8a8a8e]"
                         />
                         <button
                             type="submit"
@@ -280,7 +280,7 @@
                     </div>
                 </div>
                 <div class="mt-8 pt-8 border-t border-zinc-700 text-center text-sm text-white/30">
-                    &copy; {{ new Date().getFullYear() }} aliesmo. Terinspirasi dari kekayaan batik Nusantara.
+                    &copy; {{ new Date().getFullYear() }} aliesmo. Developed by <a href="https://kalanalabs.com" target="_blank" rel="noopener" class="hover:text-white transition-colors">Kalana Labs</a>.
                 </div>
             </div>
         </footer>

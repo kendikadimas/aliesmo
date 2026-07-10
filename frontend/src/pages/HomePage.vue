@@ -134,22 +134,27 @@
         </section>
 
         <!-- Section Video -->
-        <section v-if="videos.length" class="py-12 lg:py-16 bg-zinc-900">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-8">
-                    <h2 class="text-2xl lg:text-3xl font-bold text-white tracking-tight">{{ get('homepage_video_title', 'Video') }}</h2>
-                    <p v-if="get('homepage_video_subtitle')" class="mt-2 text-sm text-white/50">{{ get('homepage_video_subtitle') }}</p>
+        <section v-if="videos.length" class="py-16 lg:py-24 bg-charcoal relative overflow-hidden">
+            <div class="absolute inset-0 opacity-5">
+                <div class="absolute top-0 left-0 w-96 h-96 bg-maroon rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+                <div class="absolute bottom-0 right-0 w-96 h-96 bg-coklat rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+            </div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl lg:text-4xl font-bold text-white mb-3">{{ get('homepage_video_title', 'Lihat Koleksi Kami Beraksi') }}</h2>
+                    <p v-if="get('homepage_video_subtitle')" class="text-white/60 max-w-2xl mx-auto">{{ get('homepage_video_subtitle') }}</p>
+                    <p v-else class="text-white/60 max-w-2xl mx-auto">Dari detail jahitan premium hingga styling inspiratif — saksikan langsung kualitas yang bikin kamu tampil beda.</p>
                 </div>
 
                 <!-- 1 video: full width. 2 video: 2 kolom. 3+: 3 kolom -->
                 <div :class="[
-                    'grid gap-5',
+                    'grid gap-6',
                     videos.length === 1 ? 'grid-cols-1 max-w-3xl mx-auto' :
                     videos.length === 2 ? 'grid-cols-1 sm:grid-cols-2' :
                     'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
                 ]">
                     <div v-for="video in videos" :key="video.id" class="group">
-                        <div class="aspect-video rounded-2xl overflow-hidden shadow-xl bg-zinc-800">
+                        <div class="aspect-video rounded-2xl overflow-hidden shadow-2xl bg-black ring-1 ring-white/10 group-hover:ring-maroon/50 transition-all">
                             <iframe
                                 :src="getYoutubeEmbedUrl(video.youtube_url)"
                                 class="w-full h-full"
@@ -158,9 +163,9 @@
                                 allowfullscreen
                             ></iframe>
                         </div>
-                        <div v-if="video.title || video.description" class="mt-3 px-1">
-                            <p v-if="video.title" class="text-sm font-semibold text-white">{{ video.title }}</p>
-                            <p v-if="video.description" class="text-xs text-white/50 mt-0.5 line-clamp-2">{{ video.description }}</p>
+                        <div v-if="video.title || video.description" class="mt-4 px-1">
+                            <p v-if="video.title" class="text-base font-semibold text-white">{{ video.title }}</p>
+                            <p v-if="video.description" class="text-sm text-white/50 mt-1 line-clamp-2">{{ video.description }}</p>
                         </div>
                     </div>
                 </div>
