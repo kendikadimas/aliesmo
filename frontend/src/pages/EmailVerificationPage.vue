@@ -2,9 +2,7 @@
     <div class="min-h-[80vh] flex items-center justify-center px-4 sm:px-6 py-12">
         <div class="w-full max-w-sm text-center">
             <div class="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 flex items-center justify-center mx-auto">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
-                </svg>
+                <EnvelopeIcon class="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
 
             <h1 class="mt-6 text-2xl font-bold text-charcoal dark:text-slate-100">Verifikasi Emailmu</h1>
@@ -37,6 +35,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { EnvelopeIcon } from '@heroicons/vue/24/outline'
 import api from '../api'
 
 const loading = ref(false)

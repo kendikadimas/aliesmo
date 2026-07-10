@@ -2,9 +2,17 @@
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <h1 class="text-3xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Checkout</h1>
 
-        <div v-if="submitting" class="py-24 text-center">
-            <div class="inline-block w-10 h-10 border-4 border-maroon-100 border-t-maroon rounded-full animate-spin"></div>
-            <p class="mt-4 text-base text-charcoal/50 dark:text-slate-400">Bentar ya, kami lagi proses pesananmu...</p>
+        <div v-if="submitting" class="mt-8 lg:mt-10 grid lg:grid-cols-5 gap-8 lg:gap-12">
+            <!-- left col skeleton -->
+            <div class="lg:col-span-3 space-y-6">
+                <SkeletonLoader :loading="true" :radius="16" height="220px" width="100%" />
+                <SkeletonLoader :loading="true" :radius="16" height="180px" width="100%" />
+                <SkeletonLoader :loading="true" :radius="16" height="140px" width="100%" />
+            </div>
+            <!-- right col skeleton -->
+            <div class="lg:col-span-2">
+                <SkeletonLoader :loading="true" :radius="16" height="320px" width="100%" />
+            </div>
         </div>
 
         <form v-else @submit.prevent="submitOrder" class="mt-8 lg:mt-10 grid lg:grid-cols-5 gap-8 lg:gap-12">
@@ -35,10 +43,6 @@
                 <div class="bg-white dark:bg-slate-800 p-6 lg:p-8 rounded-2xl border-2 border-maroon-50 dark:border-slate-700">
                     <h2 class="text-sm font-bold text-charcoal dark:text-slate-100 tracking-wide mb-6">Alamat & Pengiriman</h2>
                     <div class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-charcoal/60 dark:text-slate-400 mb-1.5">Alamat Lengkap</label>
-                            <textarea v-model="form.shipping_address" required placeholder="Contoh: Jl. Merdeka No. 123, RT 01/RW 02, Kelurahan, Kecamatan" rows="2" class="w-full border-2 border-maroon-100 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-slate-100 placeholder:text-charcoal/30 dark:placeholder:text-slate-500 bg-white dark:bg-slate-700 focus:border-maroon focus:outline-none transition-colors resize-none"></textarea>
-                        </div>
 
                         <!-- Lokasi Pengiriman (Autocomplete Direct Search) -->
                         <div class="relative location-search-container">
@@ -99,6 +103,13 @@
                             </div>
                         </div>
 
+                        <!-- Alamat Lengkap (patokan rumah) -->
+                        <div>
+                            <label class="block text-xs font-semibold text-charcoal/60 dark:text-slate-400 mb-1.5">Alamat Lengkap</label>
+                            <textarea v-model="form.shipping_address" required placeholder="Contoh: Jl. Merdeka No. 123, RT 01/RW 02, patokan dekat masjid Al-Ikhlas" rows="2" class="w-full border-2 border-maroon-100 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-slate-100 placeholder:text-charcoal/30 dark:placeholder:text-slate-500 bg-white dark:bg-slate-700 focus:border-maroon focus:outline-none transition-colors resize-none"></textarea>
+                            <p class="text-[10px] text-charcoal/40 dark:text-slate-500 mt-1">Nama jalan, nomor rumah, RT/RW, atau patokan terdekat.</p>
+                        </div>
+
                         <!-- Layanan Pengiriman - tampil otomatis setelah lokasi dipilih -->
                         <div v-if="selectedCity">
                             <div v-if="loadingShipping" class="flex items-center gap-2 text-xs text-charcoal/50 dark:text-slate-400 py-3">
@@ -151,15 +162,26 @@
             <!-- Ringkasan Pesanan -->
             <div class="lg:col-span-2">
                 <div class="bg-white dark:bg-slate-800 p-6 lg:p-8 rounded-2xl border-2 border-maroon-50 dark:border-slate-700 lg:sticky lg:top-28">
-                    <h2 class="text-sm font-bold text-charcoal dark:text-slate-100 tracking-wide mb-6">Ringkasan Pesanan</h2>
+                    <h2 class="text-sm font-bold text-charcoal dark:text-slate-100 tracking-wide mb-4">Ringkasan Pesanan</h2>
                     <div class="space-y-3">
-                        <div v-for="item in items" :key="item.product_id" class="flex justify-between text-sm">
-                            <span class="text-charcoal/70 dark:text-slate-400 truncate mr-4">{{ item.name }} <span class="text-charcoal/40 dark:text-slate-500">×{{ item.quantity }}</span></span>
-                            <span class="font-bold text-charcoal dark:text-slate-100 shrink-0">Rp{{ formatPrice(item.price * item.quantity) }}</span>
+                        <div v-for="item in checkoutItems" :key="item.product_id" class="flex items-center gap-3">
+                            <!-- Thumbnail -->
+                            <div class="w-12 h-14 shrink-0 rounded-lg overflow-hidden bg-maroon-50 dark:bg-slate-700">
+                                <img v-if="item.thumbnail" :src="item.thumbnail" :alt="item.name" class="w-full h-full object-cover" />
+                                <div v-else class="w-full h-full flex items-center justify-center text-maroon-300 text-xs font-bold">A</div>
+                            </div>
+                            <!-- Info -->
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs font-semibold text-charcoal dark:text-slate-200 truncate">{{ item.name }}</p>
+                                <p class="text-[10px] text-charcoal/40 dark:text-slate-500 mt-0.5">Rp{{ formatPrice(item.price) }} × {{ item.quantity }}</p>
+                            </div>
+                            <!-- Subtotal -->
+                            <p class="text-xs font-bold text-charcoal dark:text-slate-100 shrink-0">Rp{{ formatPrice(item.price * item.quantity) }}</p>
                         </div>
                     </div>
 
-                    <!-- Kupon -->
+                    <!-- Kupon — diarsipkan sementara -->
+                    <!--
                     <div class="mt-4 pt-4 border-t-2 border-maroon-100 dark:border-slate-700">
                         <label class="block text-xs font-semibold text-charcoal/60 dark:text-slate-400 mb-1.5">Kode Kupon</label>
                         <div class="flex gap-2">
@@ -193,16 +215,20 @@
                             Kupon <span class="font-bold">{{ appliedCoupon.code }}</span> berhasil dipakai!
                         </p>
                     </div>
+                    -->
 
                     <div class="mt-4 pt-4 border-t-2 border-maroon-100 dark:border-slate-700 space-y-2">
                         <div class="flex justify-between text-sm text-charcoal/60 dark:text-slate-400">
                             <span>Subtotal</span>
-                            <span class="font-medium">Rp{{ formatPrice(total()) }}</span>
+                            <span class="font-medium">Rp{{ formatPrice(checkoutItems.reduce((s, i) => s + i.price * i.quantity, 0)) }}</span>
                         </div>
+                        <!-- Diskon kupon — diarsipkan sementara -->
+                        <!--
                         <div v-if="appliedCoupon" class="flex justify-between text-sm text-green-600 dark:text-green-400">
                             <span>Diskon ({{ appliedCoupon.code }})</span>
                             <span class="font-medium">-Rp{{ formatPrice(appliedCoupon.discount) }}</span>
                         </div>
+                        -->
                         <div class="flex justify-between text-sm text-charcoal/60 dark:text-slate-400">
                             <span>Ongkir</span>
                             <span v-if="shippingCost === 0 && !selectedShipping" class="text-charcoal/40 dark:text-slate-500 italic text-xs">Pilih kurir dulu</span>
@@ -217,6 +243,71 @@
 
                     <div v-if="error" class="mt-4 p-3 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm">{{ error }}</div>
 
+                    <!-- Metode Pembayaran -->
+                    <div class="mt-4 pt-4 border-t-2 border-maroon-100 dark:border-slate-700">
+                        <h3 class="text-xs font-bold text-charcoal/60 dark:text-slate-400 tracking-wide mb-3">Metode Pembayaran</h3>
+                        <div class="space-y-2">
+                            <label v-for="pm in paymentMethods" :key="pm.value"
+                                class="flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all"
+                                :class="paymentMethod === pm.value
+                                    ? 'border-maroon bg-maroon-50/30 dark:bg-maroon/10'
+                                    : 'border-maroon-100 dark:border-slate-600 hover:border-maroon-200'">
+                                <input type="radio" :value="pm.value" v-model="paymentMethod" class="accent-maroon">
+                                <div class="flex items-center gap-2 flex-1 min-w-0">
+                                    <component :is="pm.icon" class="w-[18px] h-[18px] shrink-0 text-charcoal dark:text-slate-300" />
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-bold text-charcoal dark:text-slate-100">{{ pm.label }}</p>
+                                        <p class="text-[10px] text-charcoal/50 dark:text-slate-500">{{ pm.desc }}</p>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Info Pembayaran — muncul setelah dipilih -->
+                        <Transition name="dropdown">
+                            <div v-if="paymentMethod" class="mt-3">
+
+                                <!-- Bank Transfer -->
+                                <div v-if="paymentMethod === 'bank_transfer'" class="bg-maroon-50/40 dark:bg-slate-700/50 rounded-xl p-4 space-y-1.5">
+                                    <div class="grid grid-cols-3 gap-2 text-xs">
+                                        <div>
+                                            <p class="text-charcoal/40 dark:text-slate-500">Bank</p>
+                                            <p class="font-bold text-charcoal dark:text-slate-200">{{ get('payment_bank_name', 'BCA') }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-charcoal/40 dark:text-slate-500">No. Rekening</p>
+                                            <p class="font-bold text-charcoal dark:text-slate-200 font-mono tracking-wider">{{ get('payment_bank_account_no', '-') }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-charcoal/40 dark:text-slate-500">Atas Nama</p>
+                                            <p class="font-bold text-charcoal dark:text-slate-200">{{ get('payment_bank_account_name', '-') }}</p>
+                                        </div>
+                                    </div>
+                                    <p class="text-[10px] text-charcoal/40 dark:text-slate-500 pt-1 border-t border-maroon-100 dark:border-slate-600">Kirim bukti transfer via WhatsApp setelah pembayaran.</p>
+                                </div>
+
+                                <!-- QRIS -->
+                                <div v-else-if="paymentMethod === 'qris'" class="bg-maroon-50/40 dark:bg-slate-700/50 rounded-xl p-4 text-center">
+                                    <p class="text-xs font-bold text-charcoal dark:text-slate-200 mb-3">Scan QRIS untuk Pembayaran</p>
+                                    <div v-if="get('payment_qris_image')" class="flex justify-center mb-3">
+                                        <img :src="get('payment_qris_image')" alt="QRIS" class="w-40 h-40 object-contain rounded-xl border-2 border-maroon-100 dark:border-slate-600 bg-white p-1" />
+                                    </div>
+                                    <div v-else class="w-40 h-40 mx-auto rounded-xl border-2 border-dashed border-maroon-200 dark:border-slate-600 flex items-center justify-center mb-3">
+                                        <DevicePhoneMobileIcon class="w-10 h-10 text-maroon-200 dark:text-slate-600" />
+                                    </div>
+                                    <p v-if="get('payment_qris_name')" class="text-xs font-semibold text-charcoal dark:text-slate-200">{{ get('payment_qris_name') }}</p>
+                                    <p class="text-[10px] text-charcoal/40 dark:text-slate-500 mt-1">Scan dengan e-wallet atau m-banking manapun.</p>
+                                </div>
+
+                                <!-- COD -->
+                                <div v-else-if="paymentMethod === 'cod'" class="bg-maroon-50/40 dark:bg-slate-700/50 rounded-xl p-4">
+                                    <p class="text-xs text-charcoal/60 dark:text-slate-400 leading-relaxed">Bayar langsung saat pesanan tiba di tanganmu. Kurir akan menagih saat pengiriman. Pastikan kamu ada di lokasi saat pengiriman tiba.</p>
+                                </div>
+
+                            </div>
+                        </Transition>
+                    </div>
+
                     <button type="submit" :disabled="!selectedShipping && selectedCity !== ''" class="w-full mt-6 px-8 py-3.5 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25 disabled:opacity-50 disabled:cursor-not-allowed">
                         Pesan Sekarang
                     </button>
@@ -229,16 +320,31 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed, onUnmounted, nextTick } from 'vue'
+import { reactive, ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { BuildingLibraryIcon, DevicePhoneMobileIcon, CreditCardIcon } from '@heroicons/vue/24/outline'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '../cart'
 import { formatPrice } from '../mock-data'
 import api from '../api'
+import { useSettings } from '../useSettings'
 
 const router = useRouter()
-const { items, total, clear } = useCartStore()
+const { items, clear } = useCartStore()
+const { fetchSettings, get } = useSettings()
 const submitting = ref(false)
 const error = ref('')
+
+// Filter hanya item yang dipilih dari CartPage
+const selectedIds = new Set(history.state?.selectedIds || items.value.map(i => i.product_id))
+const checkoutItems = computed(() => items.value.filter(i => selectedIds.has(i.product_id)))
+
+// Payment method
+const paymentMethod = ref('bank_transfer')
+const paymentMethods = [
+    { value: 'bank_transfer', label: 'Transfer Bank', desc: 'BCA, BNI, Mandiri, dll', icon: BuildingLibraryIcon },
+    { value: 'qris', label: 'QRIS', desc: 'Scan & Pay dari e-wallet manapun', icon: DevicePhoneMobileIcon },
+    { value: 'cod', label: 'COD (Bayar di Tempat)', desc: 'Bayar langsung saat barang tiba', icon: CreditCardIcon },
+]
 
 // Form data
 const form = reactive({
@@ -273,41 +379,40 @@ const shippingCost = computed(() => {
     return selectedShipping.value.cost || 0
 })
 
-// Coupon state
-const couponCode = ref('')
-const appliedCoupon = ref(null)
-const couponLoading = ref(false)
-const couponError = ref('')
+// Coupon state — diarsipkan sementara
+// const couponCode = ref('')
+// const appliedCoupon = ref(null)
+// const couponLoading = ref(false)
+// const couponError = ref('')
 
 const grandTotal = computed(() => {
-    const subtotal = total()
-    const discount = appliedCoupon.value?.discount || 0
-    return Math.max(0, subtotal - discount + shippingCost.value)
+    const subtotal = checkoutItems.value.reduce((sum, i) => sum + i.price * i.quantity, 0)
+    return Math.max(0, subtotal + shippingCost.value)
 })
 
-async function applyCoupon() {
-    if (!couponCode.value.trim()) return
-    couponLoading.value = true
-    couponError.value = ''
-    try {
-        const res = await api.post('/coupons/validate', {
-            code: couponCode.value.toUpperCase(),
-            order_total: total(),
-        })
-        appliedCoupon.value = res.data.coupon
-    } catch (e) {
-        couponError.value = e.response?.data?.message || 'Kode kupon tidak valid.'
-        appliedCoupon.value = null
-    } finally {
-        couponLoading.value = false
-    }
-}
+// async function applyCoupon() {
+//     if (!couponCode.value.trim()) return
+//     couponLoading.value = true
+//     couponError.value = ''
+//     try {
+//         const res = await api.post('/coupons/validate', {
+//             code: couponCode.value.toUpperCase(),
+//             order_total: total(),
+//         })
+//         appliedCoupon.value = res.data.coupon
+//     } catch (e) {
+//         couponError.value = e.response?.data?.message || 'Kode kupon tidak valid.'
+//         appliedCoupon.value = null
+//     } finally {
+//         couponLoading.value = false
+//     }
+// }
 
-function removeCoupon() {
-    couponCode.value = ''
-    appliedCoupon.value = null
-    couponError.value = ''
-}
+// function removeCoupon() {
+//     couponCode.value = ''
+//     appliedCoupon.value = null
+//     couponError.value = ''
+// }
 
 function onSearchInput() {
     selectedDestination.value = null
@@ -395,6 +500,10 @@ if (typeof window !== 'undefined') {
     })
 }
 
+onMounted(() => {
+    fetchSettings()
+})
+
 async function fetchShippingCost() {
     if (!selectedCity.value) return
     loadingShipping.value = true
@@ -405,7 +514,7 @@ async function fetchShippingCost() {
         const dest = selectedDestination.value
         const res = await api.post('/shipping/cost', {
             destination: selectedCity.value,
-            weight: items.value.reduce((sum, i) => sum + (i.weight || 300) * i.quantity, 0) || 500,
+            weight: checkoutItems.value.reduce((sum, i) => sum + (i.weight || 300) * i.quantity, 0) || 500,
             area_id:     dest?.area_id     || undefined,
             postal_code: dest?.postal_code || undefined,
         })
@@ -430,7 +539,7 @@ async function fetchShippingCost() {
 }
 
 async function submitOrder() {
-    if (!items.value.length) {
+    if (!checkoutItems.value.length) {
         error.value = 'Wah, keranjangmu kosong!'
         return
     }
@@ -456,8 +565,9 @@ async function submitOrder() {
             shipping_cache_key: shippingCacheKey.value,
             shipping_courier: selectedShipping.value.courier,
             shipping_service: selectedShipping.value.service,
-            coupon_code: appliedCoupon.value?.code || null,
-            items: items.value.map(i => ({
+            payment_method: paymentMethod.value,
+            coupon_code: null, // diarsipkan sementara — appliedCoupon.value?.code || null
+            items: checkoutItems.value.map(i => ({
                 product_id: i.product_id,
                 quantity: i.quantity,
             })),

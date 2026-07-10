@@ -86,37 +86,27 @@
                         <div class="hidden md:block relative">
                             <!-- Guest -->
                             <router-link v-if="!isLoggedIn" to="/login" class="p-2 flex items-center justify-center text-charcoal/70 hover:text-maroon transition-colors" aria-label="Masuk">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                                </svg>
+                                <UserIcon class="w-[22px] h-[22px]" />
                             </router-link>
                             <!-- Logged in: icon + dropdown -->
                             <div v-else class="relative" data-user-menu>
-                                <button @click="userMenuOpen = !userMenuOpen" class="p-2 flex items-center justify-center text-charcoal/70 hover:text-maroon transition-colors rounded-full" :class="userMenuOpen ? 'text-maroon' : ''" aria-label="Akun saya">
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                                    </svg>
+                                <button @click="userMenuOpen = !userMenuOpen" class="flex items-center justify-center w-8 h-8 rounded-full bg-maroon hover:bg-maroon/85 transition-colors" :class="userMenuOpen ? 'ring-2 ring-maroon/40 ring-offset-1' : ''" aria-label="Akun saya">
+                                    <UserIcon class="w-[18px] h-[18px] text-white" />
                                 </button>
                                 <!-- Dropdown -->
                                 <Transition name="dropdown">
                                     <div v-if="userMenuOpen" class="absolute right-0 top-full mt-2 w-44 bg-white dark:bg-slate-800 border border-zinc-100 dark:border-slate-700 rounded-xl shadow-xl z-50 overflow-hidden py-1">
-                                        <router-link @click="userMenuOpen = false" to="/orders" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-charcoal/80 dark:text-slate-300 hover:bg-zinc-50 dark:hover:bg-slate-700 hover:text-maroon transition-colors">
-                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>
-                                            </svg>
-                                            Pesanan Saya
-                                        </router-link>
                                         <router-link @click="userMenuOpen = false" to="/profile" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-charcoal/80 dark:text-slate-300 hover:bg-zinc-50 dark:hover:bg-slate-700 hover:text-maroon transition-colors">
-                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                                            </svg>
-                                            Profil
+                                            <UserIconOutline class="w-[15px] h-[15px] shrink-0" />
+                                            Akun Saya
+                                        </router-link>
+                                        <router-link @click="userMenuOpen = false" to="/profile?tab=pesanan" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-charcoal/80 dark:text-slate-300 hover:bg-zinc-50 dark:hover:bg-slate-700 hover:text-maroon transition-colors">
+                                            <ShoppingBagIcon class="w-[15px] h-[15px] shrink-0" />
+                                            Pesanan Saya
                                         </router-link>
                                         <div class="h-px bg-zinc-100 dark:bg-slate-700 mx-3 my-1"></div>
                                         <button @click="userMenuOpen = false; handleLogout()" class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-charcoal/80 dark:text-slate-300 hover:bg-zinc-50 dark:hover:bg-slate-700 hover:text-maroon transition-colors cursor-pointer">
-                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-                                            </svg>
+                                            <ArrowRightOnRectangleIcon class="w-[15px] h-[15px] shrink-0" />
                                             Keluar
                                         </button>
                                     </div>
@@ -207,8 +197,8 @@
             <div v-if="mobileOpen" class="lg:hidden border-t border-zinc-200/50 dark:border-slate-700/50 bg-white dark:bg-slate-900 shadow-xl fixed top-[110px] left-0 right-0 z-40 max-h-[calc(100vh-110px)] overflow-y-auto">
                 <nav class="px-5 py-6 space-y-5">
                     <router-link @click="mobileOpen = false" to="/" class="block text-sm font-bold text-charcoal/80 dark:text-slate-300 hover:text-maroon uppercase tracking-wide">Semua Koleksi</router-link>
-                    <router-link v-if="isLoggedIn" @click="mobileOpen = false" to="/orders" class="block text-sm font-bold text-charcoal/80 dark:text-slate-300 hover:text-maroon uppercase tracking-wide">Pesanan Saya</router-link>
-                    <router-link v-if="isLoggedIn" @click="mobileOpen = false" to="/profile" class="block text-sm font-bold text-charcoal/80 dark:text-slate-300 hover:text-maroon uppercase tracking-wide">Profil</router-link>
+                    <router-link v-if="isLoggedIn" @click="mobileOpen = false" to="/profile" class="block text-sm font-bold text-charcoal/80 dark:text-slate-300 hover:text-maroon uppercase tracking-wide">Akun Saya</router-link>
+                    <router-link v-if="isLoggedIn" @click="mobileOpen = false" to="/profile?tab=pesanan" class="block text-sm font-bold text-charcoal/80 dark:text-slate-300 hover:text-maroon uppercase tracking-wide">Pesanan Saya</router-link>
                     
                     <div class="h-[1px] bg-zinc-100 dark:bg-slate-700"></div>
                     
@@ -344,6 +334,8 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useCartStore } from './cart'
 import api, { clearToken } from './api'
+import { UserIcon } from '@heroicons/vue/24/solid'
+import { UserIcon as UserIconOutline, ShoppingBagIcon, ArrowRightOnRectangleIcon } from '@heroicons/vue/24/outline'
 import { useSettings } from './useSettings'
 
 const router = useRouter()

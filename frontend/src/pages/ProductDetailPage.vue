@@ -1,8 +1,32 @@
 <template>
     <div class="min-h-screen bg-white dark:bg-slate-900">
-        <div v-if="loading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 text-center">
-            <div class="inline-block w-10 h-10 border-4 border-maroon-100 border-t-maroon rounded-full animate-spin"></div>
-            <p class="mt-4 text-base text-charcoal/50 dark:text-slate-400">Memuat produk...</p>
+        <div v-if="loading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 lg:py-8">
+            <!-- back link placeholder -->
+            <SkeletonLoader :loading="true" :radius="99" height="14px" width="80px" class="mb-4" />
+            <div class="lg:flex lg:items-start lg:gap-8 xl:gap-12">
+                <!-- image column -->
+                <div class="w-full max-w-md mx-auto lg:mx-0 shrink-0">
+                    <SkeletonLoader :loading="true" :radius="12" height="100%" class="aspect-[3/4] max-h-[420px] lg:max-h-[520px] w-full" />
+                    <div class="flex gap-2 mt-3">
+                        <SkeletonLoader v-for="t in 4" :key="t" :loading="true" :radius="8" height="64px" width="64px" />
+                    </div>
+                </div>
+                <!-- info column -->
+                <div class="mt-6 lg:mt-0 flex-1 space-y-4">
+                    <SkeletonLoader :loading="true" :radius="99" height="12px" width="80px" />
+                    <SkeletonLoader :loading="true" :radius="8" height="32px" width="75%" />
+                    <SkeletonLoader :loading="true" :radius="99" height="24px" width="120px" />
+                    <div class="space-y-2 pt-2">
+                        <SkeletonLoader :loading="true" :radius="99" height="10px" width="100%" />
+                        <SkeletonLoader :loading="true" :radius="99" height="10px" width="90%" />
+                        <SkeletonLoader :loading="true" :radius="99" height="10px" width="80%" />
+                    </div>
+                    <div class="flex gap-2 pt-2">
+                        <SkeletonLoader v-for="s in 5" :key="s" :loading="true" :radius="8" height="40px" width="48px" />
+                    </div>
+                    <SkeletonLoader :loading="true" :radius="12" height="48px" width="100%" class="mt-4" />
+                </div>
+            </div>
         </div>
 
         <div v-else-if="notFound || !product" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 text-center">
@@ -13,7 +37,7 @@
         <div v-else>
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 lg:py-8">
                 <router-link to="/#shop" class="inline-flex items-center gap-1.5 text-xs font-semibold text-charcoal/40 dark:text-slate-500 hover:text-maroon transition-colors mb-4">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    <ArrowLeftIcon class="w-3 h-3" />
                     Kembali
                 </router-link>
 
@@ -108,9 +132,7 @@
                                 {{ product.stock === 0 ? 'Stok Habis' : 'Masukin ke Keranjang' }}
                             </button>
                             <button @click="toggleWishlist(product.id)" class="w-12 h-11 flex items-center justify-center rounded-xl border-2 transition-all active:scale-95" :class="isWishlisted(product.id) ? 'bg-ink-05 dark:bg-ink-80/20 border-ink dark:border-ink-60 text-ink' : 'border-ink-10 dark:border-slate-600 text-charcoal/50 dark:text-slate-400 hover:border-ink hover:text-ink'">
-                                <svg width="18" height="18" viewBox="0 0 24 24" :fill="isWishlisted(product.id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                                </svg>
+                                <HeartIcon class="w-[18px] h-[18px]" :class="isWishlisted(product.id) ? 'fill-current' : ''" />
                             </button>
                         </div>
 
@@ -124,15 +146,15 @@
 
                         <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-charcoal/50 dark:text-slate-400">
                             <span class="flex items-center gap-1.5">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M7 7V5a2 2 0 012-2h6a2 2 0 012 2v2"/></svg>
+                                <ArchiveBoxIcon class="w-3.5 h-3.5" />
                                 Kemasan Premium
                             </span>
                             <span class="flex items-center gap-1.5">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                <CheckIcon class="w-3.5 h-3.5" />
                                 Original 100%
                             </span>
                             <span class="flex items-center gap-1.5">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                                <TruckIcon class="w-3.5 h-3.5" />
                                 Gratis Ongkir
                             </span>
                         </div>
@@ -147,7 +169,7 @@
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-sm font-bold text-charcoal dark:text-slate-100">Deskripsi</h3>
                             <button @click="showDescriptionModal = false" class="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-ink-05 dark:hover:bg-slate-700 transition-colors">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                <XMarkIcon class="w-3.5 h-3.5" />
                             </button>
                         </div>
                         <p class="text-sm text-charcoal/70 dark:text-slate-300 leading-relaxed whitespace-pre-line">{{ product.description }}</p>
@@ -239,6 +261,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
+import { HeartIcon, ArrowLeftIcon, ArchiveBoxIcon, CheckIcon, TruckIcon, XMarkIcon } from '@heroicons/vue/24/outline'
 import { useRoute } from 'vue-router'
 import { useCartStore } from '../cart'
 import { formatPrice } from '../mock-data'

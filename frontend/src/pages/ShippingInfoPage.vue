@@ -25,7 +25,17 @@
         <!-- Kurir -->
         <div class="mt-10">
             <h2 class="text-base font-bold text-charcoal dark:text-slate-100 mb-5">Kurir yang Tersedia</h2>
-            <div class="grid sm:grid-cols-2 gap-4">
+            <!-- Loading couriers -->
+            <div v-if="loadingCouriers" class="grid sm:grid-cols-2 gap-4">
+                <div v-for="n in 4" :key="n" class="flex items-start gap-4 p-5">
+                    <SkeletonLoader :loading="true" :radius="12" height="40px" width="40px" />
+                    <div class="flex-1 space-y-2">
+                        <SkeletonLoader :loading="true" :radius="99" height="14px" width="50%" />
+                        <SkeletonLoader :loading="true" :radius="99" height="11px" width="75%" />
+                    </div>
+                </div>
+            </div>
+            <div v-else class="grid sm:grid-cols-2 gap-4">
                 <div v-for="courier in couriers" :key="courier.name"
                     class="bg-white dark:bg-slate-800 p-5 rounded-2xl border-2 border-maroon-50 dark:border-slate-700 flex items-start gap-4">
                     <div class="w-10 h-10 rounded-xl bg-maroon-50 dark:bg-maroon/20 flex items-center justify-center shrink-0">
