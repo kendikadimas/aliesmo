@@ -7,17 +7,18 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Filament\Schemas\Concerns\RestrictsFileUploadsToSchemaComponents;
+use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\Storage;
 
-class PengaturanSitus extends Page implements HasForms
+class PengaturanSitus extends Page implements HasSchemas
 {
-    use InteractsWithForms;
+    use InteractsWithSchemas;
+    use RestrictsFileUploadsToSchemaComponents;
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-adjustments-horizontal';
     protected static ?int $navigationSort = 11;
@@ -33,41 +34,12 @@ class PengaturanSitus extends Page implements HasForms
         return 'Pengaturan Situs';
     }
 
-    // Announcement
-    public $announcement_1 = null;
-    public $announcement_1_link = null;
-    public $announcement_2 = null;
-    public $announcement_2_link = null;
-    public $announcement_3 = null;
-    public $announcement_3_link = null;
-
-    // Stats
-    public $stat_kemeja_terjual = null;
-    public $stat_kota = null;
-    public $stat_kualitas = null;
-    public $stat_garansi = null;
-
-    // General
-    public $contact_email = null;
-    public $contact_phone = null;
-    public $contact_address = null;
-    public $contact_whatsapp = null;
-    public $social_instagram = null;
-    public $social_facebook = null;
-    public $social_tiktok = null;
-    public $social_youtube = null;
-
-    // Payment — banks sebagai array untuk Repeater
-    public array $payment_banks = [];
-    public $qris_path = '';
-    public $payment_qris_name = null;
-    public $payment_cod_enabled = false;
+    public ?array $data = [];
 
     public function mount(): void
     {
         $settings = SiteSetting::all()->pluck('value', 'key');
 
-        // Isi properties text biasa
         $textKeys = [
             'announcement_1', 'announcement_1_link',
             'announcement_2', 'announcement_2_link',
@@ -78,22 +50,21 @@ class PengaturanSitus extends Page implements HasForms
             'payment_qris_name',
         ];
 
+        $data = [];
         foreach ($textKeys as $key) {
-            if (isset($settings[$key])) {
-                $this->$key = $settings[$key];
-            }
+            $data[$key] = $settings[$key] ?? '';
         }
 
-        // Banks dari JSON — handle both array dan object (UUID keys dari Repeater)
         $banksJson = $settings['payment_banks'] ?? '[]';
         $banks = json_decode($banksJson, true) ?? [];
-        $this->payment_banks = array_values($banks);
+        $data['payment_banks'] = array_values($banks);
 
-        // QRIS image — load existing path for FileUpload hydration
-        $this->qris_path = $settings['payment_qris_image'] ?? '';
+        $qrisImage = $settings['payment_qris_image'] ?? '';
+        $data['payment_qris_image'] = $qrisImage ? [$qrisImage] : [];
 
-        // COD boolean
-        $this->payment_cod_enabled = (bool) ($settings['payment_cod_enabled'] ?? false);
+        $data['payment_cod_enabled'] = (bool) ($settings['payment_cod_enabled'] ?? false);
+
+        $this->form->fill($data);
     }
 
     public function form(Schema $schema): Schema
@@ -180,7 +151,6 @@ class PengaturanSitus extends Page implements HasForms
                             ),
 
                         FileUpload::make('payment_qris_image')
-                            ->statePath('qris_path')
                             ->label('Gambar QRIS')
                             ->image()
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
@@ -197,14 +167,14 @@ class PengaturanSitus extends Page implements HasForms
                         Toggle::make('payment_cod_enabled')
                             ->label('Aktifkan COD (Bayar di Tempat)'),
                     ]),
-            ]);
+            ])
+            ->statePath('data');
     }
 
     public function save(): void
     {
-        error_log('=== PENGATURAN SITUS SAVE DEBUG ===');
+        $state = $this->form->getState();
 
-        // Text keys biasa
         $textKeys = [
             'announcement_1', 'announcement_1_link',
             'announcement_2', 'announcement_2_link',
@@ -216,32 +186,22 @@ class PengaturanSitus extends Page implements HasForms
         ];
 
         foreach ($textKeys as $key) {
-            $value = $this->$key ?? '';
-            error_log("[$key] => " . print_r($value, true));
-            SiteSetting::where('key', $key)->update(['value' => $value]);
+            SiteSetting::where('key', $key)->update(['value' => $state[$key] ?? '']);
         }
 
-        // Banks — simpan sebagai JSON array (strip UUID keys dari Filament Repeater)
-        $banks = array_values($this->payment_banks ?? []);
-        error_log('[payment_banks] => ' . json_encode($banks));
+        $banks = array_values($state['payment_banks'] ?? []);
         SiteSetting::where('key', 'payment_banks')
             ->update(['value' => json_encode($banks)]);
 
-        $qrisValue = $this->qris_path;
-        error_log('[payment_qris_image raw] => ' . print_r($qrisValue, true));
+        $qrisValue = $state['payment_qris_image'] ?? [];
         if (is_array($qrisValue)) {
             $qrisValue = $qrisValue[0] ?? '';
         }
-        error_log('[payment_qris_image final] => ' . print_r($qrisValue, true));
         SiteSetting::where('key', 'payment_qris_image')
             ->update(['value' => $qrisValue ?? '']);
 
-        // COD boolean
-        error_log('[payment_cod_enabled] => ' . print_r($this->payment_cod_enabled, true));
         SiteSetting::where('key', 'payment_cod_enabled')
-            ->update(['value' => $this->payment_cod_enabled ? '1' : '0']);
-
-        error_log('=== END SAVE DEBUG ===');
+            ->update(['value' => ($state['payment_cod_enabled'] ?? false) ? '1' : '0']);
 
         Notification::make()
             ->title('Pengaturan berhasil disimpan')
