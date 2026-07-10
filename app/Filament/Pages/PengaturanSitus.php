@@ -59,7 +59,7 @@ class PengaturanSitus extends Page implements HasForms
 
     // Payment — banks sebagai array untuk Repeater
     public array $payment_banks = [];
-    public $payment_qris_image = null;
+    public $payment_qris_image = '';
     public $payment_qris_name = null;
     public $payment_cod_enabled = false;
 
@@ -90,7 +90,7 @@ class PengaturanSitus extends Page implements HasForms
         $this->payment_banks = array_values($banks);
 
         // QRIS image — load existing path for FileUpload hydration
-        $this->payment_qris_image = $settings['payment_qris_image'] ?? null;
+        $this->payment_qris_image = $settings['payment_qris_image'] ?? '';
 
         // COD boolean
         $this->payment_cod_enabled = (bool) ($settings['payment_cod_enabled'] ?? false);
