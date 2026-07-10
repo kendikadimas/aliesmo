@@ -62,7 +62,7 @@
                 </div>
 
                 <!-- Logout -->
-                <button @click="handleLogout" class="mt-4 w-full sm:w-auto px-6 py-3 border-2 border-ink-10 text-ink-40 text-sm font-semibold rounded-xl hover:border-ink-60 hover:text-ink-60 dark:text-[#8a8a8e] transition-all">
+                <button @click="handleLogout" class="mt-4 w-full sm:w-auto px-6 py-3 border-2 border-ink-10 text-ink-40 text-sm font-semibold rounded-xl hover:border-ink-60 hover:text-ink-60 dark:hover:border-[#f0eeeb] dark:hover:text-[#f0eeeb] dark:text-[#8a8a8e] transition-all">
                     Keluar dari Akun
                 </button>
             </div>
@@ -101,7 +101,7 @@
                 <!-- Lupa Password link -->
                 <p class="mt-4 text-sm text-charcoal/50 dark:text-[#8a8a8e]">
                     Lupa password lama?
-                    <router-link to="/forgot-password" class="text-maroon hover:text-maroon-600 font-semibold">Reset via email</router-link>
+                    <router-link to="/forgot-password" class="text-maroon hover:text-maroon-600 dark:hover:text-[#f0eeeb] font-semibold">Reset via email</router-link>
                 </p>
             </div>
 
@@ -120,7 +120,7 @@
                     </svg>
                     <h2 class="mt-4 text-xl font-bold text-charcoal dark:text-[#f0eeeb]">Belum ada pesanan nih</h2>
                     <p class="mt-2 text-sm text-charcoal/50 dark:text-[#8a8a8e]">Yuk belanja sekarang!</p>
-                    <router-link to="/?shop=1" class="inline-block mt-6 px-8 py-3 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25">
+                    <router-link to="/?shop=1" class="inline-block mt-6 px-8 py-3 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 dark:hover:bg-maroon/80 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25">
                         Mulai Belanja
                     </router-link>
                 </div>
@@ -229,7 +229,7 @@
 
                         <!-- Actions -->
                         <div class="mt-4 pt-4 border-t border-maroon-100 dark:border-[#303032] flex flex-col sm:flex-row gap-3">
-                            <router-link :to="`/order/${order.order_number}`" class="flex-1 text-center px-6 py-2.5 border-2 border-maroon text-maroon text-sm font-semibold rounded-xl hover:bg-maroon hover:text-white transition-all">
+                            <router-link :to="`/order/${order.order_number}`" class="flex-1 text-center px-6 py-2.5 border-2 border-maroon text-maroon text-sm font-semibold rounded-xl hover:bg-maroon hover:text-white dark:hover:bg-maroon dark:hover:text-white transition-all">
                                 Lihat Detail
                             </router-link>
                             <a :href="waLink(order)" target="_blank" rel="noopener"
@@ -242,13 +242,13 @@
 
                     <!-- Pagination -->
                     <div v-if="pagination && pagination.last_page > 1" class="flex justify-center gap-2 mt-8">
-                        <button @click="loadOrders(pagination.current_page - 1)" :disabled="!pagination.prev_page_url" class="px-4 py-2 border-2 border-maroon-100 dark:border-[#303032] text-charcoal dark:text-[#f0eeeb] dark:text-[#d0ceca] text-sm font-semibold rounded-xl hover:border-maroon dark:hover:border-maroon transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                        <button @click="loadOrders(pagination.current_page - 1)" :disabled="!pagination.prev_page_url" class="px-4 py-2 border-2 border-maroon-100 dark:border-[#303032] text-charcoal dark:text-[#f0eeeb] dark:text-[#d0ceca] text-sm font-semibold rounded-xl hover:border-maroon dark:hover:border-[#f0eeeb] transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                             Prev
                         </button>
                         <span class="px-4 py-2 text-sm text-charcoal/60 dark:text-[#8a8a8e]">
                             Halaman {{ pagination.current_page }} dari {{ pagination.last_page }}
                         </span>
-                        <button @click="loadOrders(pagination.current_page + 1)" :disabled="!pagination.next_page_url" class="px-4 py-2 border-2 border-maroon-100 dark:border-[#303032] text-charcoal dark:text-[#f0eeeb] dark:text-[#d0ceca] text-sm font-semibold rounded-xl hover:border-maroon dark:hover:border-maroon transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                        <button @click="loadOrders(pagination.current_page + 1)" :disabled="!pagination.next_page_url" class="px-4 py-2 border-2 border-maroon-100 dark:border-[#303032] text-charcoal dark:text-[#f0eeeb] dark:text-[#d0ceca] text-sm font-semibold rounded-xl hover:border-maroon dark:hover:border-[#f0eeeb] transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                             Next
                         </button>
                     </div>

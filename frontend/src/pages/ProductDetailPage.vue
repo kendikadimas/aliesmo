@@ -31,12 +31,12 @@
 
         <div v-else-if="notFound || !product" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 text-center">
             <p class="text-base text-charcoal/50 dark:text-[#8a8a8e]">Produk gak ditemukan nih :(</p>
-            <router-link to="/" class="inline-block mt-3 text-sm font-semibold text-maroon dark:text-[#f0eeeb] hover:text-maroon-700 transition-colors">Kembali ke Beranda</router-link>
+            <router-link to="/" class="inline-block mt-3 text-sm font-semibold text-maroon dark:text-[#f0eeeb] hover:text-maroon-700 dark:hover:text-[#f0eeeb] transition-colors">Kembali ke Beranda</router-link>
         </div>
 
         <div v-else>
             <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 py-8 lg:py-14">
-                <router-link to="/#shop" class="inline-flex items-center gap-1.5 text-xs font-semibold text-charcoal/40 dark:text-[#6a6a6e] hover:text-maroon transition-colors mb-4">
+                <router-link to="/#shop" class="inline-flex items-center gap-1.5 text-xs font-semibold text-charcoal/40 dark:text-[#6a6a6e] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors mb-4">
                     <ArrowLeftIcon class="w-3 h-3" />
                     Kembali
                 </router-link>
@@ -68,7 +68,7 @@
                             <!-- Thumbnail image (first = product.thumbnail) -->
                             <div
                                 class="w-14 h-14 shrink-0 bg-maroon-50 rounded-lg overflow-hidden border-2 cursor-pointer"
-                                :class="selectedMedia.type === 'image' && selectedMedia.index === 0 ? 'border-maroon' : 'border-transparent hover:border-maroon-200'"
+                                :class="selectedMedia.type === 'image' && selectedMedia.index === 0 ? 'border-maroon' : 'border-transparent hover:border-maroon-200 dark:hover:border-[#f0eeeb]/40'"
                                 @click="selectedMedia = { type: 'image', index: 0 }"
                             >
                                 <img :src="product.thumbnail" :alt="product.name" class="w-full h-full object-cover" />
@@ -79,7 +79,7 @@
                                 v-for="(vid, i) in product.videos"
                                 :key="`vid-${i}`"
                                 class="w-14 h-14 shrink-0 bg-zinc-800 rounded-lg overflow-hidden border-2 cursor-pointer relative"
-                                :class="selectedMedia.type === 'video' && selectedMedia.index === i ? 'border-maroon' : 'border-transparent hover:border-maroon-200'"
+                                :class="selectedMedia.type === 'video' && selectedMedia.index === i ? 'border-maroon' : 'border-transparent hover:border-maroon-200 dark:hover:border-[#f0eeeb]/40'"
                                 @click="selectedMedia = { type: 'video', index: i }"
                             >
                                 <img :src="`https://img.youtube.com/vi/${getYoutubeVideoId(vid.youtube_url)}/mqdefault.jpg`" :alt="vid.title || `Video ${i + 1}`" class="w-full h-full object-cover" />
@@ -94,7 +94,7 @@
                                 v-for="(img, i) in product.images"
                                 :key="`img-${i}`"
                                 class="w-14 h-14 shrink-0 bg-maroon-50 rounded-lg overflow-hidden border-2 cursor-pointer"
-                                :class="selectedMedia.type === 'image' && selectedMedia.index === i + 1 ? 'border-maroon' : 'border-transparent hover:border-maroon-200'"
+                                :class="selectedMedia.type === 'image' && selectedMedia.index === i + 1 ? 'border-maroon' : 'border-transparent hover:border-maroon-200 dark:hover:border-[#f0eeeb]/40'"
                                 @click="selectedMedia = { type: 'image', index: i + 1 }"
                             >
                                 <img :src="img.path" :alt="`${product.name} ${i + 1}`" class="w-full h-full object-cover" />
@@ -140,7 +140,7 @@
                             <p v-if="isDescriptionShort" class="text-xs font-semibold text-charcoal/50 dark:text-[#8a8a8e] leading-relaxed">{{ product.description }}</p>
                             <div v-else>
                                 <p class="text-xs font-semibold text-charcoal/50 dark:text-[#8a8a8e] leading-relaxed line-clamp-3">{{ product.description }}</p>
-                                <button @click="showDescriptionModal = true" class="text-xs font-semibold text-ink dark:text-[#f0eeeb] hover:text-ink-60 dark:text-[#8a8a8e] mt-1">Lihat Selengkapnya</button>
+                                <button @click="showDescriptionModal = true" class="text-xs font-semibold text-ink dark:text-[#f0eeeb] hover:text-ink-60 dark:hover:text-[#d0ceca] dark:text-[#8a8a8e] mt-1">Lihat Selengkapnya</button>
                             </div>
                         </div>
 
@@ -234,7 +234,7 @@
                                 <div v-if="rp.stock === 0" class="absolute inset-0 bg-white/80 flex items-center justify-center">
                                     <span class="bg-charcoal dark:bg-[#f0eeeb] text-white dark:text-[#161618] text-[10px] font-semibold px-2 py-1 rounded-lg">Stok Habis</span>
                                 </div>
-                                <button @click.stop="addItem(rp, 1)" :disabled="rp.stock === 0" class="absolute bottom-0 left-0 right-0 py-2 bg-maroon text-white text-[10px] font-semibold tracking-wide translate-y-full group-hover/card:translate-y-0 transition-transform duration-300 hover:bg-maroon-600 disabled:opacity-0">
+                                <button @click.stop="addItem(rp, 1)" :disabled="rp.stock === 0" class="absolute bottom-0 left-0 right-0 py-2 bg-maroon text-white text-[10px] font-semibold tracking-wide translate-y-full group-hover/card:translate-y-0 transition-transform duration-300 hover:bg-maroon-600 dark:hover:bg-maroon/80 disabled:opacity-0">
                                     {{ rp.stock === 0 ? 'Stok Habis' : '+ Keranjang' }}
                                 </button>
                             </div>

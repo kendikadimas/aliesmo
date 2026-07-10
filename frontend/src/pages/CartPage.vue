@@ -6,7 +6,7 @@
             <ShoppingCartIcon class="w-16 h-16 mx-auto text-maroon-200" />
             <p class="mt-4 text-lg text-charcoal/50 dark:text-[#8a8a8e]">Wah, keranjangmu masih kosong nih!</p>
             <p class="text-sm text-charcoal/40 dark:text-[#6a6a6e]">Yuk, cari kemeja favoritmu dulu.</p>
-            <router-link to="/" class="inline-block mt-6 px-8 py-3 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25">
+            <router-link to="/" class="inline-block mt-6 px-8 py-3 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 dark:hover:bg-maroon/80 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25">
                 Mulai Belanja
             </router-link>
         </div>

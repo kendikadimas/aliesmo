@@ -18,7 +18,7 @@
         <div v-else-if="!order" class="py-16">
             <InformationCircleIcon class="w-12 h-12 mx-auto text-maroon-200" />
             <p class="mt-4 text-lg text-charcoal/50 dark:text-[#8a8a8e]">Pesanan gak ditemukan :(</p>
-            <router-link to="/" class="inline-block mt-6 text-sm font-semibold text-maroon dark:text-[#f0eeeb] hover:text-maroon-600 transition-colors">Kembali ke Beranda</router-link>
+            <router-link to="/" class="inline-block mt-6 text-sm font-semibold text-maroon dark:text-[#f0eeeb] hover:text-maroon-600 dark:hover:text-[#f0eeeb] transition-colors">Kembali ke Beranda</router-link>
         </div>
 
         <div v-else>
@@ -138,14 +138,14 @@
                         <code class="flex-1 text-xs bg-white dark:bg-[#1c1c1e] border border-maroon-100 dark:border-[#303032] rounded-lg px-3 py-2 text-maroon dark:text-[#f0eeeb] font-mono truncate">
                             {{ trackUrl }}
                         </code>
-                        <button @click="copyTrackUrl" class="shrink-0 px-3 py-2 bg-maroon text-white text-xs font-semibold rounded-lg hover:bg-maroon-600 transition-colors">
+                        <button @click="copyTrackUrl" class="shrink-0 px-3 py-2 bg-maroon text-white text-xs font-semibold rounded-lg hover:bg-maroon-600 dark:hover:bg-maroon/80 transition-colors">
                             {{ copied ? 'Disalin!' : 'Salin' }}
                         </button>
                     </div>
-                    <p class="text-xs text-charcoal/40 dark:text-[#6a6a6e] mt-2">Atau kamu bisa lacak pesanan kapan saja di halaman <router-link to="/track-order" class="text-maroon font-semibold hover:underline">Lacak Pesanan</router-link></p>
+                    <p class="text-xs text-charcoal/40 dark:text-[#6a6a6e] mt-2">Atau kamu bisa lacak pesanan kapan saja di halaman <router-link to="/track-order" class="text-maroon dark:text-[#f0eeeb] font-semibold hover:underline">Lacak Pesanan</router-link></p>
                 </div>
 
-                <router-link to="/" class="inline-block mt-4 px-8 py-3 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25">
+                <router-link to="/" class="inline-block mt-4 px-8 py-3 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 dark:hover:bg-maroon/80 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25">
                     Belanja Lagi
                 </router-link>
             </div>

@@ -9,7 +9,7 @@
             <p v-if="!errorMsg" class="text-sm font-medium text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-slate-400">Sedang masuk dengan Google...</p>
             <div v-else class="space-y-3">
                 <p class="text-sm font-medium text-red-600 dark:text-red-400">{{ errorMsg }}</p>
-                <router-link to="/login" class="inline-block px-6 py-2.5 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all">
+                <router-link to="/login" class="inline-block px-6 py-2.5 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 dark:hover:bg-maroon/80 transition-all">
                     Kembali ke Login
                 </router-link>
             </div>

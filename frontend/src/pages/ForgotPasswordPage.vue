@@ -22,14 +22,14 @@
                 </div>
 
                 <button type="submit" :disabled="submitting || success"
-                    class="w-full px-8 py-3 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25 disabled:opacity-50 disabled:cursor-not-allowed">
+                    class="w-full px-8 py-3 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 dark:hover:bg-maroon/80 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25 disabled:opacity-50 disabled:cursor-not-allowed">
                     {{ submitting ? 'Mengirim...' : 'Kirim Link Reset' }}
                 </button>
             </form>
 
             <p class="mt-6 text-center text-sm text-charcoal/50 dark:text-[#8a8a8e] dark:text-slate-400">
                 Ingat passwordnya?
-                <router-link to="/login" class="text-maroon hover:text-maroon-600 font-semibold">Masuk sekarang</router-link>
+                <router-link to="/login" class="text-maroon hover:text-maroon-600 dark:hover:text-[#f0eeeb] font-semibold">Masuk sekarang</router-link>
             </p>
         </div>
     </div>

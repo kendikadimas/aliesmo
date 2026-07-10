@@ -32,12 +32,12 @@
                 </div>
 
                 <button type="submit" :disabled="submitting || success"
-                    class="w-full px-8 py-3 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25 disabled:opacity-50 disabled:cursor-not-allowed">
+                    class="w-full px-8 py-3 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 dark:hover:bg-maroon/80 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25 disabled:opacity-50 disabled:cursor-not-allowed">
                     {{ submitting ? 'Menyimpan...' : 'Reset Password' }}
                 </button>
 
                 <router-link v-if="success" to="/login"
-                    class="block w-full text-center px-8 py-3 border-2 border-maroon text-maroon text-sm font-semibold rounded-xl hover:bg-maroon hover:text-white transition-all">
+                    class="block w-full text-center px-8 py-3 border-2 border-maroon text-maroon text-sm font-semibold rounded-xl hover:bg-maroon hover:text-white dark:hover:bg-maroon dark:hover:text-white transition-all">
                     Masuk Sekarang
                 </router-link>
             </form>

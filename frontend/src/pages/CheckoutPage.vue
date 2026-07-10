@@ -197,7 +197,7 @@
                                 type="button"
                                 @click="applyCoupon"
                                 :disabled="!couponCode || couponLoading"
-                                class="px-3 py-2 text-xs font-semibold bg-maroon text-white rounded-xl hover:bg-maroon-600 transition-all disabled:opacity-50"
+                                class="px-3 py-2 text-xs font-semibold bg-maroon text-white rounded-xl hover:bg-maroon-600 dark:hover:bg-maroon/80 transition-all disabled:opacity-50"
                             >
                                 {{ couponLoading ? '...' : 'Pakai' }}
                             </button>
@@ -308,11 +308,11 @@
                         </Transition>
                     </div>
 
-                    <button type="submit" :disabled="!selectedShipping && selectedCity !== ''" class="w-full mt-6 px-8 py-3.5 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <button type="submit" :disabled="!selectedShipping && selectedCity !== ''" class="w-full mt-6 px-8 py-3.5 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 dark:hover:bg-maroon/80 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25 disabled:opacity-50 disabled:cursor-not-allowed">
                         Pesan Sekarang
                     </button>
 
-                    <p class="mt-4 text-xs text-center text-charcoal/40 dark:text-[#6a6a6e] leading-relaxed">Dengan pesan, kamu setuju sama <router-link to="/terms" class="text-maroon hover:text-maroon-600 underline">syarat & ketentuan</router-link> kita.</p>
+                    <p class="mt-4 text-xs text-center text-charcoal/40 dark:text-[#6a6a6e] leading-relaxed">Dengan pesan, kamu setuju sama <router-link to="/terms" class="text-maroon dark:text-[#f0eeeb] hover:text-maroon-600 dark:hover:text-[#d0ceca] underline">syarat & ketentuan</router-link> kita.</p>
                 </div>
             </div>
         </form>

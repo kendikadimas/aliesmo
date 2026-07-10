@@ -7,7 +7,7 @@
         </p>
         <div class="mt-8 flex flex-wrap gap-3 justify-center">
             <router-link to="/"
-                class="px-6 py-2.5 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25">
+                class="px-6 py-2.5 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 dark:hover:bg-maroon/80 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25">
                 Ke Beranda
             </router-link>
             <router-link to="/products"

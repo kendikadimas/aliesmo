@@ -44,7 +44,7 @@
                 <!-- Empty -->
                 <div v-else-if="!filteredProducts.length" class="text-center py-16">
                     <p class="text-lg text-charcoal/50 dark:text-[#8a8a8e]">Belum ada produk di kategori ini.</p>
-                    <button @click="setCategory(null)" class="mt-4 px-6 py-2.5 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all">Lihat Semua Produk</button>
+                    <button @click="setCategory(null)" class="mt-4 px-6 py-2.5 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 dark:hover:bg-maroon/80 transition-all">Lihat Semua Produk</button>
                 </div>
 
                 <!-- Product Grid -->
@@ -63,7 +63,7 @@
                             <div v-if="product.stock === 0" class="absolute inset-0 bg-white/80 flex items-center justify-center">
                                 <span class="bg-charcoal dark:bg-[#f0eeeb] text-white dark:text-[#161618] text-[10px] font-semibold px-2 py-1 rounded-lg">Stok Habis</span>
                             </div>
-                            <button @click.stop="addToCart(product)" :disabled="product.stock === 0" class="absolute bottom-0 left-0 right-0 py-2.5 bg-maroon text-white text-[10px] font-semibold tracking-wide translate-y-full group-hover/card:translate-y-0 transition-transform duration-300 hover:bg-maroon-600 disabled:opacity-0">
+                            <button @click.stop="addToCart(product)" :disabled="product.stock === 0" class="absolute bottom-0 left-0 right-0 py-2.5 bg-maroon text-white text-[10px] font-semibold tracking-wide translate-y-full group-hover/card:translate-y-0 transition-transform duration-300 hover:bg-maroon-600 dark:hover:bg-maroon/80 disabled:opacity-0">
                                 {{ product.stock === 0 ? 'Stok Habis' : '+ Masuk Keranjang' }}
                             </button>
                         </div>
@@ -77,7 +77,7 @@
 
                 <!-- Load More -->
                 <div v-if="hasMorePages || loadingMore" class="mt-10 flex justify-center">
-                    <button @click="loadMore" :disabled="loadingMore" class="px-8 py-3 border-2 border-maroon text-maroon text-sm font-semibold rounded-xl hover:bg-maroon hover:text-white transition-all active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                    <button @click="loadMore" :disabled="loadingMore" class="px-8 py-3 border-2 border-maroon text-maroon text-sm font-semibold rounded-xl hover:bg-maroon hover:text-white dark:hover:bg-maroon dark:hover:text-white transition-all active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
                         <span v-if="loadingMore" class="w-4 h-4 border-2 border-maroon/30 border-t-maroon rounded-full animate-spin"></span>
                         {{ loadingMore ? 'Memuat...' : 'Tampilkan Lebih Banyak' }}
                     </button>

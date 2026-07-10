@@ -20,14 +20,14 @@
             <button
                 @click="resend"
                 :disabled="loading || cooldown > 0"
-                class="mt-6 w-full py-3 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                class="mt-6 w-full py-3 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 dark:hover:bg-maroon/80 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 {{ cooldown > 0 ? `Kirim ulang (${cooldown}s)` : loading ? 'Mengirim...' : 'Kirim Ulang Email Verifikasi' }}
             </button>
 
             <p class="mt-4 text-xs text-charcoal/40 dark:text-[#6a6a6e] dark:text-slate-500">
                 Sudah verifikasi?
-                <router-link to="/" class="text-maroon font-semibold hover:text-maroon-600">Kembali ke Beranda</router-link>
+                <router-link to="/" class="text-maroon font-semibold hover:text-maroon-600 dark:hover:text-[#f0eeeb]">Kembali ke Beranda</router-link>
             </p>
         </div>
     </div>

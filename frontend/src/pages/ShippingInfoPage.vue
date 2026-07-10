@@ -75,7 +75,7 @@
         <div class="mt-10 bg-maroon-50 dark:bg-maroon/10 p-6 rounded-2xl border-2 border-maroon-100 dark:border-maroon/30">
             <p class="text-sm text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca]">Ada pertanyaan tentang pengiriman? Hubungi kami langsung.</p>
             <a :href="`https://wa.me/${waNumber}`" target="_blank"
-                class="inline-flex items-center gap-2 mt-3 px-5 py-2.5 bg-maroon text-white text-xs font-semibold rounded-xl hover:bg-maroon-600 transition-all">
+                class="inline-flex items-center gap-2 mt-3 px-5 py-2.5 bg-maroon text-white text-xs font-semibold rounded-xl hover:bg-maroon-600 dark:hover:bg-maroon/80 transition-all">
                 Chat via WhatsApp
             </a>
         </div>
