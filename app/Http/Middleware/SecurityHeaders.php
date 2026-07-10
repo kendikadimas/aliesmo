@@ -60,7 +60,7 @@ class SecurityHeaders
             "script-src 'self' 'unsafe-inline'{$scriptEvalSource}{$scriptDevSources}; " .
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com{$styleDevSources}; " .
             "font-src 'self' data: https://fonts.gstatic.com; " .
-            "img-src 'self' data: https:; " .
+            "img-src 'self' data: blob: https:; " .
             "connect-src 'self'{$connectDevSources};"
         );
 
