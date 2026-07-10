@@ -2,7 +2,7 @@
 
 // Security: hapus file ini setelah dijalankan
 $token = $_GET['token'] ?? '';
-$expectedToken = getenv('DEPLOY_TOKEN') ?: 'REPLACE_WITH_SECRET';
+$expectedToken = getenv('DEPLOY_TOKEN') ?: 'JDZvSs0bLfMK5ikRg2pzWGhn14jEdoFa';
 
 if ($token !== $expectedToken) {
     http_response_code(403);

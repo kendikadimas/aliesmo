@@ -88,17 +88,8 @@ jobs:
             **/postcss.config.js
 
       # ─── 6. Run artisan commands via deploy script ────────────────────
-      - name: Upload and run deploy script
+      - name: Run artisan migrate and optimize:clear
         run: |
-          echo "Uploading deploy-runner.php via FTP..."
-          curl -v --ftp-ssl -u "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" \
-            --upload-file ./public/deploy-runner.php \
-            "ftp://${{ secrets.FTP_SERVER }}/public_html/public/deploy-runner.php" 2>&1 || true
-
-          echo "Waiting for file to be available..."
-          sleep 5
-
-          echo "Running migrate and optimize:clear..."
-          curl -v "https://aliesmo.id/deploy-runner.php?token=${{ secrets.DEPLOY_TOKEN }}" 2>&1 || true
-
+          echo "Running migrate and optimize:clear via deploy script..."
+          curl -s "https://aliesmo.id/deploy-runner.php?token=${{ secrets.DEPLOY_TOKEN }}" || true
           echo "Done."
