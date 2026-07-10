@@ -240,6 +240,7 @@ class OrderController extends Controller
             'coupon_code'      => $order->coupon_code,
             'coupon_discount'  => (float) ($order->coupon_discount ?? 0),
             'total'            => (float) $order->total,
+            'payment_method'   => $order->payment_method,
             'created_at'       => $order->created_at,
             'items'            => $order->items->map(fn($i) => [
                 'product_name' => $i->product_name,
@@ -257,6 +258,7 @@ class OrderController extends Controller
         return response()->json([
             'data'            => $data,
             'whatsapp_number' => $this->whatsappNumber(),
+            'payment_info'    => $this->getPaymentInfo($order->payment_method ?? 'bank_transfer'),
         ]);
     }
 

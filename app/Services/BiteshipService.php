@@ -12,8 +12,8 @@ class BiteshipService
     protected string $originPostal;
     protected ?string $originAreaId; // Biteship area_id Ulujami — akurasi tertinggi
 
-    // Kurir yang didukung Biteship — sesuaikan dengan yang ada di RajaOngkirService
-    private const COURIERS = 'jne,jnt,sicepat,anteraja,tiki,pos,ninja,lion,wahana,sap,ide';
+    // Kurir yang ditampilkan ke pelanggan
+    private const COURIERS = 'jne,jnt,sicepat,anteraja,ninja,pos,lion';
 
     // Mapping courier_code Biteship → nama tampilan
     private const COURIER_NAMES = [
@@ -21,13 +21,9 @@ class BiteshipService
         'jnt'      => 'J&T Express',
         'sicepat'  => 'SiCepat',
         'anteraja' => 'AnterAja',
-        'tiki'     => 'TIKI',
-        'pos'      => 'POS Indonesia',
         'ninja'    => 'Ninja Express',
+        'pos'      => 'POS Indonesia',
         'lion'     => 'Lion Parcel',
-        'wahana'   => 'Wahana',
-        'sap'      => 'SAP Express',
-        'ide'      => 'ID Express',
     ];
 
     public function __construct()

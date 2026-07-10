@@ -82,8 +82,11 @@ class RajaOngkirService
         return $this->getStaticCities($provinceId);
     }
 
-    // All supported courier codes for a single Komerce request
-    private const ALL_COURIERS = 'jne:jnt:sicepat:ninja:anteraja:tiki:pos:lion:sap:ide:ncs:rex:rpx:sentral:star:wahana:dse';
+    // Kurir yang ditampilkan ke pelanggan
+    private const ALL_COURIERS = 'jne:jnt:sicepat:ninja:anteraja:pos:lion';
+
+    // Whitelist kurir — hanya ini yang tampil di hasil cek ongkir
+    private const ALLOWED_COURIERS = ['jne', 'jnt', 'sicepat', 'anteraja', 'ninja', 'pos', 'lion'];
 
     // Human-readable name map for each courier code
     private const COURIER_NAMES = [
@@ -168,6 +171,11 @@ class RajaOngkirService
                 if (str_contains($desc, $kw)) return false;
             }
             return true;
+        });
+
+        // Hanya tampilkan kurir yang diizinkan
+        $filtered = array_filter($filtered, function ($item) {
+            return in_array($item['code'], self::ALLOWED_COURIERS, true);
         });
 
         if (empty($filtered)) {
