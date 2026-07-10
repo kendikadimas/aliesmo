@@ -4,7 +4,7 @@
             <div class="w-14 h-14 rounded-2xl bg-ink-05 border-2 border-ink-10 flex items-center justify-center mx-auto mb-4">
                 <MagnifyingGlassIcon class="w-6 h-6 text-charcoal dark:text-slate-200" />
             </div>
-            <h1 class="text-3xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Lacak Pesanan</h1>
+            <h1 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Lacak Pesanan</h1>
             <p class="mt-2 text-sm text-charcoal/50 dark:text-slate-400">Masukkan email dan nomor pesanan untuk melihat status pengirimanmu</p>
         </div>
 

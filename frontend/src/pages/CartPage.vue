@@ -1,6 +1,6 @@
 <template>
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-        <h1 class="text-3xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Keranjang Belanja</h1>
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
+        <h1 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Keranjang Belanja</h1>
 
         <div v-if="!items.length" class="text-center py-16 lg:py-24">
             <ShoppingCartIcon class="w-16 h-16 mx-auto text-maroon-200" />
@@ -32,7 +32,7 @@
 
             <div class="space-y-3">
                 <div v-for="item in items" :key="item.product_id"
-                    class="flex items-center gap-4 bg-white dark:bg-slate-800 p-4 lg:p-5 rounded-2xl border-2 transition-all cursor-pointer"
+                    class="flex items-center gap-3 bg-white dark:bg-slate-800 p-3 lg:p-5 rounded-2xl border-2 transition-all cursor-pointer"
                     :class="selectedIds.has(item.product_id)
                         ? 'border-maroon dark:border-maroon/70'
                         : 'border-maroon-50 dark:border-slate-700 hover:border-maroon-100 dark:hover:border-slate-600'"
@@ -68,7 +68,7 @@
                     </div>
 
                     <!-- Subtotal -->
-                    <p class="font-bold text-sm w-20 text-right text-charcoal dark:text-slate-200 hidden sm:block">Rp{{ formatPrice(item.price * item.quantity) }}</p>
+                    <p class="font-bold text-xs lg:text-sm w-16 lg:w-20 text-right text-charcoal dark:text-slate-200 hidden sm:block">Rp{{ formatPrice(item.price * item.quantity) }}</p>
 
                     <!-- Remove -->
                     <button @click="removeItem(item.product_id)" class="text-charcoal/30 dark:text-slate-500 hover:text-red-500 transition-colors p-1 active:scale-95" aria-label="Hapus">
@@ -84,16 +84,16 @@
                         Total Belanja
                         <span v-if="selectedIds.size" class="ml-1 text-charcoal/40 dark:text-slate-500">({{ selectedIds.size }} produk dipilih)</span>
                     </p>
-                    <p class="text-3xl font-bold text-maroon">Rp{{ formatPrice(selectedTotal) }}</p>
+                    <p class="text-xl lg:text-3xl font-bold text-maroon">Rp{{ formatPrice(selectedTotal) }}</p>
                     <p v-if="!selectedIds.size" class="text-xs text-charcoal/40 dark:text-slate-500 mt-1">Pilih produk untuk melanjutkan</p>
                 </div>
-                <div class="flex gap-3">
-                    <router-link to="/" class="px-6 py-3 bg-white dark:bg-slate-800 text-charcoal dark:text-slate-200 text-sm font-semibold rounded-xl border-2 border-maroon-200 dark:border-slate-600 hover:border-maroon hover:bg-maroon-50 dark:hover:bg-slate-700 transition-all active:scale-[0.97]">
+                <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                    <router-link to="/" class="px-5 py-2.5 bg-white dark:bg-slate-800 text-charcoal dark:text-slate-200 text-sm font-semibold rounded-xl border-2 border-maroon-200 dark:border-slate-600 hover:border-maroon hover:bg-maroon-50 dark:hover:bg-slate-700 transition-all active:scale-[0.97] text-center">
                         Lanjut Belanja
                     </router-link>
                     <button @click="goToCheckout"
                         :disabled="!selectedIds.size"
-                        class="px-8 py-3 text-sm font-semibold rounded-xl transition-all active:scale-[0.97]"
+                        class="px-6 py-2.5 text-sm font-semibold rounded-xl transition-all active:scale-[0.97] text-center"
                         :class="selectedIds.size
                             ? 'bg-maroon text-white hover:bg-maroon-600 shadow-lg shadow-maroon/25'
                             : 'bg-maroon-100 dark:bg-slate-700 text-maroon-300 dark:text-slate-500 cursor-not-allowed'">

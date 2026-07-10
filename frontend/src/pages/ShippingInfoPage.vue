@@ -1,10 +1,10 @@
 <template>
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-        <h1 class="text-3xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Info Pengiriman</h1>
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
+        <h1 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Info Pengiriman</h1>
         <p class="mt-3 text-sm text-charcoal/70 dark:text-slate-300 leading-relaxed">Semua yang perlu kamu tahu tentang pengiriman pesanan Aliesmo.</p>
 
         <!-- Estimasi Waktu -->
-        <div class="mt-10 grid sm:grid-cols-3 gap-4">
+        <div class="mt-10 grid grid-cols-3 gap-3 lg:gap-4">
             <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border-2 border-maroon-50 dark:border-slate-700 text-center">
                 <div class="text-2xl font-bold text-maroon">1-2</div>
                 <div class="text-xs font-semibold text-charcoal dark:text-slate-200 mt-1">Hari Kerja</div>

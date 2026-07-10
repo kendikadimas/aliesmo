@@ -1,6 +1,6 @@
 <template>
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-        <h1 class="text-3xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Checkout</h1>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
+        <h1 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Checkout</h1>
 
         <div v-if="submitting" class="mt-8 lg:mt-10 grid lg:grid-cols-5 gap-8 lg:gap-12">
             <!-- left col skeleton -->
@@ -269,7 +269,7 @@
 
                                 <!-- Bank Transfer -->
                                 <div v-if="paymentMethod === 'bank_transfer'" class="bg-maroon-50/40 dark:bg-slate-700/50 rounded-xl p-4 space-y-1.5">
-                                    <div class="grid grid-cols-3 gap-2 text-xs">
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                                         <div>
                                             <p class="text-charcoal/40 dark:text-slate-500">Bank</p>
                                             <p class="font-bold text-charcoal dark:text-slate-200">{{ get('payment_bank_name', 'BCA') }}</p>
@@ -290,7 +290,7 @@
                                 <div v-else-if="paymentMethod === 'qris'" class="bg-maroon-50/40 dark:bg-slate-700/50 rounded-xl p-4 text-center">
                                     <p class="text-xs font-bold text-charcoal dark:text-slate-200 mb-3">Scan QRIS untuk Pembayaran</p>
                                     <div v-if="get('payment_qris_image')" class="flex justify-center mb-3">
-                                        <img :src="get('payment_qris_image')" alt="QRIS" class="w-40 h-40 object-contain rounded-xl border-2 border-maroon-100 dark:border-slate-600 bg-white p-1" />
+                                        <img :src="get('payment_qris_image')" alt="QRIS" class="w-32 h-32 sm:w-40 sm:h-40 object-contain rounded-xl border-2 border-maroon-100 dark:border-slate-600 bg-white p-1" />
                                     </div>
                                     <div v-else class="w-40 h-40 mx-auto rounded-xl border-2 border-dashed border-maroon-200 dark:border-slate-600 flex items-center justify-center mb-3">
                                         <DevicePhoneMobileIcon class="w-10 h-10 text-maroon-200 dark:text-slate-600" />

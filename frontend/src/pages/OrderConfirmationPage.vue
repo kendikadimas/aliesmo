@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-24 text-center">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-24 text-center">
         <div v-if="loading" class="py-12 space-y-4 max-w-md mx-auto">
             <!-- icon placeholder -->
             <SkeletonLoader :loading="true" :radius="16" height="64px" width="64px" class="mx-auto" />
@@ -25,12 +25,12 @@
             <div class="w-16 h-16 rounded-2xl bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 flex items-center justify-center mx-auto">
                 <CheckIcon class="w-7 h-7 text-green-600" />
             </div>
-            <h1 class="mt-6 text-3xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Pesanan Berhasil!</h1>
+            <h1 class="mt-6 text-2xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Pesanan Berhasil!</h1>
             <p class="mt-2 text-base text-charcoal/60 dark:text-slate-400">Makasih ya <strong>{{ order.customer_name }}</strong>, pesananmu udah kami terima!</p>
 
-            <div class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-maroon-50 dark:bg-maroon/20 rounded-xl text-sm">
-                <span class="font-semibold text-charcoal/60 dark:text-slate-400">No. Pesanan:</span>
-                <span class="font-bold text-maroon">{{ order.order_number }}</span>
+            <div class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-maroon-50 dark:bg-maroon/20 rounded-xl text-sm max-w-full overflow-hidden">
+                <span class="font-semibold text-charcoal/60 dark:text-slate-400 shrink-0">No. Pesanan:</span>
+                <span class="font-bold text-maroon truncate">{{ order.order_number }}</span>
             </div>
 
             <p class="mt-2 text-sm font-semibold" :class="statusClass(order.status)">

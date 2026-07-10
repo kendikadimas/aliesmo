@@ -1,6 +1,6 @@
 <template>
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-        <h1 class="text-3xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Pesanan Saya</h1>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
+        <h1 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Pesanan Saya</h1>
         <p class="mt-2 text-sm text-charcoal/50 dark:text-slate-400">Lihat semua pesanan dan status pengirimannya</p>
 
         <div v-if="loading" class="py-24 text-center">
