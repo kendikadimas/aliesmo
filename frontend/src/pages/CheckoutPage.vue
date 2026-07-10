@@ -124,7 +124,7 @@
                                         class="flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all"
                                         :class="selectedShipping?.code === opt.code && selectedShipping?.service === opt.service
                                             ? 'border-maroon bg-maroon-50/30 dark:bg-maroon/10'
-                                            : 'border-maroon-100 dark:border-[#303032] hover:border-maroon-200'">
+                                            : 'border-maroon-100 dark:border-[#303032] hover:border-maroon-200 dark:hover:border-[#f0eeeb]'">
                                         <div class="flex items-center gap-3">
                                             <input type="radio" :value="opt" v-model="selectedShipping" class="accent-maroon">
                                             <div>
@@ -251,7 +251,7 @@
                                 class="flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all"
                                 :class="paymentMethod === pm.value
                                     ? 'border-maroon bg-maroon-50/30 dark:bg-maroon/10'
-                                    : 'border-maroon-100 dark:border-[#303032] hover:border-maroon-200'">
+                                    : 'border-maroon-100 dark:border-[#303032] hover:border-maroon-200 dark:hover:border-[#f0eeeb]'">
                                 <input type="radio" :value="pm.value" v-model="paymentMethod" class="accent-maroon">
                                 <div class="flex items-center gap-2 flex-1 min-w-0">
                                     <component :is="pm.icon" class="w-[18px] h-[18px] shrink-0 text-charcoal dark:text-[#f0eeeb] dark:text-[#d0ceca]" />

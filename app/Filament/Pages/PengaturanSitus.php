@@ -66,6 +66,9 @@ class PengaturanSitus extends Page implements HasForms
     {
         $settings = SiteSetting::all()->pluck('value', 'key');
 
+        // DEBUG: Log QRIS value from database
+        error_log('[QRIS DEBUG] Database value: ' . print_r($settings['payment_qris_image'] ?? 'NULL', true));
+
         // Isi properties text biasa
         $textKeys = [
             'announcement_1', 'announcement_1_link',
@@ -74,7 +77,7 @@ class PengaturanSitus extends Page implements HasForms
             'stat_kemeja_terjual', 'stat_kota', 'stat_kualitas', 'stat_garansi',
             'contact_email', 'contact_phone', 'contact_address', 'contact_whatsapp',
             'social_instagram', 'social_facebook', 'social_tiktok', 'social_youtube',
-            'payment_qris_image', 'payment_qris_name',
+            'payment_qris_name',
         ];
 
         foreach ($textKeys as $key) {
@@ -82,6 +85,10 @@ class PengaturanSitus extends Page implements HasForms
                 $this->$key = $settings[$key];
             }
         }
+
+        // DEBUG: Log property value after mount
+        error_log('[QRIS DEBUG] Property after mount: ' . print_r($this->payment_qris_image, true));
+        error_log('[QRIS DEBUG] Property type: ' . gettype($this->payment_qris_image));
 
         // Banks dari JSON
         $banksJson = $settings['payment_banks'] ?? '[]';
@@ -196,6 +203,10 @@ class PengaturanSitus extends Page implements HasForms
 
     public function save(): void
     {
+        // DEBUG: Log property value before save
+        error_log('[QRIS DEBUG] Property before save: ' . print_r($this->payment_qris_image, true));
+        error_log('[QRIS DEBUG] Property type before save: ' . gettype($this->payment_qris_image));
+
         // Text keys biasa
         $textKeys = [
             'announcement_1', 'announcement_1_link',
@@ -216,9 +227,11 @@ class PengaturanSitus extends Page implements HasForms
             ->update(['value' => json_encode($this->payment_banks ?? [])]);
 
         // QRIS image — FileUpload return path string
+        error_log('[QRIS DEBUG] Final QRIS value: ' . print_r($this->payment_qris_image, true));
         if ($this->payment_qris_image !== null) {
             SiteSetting::where('key', 'payment_qris_image')
                 ->update(['value' => $this->payment_qris_image]);
+            error_log('[QRIS DEBUG] QRIS saved to database');
         }
 
         // COD boolean
