@@ -1,12 +1,12 @@
-<template>
+﻿<template>
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
-        <h1 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Panduan Ukuran</h1>
-        <p class="mt-3 text-sm text-charcoal/70 dark:text-slate-300 leading-relaxed">Temukan ukuran yang paling pas buat kamu dengan panduan di bawah ini.</p>
+        <h1 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Panduan Ukuran</h1>
+        <p class="mt-3 text-sm text-charcoal/70 dark:text-[#d0ceca] leading-relaxed">Temukan ukuran yang paling pas buat kamu dengan panduan di bawah ini.</p>
 
         <!-- Tips -->
         <div class="mt-8 bg-maroon-50 dark:bg-maroon/10 border-2 border-maroon-100 dark:border-maroon/30 rounded-2xl p-5">
-            <h3 class="text-sm font-bold text-charcoal dark:text-slate-100 mb-2">Tips Mengukur</h3>
-            <ul class="text-sm text-charcoal/70 dark:text-slate-300 space-y-1.5 list-disc list-inside">
+            <h3 class="text-sm font-bold text-charcoal dark:text-[#f0eeeb] mb-2">Tips Mengukur</h3>
+            <ul class="text-sm text-charcoal/70 dark:text-[#d0ceca] space-y-1.5 list-disc list-inside">
                 <li>Gunakan pita ukur yang fleksibel, bukan penggaris kaku</li>
                 <li>Ukur dalam posisi berdiri tegak</li>
                 <li>Untuk hasil terbaik, minta bantuan orang lain saat mengukur</li>
@@ -16,26 +16,26 @@
 
         <!-- Tabel Ukuran Pakaian -->
         <div class="mt-10">
-            <h2 class="text-base font-bold text-charcoal dark:text-slate-100 mb-5">Tabel Ukuran Pakaian (cm)</h2>
-            <div class="overflow-x-auto rounded-2xl border-2 border-maroon-50 dark:border-slate-700">
+            <h2 class="text-base font-bold text-charcoal dark:text-[#f0eeeb] mb-5">Tabel Ukuran Pakaian (cm)</h2>
+            <div class="overflow-x-auto rounded-2xl border-2 border-maroon-50 dark:border-[#303032]">
                 <table class="w-full text-sm">
                     <thead>
-                        <tr class="bg-maroon-50 dark:bg-slate-700/50">
-                            <th class="px-4 py-3 text-left text-xs font-bold text-charcoal dark:text-slate-200 tracking-wide">Ukuran</th>
-                            <th class="px-4 py-3 text-center text-xs font-bold text-charcoal dark:text-slate-200 tracking-wide">Lingkar Dada</th>
-                            <th class="px-4 py-3 text-center text-xs font-bold text-charcoal dark:text-slate-200 tracking-wide">Lingkar Pinggang</th>
-                            <th class="px-4 py-3 text-center text-xs font-bold text-charcoal dark:text-slate-200 tracking-wide">Lingkar Pinggul</th>
-                            <th class="px-4 py-3 text-center text-xs font-bold text-charcoal dark:text-slate-200 tracking-wide">Panjang Baju</th>
+                        <tr class="bg-maroon-50 dark:bg-[#28282a]/50">
+                            <th class="px-4 py-3 text-left text-xs font-bold text-charcoal dark:text-[#f0eeeb] tracking-wide">Ukuran</th>
+                            <th class="px-4 py-3 text-center text-xs font-bold text-charcoal dark:text-[#f0eeeb] tracking-wide">Lingkar Dada</th>
+                            <th class="px-4 py-3 text-center text-xs font-bold text-charcoal dark:text-[#f0eeeb] tracking-wide">Lingkar Pinggang</th>
+                            <th class="px-4 py-3 text-center text-xs font-bold text-charcoal dark:text-[#f0eeeb] tracking-wide">Lingkar Pinggul</th>
+                            <th class="px-4 py-3 text-center text-xs font-bold text-charcoal dark:text-[#f0eeeb] tracking-wide">Panjang Baju</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="(row, i) in sizeChart" :key="row.size"
-                            :class="i % 2 === 0 ? 'bg-white dark:bg-slate-800' : 'bg-maroon-50/30 dark:bg-slate-700/30'">
+                            :class="i % 2 === 0 ? 'bg-white dark:bg-[#1c1c1e]' : 'bg-maroon-50/30 dark:bg-[#28282a]/30'">
                             <td class="px-4 py-3 font-bold text-maroon">{{ row.size }}</td>
-                            <td class="px-4 py-3 text-center text-charcoal/70 dark:text-slate-300">{{ row.chest }}</td>
-                            <td class="px-4 py-3 text-center text-charcoal/70 dark:text-slate-300">{{ row.waist }}</td>
-                            <td class="px-4 py-3 text-center text-charcoal/70 dark:text-slate-300">{{ row.hip }}</td>
-                            <td class="px-4 py-3 text-center text-charcoal/70 dark:text-slate-300">{{ row.length }}</td>
+                            <td class="px-4 py-3 text-center text-charcoal/70 dark:text-[#d0ceca]">{{ row.chest }}</td>
+                            <td class="px-4 py-3 text-center text-charcoal/70 dark:text-[#d0ceca]">{{ row.waist }}</td>
+                            <td class="px-4 py-3 text-center text-charcoal/70 dark:text-[#d0ceca]">{{ row.hip }}</td>
+                            <td class="px-4 py-3 text-center text-charcoal/70 dark:text-[#d0ceca]">{{ row.length }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -44,18 +44,18 @@
 
         <!-- Cara Mengukur -->
         <div class="mt-10">
-            <h2 class="text-base font-bold text-charcoal dark:text-slate-100 mb-5">Cara Mengukur</h2>
+            <h2 class="text-base font-bold text-charcoal dark:text-[#f0eeeb] mb-5">Cara Mengukur</h2>
             <div class="grid sm:grid-cols-2 gap-4">
                 <div v-for="guide in measureGuides" :key="guide.title"
-                    class="bg-white dark:bg-slate-800 p-5 rounded-2xl border-2 border-maroon-50 dark:border-slate-700">
+                    class="bg-white dark:bg-[#1c1c1e] p-5 rounded-2xl border-2 border-maroon-50 dark:border-[#303032]">
                     <div class="text-maroon font-bold text-xs mb-2 uppercase tracking-wide">{{ guide.title }}</div>
-                    <p class="text-sm text-charcoal/70 dark:text-slate-300 leading-relaxed">{{ guide.desc }}</p>
+                    <p class="text-sm text-charcoal/70 dark:text-[#d0ceca] leading-relaxed">{{ guide.desc }}</p>
                 </div>
             </div>
         </div>
 
         <!-- Disclaimer -->
-        <p class="mt-8 text-xs text-charcoal/40 dark:text-slate-500 text-center leading-relaxed">
+        <p class="mt-8 text-xs text-charcoal/40 dark:text-[#6a6a6e] text-center leading-relaxed">
             Ukuran bisa sedikit berbeda tergantung model dan bahan produk. Cek deskripsi tiap produk untuk detail ukuran spesifik.
         </p>
     </div>

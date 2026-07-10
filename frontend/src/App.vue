@@ -1,7 +1,7 @@
-<template>
+﻿<template>
     <div class="min-h-screen bg-paper dark:bg-ink transition-colors duration-200">
         <!-- Promo / Announcement Bar -->
-        <div class="bg-white dark:bg-slate-800 border-b border-zinc-200 dark:border-slate-700 text-[10px] font-medium tracking-[0.18em] text-charcoal/60 dark:text-slate-400 uppercase">
+        <div class="bg-white dark:bg-[#1c1c1e] border-b border-zinc-200 dark:border-[#303032] text-[10px] font-medium tracking-[0.18em] text-charcoal/60 dark:text-[#8a8a8e] uppercase">
             <div class="max-w-7xl mx-auto px-4 py-2">
                 <!-- Desktop View (3 columns) -->
                 <div class="hidden lg:grid grid-cols-3 gap-4 text-center">
@@ -11,7 +11,7 @@
                         </svg>
                         Gratis Ongkir Seluruh Indonesia | Min. Belanja Rp 200rb
                     </router-link>
-                    <router-link to="/?shop=1" class="hover:text-maroon transition-colors flex items-center justify-center gap-1.5 border-x border-zinc-200 dark:border-slate-600">
+                    <router-link to="/?shop=1" class="hover:text-maroon transition-colors flex items-center justify-center gap-1.5 border-x border-zinc-200 dark:border-[#303032]">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                         </svg>
@@ -51,13 +51,13 @@
                 <div class="flex items-center justify-between h-16 lg:h-[72px]">
                     <!-- Left: Hamburger & Logo -->
                     <div class="flex items-center gap-3">
-                        <button @click="mobileOpen = !mobileOpen" class="lg:hidden p-2 -ml-2 text-charcoal dark:text-slate-300 hover:text-maroon transition-colors" aria-label="Menu">
+                        <button @click="mobileOpen = !mobileOpen" class="lg:hidden p-2 -ml-2 text-charcoal dark:text-[#d0ceca] hover:text-maroon transition-colors" aria-label="Menu">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
                                 <path d="M4 6h16M4 12h16M4 18h16"/>
                             </svg>
                         </button>
                         <router-link to="/" class="flex items-center">
-                            <span class="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-[0.22em] text-charcoal dark:text-slate-100 font-serif hover:text-maroon transition-colors">ALIESMO</span>
+                            <span class="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-[0.22em] text-charcoal dark:text-[#f0eeeb] font-serif hover:text-maroon transition-colors">ALIESMO</span>
                         </router-link>
                     </div>
 
@@ -67,7 +67,7 @@
                             v-model="searchQuery"
                             type="text"
                             placeholder="Cari kemeja, batik, atau koleksi..."
-                            class="w-full pl-5 pr-14 py-2.5 rounded-full border border-zinc-200 dark:border-slate-600 focus:outline-none focus:border-maroon focus:ring-2 focus:ring-maroon/10 text-sm transition-all bg-zinc-50/20 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-400"
+                            class="w-full pl-5 pr-14 py-2.5 rounded-full border border-zinc-200 dark:border-[#303032] focus:outline-none focus:border-maroon focus:ring-2 focus:ring-maroon/10 text-sm transition-all bg-zinc-50/20 dark:bg-[#1c1c1e] dark:text-[#f0eeeb] dark:placeholder-[#8a8a8e]"
                         />
                         <button
                             type="submit"
@@ -95,17 +95,17 @@
                                 </button>
                                 <!-- Dropdown -->
                                 <Transition name="dropdown">
-                                    <div v-if="userMenuOpen" class="absolute right-0 top-full mt-2 w-44 bg-white dark:bg-slate-800 border border-zinc-100 dark:border-slate-700 rounded-xl shadow-xl z-50 overflow-hidden py-1">
-                                        <router-link @click="userMenuOpen = false" to="/profile" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-charcoal/80 dark:text-slate-300 hover:bg-zinc-50 dark:hover:bg-slate-700 hover:text-maroon transition-colors">
+                                    <div v-if="userMenuOpen" class="absolute right-0 top-full mt-2 w-44 bg-white dark:bg-[#1c1c1e] border border-zinc-100 dark:border-[#303032] rounded-xl shadow-xl z-50 overflow-hidden py-1">
+                                        <router-link @click="userMenuOpen = false" to="/profile" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-charcoal/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#303032] hover:text-maroon transition-colors">
                                             <UserIconOutline class="w-[15px] h-[15px] shrink-0" />
                                             Akun Saya
                                         </router-link>
-                                        <router-link @click="userMenuOpen = false" to="/profile?tab=pesanan" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-charcoal/80 dark:text-slate-300 hover:bg-zinc-50 dark:hover:bg-slate-700 hover:text-maroon transition-colors">
+                                        <router-link @click="userMenuOpen = false" to="/profile?tab=pesanan" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-charcoal/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#303032] hover:text-maroon transition-colors">
                                             <ShoppingBagIcon class="w-[15px] h-[15px] shrink-0" />
                                             Pesanan Saya
                                         </router-link>
-                                        <div class="h-px bg-zinc-100 dark:bg-slate-700 mx-3 my-1"></div>
-                                        <button @click="userMenuOpen = false; handleLogout()" class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-charcoal/80 dark:text-slate-300 hover:bg-zinc-50 dark:hover:bg-slate-700 hover:text-maroon transition-colors cursor-pointer">
+                                        <div class="h-px bg-zinc-100 dark:bg-[#28282a] mx-3 my-1"></div>
+                                        <button @click="userMenuOpen = false; handleLogout()" class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-charcoal/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#303032] hover:text-maroon transition-colors cursor-pointer">
                                             <ArrowRightOnRectangleIcon class="w-[15px] h-[15px] shrink-0" />
                                             Keluar
                                         </button>
@@ -115,7 +115,7 @@
                         </div>
 
                         <!-- Dark Mode Toggle -->
-                        <button @click="toggle" class="p-2 text-charcoal/70 dark:text-slate-400 hover:text-maroon dark:hover:text-maroon transition-colors" :aria-label="isDark ? 'Light mode' : 'Dark mode'">
+                        <button @click="toggle" class="p-2 text-charcoal/70 dark:text-[#8a8a8e] hover:text-maroon dark:hover:text-maroon transition-colors" :aria-label="isDark ? 'Light mode' : 'Dark mode'">
                             <!-- Sun icon (shown in dark mode) -->
                             <svg v-if="isDark" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
@@ -152,7 +152,7 @@
                             v-model="searchQuery"
                             type="text"
                             placeholder="Cari kemeja, batik, atau koleksi..."
-                            class="w-full pl-5 pr-12 py-2 rounded-full border border-zinc-200 dark:border-slate-600 focus:outline-none focus:border-maroon focus:ring-2 focus:ring-maroon/10 text-xs transition-all bg-zinc-50/20 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-400"
+                            class="w-full pl-5 pr-12 py-2 rounded-full border border-zinc-200 dark:border-[#303032] focus:outline-none focus:border-maroon focus:ring-2 focus:ring-maroon/10 text-xs transition-all bg-zinc-50/20 dark:bg-[#1c1c1e] dark:text-[#f0eeeb] dark:placeholder-[#8a8a8e]"
                         />
                         <button
                             type="submit"
@@ -168,12 +168,12 @@
             </div>
 
             <!-- Bottom Row: Category Navigation (Desktop only) -->
-            <div class="border-t border-zinc-100 dark:border-slate-700/60 hidden lg:block bg-white dark:bg-slate-900">
+            <div class="border-t border-zinc-100 dark:border-[#303032]/60 hidden lg:block bg-white dark:bg-[#161618]">
                 <div class="max-w-7xl mx-auto px-8">
                     <nav class="flex items-center justify-center gap-8 h-10">
                         <router-link
                             to="/"
-                            class="text-xs font-bold tracking-wider text-charcoal/70 dark:text-slate-400 hover:text-maroon dark:hover:text-maroon hover:border-b-2 hover:border-maroon transition-all py-2.5 uppercase"
+                            class="text-xs font-bold tracking-wider text-charcoal/70 dark:text-[#8a8a8e] hover:text-maroon dark:hover:text-maroon hover:border-b-2 hover:border-maroon transition-all py-2.5 uppercase"
                             :class="{ 'border-b-2 border-maroon text-maroon font-bold': $route.path === '/' }"
                         >
                             Semua
@@ -194,33 +194,33 @@
 
         <!-- Mobile Navigation Drawer -->
         <Transition name="mobile-nav">
-            <div v-if="mobileOpen" class="lg:hidden border-t border-zinc-200/50 dark:border-slate-700/50 bg-white dark:bg-slate-900 shadow-xl fixed top-[110px] left-0 right-0 z-40 max-h-[calc(100vh-110px)] overflow-y-auto">
+            <div v-if="mobileOpen" class="lg:hidden border-t border-zinc-200/50 dark:border-[#303032]/50 bg-white dark:bg-[#161618] shadow-xl fixed top-[110px] left-0 right-0 z-40 max-h-[calc(100vh-110px)] overflow-y-auto">
                 <nav class="px-5 py-6 space-y-5">
-                    <router-link @click="mobileOpen = false" to="/" class="block text-sm font-bold text-charcoal/80 dark:text-slate-300 hover:text-maroon uppercase tracking-wide">Semua Koleksi</router-link>
-                    <router-link v-if="isLoggedIn" @click="mobileOpen = false" to="/profile" class="block text-sm font-bold text-charcoal/80 dark:text-slate-300 hover:text-maroon uppercase tracking-wide">Akun Saya</router-link>
-                    <router-link v-if="isLoggedIn" @click="mobileOpen = false" to="/profile?tab=pesanan" class="block text-sm font-bold text-charcoal/80 dark:text-slate-300 hover:text-maroon uppercase tracking-wide">Pesanan Saya</router-link>
+                    <router-link @click="mobileOpen = false" to="/" class="block text-sm font-bold text-charcoal/80 dark:text-[#d0ceca] hover:text-maroon uppercase tracking-wide">Semua Koleksi</router-link>
+                    <router-link v-if="isLoggedIn" @click="mobileOpen = false" to="/profile" class="block text-sm font-bold text-charcoal/80 dark:text-[#d0ceca] hover:text-maroon uppercase tracking-wide">Akun Saya</router-link>
+                    <router-link v-if="isLoggedIn" @click="mobileOpen = false" to="/profile?tab=pesanan" class="block text-sm font-bold text-charcoal/80 dark:text-[#d0ceca] hover:text-maroon uppercase tracking-wide">Pesanan Saya</router-link>
                     
-                    <div class="h-[1px] bg-zinc-100 dark:bg-slate-700"></div>
+                    <div class="h-[1px] bg-zinc-100 dark:bg-[#28282a]"></div>
                     
                     <div>
-                        <p class="text-[10px] font-bold text-zinc-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1">Kategori</p>
+                        <p class="text-[10px] font-bold text-zinc-400 dark:text-[#6a6a6e] uppercase tracking-widest mb-3 px-1">Kategori</p>
                         <div class="grid grid-cols-2 gap-3">
                             <router-link
                                 v-for="cat in categories"
                                 :key="cat.slug"
                                 @click="mobileOpen = false"
                                 :to="`/catalog/${cat.slug}`"
-                                class="block text-xs font-semibold text-charcoal/70 dark:text-slate-400 hover:text-maroon bg-zinc-50 dark:bg-slate-800 hover:bg-maroon-50/30 px-3 py-2.5 rounded-lg uppercase tracking-wider text-center transition-all border border-zinc-100 dark:border-slate-700"
+                                class="block text-xs font-semibold text-charcoal/70 dark:text-[#8a8a8e] hover:text-maroon bg-zinc-50 dark:bg-[#1c1c1e] hover:bg-maroon-50/30 px-3 py-2.5 rounded-lg uppercase tracking-wider text-center transition-all border border-zinc-100 dark:border-[#303032]"
                             >
                                 {{ cat.name }}
                             </router-link>
                         </div>
                     </div>
                     
-                    <div class="h-[1px] bg-zinc-100 dark:bg-slate-700"></div>
+                    <div class="h-[1px] bg-zinc-100 dark:bg-[#28282a]"></div>
                     
                     <!-- Dark Mode Toggle (Mobile) -->
-                    <button @click="toggle" class="flex items-center gap-3 text-sm font-bold text-charcoal/80 dark:text-slate-300 hover:text-maroon uppercase tracking-wide w-full">
+                    <button @click="toggle" class="flex items-center gap-3 text-sm font-bold text-charcoal/80 dark:text-[#d0ceca] hover:text-maroon uppercase tracking-wide w-full">
                         <svg v-if="isDark" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
                         </svg>
@@ -232,14 +232,14 @@
 
                     <div class="space-y-3 pb-4">
                         <router-link v-if="!isLoggedIn" @click="mobileOpen = false" to="/login" class="block text-center text-xs font-bold text-white bg-maroon py-3 rounded-lg uppercase tracking-wider transition-colors hover:bg-maroon-600">Masuk / Daftar</router-link>
-                        <button v-else @click="triggerMobileLogout" class="block w-full text-center text-xs font-bold text-white bg-charcoal dark:bg-slate-700 py-3 rounded-lg uppercase tracking-wider cursor-pointer">Keluar</button>
+                        <button v-else @click="triggerMobileLogout" class="block w-full text-center text-xs font-bold text-white bg-charcoal dark:bg-[#28282a] py-3 rounded-lg uppercase tracking-wider cursor-pointer">Keluar</button>
                     </div>
                 </nav>
             </div>
         </Transition>
 
         <!-- Main Content -->
-        <main class="min-h-[70vh] bg-white dark:bg-slate-900 transition-colors duration-200">
+        <main class="min-h-[70vh] bg-white dark:bg-[#161618] transition-colors duration-200">
             <router-view />
         </main>
 
@@ -287,12 +287,12 @@
 
         <!-- Cart Toast Notification -->
         <Transition name="toast">
-            <div v-if="showToast" class="fixed bottom-5 right-5 z-[99] w-72 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-zinc-100 dark:border-slate-700 overflow-hidden">
+            <div v-if="showToast" class="fixed bottom-5 right-5 z-[99] w-72 bg-white dark:bg-[#1c1c1e] rounded-2xl shadow-2xl border border-zinc-100 dark:border-[#303032] overflow-hidden">
                 <!-- Green accent bar -->
                 <div class="h-1 w-full bg-gradient-to-r from-emerald-400 to-emerald-500"></div>
                 <div class="p-3.5 flex items-center gap-3">
                     <!-- Thumbnail -->
-                    <div class="w-12 h-12 rounded-xl overflow-hidden bg-zinc-100 dark:bg-slate-700 flex-shrink-0">
+                    <div class="w-12 h-12 rounded-xl overflow-hidden bg-zinc-100 dark:bg-[#28282a] flex-shrink-0">
                         <img v-if="cartToast.thumbnail" :src="cartToast.thumbnail" :alt="cartToast.name" class="w-full h-full object-cover">
                         <div v-else class="w-full h-full flex items-center justify-center">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-zinc-400">
@@ -308,8 +308,8 @@
                             </svg>
                             <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">Ditambahkan ke keranjang</span>
                         </div>
-                        <p class="text-sm font-semibold text-charcoal dark:text-slate-100 truncate">{{ cartToast.name }}</p>
-                        <p class="text-xs text-charcoal/50 dark:text-slate-400">{{ cartToast.quantity }} item</p>
+                        <p class="text-sm font-semibold text-charcoal dark:text-[#f0eeeb] truncate">{{ cartToast.name }}</p>
+                        <p class="text-xs text-charcoal/50 dark:text-[#8a8a8e]">{{ cartToast.quantity }} item</p>
                     </div>
                     <!-- Cart link -->
                     <router-link to="/cart" @click="showToast = false" class="flex-shrink-0 px-3 py-1.5 bg-maroon text-white text-[11px] font-bold rounded-lg hover:bg-maroon-600 transition-colors">
@@ -337,13 +337,13 @@ import api, { clearToken } from './api'
 import { UserIcon } from '@heroicons/vue/24/solid'
 import { UserIcon as UserIconOutline, ShoppingBagIcon, ArrowRightOnRectangleIcon } from '@heroicons/vue/24/outline'
 import { useSettings } from './useSettings'
+import { useDarkMode } from './useDarkMode'
 
 const router = useRouter()
 const route = useRoute()
 const { items } = useCartStore()
 const { fetchSettings, get } = useSettings()
-const isDark = ref(false)
-const toggle = () => { isDark.value = !isDark.value; document.documentElement.classList.toggle('dark', isDark.value) }
+const { isDark, toggle, init: initDarkMode } = useDarkMode()
 const mobileOpen = ref(false)
 const isLoggedIn = ref(false)
 const userMenuOpen = ref(false)
@@ -390,8 +390,8 @@ const handleClickOutside = (e) => {
 }
 
 onMounted(async () => {
-    // Ensure light mode on mount
-    document.documentElement.classList.remove('dark')
+    // Initialize dark mode from localStorage
+    initDarkMode()
 
     isLoggedIn.value = !!localStorage.getItem('token')
 

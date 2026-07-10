@@ -1,7 +1,7 @@
-<template>
+﻿<template>
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
-        <h1 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Pesanan Saya</h1>
-        <p class="mt-2 text-sm text-charcoal/50 dark:text-slate-400">Lihat semua pesanan dan status pengirimannya</p>
+        <h1 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Pesanan Saya</h1>
+        <p class="mt-2 text-sm text-charcoal/50 dark:text-[#8a8a8e]">Lihat semua pesanan dan status pengirimannya</p>
 
         <div v-if="loading" class="py-24 text-center">
             <div class="inline-block w-10 h-10 border-4 border-maroon-100 border-t-maroon rounded-full animate-spin"></div>
@@ -10,8 +10,8 @@
 
         <div v-else-if="!isLoggedIn" class="py-24 text-center">
             <UserIcon class="w-16 h-16 mx-auto text-maroon-200" />
-            <h2 class="mt-4 text-xl font-bold text-charcoal dark:text-slate-100">Login dulu yuk!</h2>
-            <p class="mt-2 text-sm text-charcoal/50 dark:text-slate-400">Kamu harus login untuk lihat pesanan</p>
+            <h2 class="mt-4 text-xl font-bold text-charcoal dark:text-[#f0eeeb]">Login dulu yuk!</h2>
+            <p class="mt-2 text-sm text-charcoal/50 dark:text-[#8a8a8e]">Kamu harus login untuk lihat pesanan</p>
             <router-link to="/login" class="inline-block mt-6 px-8 py-3 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25">
                 Login Sekarang
             </router-link>
@@ -19,8 +19,8 @@
 
         <div v-else-if="!orders.length" class="py-24 text-center">
             <ShoppingCartIcon class="w-16 h-16 mx-auto text-maroon-200" />
-            <h2 class="mt-4 text-xl font-bold text-charcoal dark:text-slate-100">Belum ada pesanan nih</h2>
-            <p class="mt-2 text-sm text-charcoal/50 dark:text-slate-400">Yuk belanja sekarang!</p>
+            <h2 class="mt-4 text-xl font-bold text-charcoal dark:text-[#f0eeeb]">Belum ada pesanan nih</h2>
+            <p class="mt-2 text-sm text-charcoal/50 dark:text-[#8a8a8e]">Yuk belanja sekarang!</p>
             <router-link to="/?shop=1" class="inline-block mt-6 px-8 py-3 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25">
                 Mulai Belanja
             </router-link>
@@ -44,39 +44,39 @@
                 {{ claimedMsg }}
             </div>
 
-            <div v-for="order in orders" :key="order.id" class="bg-white dark:bg-slate-800 p-6 rounded-2xl border-2 border-maroon-50 dark:border-slate-700 hover:border-maroon-100 dark:hover:border-slate-600 transition-colors">
+            <div v-for="order in orders" :key="order.id" class="bg-white dark:bg-[#1c1c1e] p-6 rounded-2xl border-2 border-maroon-50 dark:border-[#303032] hover:border-maroon-100 dark:hover:border-slate-600 transition-colors">
                 <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
                     <div>
                         <div class="flex items-center gap-3">
-                            <h3 class="text-base font-bold text-charcoal dark:text-slate-100">{{ order.order_number }}</h3>
+                            <h3 class="text-base font-bold text-charcoal dark:text-[#f0eeeb]">{{ order.order_number }}</h3>
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
                                 :class="statusClass(order.status)">
                                 {{ statusLabel(order.status) }}
                             </span>
                         </div>
-                        <p class="mt-1 text-xs text-charcoal/50 dark:text-slate-400">{{ formatDate(order.created_at) }}</p>
+                        <p class="mt-1 text-xs text-charcoal/50 dark:text-[#8a8a8e]">{{ formatDate(order.created_at) }}</p>
                     </div>
                     <div class="text-right">
-                        <p class="text-xs text-charcoal/50 dark:text-slate-400">Total Pembayaran</p>
+                        <p class="text-xs text-charcoal/50 dark:text-[#8a8a8e]">Total Pembayaran</p>
                         <p class="text-lg font-bold text-maroon">Rp{{ formatPrice(order.total) }}</p>
                     </div>
                 </div>
 
-                <div class="border-t border-maroon-100 dark:border-slate-700 pt-4 space-y-2">
+                <div class="border-t border-maroon-100 dark:border-[#303032] pt-4 space-y-2">
                     <div v-for="item in order.items" :key="item.id" class="flex justify-between text-sm">
-                        <span class="text-charcoal/70 dark:text-slate-400">{{ item.product_name }} <span class="text-charcoal/40 dark:text-slate-500">×{{ item.quantity }}</span></span>
-                        <span class="font-medium text-charcoal dark:text-slate-200">Rp{{ formatPrice(item.subtotal) }}</span>
+                        <span class="text-charcoal/70 dark:text-[#8a8a8e]">{{ item.product_name }} <span class="text-charcoal/40 dark:text-[#6a6a6e]">×{{ item.quantity }}</span></span>
+                        <span class="font-medium text-charcoal dark:text-[#f0eeeb]">Rp{{ formatPrice(item.subtotal) }}</span>
                     </div>
                     <!-- Diskon kupon — diarsipkan sementara -->
                     <!--
-                    <div v-if="order.coupon_discount > 0" class="flex justify-between text-sm text-green-600 dark:text-green-400 pt-1 border-t border-maroon-50 dark:border-slate-700">
+                    <div v-if="order.coupon_discount > 0" class="flex justify-between text-sm text-green-600 dark:text-green-400 pt-1 border-t border-maroon-50 dark:border-[#303032]">
                         <span>Diskon Kupon <span v-if="order.coupon_code" class="font-mono text-xs bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-1.5 py-0.5 rounded ml-1">{{ order.coupon_code }}</span></span>
                         <span class="font-medium">-Rp{{ formatPrice(order.coupon_discount) }}</span>
                     </div>
                     -->
                 </div>
 
-                <div class="mt-4 pt-4 border-t border-maroon-100 dark:border-slate-700 flex flex-col sm:flex-row gap-3">
+                <div class="mt-4 pt-4 border-t border-maroon-100 dark:border-[#303032] flex flex-col sm:flex-row gap-3">
                     <router-link :to="`/order/${order.order_number}`" class="flex-1 text-center px-6 py-2.5 border-2 border-maroon text-maroon text-sm font-semibold rounded-xl hover:bg-maroon hover:text-white transition-all">
                         Lihat Detail
                     </router-link>
@@ -88,13 +88,13 @@
 
             <!-- Pagination -->
             <div v-if="pagination && pagination.last_page > 1" class="flex justify-center gap-2 mt-8">
-                <button @click="loadOrders(pagination.current_page - 1)" :disabled="!pagination.prev_page_url" class="px-4 py-2 border-2 border-maroon-100 dark:border-slate-600 text-charcoal dark:text-slate-300 text-sm font-semibold rounded-xl hover:border-maroon dark:hover:border-maroon transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                <button @click="loadOrders(pagination.current_page - 1)" :disabled="!pagination.prev_page_url" class="px-4 py-2 border-2 border-maroon-100 dark:border-[#303032] text-charcoal dark:text-[#d0ceca] text-sm font-semibold rounded-xl hover:border-maroon dark:hover:border-maroon transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                     Prev
                 </button>
-                <span class="px-4 py-2 text-sm text-charcoal/60 dark:text-slate-400">
+                <span class="px-4 py-2 text-sm text-charcoal/60 dark:text-[#8a8a8e]">
                     Halaman {{ pagination.current_page }} dari {{ pagination.last_page }}
                 </span>
-                <button @click="loadOrders(pagination.current_page + 1)" :disabled="!pagination.next_page_url" class="px-4 py-2 border-2 border-maroon-100 dark:border-slate-600 text-charcoal dark:text-slate-300 text-sm font-semibold rounded-xl hover:border-maroon dark:hover:border-maroon transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                <button @click="loadOrders(pagination.current_page + 1)" :disabled="!pagination.next_page_url" class="px-4 py-2 border-2 border-maroon-100 dark:border-[#303032] text-charcoal dark:text-[#d0ceca] text-sm font-semibold rounded-xl hover:border-maroon dark:hover:border-maroon transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                     Next
                 </button>
             </div>

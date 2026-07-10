@@ -1,26 +1,26 @@
-<template>
+﻿<template>
     <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div class="text-center mb-10">
             <div class="w-14 h-14 rounded-2xl bg-ink-05 border-2 border-ink-10 flex items-center justify-center mx-auto mb-4">
-                <MagnifyingGlassIcon class="w-6 h-6 text-charcoal dark:text-slate-200" />
+                <MagnifyingGlassIcon class="w-6 h-6 text-charcoal dark:text-[#f0eeeb]" />
             </div>
-            <h1 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Lacak Pesanan</h1>
-            <p class="mt-2 text-sm text-charcoal/50 dark:text-slate-400">Masukkan email dan nomor pesanan untuk melihat status pengirimanmu</p>
+            <h1 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Lacak Pesanan</h1>
+            <p class="mt-2 text-sm text-charcoal/50 dark:text-[#8a8a8e]">Masukkan email dan nomor pesanan untuk melihat status pengirimanmu</p>
         </div>
 
         <!-- Form Lacak -->
-        <div v-if="!order" class="bg-white dark:bg-slate-800 p-6 lg:p-8 rounded-2xl border-2 border-ink-10 dark:border-slate-700">
+        <div v-if="!order" class="bg-white dark:bg-[#1c1c1e] p-6 lg:p-8 rounded-2xl border-2 border-ink-10 dark:border-[#303032]">
             <form @submit.prevent="trackOrder" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-charcoal/60 dark:text-slate-400 mb-1.5">Email</label>
+                    <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Email</label>
                     <input v-model="form.email" type="email" required placeholder="email yang kamu pakai saat checkout"
-                        class="w-full border-2 border-ink-10 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-slate-100 placeholder:text-charcoal/30 dark:placeholder:text-slate-500 bg-white dark:bg-slate-700 focus:border-ink focus:outline-none transition-colors">
+                        class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-ink focus:outline-none transition-colors">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-charcoal/60 dark:text-slate-400 mb-1.5">Nomor Pesanan</label>
+                    <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Nomor Pesanan</label>
                     <input v-model="form.order_number" required
                         placeholder="Contoh: ORD-20260706-0001-ABC"
-                        class="w-full border-2 border-ink-10 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-slate-100 placeholder:text-charcoal/30 dark:placeholder:text-slate-500 bg-white dark:bg-slate-700 focus:border-ink focus:outline-none transition-colors uppercase"
+                        class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-ink focus:outline-none transition-colors uppercase"
                         @input="form.order_number = form.order_number.toUpperCase()">
                 </div>
 
@@ -39,19 +39,19 @@
         <!-- Hasil Pesanan -->
         <div v-else class="space-y-4">
             <div class="flex items-center justify-between">
-                <h2 class="text-sm font-bold text-charcoal/50 dark:text-slate-400 uppercase tracking-wide">Hasil Pencarian</h2>
+                <h2 class="text-sm font-bold text-charcoal/50 dark:text-[#8a8a8e] uppercase tracking-wide">Hasil Pencarian</h2>
                 <button @click="reset" class="text-xs font-semibold text-ink hover:text-ink-60 transition-colors">
                     Cari Pesanan Lain
                 </button>
             </div>
 
-            <div class="bg-white dark:bg-slate-800 p-6 lg:p-8 rounded-2xl border-2 border-ink-10 dark:border-slate-700">
+            <div class="bg-white dark:bg-[#1c1c1e] p-6 lg:p-8 rounded-2xl border-2 border-ink-10 dark:border-[#303032]">
                 <!-- Header -->
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
                     <div>
-                        <p class="text-xs text-charcoal/40 dark:text-slate-500 font-medium">No. Pesanan</p>
+                        <p class="text-xs text-charcoal/40 dark:text-[#6a6a6e] font-medium">No. Pesanan</p>
                         <p class="text-lg font-bold text-ink">{{ order.order_number }}</p>
-                        <p class="text-xs text-charcoal/40 dark:text-slate-500 mt-0.5">{{ formatDate(order.created_at) }}</p>
+                        <p class="text-xs text-charcoal/40 dark:text-[#6a6a6e] mt-0.5">{{ formatDate(order.created_at) }}</p>
                     </div>
                     <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold self-start sm:self-center"
                         :class="statusClass(order.status)">
@@ -66,7 +66,7 @@
                             class="flex items-center" :class="i < statusSteps.length - 1 ? 'flex-1' : ''">
                             <div class="flex flex-col items-center">
                                 <div class="w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all"
-                                    :class="isStepDone(step.key) ? 'bg-maroon border-maroon' : isStepCurrent(step.key) ? 'bg-white dark:bg-slate-800 border-maroon' : 'bg-white dark:bg-slate-800 border-maroon-100 dark:border-slate-600'">
+                                    :class="isStepDone(step.key) ? 'bg-maroon border-maroon' : isStepCurrent(step.key) ? 'bg-white dark:bg-[#1c1c1e] border-maroon' : 'bg-white dark:bg-[#1c1c1e] border-maroon-100 dark:border-[#303032]'">
                                     <svg v-if="isStepDone(step.key)" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="square"><polyline points="20 6 9 17 4 12"/></svg>
                                     <div v-else class="w-2 h-2 rounded-full"                                     :class="isStepCurrent(step.key) ? 'bg-maroon' : 'bg-maroon-100 dark:bg-slate-600'"></div>
                                 </div>
@@ -84,16 +84,16 @@
                 </div>
 
                 <!-- Items -->
-                <div class="border-t border-maroon-100 dark:border-slate-700 pt-4 space-y-2 mb-4">
+                <div class="border-t border-maroon-100 dark:border-[#303032] pt-4 space-y-2 mb-4">
                     <div v-for="item in order.items" :key="item.id" class="flex justify-between text-sm">
-                        <span class="text-charcoal/70 dark:text-slate-300">{{ item.product_name }} <span class="text-charcoal/40 dark:text-slate-500">×{{ item.quantity }}</span></span>
-                        <span class="font-medium text-charcoal dark:text-slate-100">Rp{{ formatPrice(item.subtotal) }}</span>
+                        <span class="text-charcoal/70 dark:text-[#d0ceca]">{{ item.product_name }} <span class="text-charcoal/40 dark:text-[#6a6a6e]">×{{ item.quantity }}</span></span>
+                        <span class="font-medium text-charcoal dark:text-[#f0eeeb]">Rp{{ formatPrice(item.subtotal) }}</span>
                     </div>
                 </div>
 
                 <!-- Totals -->
-                <div class="border-t border-maroon-100 dark:border-slate-700 pt-4 space-y-1.5 text-sm">
-                    <div class="flex justify-between text-charcoal/60 dark:text-slate-400">
+                <div class="border-t border-maroon-100 dark:border-[#303032] pt-4 space-y-1.5 text-sm">
+                    <div class="flex justify-between text-charcoal/60 dark:text-[#8a8a8e]">
                         <span>Subtotal</span>
                         <span>Rp{{ formatPrice(order.subtotal) }}</span>
                     </div>
@@ -104,30 +104,30 @@
                         <span>-Rp{{ formatPrice(order.coupon_discount) }}</span>
                     </div>
                     -->
-                    <div v-if="order.shipping_cost > 0" class="flex justify-between text-charcoal/60 dark:text-slate-400">
+                    <div v-if="order.shipping_cost > 0" class="flex justify-between text-charcoal/60 dark:text-[#8a8a8e]">
                         <span>Ongkir</span>
                         <span>Rp{{ formatPrice(order.shipping_cost) }}</span>
                     </div>
-                    <div class="flex justify-between font-bold text-base text-charcoal dark:text-slate-100 pt-2 border-t border-maroon-100 dark:border-slate-700">
+                    <div class="flex justify-between font-bold text-base text-charcoal dark:text-[#f0eeeb] pt-2 border-t border-maroon-100 dark:border-[#303032]">
                         <span>Total</span>
                         <span class="text-maroon">Rp{{ formatPrice(order.total) }}</span>
                     </div>
                 </div>
 
                 <!-- Alamat -->
-                <div class="border-t border-maroon-100 dark:border-slate-700 mt-4 pt-4">
-                    <p class="text-xs font-semibold text-charcoal/50 dark:text-slate-400 mb-1">Alamat Pengiriman</p>
-                    <p class="text-sm text-charcoal/70 dark:text-slate-300">{{ order.shipping_address }}</p>
+                <div class="border-t border-maroon-100 dark:border-[#303032] mt-4 pt-4">
+                    <p class="text-xs font-semibold text-charcoal/50 dark:text-[#8a8a8e] mb-1">Alamat Pengiriman</p>
+                    <p class="text-sm text-charcoal/70 dark:text-[#d0ceca]">{{ order.shipping_address }}</p>
                 </div>
 
                 <!-- Bantuan via WhatsApp — selalu muncul -->
-                <div class="mt-6 pt-4 border-t border-maroon-100 dark:border-slate-700">
+                <div class="mt-6 pt-4 border-t border-maroon-100 dark:border-[#303032]">
                     <a :href="waLink(order)" target="_blank" rel="noopener"
                         class="w-full flex items-center justify-center gap-2 py-3 bg-[#25D366] text-white text-sm font-semibold rounded-xl hover:bg-[#1ebe5d] transition-all active:scale-[0.98]">
                         <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                         Hubungi Admin via WhatsApp
                     </a>
-                    <p class="text-[10px] text-center text-charcoal/40 dark:text-slate-500 mt-2">Tanya update pesanan, kirim bukti bayar, atau butuh bantuan lainnya.</p>
+                    <p class="text-[10px] text-center text-charcoal/40 dark:text-[#6a6a6e] mt-2">Tanya update pesanan, kirim bukti bayar, atau butuh bantuan lainnya.</p>
                 </div>
 
                 <!-- CTA Bayar -->
@@ -143,7 +143,7 @@
 
         <!-- Link ke login -->
         <div class="mt-6 text-center">
-            <p class="text-xs text-charcoal/40 dark:text-slate-500">
+            <p class="text-xs text-charcoal/40 dark:text-[#6a6a6e]">
                 Punya akun?
                 <router-link to="/login" class="font-semibold text-maroon hover:text-maroon-600 transition-colors">Login</router-link>
                 untuk lihat semua riwayat pesananmu

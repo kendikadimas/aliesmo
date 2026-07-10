@@ -25,7 +25,7 @@ class ProductResource extends JsonResource
             'thumbnail' => $this->thumbnail
                 ? (str_starts_with($this->thumbnail, 'http') ? $this->thumbnail : asset('storage/' . $this->thumbnail))
                 : null,
-            'category' => new CategoryResource($this->whenLoaded('category')),
+            'categories' => CategoryResource::collection($this->whenLoaded('categories')),
             'images' => ProductImageResource::collection($this->whenLoaded('images')),
             'variants' => ProductVariantResource::collection($this->whenLoaded('variants')),
             'videos'   => ProductVideoResource::collection($this->whenLoaded('videos')),

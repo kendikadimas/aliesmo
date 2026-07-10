@@ -1,12 +1,12 @@
-<template>
+﻿<template>
     <div class="min-h-screen">
         <section class="py-10 lg:py-14">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="mb-8">
-                    <h1 class="text-2xl lg:text-3xl font-bold text-charcoal dark:text-slate-100 tracking-tight">
+                    <h1 class="text-2xl lg:text-3xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">
                         {{ activeCategory ? activeCategory.name : 'Semua Produk' }}
                     </h1>
-                    <p class="mt-1 text-sm text-charcoal/50 dark:text-slate-400">
+                    <p class="mt-1 text-sm text-charcoal/50 dark:text-[#8a8a8e]">
                         {{ activeCategory ? `Menampilkan produk kategori ${activeCategory.name}` : 'Temukan kemeja favoritmu' }}
                     </p>
                 </div>
@@ -16,14 +16,14 @@
                     <button
                         @click="setCategory(null)"
                         class="px-4 py-2 text-xs font-semibold rounded-xl border-2 transition-all"
-                        :class="!selectedSlug ? 'bg-maroon text-white border-maroon' : 'bg-white dark:bg-slate-800 text-charcoal/60 dark:text-slate-400 border-maroon-100 dark:border-slate-600 hover:border-maroon/50'"
+                        :class="!selectedSlug ? 'bg-maroon text-white border-maroon' : 'bg-white dark:bg-[#1c1c1e] text-charcoal/60 dark:text-[#8a8a8e] border-maroon-100 dark:border-[#303032] hover:border-maroon/50'"
                     >Semua</button>
                     <button
                         v-for="cat in categoriesList"
                         :key="cat.id"
                         @click="setCategory(cat.slug)"
                         class="px-4 py-2 text-xs font-semibold rounded-xl border-2 transition-all"
-                        :class="selectedSlug === cat.slug ? 'bg-maroon text-white border-maroon' : 'bg-white dark:bg-slate-800 text-charcoal/60 dark:text-slate-400 border-maroon-100 dark:border-slate-600 hover:border-maroon/50'"
+                        :class="selectedSlug === cat.slug ? 'bg-maroon text-white border-maroon' : 'bg-white dark:bg-[#1c1c1e] text-charcoal/60 dark:text-[#8a8a8e] border-maroon-100 dark:border-[#303032] hover:border-maroon/50'"
                     >{{ cat.name }}</button>
                 </div>
 
@@ -43,7 +43,7 @@
 
                 <!-- Empty -->
                 <div v-else-if="!filteredProducts.length" class="text-center py-16">
-                    <p class="text-lg text-charcoal/50 dark:text-slate-400">Belum ada produk di kategori ini.</p>
+                    <p class="text-lg text-charcoal/50 dark:text-[#8a8a8e]">Belum ada produk di kategori ini.</p>
                     <button @click="setCategory(null)" class="mt-4 px-6 py-2.5 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all">Lihat Semua Produk</button>
                 </div>
 
@@ -52,7 +52,7 @@
                     <div
                         v-for="product in filteredProducts"
                         :key="product.id"
-                        class="group/card cursor-pointer bg-white dark:bg-slate-800 rounded-xl overflow-hidden border border-maroon-50 dark:border-slate-700 hover:border-maroon-200 dark:hover:border-slate-500 transition-all hover:shadow-md active:scale-[0.98]"
+                        class="group/card cursor-pointer bg-white dark:bg-[#1c1c1e] rounded-xl overflow-hidden border border-maroon-50 dark:border-[#303032] hover:border-maroon-200 dark:hover:border-slate-500 transition-all hover:shadow-md active:scale-[0.98]"
                         @click="$router.push(`/products/${product.slug}`)"
                     >
                         <div class="aspect-[3/4] bg-maroon-50 overflow-hidden relative">
@@ -69,7 +69,7 @@
                         </div>
                         <div class="p-2.5">
                             <p class="text-[10px] font-medium text-maroon-400 uppercase tracking-wide">{{ product.category?.name || 'Kemeja' }}</p>
-                            <h3 class="text-xs font-semibold text-charcoal dark:text-slate-200 mt-0.5 leading-snug line-clamp-2">{{ product.name }}</h3>
+                            <h3 class="text-xs font-semibold text-charcoal dark:text-[#f0eeeb] mt-0.5 leading-snug line-clamp-2">{{ product.name }}</h3>
                             <p class="text-sm font-bold text-maroon mt-1.5">Rp{{ formatPrice(product.price) }}</p>
                         </div>
                     </div>

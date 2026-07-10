@@ -49,16 +49,14 @@ const computedRadius = computed(() => `${props.radius}px`)
     animation: skeleton-shimmer 1.5s infinite;
 }
 
-@media (prefers-color-scheme: dark) {
-    .skeleton-loader {
-        background: linear-gradient(
-            90deg,
-            rgba(255, 255, 255, 0.06) 25%,
-            rgba(255, 255, 255, 0.12) 50%,
-            rgba(255, 255, 255, 0.06) 75%
-        );
-        background-size: 200% 100%;
-    }
+:global(.dark) .skeleton-loader {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.05) 25%,
+        rgba(255, 255, 255, 0.09) 50%,
+        rgba(255, 255, 255, 0.05) 75%
+    );
+    background-size: 200% 100%;
 }
 
 @keyframes skeleton-shimmer {

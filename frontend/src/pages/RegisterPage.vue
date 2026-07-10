@@ -1,16 +1,16 @@
-<template>
+﻿<template>
     <div class="min-h-[80vh] flex items-center justify-center px-4 sm:px-6 py-12">
         <div class="w-full max-w-sm">
             <div class="text-center mb-8">
                 <div class="w-14 h-14 rounded-2xl bg-maroon flex items-center justify-center mx-auto">
                     <span class="text-2xl font-bold text-white">A</span>
                 </div>
-                <h1 class="mt-4 text-2xl font-bold text-charcoal dark:text-slate-100">Daftar Akun</h1>
-                <p class="mt-1 text-sm text-charcoal/50 dark:text-slate-400">Gratis, kok! Daftar cuma 1 menit</p>
+                <h1 class="mt-4 text-2xl font-bold text-charcoal dark:text-[#f0eeeb]">Daftar Akun</h1>
+                <p class="mt-1 text-sm text-charcoal/50 dark:text-[#8a8a8e]">Gratis, kok! Daftar cuma 1 menit</p>
             </div>
 
             <!-- Google Register -->
-            <a :href="googleLoginUrl" class="flex items-center justify-center gap-3 w-full px-4 py-2.5 border-2 border-zinc-200 dark:border-slate-600 rounded-xl text-sm font-semibold text-charcoal dark:text-slate-200 hover:border-maroon hover:bg-maroon/5 transition-all active:scale-[0.97] bg-white dark:bg-slate-800 mb-4">
+            <a :href="googleLoginUrl" class="flex items-center justify-center gap-3 w-full px-4 py-2.5 border-2 border-zinc-200 dark:border-[#303032] rounded-xl text-sm font-semibold text-charcoal dark:text-[#f0eeeb] hover:border-maroon hover:bg-maroon/5 transition-all active:scale-[0.97] bg-white dark:bg-[#1c1c1e] mb-4">
                 <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -21,27 +21,27 @@
             </a>
 
             <div class="flex items-center gap-3 mb-4">
-                <div class="flex-1 h-px bg-zinc-200 dark:bg-slate-700"></div>
-                <span class="text-xs text-charcoal/40 dark:text-slate-500 font-medium">atau daftar manual</span>
-                <div class="flex-1 h-px bg-zinc-200 dark:bg-slate-700"></div>
+                <div class="flex-1 h-px bg-zinc-200 dark:bg-[#28282a]"></div>
+                <span class="text-xs text-charcoal/40 dark:text-[#6a6a6e] font-medium">atau daftar manual</span>
+                <div class="flex-1 h-px bg-zinc-200 dark:bg-[#28282a]"></div>
             </div>
 
             <form @submit.prevent="handleRegister" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-charcoal/60 dark:text-slate-400 mb-1.5">Nama Lengkap</label>
-                    <input v-model="form.name" required placeholder="Nama kamu" class="w-full border-2 border-maroon-100 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-slate-200 placeholder:text-charcoal/30 dark:placeholder:text-slate-500 focus:border-maroon focus:outline-none transition-colors bg-white dark:bg-slate-800">
+                    <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Nama Lengkap</label>
+                    <input v-model="form.name" required placeholder="Nama kamu" class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:placeholder:text-[#6a6a6e] focus:border-maroon focus:outline-none transition-colors bg-white dark:bg-[#1c1c1e]">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-charcoal/60 dark:text-slate-400 mb-1.5">Email</label>
-                    <input v-model="form.email" type="email" required placeholder="kamu@email.com" class="w-full border-2 border-maroon-100 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-slate-200 placeholder:text-charcoal/30 dark:placeholder:text-slate-500 focus:border-maroon focus:outline-none transition-colors bg-white dark:bg-slate-800">
+                    <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Email</label>
+                    <input v-model="form.email" type="email" required placeholder="kamu@email.com" class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:placeholder:text-[#6a6a6e] focus:border-maroon focus:outline-none transition-colors bg-white dark:bg-[#1c1c1e]">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-charcoal/60 dark:text-slate-400 mb-1.5">Kata Sandi</label>
-                    <input v-model="form.password" type="password" required placeholder="Minimal 8 karakter" class="w-full border-2 border-maroon-100 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-slate-200 placeholder:text-charcoal/30 dark:placeholder:text-slate-500 focus:border-maroon focus:outline-none transition-colors bg-white dark:bg-slate-800">
+                    <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Kata Sandi</label>
+                    <input v-model="form.password" type="password" required placeholder="Minimal 8 karakter" class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:placeholder:text-[#6a6a6e] focus:border-maroon focus:outline-none transition-colors bg-white dark:bg-[#1c1c1e]">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-charcoal/60 dark:text-slate-400 mb-1.5">Ulangi Kata Sandi</label>
-                    <input v-model="form.password_confirmation" type="password" required class="w-full border-2 border-maroon-100 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-slate-200 placeholder:text-charcoal/30 dark:placeholder:text-slate-500 focus:border-maroon focus:outline-none transition-colors bg-white dark:bg-slate-800">
+                    <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Ulangi Kata Sandi</label>
+                    <input v-model="form.password_confirmation" type="password" required class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:placeholder:text-[#6a6a6e] focus:border-maroon focus:outline-none transition-colors bg-white dark:bg-[#1c1c1e]">
                 </div>
 
                 <div v-if="error" class="p-3 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm">{{ error }}</div>
@@ -59,7 +59,7 @@
                 </button>
             </form>
 
-            <p class="mt-6 text-center text-sm text-charcoal/50 dark:text-slate-400">
+            <p class="mt-6 text-center text-sm text-charcoal/50 dark:text-[#8a8a8e]">
                 Udah punya akun?
                 <router-link to="/login" class="text-maroon hover:text-maroon-600 font-semibold">Masuk sini</router-link>
             </p>

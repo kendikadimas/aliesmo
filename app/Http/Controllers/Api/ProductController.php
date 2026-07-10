@@ -26,9 +26,9 @@ class ProductController extends Controller
         ]);
 
         try {
-            $products = Product::with(['category', 'images', 'variants' => fn ($q) => $q->where('is_active', true)])
+            $products = Product::with(['categories', 'images', 'variants' => fn ($q) => $q->where('is_active', true)])
                 ->where('is_active', true)
-                ->when(request('category'), fn($q, $slug) => $q->whereHas('category', fn($q) => $q->where('slug', $slug)))
+                ->when(request('category'), fn($q, $slug) => $q->whereHas('categories', fn($q) => $q->where('slug', $slug)))
                 ->when(request('search'), fn($q, $search) => $q->where('name', 'like', "%{$search}%")
                     ->orWhere('description', 'like', "%{$search}%"))
                 ->when(request('min_price'), fn($q, $price) => $q->where('price', '>=', $price))
@@ -68,7 +68,7 @@ class ProductController extends Controller
         ]);
 
         try {
-            $product = Product::with(['category', 'images', 'variants' => fn ($q) => $q->where('is_active', true), 'videos'])
+            $product = Product::with(['categories', 'images', 'variants' => fn ($q) => $q->where('is_active', true), 'videos'])
                 ->where('slug', $slug)
                 ->where('is_active', true)
                 ->firstOrFail();

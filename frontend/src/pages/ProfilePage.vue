@@ -1,11 +1,11 @@
-<template>
+﻿<template>
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
-        <h1 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Akun Saya</h1>
-        <p class="mt-2 text-sm text-charcoal/50 dark:text-slate-400">Kelola profil, keamanan, dan riwayat pesananmu</p>
+        <h1 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Akun Saya</h1>
+        <p class="mt-2 text-sm text-charcoal/50 dark:text-[#8a8a8e]">Kelola profil, keamanan, dan riwayat pesananmu</p>
 
         <div v-if="!isLoggedIn" class="py-24 text-center">
             <UserIcon class="w-16 h-16 mx-auto text-ink-20" />
-            <h2 class="mt-4 text-xl font-bold text-charcoal dark:text-slate-100">Login dulu yuk!</h2>
+            <h2 class="mt-4 text-xl font-bold text-charcoal dark:text-[#f0eeeb]">Login dulu yuk!</h2>
             <router-link to="/login" class="inline-block mt-6 px-8 py-3 bg-ink text-white text-sm font-semibold rounded-xl hover:bg-ink-60 transition-all shadow-lg">
                 Login Sekarang
             </router-link>
@@ -13,7 +13,7 @@
 
         <div v-else-if="loadingProfile" class="mt-8 space-y-6">
             <!-- tab bar placeholder -->
-            <div class="flex gap-2 border-b-2 border-maroon-50 dark:border-slate-700 pb-1">
+            <div class="flex gap-2 border-b-2 border-maroon-50 dark:border-[#303032] pb-1">
                 <SkeletonLoader v-for="t in 4" :key="t" :loading="true" :radius="8" height="32px" width="90px" />
             </div>
             <!-- profile card placeholder -->
@@ -24,31 +24,31 @@
 
         <div v-else>
             <!-- Tab Navigation -->
-            <div class="mt-8 flex gap-1 border-b-2 border-maroon-50 dark:border-slate-700 overflow-x-auto">
+            <div class="mt-8 flex gap-1 border-b-2 border-maroon-50 dark:border-[#303032] overflow-x-auto">
                 <button v-for="tab in tabs" :key="tab.key"
                     @click="activeTab = tab.key"
                     class="relative px-5 py-3 text-xs font-bold tracking-wide uppercase whitespace-nowrap transition-all"
                     :class="activeTab === tab.key
                         ? 'text-maroon after:absolute after:bottom-[-2px] after:left-0 after:right-0 after:h-[2px] after:bg-maroon'
-                        : 'text-charcoal/40 dark:text-slate-500 hover:text-charcoal/70 dark:hover:text-slate-300'">
+                        : 'text-charcoal/40 dark:text-[#6a6a6e] hover:text-charcoal/70 dark:hover:text-[#d0ceca]'">
                     {{ tab.label }}
                 </button>
             </div>
 
             <!-- Tab: Profil -->
             <div v-if="activeTab === 'profil'" class="mt-6 max-w-2xl">
-                <div class="bg-white dark:bg-slate-800 p-6 lg:p-8 rounded-2xl border-2 border-ink-10 dark:border-slate-700">
-                    <h2 class="text-sm font-bold text-charcoal dark:text-slate-200 tracking-wide mb-6">Data Diri</h2>
+                <div class="bg-white dark:bg-[#1c1c1e] p-6 lg:p-8 rounded-2xl border-2 border-ink-10 dark:border-[#303032]">
+                    <h2 class="text-sm font-bold text-charcoal dark:text-[#f0eeeb] tracking-wide mb-6">Data Diri</h2>
                     <form @submit.prevent="saveProfile" class="space-y-4">
                         <div>
-                            <label class="block text-xs font-semibold text-charcoal/60 dark:text-slate-400 mb-1.5">Nama Lengkap</label>
+                            <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Nama Lengkap</label>
                             <input v-model="profileForm.name" required
-                                class="w-full border-2 border-ink-10 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-slate-200 focus:border-ink focus:outline-none transition-colors bg-white dark:bg-slate-700">
+                                class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] focus:border-ink focus:outline-none transition-colors bg-white dark:bg-[#28282a]">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-charcoal/60 dark:text-slate-400 mb-1.5">Email</label>
+                            <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Email</label>
                             <input v-model="profileForm.email" type="email" required
-                                class="w-full border-2 border-ink-10 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-slate-200 focus:border-ink focus:outline-none transition-colors bg-white dark:bg-slate-700">
+                                class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] focus:border-ink focus:outline-none transition-colors bg-white dark:bg-[#28282a]">
                         </div>
 
                         <div v-if="profileError" class="p-3 bg-ink-05 dark:bg-ink-80/40 rounded-xl border border-ink-10 dark:border-ink-60 text-ink-60 dark:text-ink-20 text-sm">{{ profileError }}</div>
@@ -69,23 +69,23 @@
 
             <!-- Tab: Keamanan -->
             <div v-if="activeTab === 'keamanan'" class="mt-6 max-w-2xl">
-                <div class="bg-white dark:bg-slate-800 p-6 lg:p-8 rounded-2xl border-2 border-ink-10 dark:border-slate-700">
-                    <h2 class="text-sm font-bold text-charcoal dark:text-slate-200 tracking-wide mb-6">Ganti Password</h2>
+                <div class="bg-white dark:bg-[#1c1c1e] p-6 lg:p-8 rounded-2xl border-2 border-ink-10 dark:border-[#303032]">
+                    <h2 class="text-sm font-bold text-charcoal dark:text-[#f0eeeb] tracking-wide mb-6">Ganti Password</h2>
                     <form @submit.prevent="savePassword" class="space-y-4">
                         <div>
-                            <label class="block text-xs font-semibold text-charcoal/60 dark:text-slate-400 mb-1.5">Password Lama</label>
+                            <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Password Lama</label>
                             <input v-model="passwordForm.current_password" type="password" required
-                                class="w-full border-2 border-ink-10 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-slate-200 focus:border-ink focus:outline-none transition-colors bg-white dark:bg-slate-700">
+                                class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] focus:border-ink focus:outline-none transition-colors bg-white dark:bg-[#28282a]">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-charcoal/60 dark:text-slate-400 mb-1.5">Password Baru</label>
+                            <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Password Baru</label>
                             <input v-model="passwordForm.password" type="password" required placeholder="Minimal 8 karakter"
-                                class="w-full border-2 border-ink-10 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-slate-200 focus:border-ink focus:outline-none transition-colors bg-white dark:bg-slate-700">
+                                class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] focus:border-ink focus:outline-none transition-colors bg-white dark:bg-[#28282a]">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-charcoal/60 dark:text-slate-400 mb-1.5">Ulangi Password Baru</label>
+                            <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Ulangi Password Baru</label>
                             <input v-model="passwordForm.password_confirmation" type="password" required
-                                class="w-full border-2 border-ink-10 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-slate-200 focus:border-ink focus:outline-none transition-colors bg-white dark:bg-slate-700">
+                                class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] focus:border-ink focus:outline-none transition-colors bg-white dark:bg-[#28282a]">
                         </div>
 
                         <div v-if="passwordError" class="p-3 bg-ink-05 dark:bg-ink-80/40 rounded-xl border border-ink-10 dark:border-ink-60 text-ink-60 dark:text-ink-20 text-sm">{{ passwordError }}</div>
@@ -99,7 +99,7 @@
                 </div>
 
                 <!-- Lupa Password link -->
-                <p class="mt-4 text-sm text-charcoal/50 dark:text-slate-400">
+                <p class="mt-4 text-sm text-charcoal/50 dark:text-[#8a8a8e]">
                     Lupa password lama?
                     <router-link to="/forgot-password" class="text-maroon hover:text-maroon-600 font-semibold">Reset via email</router-link>
                 </p>
@@ -110,7 +110,7 @@
                 <!-- Loading orders -->
                 <div v-if="loadingOrders" class="py-16 text-center">
                     <div class="inline-block w-10 h-10 border-4 border-maroon-100 border-t-maroon rounded-full animate-spin"></div>
-                    <p class="mt-4 text-base text-charcoal/50 dark:text-slate-400">Memuat pesanan...</p>
+                    <p class="mt-4 text-base text-charcoal/50 dark:text-[#8a8a8e]">Memuat pesanan...</p>
                 </div>
 
                 <!-- Empty state -->
@@ -118,8 +118,8 @@
                     <svg class="w-16 h-16 mx-auto text-maroon-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
                     </svg>
-                    <h2 class="mt-4 text-xl font-bold text-charcoal dark:text-slate-100">Belum ada pesanan nih</h2>
-                    <p class="mt-2 text-sm text-charcoal/50 dark:text-slate-400">Yuk belanja sekarang!</p>
+                    <h2 class="mt-4 text-xl font-bold text-charcoal dark:text-[#f0eeeb]">Belum ada pesanan nih</h2>
+                    <p class="mt-2 text-sm text-charcoal/50 dark:text-[#8a8a8e]">Yuk belanja sekarang!</p>
                     <router-link to="/?shop=1" class="inline-block mt-6 px-8 py-3 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25">
                         Mulai Belanja
                     </router-link>
@@ -144,33 +144,33 @@
                     </div>
 
                     <!-- Order cards -->
-                    <div v-for="order in orders" :key="order.id" class="bg-white dark:bg-slate-800 p-6 rounded-2xl border-2 border-maroon-50 dark:border-slate-700 hover:border-maroon-100 dark:hover:border-slate-600 transition-colors">
+                    <div v-for="order in orders" :key="order.id" class="bg-white dark:bg-[#1c1c1e] p-6 rounded-2xl border-2 border-maroon-50 dark:border-[#303032] hover:border-maroon-100 dark:hover:border-slate-600 transition-colors">
                         <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
                             <div>
                                 <div class="flex items-center gap-3">
-                                    <h3 class="text-base font-bold text-charcoal dark:text-slate-100">{{ order.order_number }}</h3>
+                                    <h3 class="text-base font-bold text-charcoal dark:text-[#f0eeeb]">{{ order.order_number }}</h3>
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
                                         :class="statusClass(order.status)">
                                         {{ statusLabel(order.status) }}
                                     </span>
                                 </div>
-                                <p class="mt-1 text-xs text-charcoal/50 dark:text-slate-400">{{ formatDate(order.created_at) }}</p>
+                                <p class="mt-1 text-xs text-charcoal/50 dark:text-[#8a8a8e]">{{ formatDate(order.created_at) }}</p>
                             </div>
                             <div class="text-right">
-                                <p class="text-xs text-charcoal/50 dark:text-slate-400">Total Pembayaran</p>
+                                <p class="text-xs text-charcoal/50 dark:text-[#8a8a8e]">Total Pembayaran</p>
                                 <p class="text-lg font-bold text-maroon">Rp{{ formatPrice(order.total) }}</p>
                             </div>
                         </div>
 
                         <!-- Order items -->
-                        <div class="border-t border-maroon-100 dark:border-slate-700 pt-4 space-y-2">
+                        <div class="border-t border-maroon-100 dark:border-[#303032] pt-4 space-y-2">
                             <div v-for="item in order.items" :key="item.id" class="flex justify-between text-sm">
-                                <span class="text-charcoal/70 dark:text-slate-400">{{ item.product_name }} <span class="text-charcoal/40 dark:text-slate-500">×{{ item.quantity }}</span></span>
-                                <span class="font-medium text-charcoal dark:text-slate-200">Rp{{ formatPrice(item.subtotal) }}</span>
+                                <span class="text-charcoal/70 dark:text-[#8a8a8e]">{{ item.product_name }} <span class="text-charcoal/40 dark:text-[#6a6a6e]">×{{ item.quantity }}</span></span>
+                                <span class="font-medium text-charcoal dark:text-[#f0eeeb]">Rp{{ formatPrice(item.subtotal) }}</span>
                             </div>
                             <!-- Diskon kupon — diarsipkan sementara -->
                             <!--
-                            <div v-if="order.coupon_discount > 0" class="flex justify-between text-sm text-green-600 dark:text-green-400 pt-1 border-t border-maroon-50 dark:border-slate-700">
+                            <div v-if="order.coupon_discount > 0" class="flex justify-between text-sm text-green-600 dark:text-green-400 pt-1 border-t border-maroon-50 dark:border-[#303032]">
                                 <span>Diskon Kupon <span v-if="order.coupon_code" class="font-mono text-xs bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-1.5 py-0.5 rounded ml-1">{{ order.coupon_code }}</span></span>
                                 <span class="font-medium">-Rp{{ formatPrice(order.coupon_discount) }}</span>
                             </div>
@@ -178,57 +178,57 @@
                         </div>
 
                         <!-- Info Pembayaran -->
-                        <div v-if="order.payment_method" class="mt-4 pt-4 border-t border-maroon-100 dark:border-slate-700">
-                            <p class="text-xs font-bold text-charcoal/60 dark:text-slate-400 tracking-wide mb-2">Info Pembayaran</p>
+                        <div v-if="order.payment_method" class="mt-4 pt-4 border-t border-maroon-100 dark:border-[#303032]">
+                            <p class="text-xs font-bold text-charcoal/60 dark:text-[#8a8a8e] tracking-wide mb-2">Info Pembayaran</p>
 
                             <!-- Bank Transfer -->
-                            <div v-if="order.payment_method === 'bank_transfer'" class="bg-maroon-50/40 dark:bg-slate-700/50 rounded-xl p-4 space-y-1.5">
+                            <div v-if="order.payment_method === 'bank_transfer'" class="bg-maroon-50/40 dark:bg-[#28282a]/50 rounded-xl p-4 space-y-1.5">
                                 <div class="flex items-center gap-2 mb-2">
-                                    <BuildingLibraryIcon class="w-4 h-4 text-charcoal dark:text-slate-300 shrink-0" />
-                                    <span class="text-xs font-bold text-charcoal dark:text-slate-200">Transfer Bank</span>
+                                    <BuildingLibraryIcon class="w-4 h-4 text-charcoal dark:text-[#d0ceca] shrink-0" />
+                                    <span class="text-xs font-bold text-charcoal dark:text-[#f0eeeb]">Transfer Bank</span>
                                 </div>
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                                     <div>
-                                        <p class="text-charcoal/40 dark:text-slate-500">Bank</p>
-                                        <p class="font-semibold text-charcoal dark:text-slate-200">{{ get('payment_bank_name', 'BCA') }}</p>
+                                        <p class="text-charcoal/40 dark:text-[#6a6a6e]">Bank</p>
+                                        <p class="font-semibold text-charcoal dark:text-[#f0eeeb]">{{ get('payment_bank_name', 'BCA') }}</p>
                                     </div>
                                     <div>
-                                        <p class="text-charcoal/40 dark:text-slate-500">No. Rekening</p>
-                                        <p class="font-semibold text-charcoal dark:text-slate-200 font-mono">{{ get('payment_bank_account_no', '-') }}</p>
+                                        <p class="text-charcoal/40 dark:text-[#6a6a6e]">No. Rekening</p>
+                                        <p class="font-semibold text-charcoal dark:text-[#f0eeeb] font-mono">{{ get('payment_bank_account_no', '-') }}</p>
                                     </div>
                                     <div>
-                                        <p class="text-charcoal/40 dark:text-slate-500">Atas Nama</p>
-                                        <p class="font-semibold text-charcoal dark:text-slate-200">{{ get('payment_bank_account_name', '-') }}</p>
+                                        <p class="text-charcoal/40 dark:text-[#6a6a6e]">Atas Nama</p>
+                                        <p class="font-semibold text-charcoal dark:text-[#f0eeeb]">{{ get('payment_bank_account_name', '-') }}</p>
                                     </div>
                                 </div>
-                                <p class="text-[10px] text-charcoal/40 dark:text-slate-500 mt-1">Kirim bukti transfer via WhatsApp setelah pembayaran.</p>
+                                <p class="text-[10px] text-charcoal/40 dark:text-[#6a6a6e] mt-1">Kirim bukti transfer via WhatsApp setelah pembayaran.</p>
                             </div>
 
                             <!-- QRIS -->
-                            <div v-else-if="order.payment_method === 'qris'" class="bg-maroon-50/40 dark:bg-slate-700/50 rounded-xl p-4">
+                            <div v-else-if="order.payment_method === 'qris'" class="bg-maroon-50/40 dark:bg-[#28282a]/50 rounded-xl p-4">
                                 <div class="flex items-center gap-2 mb-3">
-                                    <DevicePhoneMobileIcon class="w-4 h-4 text-charcoal dark:text-slate-300 shrink-0" />
-                                    <span class="text-xs font-bold text-charcoal dark:text-slate-200">QRIS</span>
+                                    <DevicePhoneMobileIcon class="w-4 h-4 text-charcoal dark:text-[#d0ceca] shrink-0" />
+                                    <span class="text-xs font-bold text-charcoal dark:text-[#f0eeeb]">QRIS</span>
                                 </div>
                                 <div v-if="get('payment_qris_image')" class="flex justify-center mb-3">
-                                    <img :src="get('payment_qris_image')" alt="QRIS" class="w-48 h-48 object-contain rounded-lg border border-maroon-100 dark:border-slate-600 bg-white p-2">
+                                    <img :src="get('payment_qris_image')" alt="QRIS" class="w-48 h-48 object-contain rounded-lg border border-maroon-100 dark:border-[#303032] bg-white p-2">
                                 </div>
-                                <p class="text-xs text-center font-semibold text-charcoal dark:text-slate-200">{{ get('payment_qris_name', 'Aliesmo') }}</p>
-                                <p class="text-[10px] text-charcoal/40 dark:text-slate-500 text-center mt-1">Scan QRIS, lalu kirim bukti pembayaran via WhatsApp.</p>
+                                <p class="text-xs text-center font-semibold text-charcoal dark:text-[#f0eeeb]">{{ get('payment_qris_name', 'Aliesmo') }}</p>
+                                <p class="text-[10px] text-charcoal/40 dark:text-[#6a6a6e] text-center mt-1">Scan QRIS, lalu kirim bukti pembayaran via WhatsApp.</p>
                             </div>
 
                             <!-- COD -->
-                            <div v-else-if="order.payment_method === 'cod'" class="bg-maroon-50/40 dark:bg-slate-700/50 rounded-xl p-4">
+                            <div v-else-if="order.payment_method === 'cod'" class="bg-maroon-50/40 dark:bg-[#28282a]/50 rounded-xl p-4">
                                 <div class="flex items-center gap-2 mb-1">
-                                    <CreditCardIcon class="w-4 h-4 text-charcoal dark:text-slate-300 shrink-0" />
-                                    <span class="text-xs font-bold text-charcoal dark:text-slate-200">COD (Bayar di Tempat)</span>
+                                    <CreditCardIcon class="w-4 h-4 text-charcoal dark:text-[#d0ceca] shrink-0" />
+                                    <span class="text-xs font-bold text-charcoal dark:text-[#f0eeeb]">COD (Bayar di Tempat)</span>
                                 </div>
-                                <p class="text-xs text-charcoal/60 dark:text-slate-400">Bayar langsung saat pesanan tiba. Hubungi via WhatsApp untuk penjadwalan.</p>
+                                <p class="text-xs text-charcoal/60 dark:text-[#8a8a8e]">Bayar langsung saat pesanan tiba. Hubungi via WhatsApp untuk penjadwalan.</p>
                             </div>
                         </div>
 
                         <!-- Actions -->
-                        <div class="mt-4 pt-4 border-t border-maroon-100 dark:border-slate-700 flex flex-col sm:flex-row gap-3">
+                        <div class="mt-4 pt-4 border-t border-maroon-100 dark:border-[#303032] flex flex-col sm:flex-row gap-3">
                             <router-link :to="`/order/${order.order_number}`" class="flex-1 text-center px-6 py-2.5 border-2 border-maroon text-maroon text-sm font-semibold rounded-xl hover:bg-maroon hover:text-white transition-all">
                                 Lihat Detail
                             </router-link>
@@ -242,13 +242,13 @@
 
                     <!-- Pagination -->
                     <div v-if="pagination && pagination.last_page > 1" class="flex justify-center gap-2 mt-8">
-                        <button @click="loadOrders(pagination.current_page - 1)" :disabled="!pagination.prev_page_url" class="px-4 py-2 border-2 border-maroon-100 dark:border-slate-600 text-charcoal dark:text-slate-300 text-sm font-semibold rounded-xl hover:border-maroon dark:hover:border-maroon transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                        <button @click="loadOrders(pagination.current_page - 1)" :disabled="!pagination.prev_page_url" class="px-4 py-2 border-2 border-maroon-100 dark:border-[#303032] text-charcoal dark:text-[#d0ceca] text-sm font-semibold rounded-xl hover:border-maroon dark:hover:border-maroon transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                             Prev
                         </button>
-                        <span class="px-4 py-2 text-sm text-charcoal/60 dark:text-slate-400">
+                        <span class="px-4 py-2 text-sm text-charcoal/60 dark:text-[#8a8a8e]">
                             Halaman {{ pagination.current_page }} dari {{ pagination.last_page }}
                         </span>
-                        <button @click="loadOrders(pagination.current_page + 1)" :disabled="!pagination.next_page_url" class="px-4 py-2 border-2 border-maroon-100 dark:border-slate-600 text-charcoal dark:text-slate-300 text-sm font-semibold rounded-xl hover:border-maroon dark:hover:border-maroon transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                        <button @click="loadOrders(pagination.current_page + 1)" :disabled="!pagination.next_page_url" class="px-4 py-2 border-2 border-maroon-100 dark:border-[#303032] text-charcoal dark:text-[#d0ceca] text-sm font-semibold rounded-xl hover:border-maroon dark:hover:border-maroon transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                             Next
                         </button>
                     </div>

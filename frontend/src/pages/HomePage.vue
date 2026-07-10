@@ -1,4 +1,4 @@
-<template>
+﻿<template>
     <div>
         <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 lg:pt-8">
             <div class="relative rounded-2xl overflow-hidden shadow-lg">
@@ -58,8 +58,8 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between mb-8">
                     <div>
-                        <h2 class="text-2xl lg:text-3xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Collection</h2>
-                        <p class="mt-1 text-sm text-charcoal/50 dark:text-slate-400">Temukan koleksi yang cocok untukmu</p>
+                        <h2 class="text-2xl lg:text-3xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Collection</h2>
+                        <p class="mt-1 text-sm text-charcoal/50 dark:text-[#8a8a8e]">Temukan koleksi yang cocok untukmu</p>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-5">
@@ -76,12 +76,12 @@
             </div>
         </section>
 
-        <section id="shop" class="py-12 lg:py-16 bg-coklat-50/20 dark:bg-slate-800/30">
+        <section id="shop" class="py-12 lg:py-16 bg-coklat-50/20 dark:bg-[#1c1c1e]/30">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between mb-8">
                     <div>
-                        <h2 class="text-2xl lg:text-3xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Semua <span class="text-maroon">Produk</span></h2>
-                        <p class="mt-1 text-sm text-charcoal/50 dark:text-slate-400">Temukan kemeja favoritmu</p>
+                        <h2 class="text-2xl lg:text-3xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Semua <span class="text-maroon">Produk</span></h2>
+                        <p class="mt-1 text-sm text-charcoal/50 dark:text-[#8a8a8e]">Temukan kemeja favoritmu</p>
                     </div>
                 </div>
 
@@ -99,26 +99,26 @@
                 </div>
 
                 <div v-else-if="!filteredProducts.length && !loading" class="text-center py-16">
-                    <p class="text-lg text-charcoal/50 dark:text-slate-400">Belum ada produk nih.</p>
+                    <p class="text-lg text-charcoal/50 dark:text-[#8a8a8e]">Belum ada produk nih.</p>
                 </div>
 
                 <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5">
-                    <div v-for="product in filteredProducts" :key="product.id" class="group/card cursor-pointer bg-white dark:bg-slate-800 rounded-xl overflow-hidden border border-maroon-50 dark:border-slate-700 hover:border-maroon-200 dark:hover:border-slate-500 transition-all hover:shadow-md active:scale-[0.98]" @click="$router.push(`/products/${product.slug}`)">
+                    <div v-for="product in filteredProducts" :key="product.id" class="group/card cursor-pointer bg-white dark:bg-[#1c1c1e] rounded-xl overflow-hidden border border-maroon-50 dark:border-[#303032] hover:border-maroon-200 dark:hover:border-[#404042] transition-all hover:shadow-md active:scale-[0.98]" @click="$router.push(`/products/${product.slug}`)">
                         <div class="aspect-[3/4] bg-maroon-50 overflow-hidden relative">
                             <img :src="productImage(product, 0)" :alt="product.name" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 group-hover/card:opacity-0" />
                             <img :src="productImage(product, 1)" :alt="product.name" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 group-hover/card:opacity-100" />
                             <div v-if="product.stock > 0 && product.stock <= 5" class="absolute top-1.5 left-1.5 bg-coklat text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-md">Sisa {{ product.stock }}</div>
                             <div v-if="product.stock <= 3" class="absolute top-1.5 right-1.5 bg-ink text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-md animate-pulse">HOTS!</div>
-                            <div v-if="product.stock === 0" class="absolute inset-0 bg-white/80 flex items-center justify-center">
-                                <span class="bg-charcoal text-white text-[10px] font-semibold px-2 py-1 rounded-lg">Stok Habis</span>
+                            <div v-if="product.stock === 0" class="absolute inset-0 bg-white/80 dark:bg-[#1c1c1e]/80 flex items-center justify-center">
+                                <span class="bg-charcoal dark:bg-[#303032] text-white text-[10px] font-semibold px-2 py-1 rounded-lg">Stok Habis</span>
                             </div>
                             <button @click.stop="addToCart(product)" :disabled="product.stock === 0" class="absolute bottom-0 left-0 right-0 py-2.5 bg-maroon text-white text-[10px] font-semibold tracking-wide translate-y-full group-hover/card:translate-y-0 transition-transform duration-300 hover:bg-maroon-600 disabled:opacity-0">
                                 {{ product.stock === 0 ? 'Stok Habis' : '+ Masuk Keranjang' }}
                             </button>
                         </div>
                         <div class="p-2.5">
-                            <p class="text-[10px] font-medium text-maroon-400 uppercase tracking-wide">{{ product.category?.name || 'Kemeja' }}</p>
-                            <h3 class="text-xs font-semibold text-charcoal dark:text-slate-200 mt-0.5 leading-snug line-clamp-2">{{ product.name }}</h3>
+                            <p class="text-[10px] font-medium text-maroon-400 uppercase tracking-wide">{{ product.categories?.[0]?.name || 'Kemeja' }}</p>
+                            <h3 class="text-xs font-semibold text-charcoal dark:text-[#f0eeeb] mt-0.5 leading-snug line-clamp-2">{{ product.name }}</h3>
                             <p class="text-sm font-bold text-maroon mt-1.5">Rp{{ formatPrice(product.price) }}</p>
                         </div>
                     </div>
@@ -206,14 +206,14 @@ const filteredProducts = computed(() => {
     if (!products.value.length) return []
     let result = products.value
     if (selectedCategory.value) {
-        result = result.filter(p => p.category?.slug === selectedCategory.value)
+        result = result.filter(p => p.categories?.some(c => c.slug === selectedCategory.value))
     }
     if (searchTerm.value) {
         const q = searchTerm.value.toLowerCase()
         result = result.filter(p =>
             p.name?.toLowerCase().includes(q) ||
             p.description?.toLowerCase().includes(q) ||
-            p.category?.name?.toLowerCase().includes(q)
+            p.categories?.some(c => c.name?.toLowerCase().includes(q))
         )
     }
     return result

@@ -62,7 +62,11 @@ class ProductResource extends Resource
                             ->live()
                             ->afterStateUpdated(fn ($state, $set) => $set('slug', str($state)->slug())),
                         TextInput::make('slug')->required()->unique(Product::class, ignoreRecord: true),
-                        Select::make('category_id')->relationship('category', 'name'),
+                        Select::make('categories')
+                            ->relationship('categories', 'name')
+                            ->multiple()
+                            ->preload()
+                            ->label('Kategori'),
                         Toggle::make('is_active'),
                         FileUpload::make('thumbnail')
                             ->image()
@@ -197,7 +201,7 @@ class ProductResource extends Resource
             ->columns([
                 ImageColumn::make('thumbnail')->circular()->disk('public'),
                 TextColumn::make('name')->searchable()->sortable(),
-                TextColumn::make('category.name')->badge()->sortable(),
+                TextColumn::make('categories.name')->badge()->separator(', '),
                 TextColumn::make('price')
                     ->money('IDR')
                     ->sortable(),
@@ -233,7 +237,16 @@ class ProductResource extends Resource
                     }),
             ])
             ->filters([
-                SelectFilter::make('category')->relationship('category', 'name'),
+                SelectFilter::make('categories')
+                    ->relationship('categories', 'name')
+                    ->multiple()
+                    ->preload()
+                    ->label('Kategori')
+                    ->query(fn (Builder $query, array $data) =>
+                        $query->when($data['values'] ?? null, fn ($q, $ids) =>
+                            $q->whereHas('categories', fn ($q) => $q->whereIn('categories.id', $ids))
+                        )
+                    ),
                 SelectFilter::make('is_active')
                     ->label('Status Aktif')
                     ->options([

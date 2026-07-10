@@ -1,5 +1,5 @@
-<template>
-    <div class="min-h-screen bg-white dark:bg-slate-900">
+﻿<template>
+    <div class="min-h-screen bg-white dark:bg-[#161618]">
         <div v-if="loading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 lg:py-8">
             <!-- back link placeholder -->
             <SkeletonLoader :loading="true" :radius="99" height="14px" width="80px" class="mb-4" />
@@ -30,13 +30,13 @@
         </div>
 
         <div v-else-if="notFound || !product" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 text-center">
-            <p class="text-base text-charcoal/50 dark:text-slate-400">Produk gak ditemukan nih :(</p>
+            <p class="text-base text-charcoal/50 dark:text-[#8a8a8e]">Produk gak ditemukan nih :(</p>
             <router-link to="/" class="inline-block mt-3 text-sm font-semibold text-maroon hover:text-maroon-700 transition-colors">Kembali ke Beranda</router-link>
         </div>
 
         <div v-else>
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 lg:py-8">
-                <router-link to="/#shop" class="inline-flex items-center gap-1.5 text-xs font-semibold text-charcoal/40 dark:text-slate-500 hover:text-maroon transition-colors mb-4">
+                <router-link to="/#shop" class="inline-flex items-center gap-1.5 text-xs font-semibold text-charcoal/40 dark:text-[#6a6a6e] hover:text-maroon transition-colors mb-4">
                     <ArrowLeftIcon class="w-3 h-3" />
                     Kembali
                 </router-link>
@@ -103,12 +103,12 @@
                     </div>
 
                     <div class="flex-1 min-w-0 max-w-md mx-auto lg:mx-0 lg:pt-0">
-                        <p class="text-[10px] font-medium text-maroon-400 uppercase tracking-wide">{{ product.category?.name || 'Kemeja' }}</p>
-                        <h1 class="text-xl lg:text-2xl font-bold text-charcoal dark:text-slate-100 mt-1 leading-tight">{{ product.name }}</h1>
+                        <p class="text-[10px] font-medium text-maroon-400 uppercase tracking-wide">{{ product.categories?.map(c => c.name).join(', ') || 'Kemeja' }}</p>
+                        <h1 class="text-xl lg:text-2xl font-bold text-charcoal dark:text-[#f0eeeb] mt-1 leading-tight">{{ product.name }}</h1>
 
                         <div class="mt-3 flex items-baseline gap-2">
                             <span class="text-xl lg:text-2xl font-bold text-ink">Rp{{ formatPrice(product.price) }}</span>
-                            <span class="text-xs text-charcoal/40 dark:text-slate-500 line-through">Rp{{ formatPrice(product.price + 50000) }}</span>
+                            <span class="text-xs text-charcoal/40 dark:text-[#6a6a6e] line-through">Rp{{ formatPrice(product.price + 50000) }}</span>
                         </div>
 
                         <div class="mt-2 flex items-center gap-1.5">
@@ -119,11 +119,11 @@
                         </div>
 
                         <div class="mt-4">
-                            <p class="text-[10px] font-semibold text-charcoal/50 dark:text-slate-400 mb-1.5">Jumlah</p>
+                            <p class="text-[10px] font-semibold text-charcoal/50 dark:text-[#8a8a8e] mb-1.5">Jumlah</p>
                             <div class="flex items-center gap-3">
-                                <button @click="decrementQty" class="w-8 h-8 rounded-lg border-2 border-ink-10 dark:border-slate-600 flex items-center justify-center text-sm font-semibold text-charcoal/50 dark:text-slate-400 hover:border-ink hover:text-ink transition-colors active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed" :disabled="quantity <= 1">−</button>
-                                <span class="w-10 text-center text-base font-bold text-charcoal dark:text-slate-100">{{ quantity }}</span>
-                                <button @click="quantity++" class="w-8 h-8 rounded-lg border-2 border-ink-10 dark:border-slate-600 flex items-center justify-center text-sm font-semibold text-charcoal/50 dark:text-slate-400 hover:border-ink hover:text-ink transition-colors active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed" :disabled="quantity >= product.stock">+</button>
+                                <button @click="decrementQty" class="w-8 h-8 rounded-lg border-2 border-ink-10 dark:border-[#303032] flex items-center justify-center text-sm font-semibold text-charcoal/50 dark:text-[#8a8a8e] hover:border-ink hover:text-ink transition-colors active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed" :disabled="quantity <= 1">−</button>
+                                <span class="w-10 text-center text-base font-bold text-charcoal dark:text-[#f0eeeb]">{{ quantity }}</span>
+                                <button @click="quantity++" class="w-8 h-8 rounded-lg border-2 border-ink-10 dark:border-[#303032] flex items-center justify-center text-sm font-semibold text-charcoal/50 dark:text-[#8a8a8e] hover:border-ink hover:text-ink transition-colors active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed" :disabled="quantity >= product.stock">+</button>
                             </div>
                         </div>
 
@@ -131,20 +131,20 @@
                             <button @click="addToCart" :disabled="product.stock === 0" class="flex-1 px-6 py-3 bg-ink text-white text-sm font-semibold rounded-xl hover:bg-ink-60 transition-all active:scale-[0.98] disabled:bg-ink-10 disabled:cursor-not-allowed disabled:active:scale-100 shadow-lg">
                                 {{ product.stock === 0 ? 'Stok Habis' : 'Masukin ke Keranjang' }}
                             </button>
-                            <button @click="toggleWishlist(product.id)" class="w-12 h-11 flex items-center justify-center rounded-xl border-2 transition-all active:scale-95" :class="isWishlisted(product.id) ? 'bg-ink-05 dark:bg-ink-80/20 border-ink dark:border-ink-60 text-ink' : 'border-ink-10 dark:border-slate-600 text-charcoal/50 dark:text-slate-400 hover:border-ink hover:text-ink'">
+                            <button @click="toggleWishlist(product.id)" class="w-12 h-11 flex items-center justify-center rounded-xl border-2 transition-all active:scale-95" :class="isWishlisted(product.id) ? 'bg-ink-05 dark:bg-ink-80/20 border-ink dark:border-ink-60 text-ink' : 'border-ink-10 dark:border-[#303032] text-charcoal/50 dark:text-[#8a8a8e] hover:border-ink hover:text-ink'">
                                 <HeartIcon class="w-[18px] h-[18px]" :class="isWishlisted(product.id) ? 'fill-current' : ''" />
                             </button>
                         </div>
 
-                        <div class="mt-4 pt-4 border-t border-ink-10 dark:border-slate-700">
-                            <p v-if="isDescriptionShort" class="text-xs font-semibold text-charcoal/50 dark:text-slate-400 leading-relaxed">{{ product.description }}</p>
+                        <div class="mt-4 pt-4 border-t border-ink-10 dark:border-[#303032]">
+                            <p v-if="isDescriptionShort" class="text-xs font-semibold text-charcoal/50 dark:text-[#8a8a8e] leading-relaxed">{{ product.description }}</p>
                             <div v-else>
-                                <p class="text-xs font-semibold text-charcoal/50 dark:text-slate-400 leading-relaxed line-clamp-3">{{ product.description }}</p>
+                                <p class="text-xs font-semibold text-charcoal/50 dark:text-[#8a8a8e] leading-relaxed line-clamp-3">{{ product.description }}</p>
                                 <button @click="showDescriptionModal = true" class="text-xs font-semibold text-ink hover:text-ink-60 mt-1">Lihat Selengkapnya</button>
                             </div>
                         </div>
 
-                        <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-charcoal/50 dark:text-slate-400">
+                        <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-charcoal/50 dark:text-[#8a8a8e]">
                             <span class="flex items-center gap-1.5">
                                 <ArchiveBoxIcon class="w-3.5 h-3.5" />
                                 Kemasan Premium
@@ -165,23 +165,23 @@
             <teleport to="body">
                 <div v-if="showDescriptionModal" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="showDescriptionModal = false">
                     <div class="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
-                    <div class="relative bg-white dark:bg-slate-800 rounded-2xl max-w-lg w-full max-h-[70vh] overflow-y-auto p-6 shadow-xl">
+                    <div class="relative bg-white dark:bg-[#1c1c1e] rounded-2xl max-w-lg w-full max-h-[70vh] overflow-y-auto p-6 shadow-xl">
                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-sm font-bold text-charcoal dark:text-slate-100">Deskripsi</h3>
-                            <button @click="showDescriptionModal = false" class="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-ink-05 dark:hover:bg-slate-700 transition-colors">
+                            <h3 class="text-sm font-bold text-charcoal dark:text-[#f0eeeb]">Deskripsi</h3>
+                            <button @click="showDescriptionModal = false" class="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-ink-05 dark:hover:bg-[#303032] transition-colors">
                                 <XMarkIcon class="w-3.5 h-3.5" />
                             </button>
                         </div>
-                        <p class="text-sm text-charcoal/70 dark:text-slate-300 leading-relaxed whitespace-pre-line">{{ product.description }}</p>
+                        <p class="text-sm text-charcoal/70 dark:text-[#d0ceca] leading-relaxed whitespace-pre-line">{{ product.description }}</p>
                     </div>
                 </div>
             </teleport>
 
             <!-- Reviews Section -->
-            <section class="py-8 lg:py-12 border-t border-ink-10 dark:border-slate-700 mt-6">
+            <section class="py-8 lg:py-12 border-t border-ink-10 dark:border-[#303032] mt-6">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex items-center gap-3 mb-6">
-                        <h2 class="text-lg lg:text-xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Ulasan Pembeli</h2>
+                        <h2 class="text-lg lg:text-xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Ulasan Pembeli</h2>
                         <span v-if="reviews.length" class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-maroon-50 dark:bg-maroon/20 rounded-full text-xs font-semibold text-maroon">
                             ★ {{ avgRating }} · {{ reviews.length }} ulasan
                         </span>
@@ -192,45 +192,45 @@
                     </div>
 
                     <div v-else-if="!reviews.length" class="py-8 text-center">
-                        <p class="text-sm text-charcoal/40 dark:text-slate-500">Belum ada ulasan untuk produk ini.</p>
+                        <p class="text-sm text-charcoal/40 dark:text-[#6a6a6e]">Belum ada ulasan untuk produk ini.</p>
                     </div>
 
                     <div v-else class="space-y-4">
-                        <div v-for="review in reviews" :key="review.id" class="bg-maroon-50/40 dark:bg-slate-800 rounded-xl p-4">
+                        <div v-for="review in reviews" :key="review.id" class="bg-maroon-50/40 dark:bg-[#1c1c1e] rounded-xl p-4">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
-                                    <p class="text-sm font-semibold text-charcoal dark:text-slate-100">{{ review.user?.name || 'Pembeli' }}</p>
+                                    <p class="text-sm font-semibold text-charcoal dark:text-[#f0eeeb]">{{ review.user?.name || 'Pembeli' }}</p>
                                     <div class="flex items-center gap-0.5 mt-0.5">
                                         <span v-for="i in 5" :key="i" class="text-xs" :class="i <= review.rating ? 'text-yellow-400' : 'text-charcoal/20 dark:text-slate-600'">★</span>
                                     </div>
                                 </div>
-                                <p class="text-xs text-charcoal/40 dark:text-slate-500 shrink-0">{{ formatDate(review.created_at) }}</p>
+                                <p class="text-xs text-charcoal/40 dark:text-[#6a6a6e] shrink-0">{{ formatDate(review.created_at) }}</p>
                             </div>
-                            <p v-if="review.comment" class="mt-2 text-sm text-charcoal/70 dark:text-slate-300 leading-relaxed">{{ review.comment }}</p>
+                            <p v-if="review.comment" class="mt-2 text-sm text-charcoal/70 dark:text-[#d0ceca] leading-relaxed">{{ review.comment }}</p>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section class="py-8 lg:py-12 bg-coklat-50/20 dark:bg-slate-800/30 mt-6">
+            <section class="py-8 lg:py-12 bg-coklat-50/20 dark:bg-[#1c1c1e]/30 mt-6">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex items-center justify-between mb-5">
                         <div>
-                            <h2 class="text-lg lg:text-xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Produk Terkait</h2>
-                            <p class="text-xs text-charcoal/50 dark:text-slate-400 mt-0.5">Koleksi lain dari kategori yang sama</p>
+                            <h2 class="text-lg lg:text-xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Produk Terkait</h2>
+                            <p class="text-xs text-charcoal/50 dark:text-[#8a8a8e] mt-0.5">Koleksi lain dari kategori yang sama</p>
                         </div>
                         <div class="flex gap-2">
-                            <button @click="scrollRelated('left')" class="w-7 h-7 rounded-lg border border-maroon-200/60 dark:border-slate-600 flex items-center justify-center text-charcoal/50 dark:text-slate-400 hover:border-maroon hover:text-maroon transition-colors active:scale-95">
+                            <button @click="scrollRelated('left')" class="w-7 h-7 rounded-lg border border-maroon-200/60 dark:border-[#303032] flex items-center justify-center text-charcoal/50 dark:text-[#8a8a8e] hover:border-maroon hover:text-maroon transition-colors active:scale-95">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="15 18 9 12 15 6"/></svg>
                             </button>
-                            <button @click="scrollRelated('right')" class="w-7 h-7 rounded-lg border border-maroon-200/60 dark:border-slate-600 flex items-center justify-center text-charcoal/50 dark:text-slate-400 hover:border-maroon hover:text-maroon transition-colors active:scale-95">
+                            <button @click="scrollRelated('right')" class="w-7 h-7 rounded-lg border border-maroon-200/60 dark:border-[#303032] flex items-center justify-center text-charcoal/50 dark:text-[#8a8a8e] hover:border-maroon hover:text-maroon transition-colors active:scale-95">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="9 18 15 12 9 6"/></svg>
                             </button>
                         </div>
                     </div>
 
                     <div ref="relatedCarousel" class="flex gap-4 overflow-x-auto scroll-smooth pb-2" style="scrollbar-width:none;-ms-overflow-style:none;">
-                        <div v-for="rp in relatedProducts" :key="rp.id" class="shrink-0 w-[160px] sm:w-[190px] group/card cursor-pointer bg-white dark:bg-slate-800 rounded-xl overflow-hidden border border-maroon-50 dark:border-slate-700 hover:border-maroon-200 dark:hover:border-slate-500 transition-all hover:shadow-md active:scale-[0.98]" @click="$router.push(`/products/${rp.slug}`)">
+                        <div v-for="rp in relatedProducts" :key="rp.id" class="shrink-0 w-[160px] sm:w-[190px] group/card cursor-pointer bg-white dark:bg-[#1c1c1e] rounded-xl overflow-hidden border border-maroon-50 dark:border-[#303032] hover:border-maroon-200 dark:hover:border-slate-500 transition-all hover:shadow-md active:scale-[0.98]" @click="$router.push(`/products/${rp.slug}`)">
                             <div class="aspect-[3/4] bg-maroon-50 overflow-hidden relative">
                                 <img :src="productImage(rp, 0)" :alt="rp.name" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 group-hover/card:opacity-0" />
                                 <img :src="productImage(rp, 1)" :alt="rp.name" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 group-hover/card:opacity-100" />
@@ -244,14 +244,14 @@
                             </div>
                             <div class="p-2.5">
                                 <p class="text-[10px] font-medium text-maroon-400 uppercase tracking-wide">{{ rp.category?.name || 'Kemeja' }}</p>
-                                <h3 class="text-xs font-semibold text-charcoal dark:text-slate-200 mt-0.5 leading-snug line-clamp-2">{{ rp.name }}</h3>
+                                <h3 class="text-xs font-semibold text-charcoal dark:text-[#f0eeeb] mt-0.5 leading-snug line-clamp-2">{{ rp.name }}</h3>
                                 <p class="text-sm font-bold text-maroon mt-1">Rp{{ formatPrice(rp.price) }}</p>
                             </div>
                         </div>
                     </div>
 
                     <div v-if="!relatedProducts.length" class="text-center py-8">
-                        <p class="text-sm text-charcoal/50 dark:text-slate-400">Belum ada produk terkait.</p>
+                        <p class="text-sm text-charcoal/50 dark:text-[#8a8a8e]">Belum ada produk terkait.</p>
                     </div>
                 </div>
             </section>

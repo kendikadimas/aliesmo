@@ -17,7 +17,26 @@
     --color-ink: #111111;
     --color-ink-80: #1c1c1c;
     --color-ink-90: #141414;
+
+    /* Dark mode surface colors — berbasis warna footer (#1c1c1e) */
+    --color-dm-base: #161618;      /* bg utama — sedikit lebih gelap dari footer */
+    --color-dm-surface: #1c1c1e;   /* card/section — sama dengan footer */
+    --color-dm-elevated: #242426;  /* elevated card, modal */
+    --color-dm-border: #303032;    /* border halus */
+    --color-dm-text: #f0eeeb;      /* teks utama — warm white */
+    --color-dm-muted: #8a8a8e;     /* teks sekunder */
+    --color-dm-input: #28282a;     /* input background */
 }
 
 /* Strip prefers-color-scheme dark — dark mode only via .dark class */
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* Dark mode base styles */
+.dark {
+    color-scheme: dark;
+}
+
+.dark body {
+    background-color: var(--color-dm-base);
+    color: var(--color-dm-text);
+}

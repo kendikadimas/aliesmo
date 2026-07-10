@@ -1,4 +1,4 @@
-<template>
+﻿<template>
     <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-24 text-center">
         <div v-if="loading" class="py-12 space-y-4 max-w-md mx-auto">
             <!-- icon placeholder -->
@@ -17,7 +17,7 @@
 
         <div v-else-if="!order" class="py-16">
             <InformationCircleIcon class="w-12 h-12 mx-auto text-maroon-200" />
-            <p class="mt-4 text-lg text-charcoal/50 dark:text-slate-400">Pesanan gak ditemukan :(</p>
+            <p class="mt-4 text-lg text-charcoal/50 dark:text-[#8a8a8e]">Pesanan gak ditemukan :(</p>
             <router-link to="/" class="inline-block mt-6 text-sm font-semibold text-maroon hover:text-maroon-600 transition-colors">Kembali ke Beranda</router-link>
         </div>
 
@@ -25,11 +25,11 @@
             <div class="w-16 h-16 rounded-2xl bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 flex items-center justify-center mx-auto">
                 <CheckIcon class="w-7 h-7 text-green-600" />
             </div>
-            <h1 class="mt-6 text-2xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Pesanan Berhasil!</h1>
-            <p class="mt-2 text-base text-charcoal/60 dark:text-slate-400">Makasih ya <strong>{{ order.customer_name }}</strong>, pesananmu udah kami terima!</p>
+            <h1 class="mt-6 text-2xl lg:text-4xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Pesanan Berhasil!</h1>
+            <p class="mt-2 text-base text-charcoal/60 dark:text-[#8a8a8e]">Makasih ya <strong>{{ order.customer_name }}</strong>, pesananmu udah kami terima!</p>
 
             <div class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-maroon-50 dark:bg-maroon/20 rounded-xl text-sm max-w-full overflow-hidden">
-                <span class="font-semibold text-charcoal/60 dark:text-slate-400 shrink-0">No. Pesanan:</span>
+                <span class="font-semibold text-charcoal/60 dark:text-[#8a8a8e] shrink-0">No. Pesanan:</span>
                 <span class="font-bold text-maroon truncate">{{ order.order_number }}</span>
             </div>
 
@@ -37,16 +37,16 @@
                 Status: {{ statusLabel(order.status) }}
             </p>
 
-            <div class="mt-8 bg-white dark:bg-slate-800 p-6 lg:p-8 rounded-2xl border-2 border-maroon-50 dark:border-slate-700 text-left">
-                <h2 class="text-sm font-bold text-charcoal dark:text-slate-100 tracking-wide mb-6">Detail Pesanan</h2>
+            <div class="mt-8 bg-white dark:bg-[#1c1c1e] p-6 lg:p-8 rounded-2xl border-2 border-maroon-50 dark:border-[#303032] text-left">
+                <h2 class="text-sm font-bold text-charcoal dark:text-[#f0eeeb] tracking-wide mb-6">Detail Pesanan</h2>
                 <div v-if="order.items" class="space-y-3">
                     <div v-for="(item, i) in order.items" :key="i" class="flex justify-between text-sm">
-                        <span class="text-charcoal/70 dark:text-slate-300">{{ item.product_name }} <span class="text-charcoal/40 dark:text-slate-500">×{{ item.quantity }}</span></span>
-                        <span class="font-bold dark:text-slate-100">Rp{{ formatPrice(item.subtotal || item.price * item.quantity) }}</span>
+                        <span class="text-charcoal/70 dark:text-[#d0ceca]">{{ item.product_name }} <span class="text-charcoal/40 dark:text-[#6a6a6e]">×{{ item.quantity }}</span></span>
+                        <span class="font-bold dark:text-[#f0eeeb]">Rp{{ formatPrice(item.subtotal || item.price * item.quantity) }}</span>
                     </div>
                 </div>
-                <div class="border-t-2 border-maroon-100 dark:border-slate-700 mt-4 pt-4 space-y-1.5 text-sm">
-                    <div class="flex justify-between text-charcoal/60 dark:text-slate-400">
+                <div class="border-t-2 border-maroon-100 dark:border-[#303032] mt-4 pt-4 space-y-1.5 text-sm">
+                    <div class="flex justify-between text-charcoal/60 dark:text-[#8a8a8e]">
                         <span>Subtotal</span>
                         <span class="font-medium">Rp{{ formatPrice(order.subtotal) }}</span>
                     </div>
@@ -57,92 +57,92 @@
                         <span class="font-medium">-Rp{{ formatPrice(order.coupon_discount) }}</span>
                     </div>
                     -->
-                    <div v-if="order.shipping_cost > 0" class="flex justify-between text-charcoal/60 dark:text-slate-400">
+                    <div v-if="order.shipping_cost > 0" class="flex justify-between text-charcoal/60 dark:text-[#8a8a8e]">
                         <span>Ongkir</span>
                         <span class="font-medium">Rp{{ formatPrice(order.shipping_cost) }}</span>
                     </div>
-                    <div class="flex justify-between font-bold text-lg text-charcoal dark:text-slate-100 pt-2 border-t-2 border-maroon-100 dark:border-slate-700">
+                    <div class="flex justify-between font-bold text-lg text-charcoal dark:text-[#f0eeeb] pt-2 border-t-2 border-maroon-100 dark:border-[#303032]">
                         <span>Total</span>
                         <span class="text-maroon">Rp{{ formatPrice(order.total) }}</span>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-4 bg-white dark:bg-slate-800 p-6 lg:p-8 rounded-2xl border-2 border-maroon-50 dark:border-slate-700 text-left">
-                <h2 class="text-sm font-bold text-charcoal dark:text-slate-100 tracking-wide mb-4">Data Pengiriman</h2>
-                <div class="text-sm text-charcoal/65 dark:text-slate-300 space-y-1 leading-relaxed">
-                    <p><span class="font-medium text-charcoal/50 dark:text-slate-400">Nama:</span> {{ order.customer_name }}</p>
-                    <p><span class="font-medium text-charcoal/50 dark:text-slate-400">Email:</span> {{ order.customer_email }}</p>
-                    <p v-if="order.customer_phone"><span class="font-medium text-charcoal/50 dark:text-slate-400">Telp:</span> {{ order.customer_phone }}</p>
-                    <p><span class="font-medium text-charcoal/50 dark:text-slate-400">Alamat:</span> {{ order.shipping_address }}</p>
+            <div class="mt-4 bg-white dark:bg-[#1c1c1e] p-6 lg:p-8 rounded-2xl border-2 border-maroon-50 dark:border-[#303032] text-left">
+                <h2 class="text-sm font-bold text-charcoal dark:text-[#f0eeeb] tracking-wide mb-4">Data Pengiriman</h2>
+                <div class="text-sm text-charcoal/65 dark:text-[#d0ceca] space-y-1 leading-relaxed">
+                    <p><span class="font-medium text-charcoal/50 dark:text-[#8a8a8e]">Nama:</span> {{ order.customer_name }}</p>
+                    <p><span class="font-medium text-charcoal/50 dark:text-[#8a8a8e]">Email:</span> {{ order.customer_email }}</p>
+                    <p v-if="order.customer_phone"><span class="font-medium text-charcoal/50 dark:text-[#8a8a8e]">Telp:</span> {{ order.customer_phone }}</p>
+                    <p><span class="font-medium text-charcoal/50 dark:text-[#8a8a8e]">Alamat:</span> {{ order.shipping_address }}</p>
                 </div>
             </div>
 
             <!-- Info Pembayaran -->
-            <div v-if="paymentInfo && paymentInfo.method" class="mt-4 bg-white dark:bg-slate-800 p-6 lg:p-8 rounded-2xl border-2 border-maroon-50 dark:border-slate-700 text-left">
-                <h2 class="text-sm font-bold text-charcoal dark:text-slate-100 tracking-wide mb-4">Info Pembayaran</h2>
+            <div v-if="paymentInfo && paymentInfo.method" class="mt-4 bg-white dark:bg-[#1c1c1e] p-6 lg:p-8 rounded-2xl border-2 border-maroon-50 dark:border-[#303032] text-left">
+                <h2 class="text-sm font-bold text-charcoal dark:text-[#f0eeeb] tracking-wide mb-4">Info Pembayaran</h2>
 
                 <!-- Bank Transfer -->
-                <div v-if="paymentInfo.method === 'bank_transfer'" class="bg-maroon-50/40 dark:bg-slate-700/50 rounded-xl p-5 space-y-2">
+                <div v-if="paymentInfo.method === 'bank_transfer'" class="bg-maroon-50/40 dark:bg-[#28282a]/50 rounded-xl p-5 space-y-2">
                     <div class="flex items-center gap-2 mb-3">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-charcoal dark:text-slate-300 shrink-0"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-                        <span class="text-sm font-bold text-charcoal dark:text-slate-200">{{ paymentInfo.label }}</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-charcoal dark:text-[#d0ceca] shrink-0"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                        <span class="text-sm font-bold text-charcoal dark:text-[#f0eeeb]">{{ paymentInfo.label }}</span>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
                         <div>
-                            <p class="text-charcoal/40 dark:text-slate-500 text-xs">Bank</p>
-                            <p class="font-semibold text-charcoal dark:text-slate-200">{{ paymentInfo.bank_name }}</p>
+                            <p class="text-charcoal/40 dark:text-[#6a6a6e] text-xs">Bank</p>
+                            <p class="font-semibold text-charcoal dark:text-[#f0eeeb]">{{ paymentInfo.bank_name }}</p>
                         </div>
                         <div>
-                            <p class="text-charcoal/40 dark:text-slate-500 text-xs">No. Rekening</p>
-                            <p class="font-semibold text-charcoal dark:text-slate-200 font-mono">{{ paymentInfo.account_no }}</p>
+                            <p class="text-charcoal/40 dark:text-[#6a6a6e] text-xs">No. Rekening</p>
+                            <p class="font-semibold text-charcoal dark:text-[#f0eeeb] font-mono">{{ paymentInfo.account_no }}</p>
                         </div>
                         <div>
-                            <p class="text-charcoal/40 dark:text-slate-500 text-xs">Atas Nama</p>
-                            <p class="font-semibold text-charcoal dark:text-slate-200">{{ paymentInfo.account_name }}</p>
+                            <p class="text-charcoal/40 dark:text-[#6a6a6e] text-xs">Atas Nama</p>
+                            <p class="font-semibold text-charcoal dark:text-[#f0eeeb]">{{ paymentInfo.account_name }}</p>
                         </div>
                     </div>
-                    <p class="text-xs text-charcoal/50 dark:text-slate-400 mt-2">{{ paymentInfo.instruction }}</p>
+                    <p class="text-xs text-charcoal/50 dark:text-[#8a8a8e] mt-2">{{ paymentInfo.instruction }}</p>
                 </div>
 
                 <!-- QRIS -->
-                <div v-else-if="paymentInfo.method === 'qris'" class="bg-maroon-50/40 dark:bg-slate-700/50 rounded-xl p-5 text-center">
+                <div v-else-if="paymentInfo.method === 'qris'" class="bg-maroon-50/40 dark:bg-[#28282a]/50 rounded-xl p-5 text-center">
                     <div class="flex items-center justify-center gap-2 mb-3">
-                        <DevicePhoneMobileIcon class="w-[18px] h-[18px] text-charcoal dark:text-slate-300 shrink-0" />
-                        <span class="text-sm font-bold text-charcoal dark:text-slate-200">{{ paymentInfo.label }}</span>
+                        <DevicePhoneMobileIcon class="w-[18px] h-[18px] text-charcoal dark:text-[#d0ceca] shrink-0" />
+                        <span class="text-sm font-bold text-charcoal dark:text-[#f0eeeb]">{{ paymentInfo.label }}</span>
                     </div>
                     <div v-if="paymentInfo.qris_image" class="flex justify-center mb-3">
-                        <img :src="paymentInfo.qris_image" alt="QRIS" class="w-52 h-52 object-contain rounded-lg border border-maroon-100 dark:border-slate-600 bg-white p-2">
+                        <img :src="paymentInfo.qris_image" alt="QRIS" class="w-52 h-52 object-contain rounded-lg border border-maroon-100 dark:border-[#303032] bg-white p-2">
                     </div>
-                    <p class="text-sm font-semibold text-charcoal dark:text-slate-200">{{ paymentInfo.qris_name }}</p>
-                    <p class="text-xs text-charcoal/50 dark:text-slate-400 mt-1">{{ paymentInfo.instruction }}</p>
+                    <p class="text-sm font-semibold text-charcoal dark:text-[#f0eeeb]">{{ paymentInfo.qris_name }}</p>
+                    <p class="text-xs text-charcoal/50 dark:text-[#8a8a8e] mt-1">{{ paymentInfo.instruction }}</p>
                 </div>
 
                 <!-- COD -->
-                <div v-else-if="paymentInfo.method === 'cod'" class="bg-maroon-50/40 dark:bg-slate-700/50 rounded-xl p-5">
+                <div v-else-if="paymentInfo.method === 'cod'" class="bg-maroon-50/40 dark:bg-[#28282a]/50 rounded-xl p-5">
                     <div class="flex items-center gap-2 mb-2">
-                        <CreditCardIcon class="w-[18px] h-[18px] text-charcoal dark:text-slate-300 shrink-0" />
-                        <span class="text-sm font-bold text-charcoal dark:text-slate-200">{{ paymentInfo.label }}</span>
+                        <CreditCardIcon class="w-[18px] h-[18px] text-charcoal dark:text-[#d0ceca] shrink-0" />
+                        <span class="text-sm font-bold text-charcoal dark:text-[#f0eeeb]">{{ paymentInfo.label }}</span>
                     </div>
-                    <p class="text-sm text-charcoal/60 dark:text-slate-400">{{ paymentInfo.instruction }}</p>
+                    <p class="text-sm text-charcoal/60 dark:text-[#8a8a8e]">{{ paymentInfo.instruction }}</p>
                 </div>
             </div>
 
             <div class="mt-8">
-                <p class="text-sm text-charcoal/50 dark:text-slate-400">Konfirmasi pesanan dikirim ke email yang kamu daftarkan.</p>
+                <p class="text-sm text-charcoal/50 dark:text-[#8a8a8e]">Konfirmasi pesanan dikirim ke email yang kamu daftarkan.</p>
 
                 <!-- Link lacak pesanan untuk guest -->
                 <div v-if="order.lookup_token" class="mt-4 p-4 bg-maroon-50 dark:bg-maroon/10 rounded-xl text-left">
-                    <p class="text-xs font-semibold text-charcoal/60 dark:text-slate-400 mb-2">Simpan link ini untuk lacak pesananmu:</p>
+                    <p class="text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-2">Simpan link ini untuk lacak pesananmu:</p>
                     <div class="flex items-center gap-2">
-                        <code class="flex-1 text-xs bg-white dark:bg-slate-800 border border-maroon-100 dark:border-slate-600 rounded-lg px-3 py-2 text-maroon font-mono truncate">
+                        <code class="flex-1 text-xs bg-white dark:bg-[#1c1c1e] border border-maroon-100 dark:border-[#303032] rounded-lg px-3 py-2 text-maroon font-mono truncate">
                             {{ trackUrl }}
                         </code>
                         <button @click="copyTrackUrl" class="shrink-0 px-3 py-2 bg-maroon text-white text-xs font-semibold rounded-lg hover:bg-maroon-600 transition-colors">
                             {{ copied ? 'Disalin!' : 'Salin' }}
                         </button>
                     </div>
-                    <p class="text-xs text-charcoal/40 dark:text-slate-500 mt-2">Atau kamu bisa lacak pesanan kapan saja di halaman <router-link to="/track-order" class="text-maroon font-semibold hover:underline">Lacak Pesanan</router-link></p>
+                    <p class="text-xs text-charcoal/40 dark:text-[#6a6a6e] mt-2">Atau kamu bisa lacak pesanan kapan saja di halaman <router-link to="/track-order" class="text-maroon font-semibold hover:underline">Lacak Pesanan</router-link></p>
                 </div>
 
                 <router-link to="/" class="inline-block mt-4 px-8 py-3 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25">

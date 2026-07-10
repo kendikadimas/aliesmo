@@ -1,6 +1,6 @@
-<template>
+﻿<template>
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
-        <h1 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Checkout</h1>
+        <h1 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Checkout</h1>
 
         <div v-if="submitting" class="mt-8 lg:mt-10 grid lg:grid-cols-5 gap-8 lg:gap-12">
             <!-- left col skeleton -->
@@ -19,34 +19,34 @@
             <div class="lg:col-span-3 space-y-6">
 
                 <!-- Data Diri -->
-                <div class="bg-white dark:bg-slate-800 p-6 lg:p-8 rounded-2xl border-2 border-maroon-50 dark:border-slate-700">
-                    <h2 class="text-sm font-bold text-charcoal dark:text-slate-100 tracking-wide mb-6">Data Diri</h2>
+                <div class="bg-white dark:bg-[#1c1c1e] p-6 lg:p-8 rounded-2xl border-2 border-maroon-50 dark:border-[#303032]">
+                    <h2 class="text-sm font-bold text-charcoal dark:text-[#f0eeeb] tracking-wide mb-6">Data Diri</h2>
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-xs font-semibold text-charcoal/60 dark:text-slate-400 mb-1.5">Nama Lengkap</label>
-                            <input v-model="form.customer_name" required placeholder="Masukkan nama kamu" class="w-full border-2 border-maroon-100 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-slate-100 placeholder:text-charcoal/30 dark:placeholder:text-slate-500 bg-white dark:bg-slate-700 focus:border-maroon focus:outline-none transition-colors">
+                            <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Nama Lengkap</label>
+                            <input v-model="form.customer_name" required placeholder="Masukkan nama kamu" class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-maroon focus:outline-none transition-colors">
                         </div>
                         <div class="grid sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-semibold text-charcoal/60 dark:text-slate-400 mb-1.5">Email</label>
-                                <input v-model="form.customer_email" type="email" required placeholder="kamu@email.com" class="w-full border-2 border-maroon-100 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-slate-100 placeholder:text-charcoal/30 dark:placeholder:text-slate-500 bg-white dark:bg-slate-700 focus:border-maroon focus:outline-none transition-colors">
+                                <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Email</label>
+                                <input v-model="form.customer_email" type="email" required placeholder="kamu@email.com" class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-maroon focus:outline-none transition-colors">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-charcoal/60 dark:text-slate-400 mb-1.5">Telepon</label>
-                                <input v-model="form.customer_phone" placeholder="0812-xxxx-xxxx" class="w-full border-2 border-maroon-100 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-slate-100 placeholder:text-charcoal/30 dark:placeholder:text-slate-500 bg-white dark:bg-slate-700 focus:border-maroon focus:outline-none transition-colors">
+                                <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Telepon</label>
+                                <input v-model="form.customer_phone" placeholder="0812-xxxx-xxxx" class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-maroon focus:outline-none transition-colors">
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Alamat & Pengiriman -->
-                <div class="bg-white dark:bg-slate-800 p-6 lg:p-8 rounded-2xl border-2 border-maroon-50 dark:border-slate-700">
-                    <h2 class="text-sm font-bold text-charcoal dark:text-slate-100 tracking-wide mb-6">Alamat & Pengiriman</h2>
+                <div class="bg-white dark:bg-[#1c1c1e] p-6 lg:p-8 rounded-2xl border-2 border-maroon-50 dark:border-[#303032]">
+                    <h2 class="text-sm font-bold text-charcoal dark:text-[#f0eeeb] tracking-wide mb-6">Alamat & Pengiriman</h2>
                     <div class="space-y-4">
 
                         <!-- Lokasi Pengiriman (Autocomplete Direct Search) -->
                         <div class="relative location-search-container">
-                            <label class="block text-xs font-semibold text-charcoal/60 dark:text-slate-400 mb-1.5">Kota atau Kecamatan Tujuan</label>
+                            <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Kota atau Kecamatan Tujuan</label>
                             <div class="relative">
                                 <input
                                     ref="searchInputRef"
@@ -58,7 +58,7 @@
                                     @keydown.enter.prevent="onEnter"
                                     @keydown.escape="showDropdown = false"
                                     placeholder="Ketik nama kota atau kecamatan (misal: Denpasar, Tebet)"
-                                    class="w-full border-2 border-maroon-100 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-slate-100 placeholder:text-charcoal/30 dark:placeholder:text-slate-500 bg-white dark:bg-slate-700 focus:border-maroon focus:outline-none transition-colors"
+                                    class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-maroon focus:outline-none transition-colors"
                                     autocomplete="off"
                                     required
                                 >
@@ -69,10 +69,10 @@
 
                             <!-- Search Results Dropdown -->
                             <div v-if="showDropdown && (loadingSearch || searchResults.length || searchQuery.trim().length >= 3)"
-                                class="absolute left-0 right-0 z-50 w-full mt-1 bg-white dark:bg-slate-700 border-2 border-maroon-50 dark:border-slate-600 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                                class="absolute left-0 right-0 z-50 w-full mt-1 bg-white dark:bg-[#28282a] border-2 border-maroon-50 dark:border-[#303032] rounded-xl shadow-lg max-h-60 overflow-y-auto">
 
                                 <!-- Loading state di dalam dropdown -->
-                                <div v-if="loadingSearch" class="flex items-center gap-2 px-4 py-3 text-xs text-charcoal/50 dark:text-slate-400">
+                                <div v-if="loadingSearch" class="flex items-center gap-2 px-4 py-3 text-xs text-charcoal/50 dark:text-[#8a8a8e]">
                                     <div class="w-3.5 h-3.5 border-2 border-maroon-100 border-t-maroon rounded-full animate-spin shrink-0"></div>
                                     Mencari lokasi...
                                 </div>
@@ -86,10 +86,10 @@
                                         type="button"
                                         @click="selectDestination(item)"
                                         @mouseenter="activeIndex = index"
-                                        class="w-full text-left px-4 py-3 text-xs border-b border-maroon-50 dark:border-slate-600 last:border-0 transition-colors"
+                                        class="w-full text-left px-4 py-3 text-xs border-b border-maroon-50 dark:border-[#303032] last:border-0 transition-colors"
                                         :class="activeIndex === index
-                                            ? 'bg-maroon-50/70 dark:bg-slate-600 text-charcoal dark:text-slate-100'
-                                            : 'text-charcoal dark:text-slate-200 hover:bg-maroon-50/50 dark:hover:bg-slate-600'"
+                                            ? 'bg-maroon-50/70 dark:bg-slate-600 text-charcoal dark:text-[#f0eeeb]'
+                                            : 'text-charcoal dark:text-[#f0eeeb] hover:bg-maroon-50/50 dark:hover:bg-slate-600'"
                                     >
                                         <span class="font-semibold">{{ item.label }}</span>
                                     </button>
@@ -97,7 +97,7 @@
 
                                 <!-- Empty state -->
                                 <div v-else-if="!loadingSearch && searchQuery.trim().length >= 3"
-                                    class="px-4 py-4 text-xs text-charcoal/50 dark:text-slate-400 text-center">
+                                    class="px-4 py-4 text-xs text-charcoal/50 dark:text-[#8a8a8e] text-center">
                                     Lokasi tidak ditemukan. Coba ketik nama kota/kecamatan lain.
                                 </div>
                             </div>
@@ -105,32 +105,32 @@
 
                         <!-- Alamat Lengkap (patokan rumah) -->
                         <div>
-                            <label class="block text-xs font-semibold text-charcoal/60 dark:text-slate-400 mb-1.5">Alamat Lengkap</label>
-                            <textarea v-model="form.shipping_address" required placeholder="Contoh: Jl. Merdeka No. 123, RT 01/RW 02, patokan dekat masjid Al-Ikhlas" rows="2" class="w-full border-2 border-maroon-100 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-slate-100 placeholder:text-charcoal/30 dark:placeholder:text-slate-500 bg-white dark:bg-slate-700 focus:border-maroon focus:outline-none transition-colors resize-none"></textarea>
-                            <p class="text-[10px] text-charcoal/40 dark:text-slate-500 mt-1">Nama jalan, nomor rumah, RT/RW, atau patokan terdekat.</p>
+                            <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Alamat Lengkap</label>
+                            <textarea v-model="form.shipping_address" required placeholder="Contoh: Jl. Merdeka No. 123, RT 01/RW 02, patokan dekat masjid Al-Ikhlas" rows="2" class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-maroon focus:outline-none transition-colors resize-none"></textarea>
+                            <p class="text-[10px] text-charcoal/40 dark:text-[#6a6a6e] mt-1">Nama jalan, nomor rumah, RT/RW, atau patokan terdekat.</p>
                         </div>
 
                         <!-- Layanan Pengiriman - tampil otomatis setelah lokasi dipilih -->
                         <div v-if="selectedCity">
-                            <div v-if="loadingShipping" class="flex items-center gap-2 text-xs text-charcoal/50 dark:text-slate-400 py-3">
+                            <div v-if="loadingShipping" class="flex items-center gap-2 text-xs text-charcoal/50 dark:text-[#8a8a8e] py-3">
                                 <div class="w-4 h-4 border-2 border-maroon-100 border-t-maroon rounded-full animate-spin"></div>
                                 Mencari layanan pengiriman tersedia...
                             </div>
 
                             <div v-else-if="shippingOptions.length">
-                                <label class="block text-xs font-semibold text-charcoal/60 dark:text-slate-400 mb-2">Pilih Layanan Pengiriman</label>
+                                <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-2">Pilih Layanan Pengiriman</label>
                                 <div class="space-y-2">
                                     <label v-for="opt in shippingOptions" :key="opt.code + '-' + opt.service"
                                         class="flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all"
                                         :class="selectedShipping?.code === opt.code && selectedShipping?.service === opt.service
                                             ? 'border-maroon bg-maroon-50/30 dark:bg-maroon/10'
-                                            : 'border-maroon-100 dark:border-slate-600 hover:border-maroon-200'">
+                                            : 'border-maroon-100 dark:border-[#303032] hover:border-maroon-200'">
                                         <div class="flex items-center gap-3">
                                             <input type="radio" :value="opt" v-model="selectedShipping" class="accent-maroon">
                                             <div>
-                                                <p class="text-xs font-bold text-charcoal dark:text-slate-100">{{ opt.courier }}</p>
-                                                <p class="text-xs text-charcoal/60 dark:text-slate-400">{{ opt.service }} · {{ opt.description }}</p>
-                                                <p class="text-xs text-charcoal/40 dark:text-slate-500">Estimasi {{ opt.etd || '-' }} hari</p>
+                                                <p class="text-xs font-bold text-charcoal dark:text-[#f0eeeb]">{{ opt.courier }}</p>
+                                                <p class="text-xs text-charcoal/60 dark:text-[#8a8a8e]">{{ opt.service }} · {{ opt.description }}</p>
+                                                <p class="text-xs text-charcoal/40 dark:text-[#6a6a6e]">Estimasi {{ opt.etd || '-' }} hari</p>
                                             </div>
                                         </div>
                                         <span class="text-sm font-bold text-maroon shrink-0 ml-2">Rp{{ formatPrice(opt.cost || 0) }}</span>
@@ -161,35 +161,35 @@
 
             <!-- Ringkasan Pesanan -->
             <div class="lg:col-span-2">
-                <div class="bg-white dark:bg-slate-800 p-6 lg:p-8 rounded-2xl border-2 border-maroon-50 dark:border-slate-700 lg:sticky lg:top-28">
-                    <h2 class="text-sm font-bold text-charcoal dark:text-slate-100 tracking-wide mb-4">Ringkasan Pesanan</h2>
+                <div class="bg-white dark:bg-[#1c1c1e] p-6 lg:p-8 rounded-2xl border-2 border-maroon-50 dark:border-[#303032] lg:sticky lg:top-28">
+                    <h2 class="text-sm font-bold text-charcoal dark:text-[#f0eeeb] tracking-wide mb-4">Ringkasan Pesanan</h2>
                     <div class="space-y-3">
                         <div v-for="item in checkoutItems" :key="item.product_id" class="flex items-center gap-3">
                             <!-- Thumbnail -->
-                            <div class="w-12 h-14 shrink-0 rounded-lg overflow-hidden bg-maroon-50 dark:bg-slate-700">
+                            <div class="w-12 h-14 shrink-0 rounded-lg overflow-hidden bg-maroon-50 dark:bg-[#28282a]">
                                 <img v-if="item.thumbnail" :src="item.thumbnail" :alt="item.name" class="w-full h-full object-cover" />
                                 <div v-else class="w-full h-full flex items-center justify-center text-maroon-300 text-xs font-bold">A</div>
                             </div>
                             <!-- Info -->
                             <div class="flex-1 min-w-0">
-                                <p class="text-xs font-semibold text-charcoal dark:text-slate-200 truncate">{{ item.name }}</p>
-                                <p class="text-[10px] text-charcoal/40 dark:text-slate-500 mt-0.5">Rp{{ formatPrice(item.price) }} × {{ item.quantity }}</p>
+                                <p class="text-xs font-semibold text-charcoal dark:text-[#f0eeeb] truncate">{{ item.name }}</p>
+                                <p class="text-[10px] text-charcoal/40 dark:text-[#6a6a6e] mt-0.5">Rp{{ formatPrice(item.price) }} × {{ item.quantity }}</p>
                             </div>
                             <!-- Subtotal -->
-                            <p class="text-xs font-bold text-charcoal dark:text-slate-100 shrink-0">Rp{{ formatPrice(item.price * item.quantity) }}</p>
+                            <p class="text-xs font-bold text-charcoal dark:text-[#f0eeeb] shrink-0">Rp{{ formatPrice(item.price * item.quantity) }}</p>
                         </div>
                     </div>
 
                     <!-- Kupon — diarsipkan sementara -->
                     <!--
-                    <div class="mt-4 pt-4 border-t-2 border-maroon-100 dark:border-slate-700">
-                        <label class="block text-xs font-semibold text-charcoal/60 dark:text-slate-400 mb-1.5">Kode Kupon</label>
+                    <div class="mt-4 pt-4 border-t-2 border-maroon-100 dark:border-[#303032]">
+                        <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Kode Kupon</label>
                         <div class="flex gap-2">
                             <input
                                 v-model="couponCode"
                                 :disabled="!!appliedCoupon || couponLoading"
                                 placeholder="Masukkan kode kupon"
-                                class="flex-1 border-2 border-maroon-100 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-charcoal dark:text-slate-100 placeholder:text-charcoal/30 dark:placeholder:text-slate-500 bg-white dark:bg-slate-700 focus:border-maroon focus:outline-none transition-colors disabled:opacity-50 uppercase"
+                                class="flex-1 border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-3 py-2 text-xs text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-maroon focus:outline-none transition-colors disabled:opacity-50 uppercase"
                                 @keyup.enter="applyCoupon"
                             >
                             <button
@@ -205,7 +205,7 @@
                                 v-else
                                 type="button"
                                 @click="removeCoupon"
-                                class="px-3 py-2 text-xs font-semibold border-2 border-maroon-100 dark:border-slate-600 text-charcoal/60 dark:text-slate-400 rounded-xl hover:border-maroon transition-all"
+                                class="px-3 py-2 text-xs font-semibold border-2 border-maroon-100 dark:border-[#303032] text-charcoal/60 dark:text-[#8a8a8e] rounded-xl hover:border-maroon transition-all"
                             >
                                 Hapus
                             </button>
@@ -217,8 +217,8 @@
                     </div>
                     -->
 
-                    <div class="mt-4 pt-4 border-t-2 border-maroon-100 dark:border-slate-700 space-y-2">
-                        <div class="flex justify-between text-sm text-charcoal/60 dark:text-slate-400">
+                    <div class="mt-4 pt-4 border-t-2 border-maroon-100 dark:border-[#303032] space-y-2">
+                        <div class="flex justify-between text-sm text-charcoal/60 dark:text-[#8a8a8e]">
                             <span>Subtotal</span>
                             <span class="font-medium">Rp{{ formatPrice(checkoutItems.reduce((s, i) => s + i.price * i.quantity, 0)) }}</span>
                         </div>
@@ -229,13 +229,13 @@
                             <span class="font-medium">-Rp{{ formatPrice(appliedCoupon.discount) }}</span>
                         </div>
                         -->
-                        <div class="flex justify-between text-sm text-charcoal/60 dark:text-slate-400">
+                        <div class="flex justify-between text-sm text-charcoal/60 dark:text-[#8a8a8e]">
                             <span>Ongkir</span>
-                            <span v-if="shippingCost === 0 && !selectedShipping" class="text-charcoal/40 dark:text-slate-500 italic text-xs">Pilih kurir dulu</span>
+                            <span v-if="shippingCost === 0 && !selectedShipping" class="text-charcoal/40 dark:text-[#6a6a6e] italic text-xs">Pilih kurir dulu</span>
                             <span v-else-if="shippingCost === 0" class="text-green-600 dark:text-green-400 font-medium">Gratis!</span>
                             <span v-else class="font-medium">Rp{{ formatPrice(shippingCost) }}</span>
                         </div>
-                        <div class="flex justify-between text-lg font-bold text-charcoal dark:text-slate-100 pt-3 border-t-2 border-maroon-100 dark:border-slate-700">
+                        <div class="flex justify-between text-lg font-bold text-charcoal dark:text-[#f0eeeb] pt-3 border-t-2 border-maroon-100 dark:border-[#303032]">
                             <span>Total</span>
                             <span class="text-maroon">Rp{{ formatPrice(grandTotal) }}</span>
                         </div>
@@ -244,20 +244,20 @@
                     <div v-if="error" class="mt-4 p-3 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm">{{ error }}</div>
 
                     <!-- Metode Pembayaran -->
-                    <div class="mt-4 pt-4 border-t-2 border-maroon-100 dark:border-slate-700">
-                        <h3 class="text-xs font-bold text-charcoal/60 dark:text-slate-400 tracking-wide mb-3">Metode Pembayaran</h3>
+                    <div class="mt-4 pt-4 border-t-2 border-maroon-100 dark:border-[#303032]">
+                        <h3 class="text-xs font-bold text-charcoal/60 dark:text-[#8a8a8e] tracking-wide mb-3">Metode Pembayaran</h3>
                         <div class="space-y-2">
                             <label v-for="pm in paymentMethods" :key="pm.value"
                                 class="flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all"
                                 :class="paymentMethod === pm.value
                                     ? 'border-maroon bg-maroon-50/30 dark:bg-maroon/10'
-                                    : 'border-maroon-100 dark:border-slate-600 hover:border-maroon-200'">
+                                    : 'border-maroon-100 dark:border-[#303032] hover:border-maroon-200'">
                                 <input type="radio" :value="pm.value" v-model="paymentMethod" class="accent-maroon">
                                 <div class="flex items-center gap-2 flex-1 min-w-0">
-                                    <component :is="pm.icon" class="w-[18px] h-[18px] shrink-0 text-charcoal dark:text-slate-300" />
+                                    <component :is="pm.icon" class="w-[18px] h-[18px] shrink-0 text-charcoal dark:text-[#d0ceca]" />
                                     <div class="min-w-0">
-                                        <p class="text-xs font-bold text-charcoal dark:text-slate-100">{{ pm.label }}</p>
-                                        <p class="text-[10px] text-charcoal/50 dark:text-slate-500">{{ pm.desc }}</p>
+                                        <p class="text-xs font-bold text-charcoal dark:text-[#f0eeeb]">{{ pm.label }}</p>
+                                        <p class="text-[10px] text-charcoal/50 dark:text-[#6a6a6e]">{{ pm.desc }}</p>
                                     </div>
                                 </div>
                             </label>
@@ -268,40 +268,40 @@
                             <div v-if="paymentMethod" class="mt-3">
 
                                 <!-- Bank Transfer -->
-                                <div v-if="paymentMethod === 'bank_transfer'" class="bg-maroon-50/40 dark:bg-slate-700/50 rounded-xl p-4 space-y-1.5">
+                                <div v-if="paymentMethod === 'bank_transfer'" class="bg-maroon-50/40 dark:bg-[#28282a]/50 rounded-xl p-4 space-y-1.5">
                                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                                         <div>
-                                            <p class="text-charcoal/40 dark:text-slate-500">Bank</p>
-                                            <p class="font-bold text-charcoal dark:text-slate-200">{{ get('payment_bank_name', 'BCA') }}</p>
+                                            <p class="text-charcoal/40 dark:text-[#6a6a6e]">Bank</p>
+                                            <p class="font-bold text-charcoal dark:text-[#f0eeeb]">{{ get('payment_bank_name', 'BCA') }}</p>
                                         </div>
                                         <div>
-                                            <p class="text-charcoal/40 dark:text-slate-500">No. Rekening</p>
-                                            <p class="font-bold text-charcoal dark:text-slate-200 font-mono tracking-wider">{{ get('payment_bank_account_no', '-') }}</p>
+                                            <p class="text-charcoal/40 dark:text-[#6a6a6e]">No. Rekening</p>
+                                            <p class="font-bold text-charcoal dark:text-[#f0eeeb] font-mono tracking-wider">{{ get('payment_bank_account_no', '-') }}</p>
                                         </div>
                                         <div>
-                                            <p class="text-charcoal/40 dark:text-slate-500">Atas Nama</p>
-                                            <p class="font-bold text-charcoal dark:text-slate-200">{{ get('payment_bank_account_name', '-') }}</p>
+                                            <p class="text-charcoal/40 dark:text-[#6a6a6e]">Atas Nama</p>
+                                            <p class="font-bold text-charcoal dark:text-[#f0eeeb]">{{ get('payment_bank_account_name', '-') }}</p>
                                         </div>
                                     </div>
-                                    <p class="text-[10px] text-charcoal/40 dark:text-slate-500 pt-1 border-t border-maroon-100 dark:border-slate-600">Kirim bukti transfer via WhatsApp setelah pembayaran.</p>
+                                    <p class="text-[10px] text-charcoal/40 dark:text-[#6a6a6e] pt-1 border-t border-maroon-100 dark:border-[#303032]">Kirim bukti transfer via WhatsApp setelah pembayaran.</p>
                                 </div>
 
                                 <!-- QRIS -->
-                                <div v-else-if="paymentMethod === 'qris'" class="bg-maroon-50/40 dark:bg-slate-700/50 rounded-xl p-4 text-center">
-                                    <p class="text-xs font-bold text-charcoal dark:text-slate-200 mb-3">Scan QRIS untuk Pembayaran</p>
+                                <div v-else-if="paymentMethod === 'qris'" class="bg-maroon-50/40 dark:bg-[#28282a]/50 rounded-xl p-4 text-center">
+                                    <p class="text-xs font-bold text-charcoal dark:text-[#f0eeeb] mb-3">Scan QRIS untuk Pembayaran</p>
                                     <div v-if="get('payment_qris_image')" class="flex justify-center mb-3">
-                                        <img :src="get('payment_qris_image')" alt="QRIS" class="w-32 h-32 sm:w-40 sm:h-40 object-contain rounded-xl border-2 border-maroon-100 dark:border-slate-600 bg-white p-1" />
+                                        <img :src="get('payment_qris_image')" alt="QRIS" class="w-32 h-32 sm:w-40 sm:h-40 object-contain rounded-xl border-2 border-maroon-100 dark:border-[#303032] bg-white p-1" />
                                     </div>
-                                    <div v-else class="w-40 h-40 mx-auto rounded-xl border-2 border-dashed border-maroon-200 dark:border-slate-600 flex items-center justify-center mb-3">
+                                    <div v-else class="w-40 h-40 mx-auto rounded-xl border-2 border-dashed border-maroon-200 dark:border-[#303032] flex items-center justify-center mb-3">
                                         <DevicePhoneMobileIcon class="w-10 h-10 text-maroon-200 dark:text-slate-600" />
                                     </div>
-                                    <p v-if="get('payment_qris_name')" class="text-xs font-semibold text-charcoal dark:text-slate-200">{{ get('payment_qris_name') }}</p>
-                                    <p class="text-[10px] text-charcoal/40 dark:text-slate-500 mt-1">Scan dengan e-wallet atau m-banking manapun.</p>
+                                    <p v-if="get('payment_qris_name')" class="text-xs font-semibold text-charcoal dark:text-[#f0eeeb]">{{ get('payment_qris_name') }}</p>
+                                    <p class="text-[10px] text-charcoal/40 dark:text-[#6a6a6e] mt-1">Scan dengan e-wallet atau m-banking manapun.</p>
                                 </div>
 
                                 <!-- COD -->
-                                <div v-else-if="paymentMethod === 'cod'" class="bg-maroon-50/40 dark:bg-slate-700/50 rounded-xl p-4">
-                                    <p class="text-xs text-charcoal/60 dark:text-slate-400 leading-relaxed">Bayar langsung saat pesanan tiba di tanganmu. Kurir akan menagih saat pengiriman. Pastikan kamu ada di lokasi saat pengiriman tiba.</p>
+                                <div v-else-if="paymentMethod === 'cod'" class="bg-maroon-50/40 dark:bg-[#28282a]/50 rounded-xl p-4">
+                                    <p class="text-xs text-charcoal/60 dark:text-[#8a8a8e] leading-relaxed">Bayar langsung saat pesanan tiba di tanganmu. Kurir akan menagih saat pengiriman. Pastikan kamu ada di lokasi saat pengiriman tiba.</p>
                                 </div>
 
                             </div>
@@ -312,7 +312,7 @@
                         Pesan Sekarang
                     </button>
 
-                    <p class="mt-4 text-xs text-center text-charcoal/40 dark:text-slate-500 leading-relaxed">Dengan pesan, kamu setuju sama <router-link to="/terms" class="text-maroon hover:text-maroon-600 underline">syarat & ketentuan</router-link> kita.</p>
+                    <p class="mt-4 text-xs text-center text-charcoal/40 dark:text-[#6a6a6e] leading-relaxed">Dengan pesan, kamu setuju sama <router-link to="/terms" class="text-maroon hover:text-maroon-600 underline">syarat & ketentuan</router-link> kita.</p>
                 </div>
             </div>
         </form>
