@@ -528,6 +528,8 @@ async function fetchShippingCost() {
         const results = res.data.data || res.data
         shippingCacheKey.value = res.data.cache_key || null
         shippingOptions.value = Array.isArray(results) ? results : []
+        console.log('[shipping] raw response:', JSON.stringify(res.data, null, 2))
+        console.log('[shipping] options:', shippingOptions.value.map(o => o.code + ' - ' + o.courier))
         if (!shippingOptions.value.length) {
             shippingError.value = 'Tidak ada layanan pengiriman tersedia untuk tujuan ini.'
         }

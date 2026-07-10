@@ -119,12 +119,13 @@ onMounted(async () => {
     // Fallback jika API tidak ada data
     if (!couriers.value.length) {
         couriers.value = [
-            { code: 'JNE', name: 'JNE', desc: 'Reguler, YES, OKE' },
-            { code: 'J&T', name: 'J&T Express', desc: 'Ekonomi, Express' },
-            { code: 'SICEPAT', name: 'SiCepat', desc: 'Reguler, HALU' },
-            { code: 'POS', name: 'POS Indonesia', desc: 'Standar, Kilat Khusus' },
-            { code: 'TIKI', name: 'TIKI', desc: 'Reguler, Ekspress, ONS' },
-            { code: 'ANTERAJA', name: 'Anteraja', desc: 'Same Day, Next Day' },
+            { code: 'JNE',      name: 'JNE',           desc: 'Reguler, YES, OKE' },
+            { code: 'J&T',      name: 'J&T Express',   desc: 'Ekonomi, Express' },
+            { code: 'SICEPAT',  name: 'SiCepat',       desc: 'Reguler, HALU' },
+            { code: 'ANTERAJA', name: 'AnterAja',       desc: 'Next Day, Reguler' },
+            { code: 'NINJA',    name: 'Ninja Express',  desc: 'Reguler, Express' },
+            { code: 'POS',      name: 'POS Indonesia',  desc: 'Standar, Kilat Khusus' },
+            { code: 'LION',     name: 'Lion Parcel',    desc: 'Reguler, Express' },
         ]
     }
 
