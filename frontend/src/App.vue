@@ -82,19 +82,46 @@
 
                     <!-- Right: Auth, Wishlist, Cart -->
                     <div class="flex items-center gap-2 lg:gap-4">
-                        <!-- Pesanan Saya (Desktop, hanya jika login) -->
-                        <router-link v-if="isLoggedIn" to="/orders" class="hidden lg:block text-[13px] font-semibold text-charcoal/80 hover:text-maroon transition-colors">Pesanan</router-link>
-
-                        <!-- Profile (Desktop, hanya jika login) -->
-                        <router-link v-if="isLoggedIn" to="/profile" class="hidden lg:block text-[13px] font-semibold text-charcoal/80 hover:text-maroon transition-colors">Profil</router-link>
-
-                        <!-- Auth Link (Desktop) -->
-                        <div class="hidden md:flex items-center gap-1.5 mr-2">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-charcoal/70">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                            </svg>
-                            <router-link v-if="!isLoggedIn" to="/login" class="text-[13px] font-semibold text-charcoal/80 hover:text-maroon transition-colors">Masuk / Daftar</router-link>
-                            <button v-else @click="handleLogout" class="text-[13px] font-semibold text-charcoal/80 hover:text-maroon transition-colors cursor-pointer">Keluar</button>
+                        <!-- User icon — guest: link to login, logged in: dropdown -->
+                        <div class="hidden md:block relative">
+                            <!-- Guest -->
+                            <router-link v-if="!isLoggedIn" to="/login" class="p-2 flex items-center justify-center text-charcoal/70 hover:text-maroon transition-colors" aria-label="Masuk">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                                </svg>
+                            </router-link>
+                            <!-- Logged in: icon + dropdown -->
+                            <div v-else class="relative" data-user-menu>
+                                <button @click="userMenuOpen = !userMenuOpen" class="p-2 flex items-center justify-center text-charcoal/70 hover:text-maroon transition-colors rounded-full" :class="userMenuOpen ? 'text-maroon' : ''" aria-label="Akun saya">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                                    </svg>
+                                </button>
+                                <!-- Dropdown -->
+                                <Transition name="dropdown">
+                                    <div v-if="userMenuOpen" class="absolute right-0 top-full mt-2 w-44 bg-white dark:bg-slate-800 border border-zinc-100 dark:border-slate-700 rounded-xl shadow-xl z-50 overflow-hidden py-1">
+                                        <router-link @click="userMenuOpen = false" to="/orders" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-charcoal/80 dark:text-slate-300 hover:bg-zinc-50 dark:hover:bg-slate-700 hover:text-maroon transition-colors">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>
+                                            </svg>
+                                            Pesanan Saya
+                                        </router-link>
+                                        <router-link @click="userMenuOpen = false" to="/profile" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-charcoal/80 dark:text-slate-300 hover:bg-zinc-50 dark:hover:bg-slate-700 hover:text-maroon transition-colors">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                                            </svg>
+                                            Profil
+                                        </router-link>
+                                        <div class="h-px bg-zinc-100 dark:bg-slate-700 mx-3 my-1"></div>
+                                        <button @click="userMenuOpen = false; handleLogout()" class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-charcoal/80 dark:text-slate-300 hover:bg-zinc-50 dark:hover:bg-slate-700 hover:text-maroon transition-colors cursor-pointer">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+                                            </svg>
+                                            Keluar
+                                        </button>
+                                    </div>
+                                </Transition>
+                            </div>
                         </div>
 
                         <!-- Dark Mode Toggle -->
@@ -327,6 +354,7 @@ const isDark = ref(false)
 const toggle = () => { isDark.value = !isDark.value; document.documentElement.classList.toggle('dark', isDark.value) }
 const mobileOpen = ref(false)
 const isLoggedIn = ref(false)
+const userMenuOpen = ref(false)
 const categories = ref([])
 
 const cartCount = computed(() => items.value.reduce((sum, item) => sum + item.quantity, 0))
@@ -336,6 +364,10 @@ const searchQuery = ref('')
 watch(() => route.query.search, (newSearch) => {
     searchQuery.value = newSearch || ''
 }, { immediate: true })
+
+watch(() => route.fullPath, () => {
+    userMenuOpen.value = false
+})
 
 // Promo Carousel for Mobile
 const activePromo = ref(0)
@@ -378,6 +410,14 @@ onMounted(async () => {
     window.addEventListener('auth:unverified', () => {
         // Tetap login, hanya redirect — isLoggedIn tidak perlu diubah
     })
+
+    // Close user dropdown on outside click
+    const handleClickOutside = (e) => {
+        if (userMenuOpen.value && !e.target.closest('[data-user-menu]')) {
+            userMenuOpen.value = false
+        }
+    }
+    document.addEventListener('click', handleClickOutside)
 
     // Cart toast listener
     window.addEventListener('cart:added', (e) => {
@@ -463,10 +503,22 @@ function triggerMobileLogout() {
 onUnmounted(() => {
     if (promoTimer) clearInterval(promoTimer)
     if (cartToastTimer) clearTimeout(cartToastTimer)
+    document.removeEventListener('click', handleClickOutside)
 })
 </script>
 
 <style scoped>
+/* Dropdown transition */
+.dropdown-enter-active,
+.dropdown-leave-active {
+    transition: all 0.15s ease;
+}
+.dropdown-enter-from,
+.dropdown-leave-to {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+}
+
 .mobile-nav-enter-active,
 .mobile-nav-leave-active {
     transition: all 0.25s ease;
