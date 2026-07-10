@@ -1,6 +1,6 @@
 <template>
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-        <h1 class="text-3xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Pesanan Saya</h1>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
+        <h1 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Pesanan Saya</h1>
         <p class="mt-2 text-sm text-charcoal/50 dark:text-slate-400">Lihat semua pesanan dan status pengirimannya</p>
 
         <div v-if="loading" class="py-24 text-center">
@@ -9,9 +9,7 @@
         </div>
 
         <div v-else-if="!isLoggedIn" class="py-24 text-center">
-            <svg class="w-16 h-16 mx-auto text-maroon-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-            </svg>
+            <UserIcon class="w-16 h-16 mx-auto text-maroon-200" />
             <h2 class="mt-4 text-xl font-bold text-charcoal dark:text-slate-100">Login dulu yuk!</h2>
             <p class="mt-2 text-sm text-charcoal/50 dark:text-slate-400">Kamu harus login untuk lihat pesanan</p>
             <router-link to="/login" class="inline-block mt-6 px-8 py-3 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25">
@@ -20,10 +18,7 @@
         </div>
 
         <div v-else-if="!orders.length" class="py-24 text-center">
-            <svg class="w-16 h-16 mx-auto text-maroon-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-            </svg>
-            <h2 class="mt-4 text-xl font-bold text-charcoal">Belum ada pesanan nih</h2>
+            <ShoppingCartIcon class="w-16 h-16 mx-auto text-maroon-200" />
             <h2 class="mt-4 text-xl font-bold text-charcoal dark:text-slate-100">Belum ada pesanan nih</h2>
             <p class="mt-2 text-sm text-charcoal/50 dark:text-slate-400">Yuk belanja sekarang!</p>
             <router-link to="/?shop=1" class="inline-block mt-6 px-8 py-3 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25">
@@ -72,10 +67,13 @@
                         <span class="text-charcoal/70 dark:text-slate-400">{{ item.product_name }} <span class="text-charcoal/40 dark:text-slate-500">×{{ item.quantity }}</span></span>
                         <span class="font-medium text-charcoal dark:text-slate-200">Rp{{ formatPrice(item.subtotal) }}</span>
                     </div>
+                    <!-- Diskon kupon — diarsipkan sementara -->
+                    <!--
                     <div v-if="order.coupon_discount > 0" class="flex justify-between text-sm text-green-600 dark:text-green-400 pt-1 border-t border-maroon-50 dark:border-slate-700">
                         <span>Diskon Kupon <span v-if="order.coupon_code" class="font-mono text-xs bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-1.5 py-0.5 rounded ml-1">{{ order.coupon_code }}</span></span>
                         <span class="font-medium">-Rp{{ formatPrice(order.coupon_discount) }}</span>
                     </div>
+                    -->
                 </div>
 
                 <div class="mt-4 pt-4 border-t border-maroon-100 dark:border-slate-700 flex flex-col sm:flex-row gap-3">
@@ -106,6 +104,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { ShoppingCartIcon, UserIcon } from '@heroicons/vue/24/outline'
 import { formatPrice } from '../mock-data'
 import api from '../api'
 import { useSettings } from '../useSettings'

@@ -1,12 +1,9 @@
 <template>
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-        <h1 class="text-3xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Keranjang Belanja</h1>
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
+        <h1 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Keranjang Belanja</h1>
 
         <div v-if="!items.length" class="text-center py-16 lg:py-24">
-            <svg class="w-16 h-16 mx-auto text-maroon-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-                <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
-            </svg>
+            <ShoppingCartIcon class="w-16 h-16 mx-auto text-maroon-200" />
             <p class="mt-4 text-lg text-charcoal/50 dark:text-slate-400">Wah, keranjangmu masih kosong nih!</p>
             <p class="text-sm text-charcoal/40 dark:text-slate-500">Yuk, cari kemeja favoritmu dulu.</p>
             <router-link to="/" class="inline-block mt-6 px-8 py-3 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25">
@@ -15,40 +12,93 @@
         </div>
 
         <div v-else class="mt-8 lg:mt-10">
+            <!-- Select All -->
+            <div class="flex items-center gap-3 mb-4 px-1">
+                <button @click="toggleAll" class="flex items-center gap-2.5 group" aria-label="Pilih semua">
+                    <span class="w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all shrink-0"
+                        :class="isAllSelected
+                            ? 'bg-maroon border-maroon'
+                            : isPartialSelected
+                                ? 'bg-maroon/20 border-maroon'
+                                : 'border-maroon-200 dark:border-slate-600 group-hover:border-maroon'">
+                        <CheckIcon v-if="isAllSelected" class="w-3 h-3 text-white" />
+                        <MinusIcon v-else-if="isPartialSelected" class="w-3 h-3 text-maroon" />
+                    </span>
+                    <span class="text-sm font-semibold text-charcoal/70 dark:text-slate-400">
+                        Pilih Semua ({{ items.length }} produk)
+                    </span>
+                </button>
+            </div>
+
             <div class="space-y-3">
-                <div v-for="item in items" :key="item.product_id" class="flex items-center gap-4 bg-white dark:bg-slate-800 p-4 lg:p-5 rounded-2xl border-2 border-maroon-50 dark:border-slate-700 hover:border-maroon-100 dark:hover:border-slate-600 transition-all">
+                <div v-for="item in items" :key="item.product_id"
+                    class="flex items-center gap-3 bg-white dark:bg-slate-800 p-3 lg:p-5 rounded-2xl border-2 transition-all cursor-pointer"
+                    :class="selectedIds.has(item.product_id)
+                        ? 'border-maroon dark:border-maroon/70'
+                        : 'border-maroon-50 dark:border-slate-700 hover:border-maroon-100 dark:hover:border-slate-600'"
+                    @click.self="toggleItem(item.product_id)">
+
+                    <!-- Checkbox -->
+                    <button @click="toggleItem(item.product_id)" class="shrink-0 flex items-center justify-center" aria-label="Pilih item">
+                        <span class="w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all"
+                            :class="selectedIds.has(item.product_id)
+                                ? 'bg-maroon border-maroon'
+                                : 'border-maroon-200 dark:border-slate-600 hover:border-maroon'">
+                            <CheckIcon v-if="selectedIds.has(item.product_id)" class="w-3 h-3 text-white" />
+                        </span>
+                    </button>
+
+                    <!-- Thumbnail -->
                     <div class="w-16 h-20 lg:w-20 lg:h-24 shrink-0 bg-maroon-50 dark:bg-slate-700 rounded-xl overflow-hidden">
                         <img v-if="item.thumbnail" :src="item.thumbnail" :alt="item.name" class="w-full h-full object-cover" />
                         <div v-else class="w-full h-full flex items-center justify-center text-maroon-300 text-lg font-bold">A</div>
                     </div>
+
+                    <!-- Info -->
                     <div class="flex-1 min-w-0">
                         <h3 class="text-sm font-semibold text-charcoal dark:text-slate-200">{{ item.name }}</h3>
                         <p class="text-sm font-medium text-maroon mt-0.5">Rp{{ formatPrice(item.price) }}</p>
                     </div>
+
+                    <!-- Qty controls -->
                     <div class="flex items-center gap-2">
                         <button @click="decrease(item.product_id)" class="w-8 h-8 rounded-lg border-2 border-maroon-200 dark:border-slate-600 flex items-center justify-center text-sm font-bold text-charcoal dark:text-slate-300 hover:border-maroon hover:text-maroon transition-colors active:scale-95">−</button>
                         <span class="w-8 text-center text-sm font-bold dark:text-slate-200">{{ item.quantity }}</span>
                         <button @click="updateQuantity(item.product_id, item.quantity + 1)" class="w-8 h-8 rounded-lg border-2 border-maroon-200 dark:border-slate-600 flex items-center justify-center text-sm font-bold text-charcoal dark:text-slate-300 hover:border-maroon hover:text-maroon transition-colors active:scale-95">+</button>
                     </div>
-                    <p class="font-bold text-sm w-20 text-right text-charcoal dark:text-slate-200 hidden sm:block">Rp{{ formatPrice(item.price * item.quantity) }}</p>
+
+                    <!-- Subtotal -->
+                    <p class="font-bold text-xs lg:text-sm w-16 lg:w-20 text-right text-charcoal dark:text-slate-200 hidden sm:block">Rp{{ formatPrice(item.price * item.quantity) }}</p>
+
+                    <!-- Remove -->
                     <button @click="removeItem(item.product_id)" class="text-charcoal/30 dark:text-slate-500 hover:text-red-500 transition-colors p-1 active:scale-95" aria-label="Hapus">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <XMarkIcon class="w-[18px] h-[18px]" />
                     </button>
                 </div>
             </div>
 
+            <!-- Summary -->
             <div class="mt-8 pt-6 border-t-2 border-maroon-100 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <p class="text-sm text-charcoal/50 dark:text-slate-400">Total Belanja</p>
-                    <p class="text-3xl font-bold text-maroon">Rp{{ formatPrice(total()) }}</p>
+                    <p class="text-sm text-charcoal/50 dark:text-slate-400">
+                        Total Belanja
+                        <span v-if="selectedIds.size" class="ml-1 text-charcoal/40 dark:text-slate-500">({{ selectedIds.size }} produk dipilih)</span>
+                    </p>
+                    <p class="text-xl lg:text-3xl font-bold text-maroon">Rp{{ formatPrice(selectedTotal) }}</p>
+                    <p v-if="!selectedIds.size" class="text-xs text-charcoal/40 dark:text-slate-500 mt-1">Pilih produk untuk melanjutkan</p>
                 </div>
-                <div class="flex gap-3">
-                    <router-link to="/" class="px-6 py-3 bg-white dark:bg-slate-800 text-charcoal dark:text-slate-200 text-sm font-semibold rounded-xl border-2 border-maroon-200 dark:border-slate-600 hover:border-maroon hover:bg-maroon-50 dark:hover:bg-slate-700 transition-all active:scale-[0.97]">
+                <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                    <router-link to="/" class="px-5 py-2.5 bg-white dark:bg-slate-800 text-charcoal dark:text-slate-200 text-sm font-semibold rounded-xl border-2 border-maroon-200 dark:border-slate-600 hover:border-maroon hover:bg-maroon-50 dark:hover:bg-slate-700 transition-all active:scale-[0.97] text-center">
                         Lanjut Belanja
                     </router-link>
-                    <router-link to="/checkout" class="px-8 py-3 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25">
+                    <button @click="goToCheckout"
+                        :disabled="!selectedIds.size"
+                        class="px-6 py-2.5 text-sm font-semibold rounded-xl transition-all active:scale-[0.97] text-center"
+                        :class="selectedIds.size
+                            ? 'bg-maroon text-white hover:bg-maroon-600 shadow-lg shadow-maroon/25'
+                            : 'bg-maroon-100 dark:bg-slate-700 text-maroon-300 dark:text-slate-500 cursor-not-allowed'">
                         Checkout
-                    </router-link>
+                    </button>
                 </div>
             </div>
         </div>
@@ -56,10 +106,44 @@
 </template>
 
 <script setup>
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { ShoppingCartIcon, XMarkIcon, CheckIcon, MinusIcon } from '@heroicons/vue/24/outline'
 import { useCartStore } from '../cart'
 import { formatPrice } from '../mock-data'
 
+const router = useRouter()
 const { items, updateQuantity, removeItem, total } = useCartStore()
+
+// Selection state
+const selectedIds = ref(new Set(items.value.map(i => i.product_id)))
+
+const isAllSelected = computed(() => selectedIds.value.size === items.value.length && items.value.length > 0)
+const isPartialSelected = computed(() => selectedIds.value.size > 0 && selectedIds.value.size < items.value.length)
+
+const selectedTotal = computed(() =>
+    items.value
+        .filter(i => selectedIds.value.has(i.product_id))
+        .reduce((sum, i) => sum + i.price * i.quantity, 0)
+)
+
+function toggleItem(productId) {
+    const next = new Set(selectedIds.value)
+    if (next.has(productId)) {
+        next.delete(productId)
+    } else {
+        next.add(productId)
+    }
+    selectedIds.value = next
+}
+
+function toggleAll() {
+    if (isAllSelected.value) {
+        selectedIds.value = new Set()
+    } else {
+        selectedIds.value = new Set(items.value.map(i => i.product_id))
+    }
+}
 
 function decrease(productId) {
     const item = items.value.find(i => i.product_id === productId)
@@ -67,6 +151,17 @@ function decrease(productId) {
         updateQuantity(productId, item.quantity - 1)
     } else {
         removeItem(productId)
+        const next = new Set(selectedIds.value)
+        next.delete(productId)
+        selectedIds.value = next
     }
+}
+
+function goToCheckout() {
+    if (!selectedIds.value.size) return
+    router.push({
+        path: '/checkout',
+        state: { selectedIds: [...selectedIds.value] }
+    })
 }
 </script>

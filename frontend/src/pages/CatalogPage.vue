@@ -29,12 +29,14 @@
 
                 <!-- Loading -->
                 <div v-if="loading" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-                    <div v-for="n in 8" :key="n" class="animate-pulse">
-                        <div class="aspect-[3/4] bg-coklat-100/50 dark:bg-slate-700/50 rounded-xl"></div>
+                    <div v-for="n in 8" :key="n">
+                        <div class="aspect-[3/4] w-full rounded-xl overflow-hidden">
+                            <SkeletonLoader :loading="true" :radius="0" height="100%" width="100%" />
+                        </div>
                         <div class="mt-2 space-y-1.5 px-1">
-                            <div class="h-2 bg-coklat-100/50 dark:bg-slate-700/50 rounded-full w-1/3"></div>
-                            <div class="h-2.5 bg-coklat-100/50 dark:bg-slate-700/50 rounded-full w-2/3"></div>
-                            <div class="h-2.5 bg-coklat-100/50 dark:bg-slate-700/50 rounded-full w-1/4"></div>
+                            <SkeletonLoader :loading="true" :radius="99" height="8px" width="33%" />
+                            <SkeletonLoader :loading="true" :radius="99" height="10px" width="66%" />
+                            <SkeletonLoader :loading="true" :radius="99" height="10px" width="25%" />
                         </div>
                     </div>
                 </div>

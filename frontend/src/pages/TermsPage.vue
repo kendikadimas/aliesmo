@@ -1,6 +1,6 @@
 <template>
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-        <h1 class="text-3xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Syarat & Ketentuan</h1>
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
+        <h1 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Syarat & Ketentuan</h1>
         <p class="mt-3 text-sm text-charcoal/50 dark:text-slate-400">Terakhir diperbarui: Juli 2026</p>
 
         <div class="mt-10 space-y-8">

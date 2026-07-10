@@ -1,6 +1,8 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
+import Skeleton from '@brayamvalero/vue3-skeleton'
+import '@brayamvalero/vue3-skeleton/dist/style.css'
 import HomePage from './pages/HomePage.vue'
 import ProductDetailPage from './pages/ProductDetailPage.vue'
 import CartPage from './pages/CartPage.vue'
@@ -9,7 +11,6 @@ import CheckoutPage from './pages/CheckoutPage.vue'
 import OrderConfirmationPage from './pages/OrderConfirmationPage.vue'
 import LoginPage from './pages/LoginPage.vue'
 import RegisterPage from './pages/RegisterPage.vue'
-import MyOrdersPage from './pages/MyOrdersPage.vue'
 import ProfilePage from './pages/ProfilePage.vue'
 import ForgotPasswordPage from './pages/ForgotPasswordPage.vue'
 import ResetPasswordPage from './pages/ResetPasswordPage.vue'
@@ -33,7 +34,7 @@ const routes = [
     { path: '/track-order', name: 'track-order', component: TrackOrderPage },
     { path: '/login', name: 'login', component: LoginPage },
     { path: '/register', name: 'register', component: RegisterPage },
-    { path: '/orders', name: 'my-orders', component: MyOrdersPage },
+    { path: '/orders', redirect: '/profile?tab=pesanan' },
     { path: '/profile', name: 'profile', component: ProfilePage },
     { path: '/forgot-password', name: 'forgot-password', component: ForgotPasswordPage },
     { path: '/reset-password', name: 'reset-password', component: ResetPasswordPage },
@@ -56,6 +57,7 @@ const router = createRouter({
 
 const app = createApp(App)
 app.use(router)
+app.use(Skeleton)
 app.mount('#app')
 
 // Handle auth expired event dari api.js interceptor

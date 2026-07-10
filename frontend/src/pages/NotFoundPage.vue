@@ -1,6 +1,6 @@
 <template>
     <div class="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
-        <div class="text-8xl font-black text-maroon/20 tracking-tighter select-none">404</div>
+        <div class="text-6xl sm:text-8xl font-black text-maroon/20 tracking-tighter select-none">404</div>
         <h1 class="mt-4 text-2xl font-bold text-charcoal dark:text-slate-100">Halaman Tidak Ditemukan</h1>
         <p class="mt-3 text-sm text-charcoal/50 dark:text-slate-400 max-w-sm leading-relaxed">
             Halaman yang kamu cari tidak ada atau sudah dipindahkan.
