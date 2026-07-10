@@ -1,17 +1,1 @@
 @import "tailwindcss";
-
-/* Tie dark: classes to .dark selector only, not OS preference */
-@custom-variant dark (&:where(.dark, .dark *));
-
-/* When OS is dark but .dark class is NOT on html, force light rendering */
-@media (prefers-color-scheme: dark) {
-    html:not(.dark) {
-        filter: none;
-        background: white;
-        color: #1a1a1a;
-    }
-    html:not(.dark) body {
-        background: white;
-        color: #1a1a1a;
-    }
-}

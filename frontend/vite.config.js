@@ -2,9 +2,10 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
+import forceDarkClassPlugin from './force-dark-class-plugin.js'
 
 export default defineConfig({
-    plugins: [vue(), tailwindcss()],
+    plugins: [vue(), tailwindcss(), forceDarkClassPlugin()],
     build: {
         outDir: path.resolve(__dirname, '../public/build'),
         emptyOutDir: true,
