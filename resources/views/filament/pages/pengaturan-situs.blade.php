@@ -13,50 +13,41 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('[PengaturanSitus] Page loaded');
+            console.group('[Admin Debug] PengaturanSitus');
+            console.log('Page loaded at:', new Date().toISOString());
 
             if (window.Livewire) {
-                console.log('[PengaturanSitus] Livewire detected');
+                console.log('Livewire: detected');
 
-                Livewire.on('form-submitted', () => {
-                    console.log('[PengaturanSitus] Form submitted');
+                Livewire.hook('request', ({ url, options, payload }) => {
+                    console.log('[Request]', { url, payload });
                 });
 
-                Livewire.on('notification-sent', () => {
-                    console.log('[PengaturanSitus] Notification sent - save completed');
+                Livewire.hook('response', ({ response }) => {
+                    console.log('[Response]', { status: response.status });
                 });
 
-                document.addEventListener('livewire:init', () => {
-                    console.log('[PengaturanSitus] Livewire initialized');
-                });
-
-                document.addEventListener('livewire:navigate', () => {
-                    console.log('[PengaturanSitus] Navigation occurred');
-                });
-            } else {
-                console.warn('[PengaturanSitus] Livewire not found');
-            }
-
-            const form = document.querySelector('form[wire\\:submit]');
-            if (form) {
-                form.addEventListener('submit', function(e) {
-                    console.log('[PengaturanSitus] Form submit event triggered');
-                });
-            }
-
-            const fileInputs = document.querySelectorAll('input[type="file"]');
-            fileInputs.forEach((input, index) => {
-                input.addEventListener('change', function(e) {
-                    console.log(`[PengaturanSitus] File input ${index} changed:`, {
-                        name: e.target.name,
-                        files: Array.from(e.target.files).map(f => ({
-                            name: f.name,
-                            size: f.size,
-                            type: f.type
-                        }))
+                document.querySelectorAll('input, select, textarea').forEach((el, i) => {
+                    el.addEventListener('change', function(e) {
+                        const name = e.target.getAttribute('wire:model') || e.target.name || `input-${i}`;
+                        const value = e.target.type === 'file'
+                            ? Array.from(e.target.files).map(f => `${f.name} (${f.size} bytes)`)
+                            : e.target.value;
+                        console.log(`[Change] ${name}:`, value);
                     });
                 });
-            });
+
+                const form = document.querySelector('form[wire\\:submit]');
+                if (form) {
+                    form.addEventListener('submit', function() {
+                        console.log('[Submit] Form submitted');
+                    });
+                }
+            } else {
+                console.warn('Livewire: NOT found');
+            }
+
+            console.groupEnd();
         });
     </script>
 </x-filament-panels::page>

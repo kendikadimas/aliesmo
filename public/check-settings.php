@@ -8,7 +8,7 @@ use App\Models\SiteSetting;
 
 header('Content-Type: application/json');
 
-$settings = SiteSetting::all(['key', 'value', 'type', 'group'])->mapWithKeys(function ($s) {
+$allSettings = SiteSetting::all(['key', 'value', 'type', 'group'])->mapWithKeys(function ($s) {
     return [$s->key => [
         'value' => $s->value,
         'type' => $s->type,
@@ -17,35 +17,8 @@ $settings = SiteSetting::all(['key', 'value', 'type', 'group'])->mapWithKeys(fun
     ]];
 });
 
-$paymentKeys = [
-    'payment_banks',
-    'payment_qris_image',
-    'payment_qris_name',
-    'payment_cod_enabled',
-];
-
-$paymentSettings = [];
-foreach ($paymentKeys as $key) {
-    $paymentSettings[$key] = $settings[$key] ?? ['value' => null, 'is_empty' => true, 'not_found' => true];
-}
-
-$qrisValue = $paymentSettings['payment_qris_image']['value'] ?? null;
-$qrisFileExists = false;
-$qrisFullPath = null;
-
-if ($qrisValue) {
-    $qrisFullPath = storage_path('app/public/' . $qrisValue);
-    $qrisFileExists = file_exists($qrisFullPath);
-}
-
 echo json_encode([
     'timestamp' => date('Y-m-d H:i:s'),
-    'payment_settings' => $paymentSettings,
-    'qris_debug' => [
-        'db_value' => $qrisValue,
-        'full_path' => $qrisFullPath,
-        'file_exists' => $qrisFileExists,
-        'asset_url' => $qrisValue ? asset('storage/' . $qrisValue) : null,
-    ],
-    'all_settings_count' => $settings->count(),
+    'total_settings' => $allSettings->count(),
+    'all_settings' => $allSettings,
 ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
