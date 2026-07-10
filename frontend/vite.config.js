@@ -5,6 +5,9 @@ import path from 'path'
 
 export default defineConfig({
     plugins: [vue(), tailwindcss()],
+    optimizeDeps: {
+        include: ['@brayamvalero/vue3-skeleton'],
+    },
     build: {
         outDir: path.resolve(__dirname, '../public/build'),
         emptyOutDir: true,
