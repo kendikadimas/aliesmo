@@ -43,19 +43,19 @@
             </div>
         </section>
 
-        <section class="py-12 lg:py-16 overflow-hidden bg-zinc-800">
+        <section class="py-12 lg:py-16 overflow-hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between mb-8">
                     <div>
-                        <h2 class="text-2xl lg:text-3xl font-bold text-white tracking-tight">Collection</h2>
-                        <p class="mt-1 text-sm text-white/50">Temukan koleksi yang cocok untukmu</p>
+                        <h2 class="text-2xl lg:text-3xl font-bold text-charcoal dark:text-slate-100 tracking-tight">Collection</h2>
+                        <p class="mt-1 text-sm text-charcoal/50 dark:text-slate-400">Temukan koleksi yang cocok untukmu</p>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-5">
                     <div v-for="cat in categoriesList" :key="cat.id" @click="$router.push(`/catalog/${cat.slug}`)" class="group cursor-pointer">
-                        <div class="aspect-[21/9] bg-maroon-50 rounded-xl overflow-hidden relative">
+                        <div class="aspect-[21/9] bg-zinc-800 rounded-xl overflow-hidden relative">
                             <img v-if="cat.image_url" :src="cat.image_url" :alt="cat.name" class="w-full h-full object-cover group-hover:scale-[1.06] transition-transform duration-500" />
-                            <div v-else class="w-full h-full bg-gradient-to-br from-maroon-50 to-maroon-100 dark:from-slate-700 dark:to-slate-600 group-hover:scale-[1.06] transition-transform duration-500"></div>
+                            <div v-else class="w-full h-full bg-zinc-800 group-hover:scale-[1.06] transition-transform duration-500"></div>
                             <div class="absolute inset-0 bg-charcoal/30 group-hover:bg-charcoal/40 transition-colors flex items-center justify-center p-3">
                                 <p class="text-xs sm:text-sm font-extrabold text-white tracking-[0.12em] uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] group-hover:scale-105 transition-transform duration-300 text-center">{{ cat.name }}</p>
                             </div>
