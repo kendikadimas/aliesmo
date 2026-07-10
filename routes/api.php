@@ -33,6 +33,35 @@ Route::prefix('v1')->group(function () {
         ]);
     });
 
+    Route::get('fix-storage', function () {
+        $results = [];
+        
+        $dirs = [
+            storage_path('app/livewire-tmp'),
+            storage_path('app/public/payment'),
+            storage_path('logs'),
+        ];
+
+        foreach ($dirs as $dir) {
+            if (!is_dir($dir)) {
+                if (mkdir($dir, 0755, true)) {
+                    $results[$dir] = 'created';
+                } else {
+                    $results[$dir] = 'failed to create';
+                }
+            } else {
+                $results[$dir] = 'exists';
+            }
+
+            if (is_dir($dir)) {
+                @chmod($dir, 0755);
+                $results[$dir . '_perms'] = substr(sprintf('%o', fileperms($dir)), -4);
+            }
+        }
+
+        return response()->json($results);
+    });
+
     Route::get('banners', [BannerController::class, 'index'])->middleware('throttle:60,1');
     Route::get('homepage-videos', [HomepageVideoController::class, 'index'])->middleware('throttle:60,1');
     Route::get('settings', [SiteSettingController::class, 'index'])->middleware('throttle:60,1');
