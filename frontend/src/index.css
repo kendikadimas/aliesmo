@@ -1,1 +1,4 @@
 @import "tailwindcss";
+
+/* Force light mode — dark mode belum selesai dikembangkan */
+@custom-variant dark (&:where(.dark, .dark *));
