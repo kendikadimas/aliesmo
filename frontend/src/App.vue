@@ -236,7 +236,7 @@
                         <p class="mt-3 text-sm text-white/50 leading-relaxed max-w-xs">Kemeja batik dan casual berkualitas. Nyaman dipakai, bangga dengan budaya Indonesia.</p>
                     </div>
                     <div>
-                        <h4 class="text-sm font-semibold text-maroon mb-4">Menu</h4>
+                        <h4 class="text-sm font-semibold text-white mb-4">Menu</h4>
                         <ul class="space-y-2">
                             <li><router-link to="/" class="text-sm text-white/50 hover:text-white transition-colors">Beranda</router-link></li>
                             <li><router-link to="/?shop=1" class="text-sm text-white/50 hover:text-white transition-colors">Koleksi</router-link></li>
@@ -244,7 +244,7 @@
                         </ul>
                     </div>
                     <div>
-                        <h4 class="text-sm font-semibold text-maroon mb-4">Informasi</h4>
+                        <h4 class="text-sm font-semibold text-white mb-4">Informasi</h4>
                         <ul class="space-y-2">
                             <li><router-link to="/track-order" class="text-sm text-white/50 hover:text-white transition-colors">Lacak Pesanan</router-link></li>
                             <li><router-link to="/shipping-info" class="text-sm text-white/50 hover:text-white transition-colors">Info Pengiriman</router-link></li>
@@ -254,7 +254,7 @@
                         </ul>
                     </div>
                     <div>
-                        <h4 class="text-sm font-semibold text-maroon mb-4">Kontak</h4>
+                        <h4 class="text-sm font-semibold text-white mb-4">Kontak</h4>
                         <ul class="space-y-2 text-sm text-white/50">
                             <li>{{ get('contact_email', 'hello@aliesmo.com') }}</li>
                             <li>{{ get('contact_phone', '+62 851-9681-1722') }}</li>
