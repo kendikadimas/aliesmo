@@ -58,7 +58,7 @@ class PengaturanSitus extends Page implements HasForms
 
     // Payment — banks sebagai array untuk Repeater
     public array $payment_banks = [];
-    public ?string $payment_qris_image = null;
+    public $payment_qris_image = null;
     public ?string $payment_qris_name = null;
     public bool $payment_cod_enabled = false;
 
