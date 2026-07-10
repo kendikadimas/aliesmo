@@ -1,11 +1,17 @@
 @import "tailwindcss";
 
-/* Dark mode hanya aktif via class .dark — tidak ikut prefers-color-scheme OS */
+/* Tie dark: classes to .dark selector only, not OS preference */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Neutralize browser/Tailwind prefers-color-scheme dark base styles */
+/* When OS is dark but .dark class is NOT on html, force light rendering */
 @media (prefers-color-scheme: dark) {
-    :root:not(.dark) {
-        color-scheme: light;
+    html:not(.dark) {
+        filter: none;
+        background: white;
+        color: #1a1a1a;
+    }
+    html:not(.dark) body {
+        background: white;
+        color: #1a1a1a;
     }
 }
