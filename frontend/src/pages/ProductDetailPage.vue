@@ -35,7 +35,7 @@
         </div>
 
         <div v-else>
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 lg:py-8">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 py-8 lg:py-14">
                 <router-link to="/#shop" class="inline-flex items-center gap-1.5 text-xs font-semibold text-charcoal/40 dark:text-[#6a6a6e] hover:text-maroon transition-colors mb-4">
                     <ArrowLeftIcon class="w-3 h-3" />
                     Kembali
