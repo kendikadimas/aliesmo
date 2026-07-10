@@ -109,6 +109,7 @@ class SiteSettingResource extends Resource
                     ->sortable(),
             ])
             ->defaultSort('group')
+            ->modifyQueryUsing(fn ($query) => $query->where('group', '!=', 'stats'))
             ->filters([
                 Tables\Filters\SelectFilter::make('group')
                     ->label('Grup')
