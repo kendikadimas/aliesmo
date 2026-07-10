@@ -57,13 +57,13 @@ class SecurityHeaders
         $response->headers->set(
             'Content-Security-Policy',
             "default-src 'self'; " .
-            "script-src 'self' 'unsafe-inline'{$scriptEvalSource}{$scriptDevSources}; " .
+            "script-src 'self' 'unsafe-inline'{$scriptEvalSource}{$scriptDevSources} https://www.youtube.com; " .
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com{$styleDevSources}; " .
             "font-src 'self' data: https://fonts.gstatic.com; " .
             "img-src 'self' data: blob: https:; " .
             "frame-src https://www.youtube.com; " .
             "worker-src 'self' blob:; " .
-            "connect-src 'self'{$connectDevSources};"
+            "connect-src 'self' https://www.youtube.com{$connectDevSources};"
         );
 
         return $response;

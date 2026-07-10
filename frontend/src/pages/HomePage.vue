@@ -3,23 +3,25 @@
         <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 lg:pt-8">
             <div class="relative rounded-2xl overflow-hidden shadow-lg">
                 <div class="relative flex transition-all duration-500" :style="{ transform: `translateX(-${activeSlide * 100}%)` }">
-                    <div v-for="banner in banners" :key="banner.id"
+                    <div v-for="(banner, i) in banners" :key="banner.id"
                         class="w-full shrink-0 aspect-[2/1] sm:aspect-[3/1]">
                         <!-- YouTube embed banner -->
-                        <iframe
-                            v-if="banner.youtube_url"
-                            :src="getYoutubeEmbedUrl(banner.youtube_url)"
-                            class="w-full h-full"
-                            frameborder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowfullscreen
-                        ></iframe>
+                        <div v-if="banner.youtube_url" class="w-full h-full">
+                            <iframe
+                                :ref="el => { if (el) bannerIframes[i] = el }"
+                                :src="getYoutubeEmbedUrl(banner.youtube_url) + '?enablejsapi=1'"
+                                class="w-full h-full"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen
+                            ></iframe>
+                        </div>
                         <!-- Image banner -->
                         <img v-else :src="banner.image_url" :alt="banner.title" class="w-full h-full object-cover block" />
                     </div>
                 </div>
                 <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2.5 z-20">
-                    <button v-for="(_, i) in banners" :key="i" @click="activeSlide = i" class="h-2 rounded-full transition-all" :class="activeSlide === i ? 'w-6 bg-white' : 'w-2 bg-white/50 hover:bg-white/70'"></button>
+                    <button v-for="(_, i) in banners" :key="i" @click="goToSlide(i)" class="h-2 rounded-full transition-all" :class="activeSlide === i ? 'w-6 bg-white' : 'w-2 bg-white/50 hover:bg-white/70'"></button>
                 </div>
                 <button @click="prevSlide" class="absolute top-1/2 -translate-y-1/2 left-3 z-20 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow hover:bg-white dark:bg-[#1c1c1e] dark:hover:bg-[#242426] transition-all">
                     <ChevronLeftIcon class="w-4 h-4" />
@@ -195,6 +197,9 @@ const email = ref('')
 const subscribed = ref(false)
 const activeSlide = ref(0)
 let slideTimer = null
+const bannerIframes = ref({})
+let ytPlayers = []
+let isVideoPlaying = false
 
 const loadingMore = ref(false)
 const hasMorePages = ref(false)
@@ -228,8 +233,24 @@ function productImage(product, index) {
     return ''
 }
 
-function prevSlide() { activeSlide.value = activeSlide.value === 0 ? Math.max(banners.value.length - 1, 0) : activeSlide.value - 1 }
-function nextSlide() { activeSlide.value = activeSlide.value >= banners.value.length - 1 ? 0 : activeSlide.value + 1 }
+function pauseCurrentVideo() {
+    if (ytPlayers[activeSlide.value]) {
+        try { ytPlayers[activeSlide.value].pauseVideo() } catch (e) {}
+    }
+}
+
+function prevSlide() {
+    pauseCurrentVideo()
+    activeSlide.value = activeSlide.value === 0 ? Math.max(banners.value.length - 1, 0) : activeSlide.value - 1
+}
+function nextSlide() {
+    pauseCurrentVideo()
+    activeSlide.value = activeSlide.value >= banners.value.length - 1 ? 0 : activeSlide.value + 1
+}
+function goToSlide(i) {
+    pauseCurrentVideo()
+    activeSlide.value = i
+}
 function addToCart(product) { addItem(product, 1) }
 
 // Konversi URL YouTube biasa ke embed URL
@@ -272,7 +293,11 @@ function handleSubscribe() {
 
 onMounted(() => {
     fetchData()
-    slideTimer = setInterval(() => { nextSlide() }, 5000)
+    slideTimer = setInterval(() => {
+        if (!isVideoPlaying) {
+            activeSlide.value = activeSlide.value >= banners.value.length - 1 ? 0 : activeSlide.value + 1
+        }
+    }, 5000)
     if (route.query.shop) {
         setTimeout(() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' }), 150)
     }
@@ -291,6 +316,29 @@ onMounted(() => {
     setTimeout(() => {
         if (scrollSentinel.value) observer.observe(scrollSentinel.value)
     }, 500)
+
+    // YouTube IFrame API
+    if (!window.YT) {
+        const tag = document.createElement('script')
+        tag.src = 'https://www.youtube.com/iframe_api'
+        document.head.appendChild(tag)
+    }
+
+    const initYTPlayers = () => {
+        if (!window.YT || !window.YT.Player) { setTimeout(initYTPlayers, 200); return }
+        banners.value.forEach((banner, i) => {
+            if (banner.youtube_url && bannerIframes.value[i]) {
+                ytPlayers[i] = new window.YT.Player(bannerIframes.value[i], {
+                    events: {
+                        onStateChange: (event) => {
+                            isVideoPlaying = event.data === window.YT.PlayerState.PLAYING
+                        }
+                    }
+                })
+            }
+        })
+    }
+    setTimeout(initYTPlayers, 1000)
 })
 
 // Watch perubahan URL query — sinkronisasi filter & search (H-03 + L-06)
