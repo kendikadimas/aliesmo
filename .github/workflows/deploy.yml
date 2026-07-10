@@ -97,7 +97,7 @@ jobs:
 
           echo "Running migrate and optimize:clear..."
           sleep 3
-          curl -s "https://aliesmo.id/deploy-runner.php?token=${{ secrets.DEPLOY_TOKEN }}" || true
+          curl -s "https://aliesmo.id/deploy-runner.php?token=${{ secrets.DEPLOY_SECRET }}" || true
 
           echo "Removing deploy-runner.php..."
           curl -s --ftp-ssl -u "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" \
