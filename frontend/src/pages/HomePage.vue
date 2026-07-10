@@ -289,5 +289,4 @@ onUnmounted(() => {
     if (slideTimer) clearInterval(slideTimer)
     if (observer) observer.disconnect()
 })
-})
 </script>
