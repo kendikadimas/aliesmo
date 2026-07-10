@@ -59,7 +59,7 @@ class PengaturanSitus extends Page implements HasForms
 
     // Payment — banks sebagai array untuk Repeater
     public array $payment_banks = [];
-    public $payment_qris_image = '';
+    public $qris_path = '';
     public $payment_qris_name = null;
     public $payment_cod_enabled = false;
 
@@ -90,7 +90,7 @@ class PengaturanSitus extends Page implements HasForms
         $this->payment_banks = array_values($banks);
 
         // QRIS image — load existing path for FileUpload hydration
-        $this->payment_qris_image = $settings['payment_qris_image'] ?? '';
+        $this->qris_path = $settings['payment_qris_image'] ?? '';
 
         // COD boolean
         $this->payment_cod_enabled = (bool) ($settings['payment_cod_enabled'] ?? false);
@@ -180,6 +180,7 @@ class PengaturanSitus extends Page implements HasForms
                             ),
 
                         FileUpload::make('payment_qris_image')
+                            ->statePath('qris_path')
                             ->label('Gambar QRIS')
                             ->image()
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
@@ -226,7 +227,7 @@ class PengaturanSitus extends Page implements HasForms
         SiteSetting::where('key', 'payment_banks')
             ->update(['value' => json_encode($banks)]);
 
-        $qrisValue = $this->payment_qris_image;
+        $qrisValue = $this->qris_path;
         error_log('[payment_qris_image raw] => ' . print_r($qrisValue, true));
         if (is_array($qrisValue)) {
             $qrisValue = $qrisValue[0] ?? '';
