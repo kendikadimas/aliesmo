@@ -173,9 +173,12 @@ class ShippingController extends Controller
         ]);
     }
 
+    // Naikkan versi ini setiap kali kurir whitelist berubah agar cache lama invalid
+    private const CACHE_VERSION = 2;
+
     private function generateShippingCacheKey(int $origin, int $destination, int $weight, ?string $areaId = null): string
     {
-        $key = "{$origin}:{$destination}:{$weight}";
+        $key = "v" . self::CACHE_VERSION . ":{$origin}:{$destination}:{$weight}";
         if ($areaId) $key .= ":{$areaId}";
         return 'shipping:' . md5($key);
     }
