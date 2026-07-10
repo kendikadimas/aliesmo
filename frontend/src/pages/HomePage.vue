@@ -112,12 +112,9 @@
                     </div>
                 </div>
 
-                <!-- Load More -->
-                <div v-if="hasMorePages || loadingMore" class="mt-10 flex justify-center">
-                    <button @click="loadMore" :disabled="loadingMore" class="px-8 py-3 border-2 border-maroon text-maroon text-sm font-semibold rounded-xl hover:bg-maroon hover:text-white transition-all active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                        <span v-if="loadingMore" class="w-4 h-4 border-2 border-maroon/30 border-t-maroon rounded-full animate-spin"></span>
-                        {{ loadingMore ? 'Memuat...' : 'Tampilkan Lebih Banyak' }}
-                    </button>
+                <!-- Infinite scroll sentinel -->
+                <div ref="scrollSentinel" class="h-10 mt-6 flex items-center justify-center">
+                    <span v-if="loadingMore" class="w-5 h-5 border-2 border-maroon/30 border-t-maroon rounded-full animate-spin"></span>
                 </div>
             </div>
         </section>
@@ -154,6 +151,8 @@ let slideTimer = null
 const loadingMore = ref(false)
 const hasMorePages = ref(false)
 const currentPage = ref(1)
+const scrollSentinel = ref(null)
+let observer = null
 
 const filteredProducts = computed(() => {
     if (!products.value.length) return []
@@ -218,6 +217,18 @@ onMounted(() => {
     // Sync state dengan URL query params saat mount
     if (route.query.category) selectedCategory.value = route.query.category
     if (route.query.search) searchTerm.value = route.query.search
+
+    // Infinite scroll — observe sentinel div di bawah produk grid
+    observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMorePages.value && !loadingMore.value) {
+            loadMore()
+        }
+    }, { threshold: 0.1 })
+
+    // Tunggu sentinel di-render dulu
+    setTimeout(() => {
+        if (scrollSentinel.value) observer.observe(scrollSentinel.value)
+    }, 500)
 })
 
 // Watch perubahan URL query — sinkronisasi filter & search (H-03 + L-06)
@@ -276,5 +287,7 @@ async function loadMore() {
 
 onUnmounted(() => {
     if (slideTimer) clearInterval(slideTimer)
+    if (observer) observer.disconnect()
+})
 })
 </script>
