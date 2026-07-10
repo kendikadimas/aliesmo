@@ -382,6 +382,13 @@ let cartToastTimer = null
 // Cart icon bounce
 const cartBounce = ref(false)
 
+// Close user dropdown on outside click — defined at module scope so onUnmounted can reference it
+const handleClickOutside = (e) => {
+    if (userMenuOpen.value && !e.target.closest('[data-user-menu]')) {
+        userMenuOpen.value = false
+    }
+}
+
 onMounted(async () => {
     // Ensure light mode on mount
     document.documentElement.classList.remove('dark')
@@ -403,12 +410,6 @@ onMounted(async () => {
         // Tetap login, hanya redirect — isLoggedIn tidak perlu diubah
     })
 
-    // Close user dropdown on outside click
-    const handleClickOutside = (e) => {
-        if (userMenuOpen.value && !e.target.closest('[data-user-menu]')) {
-            userMenuOpen.value = false
-        }
-    }
     document.addEventListener('click', handleClickOutside)
 
     // Cart toast listener
@@ -430,7 +431,7 @@ onMounted(async () => {
 
     // Auto-scroll promos on mobile
     promoTimer = setInterval(() => {
-        activePromo.value = (activePromo.value + 1) % promos.length
+        activePromo.value = (activePromo.value + 1) % promos.value.length
     }, 4000)
 
     // Fetch settings (promos, contact info) dan categories secara paralel
