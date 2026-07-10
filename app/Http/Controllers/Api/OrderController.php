@@ -149,7 +149,7 @@ class OrderController extends Controller
             'qris' => [
                 'method'      => 'qris',
                 'label'       => 'QRIS',
-                'qris_image'  => \App\Models\SiteSetting::get('payment_qris_image', null),
+                'qris_image'  => ($img = \App\Models\SiteSetting::get('payment_qris_image', null)) ? asset('storage/' . $img) : null,
                 'qris_name'   => \App\Models\SiteSetting::get('payment_qris_name', 'Aliesmo'),
                 'instruction' => 'Scan QRIS di atas, lalu kirim bukti pembayaran via WhatsApp.',
             ],

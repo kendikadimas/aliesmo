@@ -17,6 +17,10 @@ class SiteSettingController extends Controller
                 default   => $s->value,
             }]);
 
+        if (!empty($settings['payment_qris_image'])) {
+            $settings['payment_qris_image'] = asset('storage/' . $settings['payment_qris_image']);
+        }
+
         return response()->json(['data' => $settings]);
     }
 
@@ -29,6 +33,10 @@ class SiteSettingController extends Controller
                 'json'    => json_decode($s->value, true),
                 default   => $s->value,
             }]);
+
+        if (!empty($settings['payment_qris_image'])) {
+            $settings['payment_qris_image'] = asset('storage/' . $settings['payment_qris_image']);
+        }
 
         return response()->json(['data' => $settings]);
     }
