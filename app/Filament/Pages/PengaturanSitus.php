@@ -14,6 +14,7 @@ use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Concerns\RestrictsFileUploadsToSchemaComponents;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Log;
 
 class PengaturanSitus extends Page implements HasSchemas
 {
@@ -40,6 +41,12 @@ class PengaturanSitus extends Page implements HasSchemas
     {
         $settings = SiteSetting::all()->pluck('value', 'key');
 
+        Log::channel('admin-debug')->info('[PengaturanSitus] mount() - DB settings loaded', [
+            'payment_qris_image' => $settings['payment_qris_image'] ?? 'NULL',
+            'payment_banks' => $settings['payment_banks'] ?? 'NULL',
+            'all_keys' => $settings->keys()->toArray(),
+        ]);
+
         $textKeys = [
             'announcement_1', 'announcement_1_link',
             'announcement_2', 'announcement_2_link',
@@ -63,6 +70,11 @@ class PengaturanSitus extends Page implements HasSchemas
         $data['payment_qris_image'] = $qrisImage ? [$qrisImage] : [];
 
         $data['payment_cod_enabled'] = (bool) ($settings['payment_cod_enabled'] ?? false);
+
+        Log::channel('admin-debug')->info('[PengaturanSitus] mount() - form fill data', [
+            'payment_qris_image' => $data['payment_qris_image'],
+            'payment_banks' => $data['payment_banks'],
+        ]);
 
         $this->form->fill($data);
     }
@@ -175,6 +187,12 @@ class PengaturanSitus extends Page implements HasSchemas
     {
         $state = $this->form->getState();
 
+        Log::channel('admin-debug')->info('[PengaturanSitus] save() - form getState()', [
+            'full_state' => $state,
+            'payment_qris_image_type' => gettype($state['payment_qris_image'] ?? null),
+            'payment_qris_image_value' => $state['payment_qris_image'] ?? 'NULL',
+        ]);
+
         $textKeys = [
             'announcement_1', 'announcement_1_link',
             'announcement_2', 'announcement_2_link',
@@ -194,14 +212,26 @@ class PengaturanSitus extends Page implements HasSchemas
             ->update(['value' => json_encode($banks)]);
 
         $qrisValue = $state['payment_qris_image'] ?? [];
+        Log::channel('admin-debug')->info('[PengaturanSitus] save() - QRIS before processing', [
+            'type' => gettype($qrisValue),
+            'value' => $qrisValue,
+        ]);
+
         if (is_array($qrisValue)) {
             $qrisValue = $qrisValue[0] ?? '';
         }
+
+        Log::channel('admin-debug')->info('[PengaturanSitus] save() - QRIS after processing', [
+            'final_value' => $qrisValue,
+        ]);
+
         SiteSetting::where('key', 'payment_qris_image')
             ->update(['value' => $qrisValue ?? '']);
 
         SiteSetting::where('key', 'payment_cod_enabled')
             ->update(['value' => ($state['payment_cod_enabled'] ?? false) ? '1' : '0']);
+
+        Log::channel('admin-debug')->info('[PengaturanSitus] save() - completed');
 
         Notification::make()
             ->title('Pengaturan berhasil disimpan')

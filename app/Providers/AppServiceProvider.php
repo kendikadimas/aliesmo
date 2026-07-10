@@ -28,6 +28,47 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->registerModelDebugLogging();
+        $this->registerLivewireDebugLogging();
+    }
+
+    private function registerLivewireDebugLogging(): void
+    {
+        \Livewire\Livewire::listen('dehydrate', function ($component, $context) {
+            $name = $component->getName();
+            if (str_contains($name, 'PengaturanSitus') || str_contains($name, 'pengaturan')) {
+                $props = [];
+                foreach (get_object_vars($component) as $k => $v) {
+                    if (is_object($v)) $props[$k] = get_class($v);
+                    elseif (is_array($v)) $props[$k] = 'array(' . count($v) . ')';
+                    else $props[$k] = $v;
+                }
+                Log::channel('admin-debug')->info("[Livewire] Dehydrate: {$name}", $props);
+            }
+        });
+
+        \Livewire\Livewire::listen('hydrate', function ($component, $memo, $context) {
+            $name = $component->getName();
+            if (str_contains($name, 'PengaturanSitus') || str_contains($name, 'pengaturan')) {
+                $props = [];
+                foreach (get_object_vars($component) as $k => $v) {
+                    if (is_object($v)) $props[$k] = get_class($v);
+                    elseif (is_array($v)) $props[$k] = 'array(' . count($v) . ')';
+                    else $props[$k] = $v;
+                }
+                Log::channel('admin-debug')->info("[Livewire] Hydrate: {$name}", $props);
+            }
+        });
+
+        \Livewire\Livewire::listen('update', function ($component, $path, $value) {
+            $name = $component->getName();
+            if (str_contains($name, 'PengaturanSitus') || str_contains($name, 'pengaturan')) {
+                Log::channel('admin-debug')->info("[Livewire] Update property: {$name}", [
+                    'path' => $path,
+                    'value_type' => gettype($value),
+                    'value' => is_object($value) ? get_class($value) : (is_array($value) ? json_encode($value) : $value),
+                ]);
+            }
+        });
     }
 
     /**
