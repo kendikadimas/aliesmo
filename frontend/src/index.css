@@ -1,1 +1,22 @@
 @import "tailwindcss";
+
+@theme {
+    /* Brand Colors */
+    --color-maroon: #8B1A1A;
+    --color-maroon-50: #fdf2f2;
+    --color-maroon-100: #fce4e4;
+    --color-maroon-200: #f9c5c5;
+    --color-maroon-600: #7a1515;
+    --color-maroon-700: #6b1212;
+    --color-maroon-800: #5c0f0f;
+
+    /* Neutral/Paper colors */
+    --color-paper: #f9f7f4;
+    --color-charcoal: #1c1c1e;
+    --color-ink: #111111;
+    --color-ink-80: #1c1c1c;
+    --color-ink-90: #141414;
+}
+
+/* Strip prefers-color-scheme dark — dark mode only via .dark class */
+@custom-variant dark (&:where(.dark, .dark *));
