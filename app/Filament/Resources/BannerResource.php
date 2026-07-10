@@ -51,6 +51,22 @@ class BannerResource extends Resource
             ->schema([
                 Section::make('Banner')
                     ->schema([
+                        TextInput::make('title')
+                            ->label('Judul Banner')
+                            ->required()
+                            ->maxLength(100)
+                            ->helperText('Judul internal untuk identifikasi banner di admin.'),
+
+                        TextInput::make('subtitle')
+                            ->label('Subtitle (opsional)')
+                            ->maxLength(200)
+                            ->helperText('Teks tambahan yang tampil di bawah judul banner.'),
+
+                        TextInput::make('badge_text')
+                            ->label('Badge (opsional)')
+                            ->maxLength(50)
+                            ->helperText('Label kecil di pojok banner, contoh: "SALE", "BARU".'),
+
                         FileUpload::make('image_url')
                             ->label('Gambar Banner')
                             ->image()
