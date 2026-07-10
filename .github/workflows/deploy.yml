@@ -87,13 +87,18 @@ jobs:
             **/tailwind.config.js
             **/postcss.config.js
 
-      # ─── 6. Run artisan commands via cPanel API ────────────────────
-      - name: Run post-deploy artisan commands
+      # ─── 6. Run artisan commands via deploy script ────────────────────
+      - name: Upload and run deploy script
         run: |
-          echo "Running migrate..."
-          curl -v -H "Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_API_TOKEN }}" \
-            "https://${{ secrets.CPANEL_HOST }}:2083/execute/CommandLineTool/command?command=%2Fusr%2Flocal%2Fbin%2Fphp%20%2Fhome%2Faliesmoi%2Fpublic_html%2Fartisan%20migrate%20--force" 2>&1 || true
+          echo "Uploading deploy-runner.php..."
+          curl -s --ftp-ssl -u "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" \
+            --upload-file ./public/deploy-runner.php \
+            "ftp://${{ secrets.FTP_SERVER }}/public_html/public/deploy-runner.php" || true
 
-          echo "Running optimize:clear..."
-          curl -v -H "Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_API_TOKEN }}" \
-            "https://${{ secrets.CPANEL_HOST }}:2083/execute/CommandLineTool/command?command=%2Fusr%2Flocal%2Fbin%2Fphp%20%2Fhome%2Faliesmoi%2Fpublic_html%2Fartisan%20optimize%3Aclear" 2>&1 || true
+          echo "Running migrate and optimize:clear..."
+          sleep 3
+          curl -s "https://aliesmo.id/deploy-runner.php?token=${{ secrets.DEPLOY_TOKEN }}" || true
+
+          echo "Removing deploy-runner.php..."
+          curl -s --ftp-ssl -u "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" \
+            "ftp://${{ secrets.FTP_SERVER }}/" -Q "DELE /public_html/public/deploy-runner.php" || true
