@@ -74,6 +74,29 @@ try {
     echo "Error: " . $e->getMessage() . "\n";
     echo "At: " . $e->getFile() . ":" . $e->getLine() . "\n";
 }
+echo "\n=== BUILD ASSETS ON SERVER ===\n";
+$buildDir = __DIR__ . '/build/assets';
+if (is_dir($buildDir)) {
+    $files = scandir($buildDir);
+    foreach ($files as $f) {
+        if ($f === '.' || $f === '..') continue;
+        $size = filesize($buildDir . '/' . $f);
+        echo str_pad($f, 40) . ' ' . number_format($size) . " bytes\n";
+    }
+} else {
+    echo "build/assets dir NOT FOUND\n";
+}
+
+echo "\n=== INDEX.PHP CHECK ===\n";
+$indexFile = __DIR__ . '/index.php';
+echo "index.php exists: " . (file_exists($indexFile) ? 'YES' : 'NO') . "\n";
+if (file_exists($indexFile)) {
+    echo "index.php size: " . filesize($indexFile) . " bytes\n";
+    echo "index.php first 5 lines:\n";
+    $lines = file($indexFile);
+    foreach (array_slice($lines, 0, 5) as $l) echo htmlspecialchars($l);
+}
+
 echo "\n=== LARAVEL LOG (last 50 lines) ===\n";
 $logFile = $root . '/storage/logs/laravel.log';
 if (file_exists($logFile)) {
