@@ -33,34 +33,34 @@ class PengaturanSitus extends Page implements HasForms
     }
 
     // Announcement
-    public ?string $announcement_1 = null;
-    public ?string $announcement_1_link = null;
-    public ?string $announcement_2 = null;
-    public ?string $announcement_2_link = null;
-    public ?string $announcement_3 = null;
-    public ?string $announcement_3_link = null;
+    public $announcement_1 = null;
+    public $announcement_1_link = null;
+    public $announcement_2 = null;
+    public $announcement_2_link = null;
+    public $announcement_3 = null;
+    public $announcement_3_link = null;
 
     // Stats
-    public ?string $stat_kemeja_terjual = null;
-    public ?string $stat_kota = null;
-    public ?string $stat_kualitas = null;
-    public ?string $stat_garansi = null;
+    public $stat_kemeja_terjual = null;
+    public $stat_kota = null;
+    public $stat_kualitas = null;
+    public $stat_garansi = null;
 
     // General
-    public ?string $contact_email = null;
-    public ?string $contact_phone = null;
-    public ?string $contact_address = null;
-    public ?string $contact_whatsapp = null;
-    public ?string $social_instagram = null;
-    public ?string $social_facebook = null;
-    public ?string $social_tiktok = null;
-    public ?string $social_youtube = null;
+    public $contact_email = null;
+    public $contact_phone = null;
+    public $contact_address = null;
+    public $contact_whatsapp = null;
+    public $social_instagram = null;
+    public $social_facebook = null;
+    public $social_tiktok = null;
+    public $social_youtube = null;
 
     // Payment — banks sebagai array untuk Repeater
     public array $payment_banks = [];
     public $payment_qris_image = null;
-    public ?string $payment_qris_name = null;
-    public bool $payment_cod_enabled = false;
+    public $payment_qris_name = null;
+    public $payment_cod_enabled = false;
 
     public function mount(): void
     {
