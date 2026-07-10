@@ -1,6 +1,4 @@
 @import "tailwindcss";
 
-/* Force light mode globally — dark mode belum selesai dikembangkan */
-:root {
-    color-scheme: light only;
-}
+/* Tie dark mode to .dark class instead of prefers-color-scheme */
+@custom-variant dark (&:where(.dark, .dark *));
