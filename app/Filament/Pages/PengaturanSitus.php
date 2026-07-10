@@ -206,14 +206,24 @@ class PengaturanSitus extends Page implements HasSchemas
         foreach ($textKeys as $key) {
             SiteSetting::updateOrCreate(
                 ['key' => $key],
-                ['value' => $state[$key] ?? '']
+                [
+                    'value' => $state[$key] ?? '',
+                    'label' => $key,
+                    'type' => 'string',
+                    'group' => 'general',
+                ]
             );
         }
 
         $banks = array_values($state['payment_banks'] ?? []);
         SiteSetting::updateOrCreate(
             ['key' => 'payment_banks'],
-            ['value' => json_encode($banks)]
+            [
+                'value' => json_encode($banks),
+                'label' => 'payment_banks',
+                'type' => 'json',
+                'group' => 'payment',
+            ]
         );
 
         $qrisValue = $state['payment_qris_image'] ?? [];
@@ -232,12 +242,22 @@ class PengaturanSitus extends Page implements HasSchemas
 
         SiteSetting::updateOrCreate(
             ['key' => 'payment_qris_image'],
-            ['value' => $qrisValue ?? '']
+            [
+                'value' => $qrisValue ?? '',
+                'label' => 'payment_qris_image',
+                'type' => 'string',
+                'group' => 'payment',
+            ]
         );
 
         SiteSetting::updateOrCreate(
             ['key' => 'payment_cod_enabled'],
-            ['value' => ($state['payment_cod_enabled'] ?? false) ? '1' : '0']
+            [
+                'value' => ($state['payment_cod_enabled'] ?? false) ? '1' : '0',
+                'label' => 'payment_cod_enabled',
+                'type' => 'boolean',
+                'group' => 'payment',
+            ]
         );
 
         Log::info('[PengaturanSitus] save() - completed');
