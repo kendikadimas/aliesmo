@@ -14,7 +14,6 @@ use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Storage;
-use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class PengaturanSitus extends Page implements HasForms
 {
@@ -68,9 +67,6 @@ class PengaturanSitus extends Page implements HasForms
     {
         $settings = SiteSetting::all()->pluck('value', 'key');
 
-        // DEBUG: Log QRIS value from database
-        error_log('[QRIS DEBUG] Database value: ' . print_r($settings['payment_qris_image'] ?? 'NULL', true));
-
         // Isi properties text biasa
         $textKeys = [
             'announcement_1', 'announcement_1_link',
@@ -88,33 +84,16 @@ class PengaturanSitus extends Page implements HasForms
             }
         }
 
-        // DEBUG: Log property value after mount
-        error_log('[QRIS DEBUG] Property after mount: ' . print_r($this->payment_qris_image, true));
-        error_log('[QRIS DEBUG] Property type: ' . gettype($this->payment_qris_image));
-
-        // Banks dari JSON
+        // Banks dari JSON — handle both array dan object (UUID keys dari Repeater)
         $banksJson = $settings['payment_banks'] ?? '[]';
-        $this->payment_banks = json_decode($banksJson, true) ?? [];
+        $banks = json_decode($banksJson, true) ?? [];
+        $this->payment_banks = array_values($banks);
+
+        // QRIS image — load existing path for FileUpload hydration
+        $this->payment_qris_image = $settings['payment_qris_image'] ?? null;
 
         // COD boolean
         $this->payment_cod_enabled = (bool) ($settings['payment_cod_enabled'] ?? false);
-    }
-
-    public function _finishUpload($name, $tmpPath, $isMultiple, $append = true)
-    {
-        $tmpPath = collect($tmpPath)->map(function ($signedPath) {
-            $path = TemporaryUploadedFile::extractPathFromSignedPath($signedPath);
-            if ($path === false) {
-                abort(403, 'Invalid upload reference.');
-            }
-            return $path;
-        })->toArray();
-
-        $file = TemporaryUploadedFile::createFromLivewire($tmpPath[0]);
-        $this->dispatch('upload:finished', name: $name, tmpFilenames: [$file->getFilename()])->self();
-
-        $storedPath = $file->store('site-settings', 'public');
-        $this->$name = $storedPath;
     }
 
     public function form(Schema $schema): Schema
@@ -222,9 +201,7 @@ class PengaturanSitus extends Page implements HasForms
 
     public function save(): void
     {
-        // DEBUG: Log property value before save
-        error_log('[QRIS DEBUG] Property before save: ' . print_r($this->payment_qris_image, true));
-        error_log('[QRIS DEBUG] Property type before save: ' . gettype($this->payment_qris_image));
+        error_log('=== PENGATURAN SITUS SAVE DEBUG ===');
 
         // Text keys biasa
         $textKeys = [
@@ -238,24 +215,32 @@ class PengaturanSitus extends Page implements HasForms
         ];
 
         foreach ($textKeys as $key) {
-            SiteSetting::where('key', $key)->update(['value' => $this->$key ?? '']);
+            $value = $this->$key ?? '';
+            error_log("[$key] => " . print_r($value, true));
+            SiteSetting::where('key', $key)->update(['value' => $value]);
         }
 
-        // Banks — simpan sebagai JSON
+        // Banks — simpan sebagai JSON array (strip UUID keys dari Filament Repeater)
+        $banks = array_values($this->payment_banks ?? []);
+        error_log('[payment_banks] => ' . json_encode($banks));
         SiteSetting::where('key', 'payment_banks')
-            ->update(['value' => json_encode($this->payment_banks ?? [])]);
+            ->update(['value' => json_encode($banks)]);
 
-        // QRIS image — FileUpload return path string
-        error_log('[QRIS DEBUG] Final QRIS value: ' . print_r($this->payment_qris_image, true));
-        if ($this->payment_qris_image !== null) {
-            SiteSetting::where('key', 'payment_qris_image')
-                ->update(['value' => $this->payment_qris_image]);
-            error_log('[QRIS DEBUG] QRIS saved to database');
+        $qrisValue = $this->payment_qris_image;
+        error_log('[payment_qris_image raw] => ' . print_r($qrisValue, true));
+        if (is_array($qrisValue)) {
+            $qrisValue = $qrisValue[0] ?? '';
         }
+        error_log('[payment_qris_image final] => ' . print_r($qrisValue, true));
+        SiteSetting::where('key', 'payment_qris_image')
+            ->update(['value' => $qrisValue ?? '']);
 
         // COD boolean
+        error_log('[payment_cod_enabled] => ' . print_r($this->payment_cod_enabled, true));
         SiteSetting::where('key', 'payment_cod_enabled')
             ->update(['value' => $this->payment_cod_enabled ? '1' : '0']);
+
+        error_log('=== END SAVE DEBUG ===');
 
         Notification::make()
             ->title('Pengaturan berhasil disimpan')

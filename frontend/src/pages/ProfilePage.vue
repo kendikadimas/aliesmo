@@ -182,23 +182,24 @@
                             <p class="text-xs font-bold text-charcoal/60 dark:text-[#8a8a8e] tracking-wide mb-2">Info Pembayaran</p>
 
                             <!-- Bank Transfer -->
-                            <div v-if="order.payment_method === 'bank_transfer'" class="bg-maroon-50/40 dark:bg-[#28282a]/50 rounded-xl p-4 space-y-1.5">
+                            <div v-if="order.payment_method === 'bank_transfer'" class="bg-maroon-50/40 dark:bg-[#28282a]/50 rounded-xl p-4 space-y-3">
                                 <div class="flex items-center gap-2 mb-2">
                                     <BuildingLibraryIcon class="w-4 h-4 text-charcoal dark:text-[#f0eeeb] dark:text-[#d0ceca] shrink-0" />
                                     <span class="text-xs font-bold text-charcoal dark:text-[#f0eeeb]">Transfer Bank</span>
                                 </div>
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                                <div v-if="get('payment_banks', []).length === 0" class="text-xs text-charcoal/40 dark:text-[#6a6a6e]">Belum ada rekening bank diatur.</div>
+                                <div v-for="(bank, i) in get('payment_banks', [])" :key="i" class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs" :class="i > 0 ? 'pt-2 border-t border-maroon-100 dark:border-[#303032]' : ''">
                                     <div>
                                         <p class="text-charcoal/40 dark:text-[#6a6a6e]">Bank</p>
-                                        <p class="font-semibold text-charcoal dark:text-[#f0eeeb]">{{ get('payment_bank_name', 'BCA') }}</p>
+                                        <p class="font-semibold text-charcoal dark:text-[#f0eeeb]">{{ bank.bank_name }}</p>
                                     </div>
                                     <div>
                                         <p class="text-charcoal/40 dark:text-[#6a6a6e]">No. Rekening</p>
-                                        <p class="font-semibold text-charcoal dark:text-[#f0eeeb] font-mono">{{ get('payment_bank_account_no', '-') }}</p>
+                                        <p class="font-semibold text-charcoal dark:text-[#f0eeeb] font-mono">{{ bank.account_no }}</p>
                                     </div>
                                     <div>
                                         <p class="text-charcoal/40 dark:text-[#6a6a6e]">Atas Nama</p>
-                                        <p class="font-semibold text-charcoal dark:text-[#f0eeeb]">{{ get('payment_bank_account_name', '-') }}</p>
+                                        <p class="font-semibold text-charcoal dark:text-[#f0eeeb]">{{ bank.account_name }}</p>
                                     </div>
                                 </div>
                                 <p class="text-[10px] text-charcoal/40 dark:text-[#6a6a6e] mt-1">Kirim bukti transfer via WhatsApp setelah pembayaran.</p>

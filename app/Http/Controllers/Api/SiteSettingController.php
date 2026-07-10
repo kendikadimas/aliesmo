@@ -21,6 +21,10 @@ class SiteSettingController extends Controller
             $settings['payment_qris_image'] = asset('storage/' . $settings['payment_qris_image']);
         }
 
+        if (!empty($settings['payment_banks']) && is_array($settings['payment_banks'])) {
+            $settings['payment_banks'] = array_values($settings['payment_banks']);
+        }
+
         return response()->json(['data' => $settings]);
     }
 
@@ -36,6 +40,10 @@ class SiteSettingController extends Controller
 
         if (!empty($settings['payment_qris_image'])) {
             $settings['payment_qris_image'] = asset('storage/' . $settings['payment_qris_image']);
+        }
+
+        if (!empty($settings['payment_banks']) && is_array($settings['payment_banks'])) {
+            $settings['payment_banks'] = array_values($settings['payment_banks']);
         }
 
         return response()->json(['data' => $settings]);

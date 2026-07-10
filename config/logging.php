@@ -133,6 +133,12 @@ return [
             'level' => env('LOG_LEVEL', 'debug'),
         ],
 
+        'admin-debug' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/admin-debug.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
+
     ],
 
 ];

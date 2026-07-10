@@ -224,24 +224,12 @@ class SiteContentSeeder extends Seeder
             ],
             // Payment settings
             [
-                'key'   => 'payment_bank_name',
-                'label' => 'Nama Bank',
-                'value' => 'BCA',
-                'type'  => 'text',
-                'group' => 'payment',
-            ],
-            [
-                'key'   => 'payment_bank_account_no',
-                'label' => 'Nomor Rekening',
-                'value' => '1234567890',
-                'type'  => 'text',
-                'group' => 'payment',
-            ],
-            [
-                'key'   => 'payment_bank_account_name',
-                'label' => 'Nama Pemilik Rekening',
-                'value' => 'Aliesmo Store',
-                'type'  => 'text',
+                'key'   => 'payment_banks',
+                'label' => 'Daftar Rekening Bank',
+                'value' => json_encode([
+                    ['bank_name' => 'BCA', 'account_no' => '1234567890', 'account_name' => 'Aliesmo Store'],
+                ]),
+                'type'  => 'json',
                 'group' => 'payment',
             ],
             [

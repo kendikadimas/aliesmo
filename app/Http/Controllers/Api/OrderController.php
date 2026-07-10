@@ -141,9 +141,7 @@ class OrderController extends Controller
             'bank_transfer' => [
                 'method'       => 'bank_transfer',
                 'label'        => 'Transfer Bank',
-                'bank_name'    => \App\Models\SiteSetting::get('payment_bank_name', 'BCA'),
-                'account_name' => \App\Models\SiteSetting::get('payment_bank_account_name', '-'),
-                'account_no'   => \App\Models\SiteSetting::get('payment_bank_account_no', '-'),
+                'banks'        => array_values(\App\Models\SiteSetting::get('payment_banks', [])),
                 'instruction'  => 'Setelah transfer, kirim bukti pembayaran via WhatsApp.',
             ],
             'qris' => [
@@ -194,13 +192,13 @@ class OrderController extends Controller
         $message .= "Telepon: {$order->customer_phone}";
 
         if ($order->payment_method === 'bank_transfer') {
-            $bankName    = \App\Models\SiteSetting::get('payment_bank_name', 'BCA');
-            $accountNo   = \App\Models\SiteSetting::get('payment_bank_account_no', '-');
-            $accountName = \App\Models\SiteSetting::get('payment_bank_account_name', '-');
-            $message .= "\n\n*Info Transfer:*\n";
-            $message .= "Bank: {$bankName}\n";
-            $message .= "No. Rekening: {$accountNo}\n";
-            $message .= "Atas Nama: {$accountName}\n";
+            $banks = array_values(\App\Models\SiteSetting::get('payment_banks', []));
+            $message .= "\n\n*Info Transfer:*";
+            foreach ($banks as $bank) {
+                $message .= "\nBank: {$bank['bank_name']}\n";
+                $message .= "No. Rekening: {$bank['account_no']}\n";
+                $message .= "Atas Nama: {$bank['account_name']}\n";
+            }
             $message .= "_Mohon lampirkan bukti transfer._";
         } elseif ($order->payment_method === 'qris') {
             $message .= "\n\n_Mohon lampirkan bukti pembayaran QRIS._";
