@@ -1,4 +1,11 @@
 @import "tailwindcss";
 
-/* Tie dark mode to .dark class instead of prefers-color-scheme */
+/* Dark mode hanya aktif via class .dark — tidak ikut prefers-color-scheme OS */
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* Neutralize browser/Tailwind prefers-color-scheme dark base styles */
+@media (prefers-color-scheme: dark) {
+    :root:not(.dark) {
+        color-scheme: light;
+    }
+}
