@@ -74,4 +74,13 @@ try {
     echo "Error: " . $e->getMessage() . "\n";
     echo "At: " . $e->getFile() . ":" . $e->getLine() . "\n";
 }
+echo "\n=== LARAVEL LOG (last 50 lines) ===\n";
+$logFile = $root . '/storage/logs/laravel.log';
+if (file_exists($logFile)) {
+    $lines = file($logFile, FILE_IGNORE_NEW_LINES);
+    $last = array_slice($lines, -50);
+    echo htmlspecialchars(implode("\n", $last));
+} else {
+    echo "Log file not found\n";
+}
 echo '</pre>';
