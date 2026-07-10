@@ -1,8 +1,7 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
-import Skeleton from '@brayamvalero/vue3-skeleton/dist/vue3-skeleton.js'
-import '@brayamvalero/vue3-skeleton/dist/style.css'
+import SkeletonLoader from './components/SkeletonLoader.vue'
 import HomePage from './pages/HomePage.vue'
 import ProductDetailPage from './pages/ProductDetailPage.vue'
 import CartPage from './pages/CartPage.vue'
@@ -57,7 +56,7 @@ const router = createRouter({
 
 const app = createApp(App)
 app.use(router)
-app.use(Skeleton)
+app.component('SkeletonLoader', SkeletonLoader)
 app.mount('#app')
 
 // Handle auth expired event dari api.js interceptor

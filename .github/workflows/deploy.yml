@@ -22,7 +22,7 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --include=dev --include=prod
         working-directory: frontend
 
       - name: Build assets
