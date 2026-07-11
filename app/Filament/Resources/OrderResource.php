@@ -22,8 +22,6 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use OpenSpout\Common\Entity\Row;
-use OpenSpout\Common\Entity\Style\Border;
-use OpenSpout\Common\Entity\Style\BorderPart;
 use OpenSpout\Common\Entity\Style\Color;
 use OpenSpout\Common\Entity\Style\Style;
 use OpenSpout\Writer\XLSX\Writer;
@@ -249,10 +247,7 @@ class OrderResource extends Resource
                         $headerStyle = (new Style())
                             ->setFontBold()
                             ->setFontColor(Color::WHITE)
-                            ->setBackgroundColor(Color::rgb(128, 0, 0))
-                            ->setBorder(new Border(
-                                new BorderPart(BorderPart::BOTTOM, Color::BLACK, 1, Border::STYLE_THIN),
-                            ));
+                            ->setBackgroundColor(Color::rgb(128, 0, 0));
 
                         $writer->addRow(Row::fromValues(
                             ['No. Pesanan', 'Pelanggan', 'Total', 'Status', 'Metode Pembayaran', 'Tanggal'],
