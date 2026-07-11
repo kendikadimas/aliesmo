@@ -436,7 +436,7 @@ onMounted(async () => {
     // Fetch settings (promos, contact info) dan categories secara paralel
     try {
         const [settingsRes, categoriesRes] = await Promise.allSettled([
-            fetchSettings(),
+            fetchSettings(true),
             api.get('/categories'),
         ])
 
@@ -446,15 +446,18 @@ onMounted(async () => {
 
         // Update promos dari settings jika tersedia
         const s = settingsRes.status === 'fulfilled' ? settingsRes.value : {}
+        console.log('[App.vue] Settings loaded:', s)
         const p1 = s.announcement_1; const p1l = s.announcement_1_link
         const p2 = s.announcement_2; const p2l = s.announcement_2_link
         const p3 = s.announcement_3; const p3l = s.announcement_3_link
+        console.log('[App.vue] Announcements:', { p1, p2, p3 })
         if (p1 || p2 || p3) {
             promos.value = [
                 p1 ? { text: p1, link: p1l || '/?shop=1' } : null,
                 p2 ? { text: p2, link: p2l || '/?shop=1' } : null,
                 p3 ? { text: p3, link: p3l || '/login' } : null,
             ].filter(Boolean)
+            console.log('[App.vue] Promos updated:', promos.value)
         }
     } catch (e) {
         console.error('Failed to fetch initial data:', e)

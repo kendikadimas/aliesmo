@@ -9,7 +9,13 @@ export function useSettings() {
     const settings = ref(_settings || {})
     const loading = ref(!_settings)
 
-    async function fetchSettings() {
+    async function fetchSettings(forceRefresh = false) {
+        // Force refresh - clear cache
+        if (forceRefresh) {
+            _settings = null
+            _promise = null
+        }
+
         // Already fetched — return immediately
         if (_settings) {
             settings.value = _settings
@@ -26,12 +32,16 @@ export function useSettings() {
         }
 
         // First fetch
+        console.log('[useSettings] Fetching settings from API...')
         _promise = api.get('/settings')
             .then(res => {
+                console.log('[useSettings] API response:', res.data)
                 _settings = res.data.data || {}
+                console.log('[useSettings] Parsed settings:', _settings)
                 return _settings
             })
-            .catch(() => {
+            .catch((err) => {
+                console.error('[useSettings] Fetch error:', err)
                 _settings = {}
                 return {}
             })
