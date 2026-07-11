@@ -290,6 +290,18 @@ async function fetchProduct(slug) {
     try {
         const res = await api.get(`/products/${slug}`)
         product.value = res.data.data || res.data
+
+        // Debug: log image URLs untuk tracking 404
+        console.group(`[ProductDetail] ${slug}`)
+        console.log('thumbnail:', product.value?.thumbnail)
+        console.log('images:', product.value?.images?.map(img => ({
+            id: img.id,
+            path: img.path,
+            raw_path: img.raw_path,
+            sort_order: img.sort_order
+        })))
+        console.groupEnd()
+
         fetchRelated(product.value)
         fetchReviews(slug)
     } catch (e) {

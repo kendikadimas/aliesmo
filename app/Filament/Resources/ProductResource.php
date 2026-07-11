@@ -146,6 +146,7 @@ class ProductResource extends Resource
                                     ->image()
                                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                                     ->maxSize(2048) // 2MB
+                                    ->disk('public')
                                     ->directory('products')
                                     ->visibility('public')
                                     ->required()
