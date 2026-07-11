@@ -107,8 +107,7 @@
                 <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5">
                     <div v-for="product in filteredProducts" :key="product.id" class="group/card cursor-pointer bg-white dark:bg-[#1c1c1e] rounded-xl overflow-hidden border border-maroon-50 dark:border-[#303032] hover:border-maroon-200 dark:hover:border-[#404042] transition-all hover:shadow-md active:scale-[0.98]" @click="$router.push(`/products/${product.slug}`)">
                         <div class="aspect-[3/4] bg-maroon-50 overflow-hidden relative">
-                            <img :src="productImage(product, 0)" :alt="product.name" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 group-hover/card:opacity-0" />
-                            <img :src="productImage(product, 1)" :alt="product.name" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 group-hover/card:opacity-100" />
+                            <img :src="productImage(product, 0)" :alt="product.name" class="absolute inset-0 w-full h-full object-cover" />
                             <div v-if="product.stock > 0 && product.stock <= 5" class="absolute top-1.5 left-1.5 bg-coklat text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-md">Sisa {{ product.stock }}</div>
                             <div v-if="product.stock <= 3" class="absolute top-1.5 right-1.5 bg-ink dark:bg-[#f0eeeb] text-white dark:text-[#161618] text-[9px] font-semibold px-1.5 py-0.5 rounded-md animate-pulse">HOTS!</div>
                             <div v-if="product.stock === 0" class="absolute inset-0 bg-white/80 dark:bg-[#1c1c1e]/80 flex items-center justify-center">
