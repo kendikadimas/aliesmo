@@ -31,7 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->brandName('Aliesmo Admin')
             ->favicon(asset('aliesmo.svg'))
-            ->darkMode(true)
+            ->darkMode(ThemeMode::Dark)
             ->defaultThemeMode(ThemeMode::Dark)
             ->sidebarCollapsibleOnDesktop()
             ->maxContentWidth(Width::Full)
