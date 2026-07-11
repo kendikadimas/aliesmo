@@ -100,29 +100,43 @@ class OrderService
             $total = max(0, $subtotal - $couponDiscount + $shippingCost);
 
             // Normalize nama kurir dari RajaOngkir ke format display
-            $courierMap = [
-                'jne'        => 'JNE',
-                'jnt'        => 'JNT Express',
-                'j&t'        => 'JNT Express',
-                'sicepat'    => 'SiCepat',
-                'anteraja'   => 'Anteraja',
-                'ninja'      => 'Ninja',
-                'pos'        => 'Pos Indonesia',
-                'lion'       => 'Lion Parcel',
-                'lionparcel' => 'Lion Parcel',
-            ];
+            // Normalize kurir — cover kode mentah (jne, jnt) dan nama display (J&T Express, AnterAja, dll)
             $courierTracking = [
-                'JNE'          => 'https://jne.co.id/tracking-package',
-                'JNT Express'  => 'https://jet.co.id/track',
-                'SiCepat'      => 'https://www.sicepat.com/',
-                'Anteraja'     => 'https://anteraja.id/id/tracking',
-                'Ninja'        => 'https://www.ninjaxpress.co/en-id/tracking',
+                'JNE'           => 'https://jne.co.id/tracking-package',
+                'JNT Express'   => 'https://jet.co.id/track',
+                'SiCepat'       => 'https://www.sicepat.com/',
+                'Anteraja'      => 'https://anteraja.id/id/tracking',
+                'Ninja'         => 'https://www.ninjaxpress.co/en-id/tracking',
                 'Pos Indonesia' => 'https://www.posindonesia.co.id/id/tracking',
-                'Lion Parcel'  => 'https://lionparcel.com/track',
+                'Lion Parcel'   => 'https://lionparcel.com/track',
             ];
-            $rawCourier      = strtolower(trim($customerData['shipping_courier'] ?? ''));
-            $courierName     = $courierMap[$rawCourier] ?? strtoupper($rawCourier);
-            $courierUrl      = $courierTracking[$courierName] ?? null;
+            // Map dari lowercase (kode atau nama display) ke canonical name
+            $courierMap = [
+                'jne'           => 'JNE',
+                'jnt'           => 'JNT Express',
+                'j&t'           => 'JNT Express',
+                'j&t express'   => 'JNT Express',
+                'jnt express'   => 'JNT Express',
+                'sicepat'       => 'SiCepat',
+                'anteraja'      => 'Anteraja',
+                'anterAja'      => 'Anteraja',
+                'ninja'         => 'Ninja',
+                'ninja express' => 'Ninja',
+                'ninja xpress'  => 'Ninja',
+                'pos'           => 'Pos Indonesia',
+                'pos indonesia' => 'Pos Indonesia',
+                'lion'          => 'Lion Parcel',
+                'lion parcel'   => 'Lion Parcel',
+                'lionparcel'    => 'Lion Parcel',
+            ];
+            $rawCourier  = strtolower(trim($customerData['shipping_courier'] ?? ''));
+            $courierName = $courierMap[$rawCourier] ?? null;
+            // Fallback: jika yang dikirim sudah canonical name yang valid, pakai langsung
+            if (!$courierName && isset($courierTracking[$customerData['shipping_courier'] ?? ''])) {
+                $courierName = $customerData['shipping_courier'];
+            }
+            $courierName = $courierName ?: strtoupper($rawCourier);
+            $courierUrl  = $courierTracking[$courierName] ?? null;
 
             $order = Order::create([
                 'order_number'           => $this->generateOrderNumber(),
