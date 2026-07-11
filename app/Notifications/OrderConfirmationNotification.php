@@ -34,7 +34,8 @@ class OrderConfirmationNotification extends Notification implements ShouldQueue
             ->line('---');
 
         foreach ($order->items as $item) {
-            $mail->line("• {$item->product_name} × {$item->quantity} — Rp" . number_format($item->subtotal, 0, ',', '.'));
+            $variant = $item->variant_name ? " [{$item->variant_name}]" : '';
+            $mail->line("• {$item->product_name}{$variant} × {$item->quantity} — Rp" . number_format($item->subtotal, 0, ',', '.'));
         }
 
         $mail->line('---')
