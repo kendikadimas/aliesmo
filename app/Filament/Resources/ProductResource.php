@@ -80,8 +80,21 @@ class ProductResource extends Resource
                     ]),
                 Section::make('Harga & Stok')
                     ->schema([
-                        TextInput::make('sku')->required()->unique(Product::class, ignoreRecord: true),
-                        TextInput::make('price')->numeric()->prefix('Rp '),
+                        TextInput::make('sku')
+                            ->required()
+                            ->unique(Product::class, ignoreRecord: true)
+                            ->label('Kode Produk')
+                            ->helperText('Kode unik untuk identifikasi produk ini.'),
+                        TextInput::make('price')
+                            ->numeric()
+                            ->prefix('Rp ')
+                            ->label('Harga Jual')
+                            ->helperText('Harga yang dibayar pelanggan.'),
+                        TextInput::make('original_price')
+                            ->numeric()
+                            ->prefix('Rp ')
+                            ->label('Harga Normal (Opsional)')
+                            ->helperText('Isi jika produk sedang diskon. Harga ini akan dicoret di halaman produk.'),
                         TextInput::make('weight')
                             ->numeric()
                             ->default(300)

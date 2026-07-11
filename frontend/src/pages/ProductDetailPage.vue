@@ -108,7 +108,7 @@
 
                         <div class="mt-3 flex items-baseline gap-2">
                             <span class="text-xl lg:text-2xl font-bold text-ink dark:text-[#f0eeeb]">Rp{{ formatPrice(product.price) }}</span>
-                            <span class="text-xs text-charcoal/40 dark:text-[#6a6a6e] line-through">Rp{{ formatPrice(product.price + 50000) }}</span>
+                            <span v-if="product.original_price" class="text-xs text-charcoal/40 dark:text-[#6a6a6e] line-through">Rp{{ formatPrice(product.original_price) }}</span>
                         </div>
 
                         <div class="mt-2 flex items-center gap-1.5">

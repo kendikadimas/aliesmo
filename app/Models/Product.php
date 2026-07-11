@@ -14,16 +14,17 @@ class Product extends Model
 
     protected $fillable = [
         'name', 'slug', 'sku', 'description',
-        'price', 'stock', 'weight', 'is_active', 'thumbnail'
+        'price', 'original_price', 'stock', 'weight', 'is_active', 'thumbnail'
     ];
 
     protected function casts(): array
     {
         return [
-            'price'    => 'decimal:2',
-            'is_active' => 'boolean',
-            'stock'    => 'integer',
-            'weight'   => 'integer',
+            'price'          => 'decimal:2',
+            'original_price' => 'decimal:2',
+            'is_active'      => 'boolean',
+            'stock'          => 'integer',
+            'weight'         => 'integer',
         ];
     }
 

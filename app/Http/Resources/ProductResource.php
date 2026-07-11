@@ -18,7 +18,8 @@ class ProductResource extends JsonResource
             'slug' => $this->slug,
             'sku' => $this->sku,
             'description' => $this->description,
-            'price'  => (float) $this->price,
+            'price'          => (float) $this->price,
+            'original_price' => $this->original_price ? (float) $this->original_price : null,
             'stock'  => $this->stock,
             'weight' => (int) ($this->weight ?? 300), // gram, default 300g
             'is_active' => $this->is_active,
