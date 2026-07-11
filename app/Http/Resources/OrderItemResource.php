@@ -8,7 +8,7 @@ class OrderItemResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        $thumbnail = $this->whenLoaded('product', fn() => $this->product?->thumbnail);
+        $thumbnail = $this->resource->relationLoaded('product') ? $this->product?->thumbnail : null;
         return [
             'id'            => $this->id,
             'product_id'    => $this->product_id,
