@@ -1,5 +1,5 @@
 ﻿<template>
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16 overflow-hidden">
+    <div class="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16 overflow-hidden">
         <h1 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Checkout</h1>
 
         <div v-if="submitting" class="mt-8 lg:mt-10 grid lg:grid-cols-5 gap-8 lg:gap-12">
@@ -17,7 +17,7 @@
 
         <form v-else @submit.prevent="submitOrder" class="mt-8 lg:mt-10 grid lg:grid-cols-5 gap-8 lg:gap-12">
             <!-- Kiri: Form -->
-            <div class="lg:col-span-3 space-y-6">
+            <div class="lg:col-span-3 space-y-6 min-w-0 w-full">
 
                 <!-- Data Diri -->
                 <div class="bg-white dark:bg-[#1c1c1e] p-4 lg:p-8 rounded-2xl border-2 border-maroon-50 dark:border-[#303032]">
@@ -161,7 +161,7 @@
             </div>
 
             <!-- Ringkasan Pesanan -->
-            <div class="lg:col-span-2">
+            <div class="lg:col-span-2 min-w-0 w-full">
                 <div class="bg-white dark:bg-[#1c1c1e] p-4 lg:p-8 rounded-2xl border-2 border-maroon-50 dark:border-[#303032] lg:sticky lg:top-28">
                     <h2 class="text-sm font-bold text-charcoal dark:text-[#f0eeeb] tracking-wide mb-4">Ringkasan Pesanan</h2>
                     <div class="space-y-3">
