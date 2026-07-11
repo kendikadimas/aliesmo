@@ -88,8 +88,8 @@
                                 class="w-full border-2 border-ink-10 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] focus:border-ink dark:focus:border-[#f0eeeb] dark:border-[#f0eeeb] focus:outline-none transition-colors bg-white dark:bg-[#28282a]">
                         </div>
 
-                        <div v-if="passwordError" class="p-3 bg-ink-05 dark:bg-[#242426] dark:bg-ink-80/40 rounded-xl border border-ink-10 dark:border-ink-60 text-ink-60 dark:text-[#8a8a8e] dark:text-ink-20 dark:text-[#303032] text-sm">{{ passwordError }}</div>
-                        <div v-if="passwordSuccess" class="p-3 bg-ink-05 dark:bg-[#242426] dark:bg-ink-80/40 rounded-xl border border-ink-10 dark:border-ink-60 text-ink dark:text-[#f0eeeb] dark:text-ink-05 text-sm font-medium">Password berhasil diperbarui!</div>
+                        <div v-if="passwordError" class="p-3 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm">{{ passwordError }}</div>
+                        <div v-if="passwordSuccess" class="p-3 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 text-sm font-medium">Password berhasil diperbarui!</div>
 
                         <button type="submit" :disabled="passwordSaving"
                             class="px-8 py-2.5 bg-ink dark:bg-[#f0eeeb] text-white dark:text-[#161618] text-sm font-semibold rounded-xl hover:bg-ink-60 dark:hover:bg-[#d0ceca] transition-all active:scale-[0.97] shadow-lg disabled:opacity-50">
@@ -101,7 +101,7 @@
                 <!-- Lupa Password link -->
                 <p class="mt-4 text-sm text-charcoal/50 dark:text-[#8a8a8e]">
                     Lupa password lama?
-                    <router-link to="/forgot-password" class="text-maroon hover:text-maroon-600 dark:hover:text-[#f0eeeb] font-semibold">Reset via email</router-link>
+                    <router-link to="/forgot-password" class="text-maroon dark:text-maroon hover:text-maroon-600 dark:hover:text-[#f0eeeb] font-semibold">Reset via email</router-link>
                 </p>
             </div>
 

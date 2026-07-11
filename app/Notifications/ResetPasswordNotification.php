@@ -7,7 +7,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 
 class ResetPasswordNotification extends ResetPassword
 {
-    public function toMail(object $notifiable): MailMessage
+    public function toMail($notifiable): MailMessage
     {
         $appName = config('app.name', 'Aliesmo');
         $appUrl  = config('app.url');
