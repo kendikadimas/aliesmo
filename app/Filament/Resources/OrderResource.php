@@ -75,15 +75,18 @@ class OrderResource extends Resource
                     ]),
                 Section::make('Informasi Resi')
                     ->schema([
+                        TextEntry::make('courier')
+                            ->label('Kurir')
+                            ->placeholder('Belum diinput'),
                         TextEntry::make('tracking_number')
                             ->label('No. Resi')
                             ->placeholder('Belum diinput'),
                         TextEntry::make('tracking_url')
-                            ->label('Link Tracking Kurir')
+                            ->label('Link Tracking')
                             ->url(fn (?string $state): ?string => $state)
                             ->openUrlInNewTab()
                             ->placeholder('Belum diinput'),
-                    ])->columns(2),
+                    ])->columns(3),
                 Section::make('Item Pesanan')
                     ->schema([
                         RepeatableEntry::make('items')
@@ -101,7 +104,7 @@ class OrderResource extends Resource
                         TextEntry::make('shipping_cost')->label('Ongkir')->money('IDR'),
                         TextEntry::make('total')->label('Total')->money('IDR'),
                         TextEntry::make('payment_method')->label('Metode Pembayaran'),
-                        TextEntry::make('paid_at')->label('Waktu Bayar')->dateTime(),
+                        TextEntry::make('paid_at')->label('Waktu Konfirmasi Pembayaran')->dateTime()->placeholder('Belum dikonfirmasi'),
                     ])->columns(2),
             ]);
     }
@@ -147,23 +150,41 @@ class OrderResource extends Resource
                     ->label('Input Resi')
                     ->icon('heroicon-o-truck')
                     ->form([
+                        Select::make('courier')
+                            ->label('Kurir')
+                            ->options([
+                                'JNE'          => 'JNE',
+                                'JNT Express'  => 'J&T Express',
+                                'SiCepat'      => 'SiCepat',
+                                'Anteraja'     => 'Anteraja',
+                                'Ninja'        => 'Ninja Xpress',
+                                'Pos Indonesia' => 'Pos Indonesia',
+                                'Lion Parcel'  => 'Lion Parcel',
+                            ])
+                            ->required(),
                         TextInput::make('tracking_number')
                             ->label('No. Resi')
+                            ->required()
                             ->maxLength(255),
-                        TextInput::make('tracking_url')
-                            ->label('Link Website Tracking Kurir')
-                            ->url()
-                            ->maxLength(255)
-                            ->placeholder('https://www.jne.co.id/id/tracking/trace'),
                     ])
                     ->fillForm(fn (Order $record): array => [
+                        'courier'         => $record->courier,
                         'tracking_number' => $record->tracking_number,
-                        'tracking_url' => $record->tracking_url,
                     ])
                     ->action(function (array $data, Order $record) {
+                        $courierUrls = [
+                            'JNE'           => 'https://jne.co.id/tracking-package',
+                            'JNT Express'   => 'https://jet.co.id/track',
+                            'SiCepat'       => 'https://www.sicepat.com/',
+                            'Anteraja'      => 'https://anteraja.id/id/tracking',
+                            'Ninja'         => 'https://www.ninjaxpress.co/en-id/tracking',
+                            'Pos Indonesia' => 'https://www.posindonesia.co.id/id/tracking',
+                            'Lion Parcel'   => 'https://lionparcel.com/track',
+                        ];
                         $record->update([
+                            'courier'         => $data['courier'],
                             'tracking_number' => $data['tracking_number'] ?: null,
-                            'tracking_url' => $data['tracking_url'] ?: null,
+                            'tracking_url'    => $courierUrls[$data['courier']] ?? null,
                         ]);
                     }),
 

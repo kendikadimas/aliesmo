@@ -28,6 +28,7 @@ class OrderResource extends JsonResource
             'payment_method'   => $this->payment_method,
             'tracking_number'  => $this->tracking_number,
             'tracking_url'     => $this->tracking_url,
+            'courier'          => $this->courier,
             'paid_at'          => $this->paid_at,
             'items'            => OrderItemResource::collection($this->whenLoaded('items')),
             'payment'          => new PaymentResource($this->whenLoaded('payment')),

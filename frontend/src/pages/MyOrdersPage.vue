@@ -76,6 +76,28 @@
                     -->
                 </div>
 
+                <!-- Info Pengiriman: Kurir + Resi -->
+                <div v-if="order.courier || order.tracking_number" class="mt-3 pt-3 border-t border-maroon-100 dark:border-[#303032]">
+                    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-charcoal/60 dark:text-[#8a8a8e]">
+                        <span v-if="order.courier" class="flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2M8 4v4h8V4M8 4h8"/></svg>
+                            <span class="font-medium text-charcoal/80 dark:text-[#d0ceca]">{{ order.courier }}</span>
+                        </span>
+                        <span v-if="order.tracking_number" class="flex items-center gap-1">
+                            <span class="text-charcoal/40 dark:text-[#6a6a6e]">No. Resi:</span>
+                            <span class="font-mono font-semibold text-charcoal dark:text-[#f0eeeb] tracking-wide">{{ order.tracking_number }}</span>
+                        </span>
+                        <a v-if="order.tracking_url && order.tracking_number"
+                            :href="order.tracking_url"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex items-center gap-1 text-maroon dark:text-maroon-300 font-semibold hover:underline">
+                            Cek Resi
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+                        </a>
+                    </div>
+                </div>
+
                 <div class="mt-4 pt-4 border-t border-maroon-100 dark:border-[#303032] flex flex-col sm:flex-row gap-3">
                     <router-link :to="`/order/${order.order_number}`" class="flex-1 text-center px-6 py-2.5 border-2 border-maroon text-maroon text-sm font-semibold rounded-xl hover:bg-maroon hover:text-white dark:hover:bg-maroon dark:hover:text-white transition-all">
                         Lihat Detail

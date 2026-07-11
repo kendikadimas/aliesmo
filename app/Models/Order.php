@@ -15,7 +15,7 @@ class Order extends Model
     protected $fillable = [
         'order_number', 'lookup_token', 'lookup_token_expires_at', 'user_id', 'customer_name', 'customer_email',
         'customer_phone', 'shipping_address', 'subtotal', 'shipping_cost',
-        'coupon_discount', 'coupon_code', 'total', 'status', 'payment_method', 'tracking_number', 'tracking_url', 'paid_at'
+        'coupon_discount', 'coupon_code', 'total', 'status', 'payment_method', 'tracking_number', 'tracking_url', 'courier', 'paid_at'
     ];
 
     protected function casts(): array
