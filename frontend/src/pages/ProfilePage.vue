@@ -165,7 +165,11 @@
                         <!-- Order items -->
                         <div class="border-t border-maroon-100 dark:border-[#303032] pt-4 space-y-2">
                             <div v-for="item in order.items" :key="item.id" class="flex justify-between text-sm">
-                                <span class="text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#8a8a8e]">{{ item.product_name }} <span class="text-charcoal/40 dark:text-[#6a6a6e]">×{{ item.quantity }}</span></span>
+                                <span class="text-charcoal/70 dark:text-[#8a8a8e]">
+                                    {{ item.product_name }}
+                                    <span v-if="item.variant_name" class="text-charcoal/40 dark:text-[#6a6a6e]"> · {{ item.variant_name }}</span>
+                                    <span class="text-charcoal/40 dark:text-[#6a6a6e]"> ×{{ item.quantity }}</span>
+                                </span>
                                 <span class="font-medium text-charcoal dark:text-[#f0eeeb]">Rp{{ formatPrice(item.subtotal) }}</span>
                             </div>
                             <!-- Diskon kupon — diarsipkan sementara -->

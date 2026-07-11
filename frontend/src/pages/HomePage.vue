@@ -120,7 +120,9 @@
                         <div class="p-2.5">
                             <p class="text-[10px] font-medium text-maroon-400 uppercase tracking-wide">{{ product.categories?.map(c => c.name).join(', ') || '' }}</p>
                             <h3 class="text-xs font-semibold text-charcoal dark:text-[#f0eeeb] mt-0.5 leading-snug line-clamp-2">{{ product.name }}</h3>
-                            <p class="text-sm font-bold text-maroon dark:text-[#f0eeeb] mt-1.5">Rp{{ formatPrice(product.price) }}</p>
+                            <p class="text-sm font-bold text-maroon dark:text-[#f0eeeb] mt-1.5">
+                                <span class="text-[10px] font-normal text-charcoal/40 dark:text-[#6a6a6e] mr-0.5" v-if="product.variants?.filter(v => v.is_active).length">mulai </span>Rp{{ formatPrice(lowestPrice(product)) }}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -184,6 +186,13 @@ import { useCartStore } from '../cart'
 import { formatPrice } from '../mock-data'
 import api from '../api'
 import { useSettings } from '../useSettings'
+
+function lowestPrice(product) {
+    const active = product.variants?.filter(v => v.is_active) || []
+    if (!active.length) return product.price
+    const prices = active.map(v => v.price).filter(p => p > 0)
+    return prices.length ? Math.min(...prices) : product.price
+}
 
 const { fetchSettings, get } = useSettings()
 

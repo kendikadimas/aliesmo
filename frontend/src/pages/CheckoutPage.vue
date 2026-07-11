@@ -173,6 +173,7 @@
                             <!-- Info -->
                             <div class="flex-1 min-w-0">
                                 <p class="text-xs font-semibold text-charcoal dark:text-[#f0eeeb] truncate">{{ item.name }}</p>
+                                <p v-if="item.variant_name" class="text-[10px] text-charcoal/50 dark:text-[#6a6a6e] truncate">{{ item.variant_name }}</p>
                                 <p class="text-[10px] text-charcoal/40 dark:text-[#6a6a6e] mt-0.5">Rp{{ formatPrice(item.price) }} × {{ item.quantity }}</p>
                             </div>
                             <!-- Subtotal -->
@@ -345,9 +346,9 @@ const { fetchSettings, get } = useSettings()
 const submitting = ref(false)
 const error = ref('')
 
-// Filter hanya item yang dipilih dari CartPage
-const selectedIds = new Set(history.state?.selectedIds || items.value.map(i => i.product_id))
-const checkoutItems = computed(() => items.value.filter(i => selectedIds.has(i.product_id)))
+// Filter hanya item yang dipilih dari CartPage — pakai cart_key agar varian berbeda bisa dipisah
+const selectedKeys = new Set(history.state?.selectedKeys || items.value.map(i => i.cart_key))
+const checkoutItems = computed(() => items.value.filter(i => selectedKeys.has(i.cart_key)))
 
 // Payment method
 const paymentMethod = ref('bank_transfer')
@@ -591,9 +592,10 @@ async function submitOrder() {
             selected_bank: paymentMethod.value === 'bank_transfer' ? selectedBank.value : null,
             coupon_code: null, // diarsipkan sementara — appliedCoupon.value?.code || null
             items: checkoutItems.value.map(i => ({
-                product_id: i.product_id,
-                quantity: i.quantity,
-            })),
+                    product_id: i.product_id,
+                    variant_id: i.variant_id || null,
+                    quantity: i.quantity,
+                })),
         }
 
         const res = await api.post('/orders', payload)

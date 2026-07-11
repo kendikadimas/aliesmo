@@ -107,14 +107,15 @@
                         <h1 class="text-xl lg:text-2xl font-bold text-charcoal dark:text-[#f0eeeb] mt-1 leading-tight">{{ product.name }}</h1>
 
                         <div class="mt-3 flex items-baseline gap-2">
-                            <span class="text-xl lg:text-2xl font-bold text-ink dark:text-[#f0eeeb]">Rp{{ formatPrice(product.price) }}</span>
-                            <span v-if="product.original_price" class="text-xs text-charcoal/40 dark:text-[#6a6a6e] line-through">Rp{{ formatPrice(product.original_price) }}</span>
+                            <span class="text-xl lg:text-2xl font-bold text-ink dark:text-[#f0eeeb]">Rp{{ formatPrice(displayPrice) }}</span>
+                            <span v-if="product.original_price && !selectedVariant" class="text-xs text-charcoal/40 dark:text-[#6a6a6e] line-through">Rp{{ formatPrice(product.original_price) }}</span>
+                            <span v-if="hasVariants && !selectedVariant" class="text-[10px] text-charcoal/40 dark:text-[#6a6a6e]">mulai dari</span>
                         </div>
 
                         <div class="mt-2 flex items-center gap-1.5">
-                            <span class="w-1.5 h-1.5 rounded-full" :class="product.stock > 0 ? 'bg-ink-60' : 'bg-ink-20'"></span>
-                            <span class="text-xs font-medium" :class="product.stock > 0 ? 'text-ink-60 dark:text-[#8a8a8e]' : 'text-ink-40'">
-                                {{ product.stock > 0 ? `Tersedia (${product.stock} pcs)` : 'Stok habis kak :(' }}
+                            <span class="w-1.5 h-1.5 rounded-full" :class="displayStock > 0 ? 'bg-ink-60' : 'bg-ink-20'"></span>
+                            <span class="text-xs font-medium" :class="displayStock > 0 ? 'text-ink-60 dark:text-[#8a8a8e]' : 'text-ink-40'">
+                                {{ displayStock > 0 ? `Tersedia (${displayStock} pcs)` : 'Stok habis kak :(' }}
                             </span>
                         </div>
 
@@ -153,14 +154,17 @@
                             <div class="flex items-center gap-3">
                                 <button @click="decrementQty" class="w-8 h-8 rounded-lg border-2 border-ink-10 dark:border-[#303032] flex items-center justify-center text-sm font-semibold text-charcoal/50 dark:text-[#8a8a8e] hover:border-ink hover:text-ink dark:hover:border-[#f0eeeb] dark:hover:text-[#f0eeeb] transition-colors active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed" :disabled="quantity <= 1">−</button>
                                 <span class="w-10 text-center text-base font-bold text-charcoal dark:text-[#f0eeeb]">{{ quantity }}</span>
-                                <button @click="quantity++" class="w-8 h-8 rounded-lg border-2 border-ink-10 dark:border-[#303032] flex items-center justify-center text-sm font-semibold text-charcoal/50 dark:text-[#8a8a8e] hover:border-ink hover:text-ink dark:hover:border-[#f0eeeb] dark:hover:text-[#f0eeeb] transition-colors active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed" :disabled="quantity >= product.stock">+</button>
+                                <button @click="quantity++" class="w-8 h-8 rounded-lg border-2 border-ink-10 dark:border-[#303032] flex items-center justify-center text-sm font-semibold text-charcoal/50 dark:text-[#8a8a8e] hover:border-ink hover:text-ink dark:hover:border-[#f0eeeb] dark:hover:text-[#f0eeeb] transition-colors active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed" :disabled="quantity >= displayStock">+</button>
                             </div>
                         </div>
 
+                        <!-- Error varian -->
+                        <p v-if="variantError" class="mt-3 text-xs font-medium text-red-500 dark:text-red-400">{{ variantError }}</p>
+
                         <!-- Tombol keranjang -->
                         <div class="mt-4 flex gap-2">
-                            <button @click="addToCart" :disabled="product.stock === 0" class="flex-1 px-6 py-3 bg-ink dark:bg-[#f0eeeb] text-white dark:text-[#161618] text-sm font-semibold rounded-xl hover:bg-ink-60 dark:hover:bg-[#d0ceca] transition-all active:scale-[0.98] disabled:bg-ink-10 dark:disabled:bg-[#303032] disabled:cursor-not-allowed disabled:active:scale-100 shadow-lg">
-                                {{ product.stock === 0 ? 'Stok Habis' : 'Masukin ke Keranjang' }}
+                            <button @click="addToCart" :disabled="!canAddToCart" class="flex-1 px-6 py-3 bg-ink dark:bg-[#f0eeeb] text-white dark:text-[#161618] text-sm font-semibold rounded-xl hover:bg-ink-60 dark:hover:bg-[#d0ceca] transition-all active:scale-[0.98] disabled:bg-ink-10 dark:disabled:bg-[#303032] disabled:cursor-not-allowed disabled:active:scale-100 shadow-lg">
+                                {{ displayStock === 0 ? 'Stok Habis' : hasVariants && !selectedVariant ? 'Pilih Varian Dulu' : 'Masukin ke Keranjang' }}
                             </button>
                             <button @click="toggleWishlist(product.id)" class="w-12 h-11 flex items-center justify-center rounded-xl border-2 transition-all active:scale-95" :class="isWishlisted(product.id) ? 'bg-ink-05 dark:bg-[#242426] border-ink dark:border-[#f0eeeb] text-ink dark:text-[#f0eeeb]' : 'border-ink-10 dark:border-[#303032] text-charcoal/50 dark:text-[#8a8a8e] hover:border-ink hover:text-ink dark:hover:border-[#f0eeeb] dark:hover:text-[#f0eeeb]'">
                                 <HeartIcon class="w-[18px] h-[18px]" :class="isWishlisted(product.id) ? 'fill-current' : ''" />
@@ -305,6 +309,43 @@ const avgRating = computed(() => {
     return (reviews.value.reduce((sum, r) => sum + r.rating, 0) / reviews.value.length).toFixed(1)
 })
 
+// Varian aktif saja
+const activeVariants = computed(() =>
+    product.value?.variants?.filter(v => v.is_active) || []
+)
+
+// Produk ini punya varian?
+const hasVariants = computed(() => activeVariants.value.length > 0)
+
+// Harga tampil: jika ada varian dipilih pakai harga varian, jika belum tampilkan harga terendah dari varian
+const displayPrice = computed(() => {
+    if (selectedVariant.value) return selectedVariant.value.price
+    if (hasVariants.value) {
+        const prices = activeVariants.value.map(v => v.price).filter(p => p > 0)
+        return prices.length ? Math.min(...prices) : product.value?.price
+    }
+    return product.value?.price
+})
+
+// Stok tampil: jika varian dipilih pakai stok varian, else stok produk
+const displayStock = computed(() => {
+    if (selectedVariant.value) return selectedVariant.value.stock
+    if (hasVariants.value) {
+        return activeVariants.value.reduce((sum, v) => sum + (v.stock || 0), 0)
+    }
+    return product.value?.stock || 0
+})
+
+// Apakah bisa add to cart
+const canAddToCart = computed(() => {
+    if (!product.value) return false
+    if (hasVariants.value && !selectedVariant.value) return false
+    return displayStock.value > 0
+})
+
+// Error message saat add to cart
+const variantError = ref('')
+
 async function fetchProduct(slug) {
     loading.value = true
     notFound.value = false
@@ -407,12 +448,16 @@ function decrementQty() {
 }
 
 function addToCart() {
-    if (product.value && quantity.value > 0) {
-        const item = selectedVariant.value
-            ? { ...product.value, selectedVariant: selectedVariant.value, price: selectedVariant.value.price || product.value.price }
-            : product.value
-        addItem(item, quantity.value)
+    if (!product.value) return
+    if (hasVariants.value && !selectedVariant.value) {
+        variantError.value = 'Pilih varian dulu ya!'
+        return
     }
+    variantError.value = ''
+    const item = selectedVariant.value
+        ? { ...product.value, selectedVariant: selectedVariant.value }
+        : product.value
+    addItem(item, quantity.value)
 }
 
 function toggleWishlist(id) {
