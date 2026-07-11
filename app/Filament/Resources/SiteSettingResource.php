@@ -68,7 +68,7 @@ class SiteSettingResource extends Resource
                         TextInput::make('group')
                             ->label('Grup')
                             ->default('general')
-                            ->helperText('Contoh: announcement, stats, general'),
+                            ->helperText('Contoh: announcement, payment, general'),
                     ]),
             ]);
     }
@@ -115,7 +115,6 @@ class SiteSettingResource extends Resource
                     ->label('Grup')
                     ->options([
                         'announcement' => 'Announcement',
-                        'stats'        => 'Statistik',
                         'payment'      => 'Pembayaran',
                         'video'        => 'Video',
                         'general'      => 'General',
