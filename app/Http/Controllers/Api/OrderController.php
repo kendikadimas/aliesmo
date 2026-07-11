@@ -250,10 +250,16 @@ class OrderController extends Controller
             'payment_method'   => $order->payment_method,
             'created_at'       => $order->created_at,
             'items'            => $order->items->map(fn($i) => [
-                'product_name' => $i->product_name,
-                'quantity'     => $i->quantity,
-                'price'        => (float) $i->price,
-                'subtotal'     => (float) $i->subtotal,
+                'product_name'  => $i->product_name,
+                'product_image' => $i->product?->thumbnail
+                    ? (str_starts_with($i->product->thumbnail, 'http')
+                        ? $i->product->thumbnail
+                        : asset('storage/' . $i->product->thumbnail))
+                    : null,
+                'variant_name'  => $i->variant_name,
+                'quantity'      => $i->quantity,
+                'price'         => (float) $i->price,
+                'subtotal'      => (float) $i->subtotal,
             ]),
             // Field sensitif hanya untuk owner yang login
             'customer_name'    => $isOwner || !$order->user_id ? $order->customer_name    : null,
