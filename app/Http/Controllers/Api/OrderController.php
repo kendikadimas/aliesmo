@@ -116,7 +116,7 @@ class OrderController extends Controller
             $message = $this->generateWhatsAppMessage($order);
 
             // Kirim info pembayaran sesuai metode yang dipilih
-            $paymentInfo = $this->getPaymentInfo($order->payment_method ?? 'bank_transfer');
+            $paymentInfo = $this->getPaymentInfo($order->payment_method ?? 'bank_transfer', $order->selected_bank);
 
             return response()->json([
                 'order'             => new OrderResource($order),
