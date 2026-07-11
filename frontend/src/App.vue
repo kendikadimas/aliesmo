@@ -122,7 +122,7 @@
                                 <line x1="3" y1="6" x2="21" y2="6"/>
                                 <path d="M16 10a4 4 0 0 1-8 0"/>
                             </svg>
-                            <span v-if="cartCount" class="absolute -top-0.5 -right-0.5 bg-maroon text-white text-[9px] font-bold rounded-full w-4.5 h-4.5 flex items-center justify-center leading-none">{{ cartCount > 9 ? '9+' : cartCount }}</span>
+                            <span v-if="cartCount" class="absolute -top-0.5 -right-0.5 bg-maroon text-white text-[9px] font-bold rounded-full w-5 h-5 flex items-center justify-center leading-none">{{ cartCount > 9 ? '9+' : cartCount }}</span>
                         </router-link>
                     </div>
                 </div>
