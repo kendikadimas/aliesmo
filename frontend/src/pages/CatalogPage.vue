@@ -67,7 +67,7 @@
                             </button>
                         </div>
                         <div class="p-2.5">
-                            <p class="text-[10px] font-medium text-maroon-400 uppercase tracking-wide">{{ product.category?.name || 'Kemeja' }}</p>
+                            <p class="text-[10px] font-medium text-maroon-400 uppercase tracking-wide">{{ product.categories?.map(c => c.name).join(', ') || '' }}</p>
                             <h3 class="text-xs font-semibold text-charcoal dark:text-[#f0eeeb] mt-0.5 leading-snug line-clamp-2">{{ product.name }}</h3>
                             <p class="text-sm font-bold text-maroon dark:text-[#f0eeeb] mt-1.5">Rp{{ formatPrice(product.price) }}</p>
                         </div>
@@ -114,7 +114,10 @@ const activeCategory = computed(() => {
 const filteredProducts = computed(() => {
     if (!products.value.length) return []
     if (!selectedSlug.value) return products.value
-    return products.value.filter(p => p.category?.slug === selectedSlug.value)
+    // produk pakai categories[] (many-to-many), cek apakah salah satu kategori match
+    return products.value.filter(p =>
+        p.categories?.some(c => c.slug === selectedSlug.value)
+    )
 })
 
 function setCategory(slug) {

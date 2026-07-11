@@ -103,7 +103,7 @@
                     </div>
 
                     <div class="flex-1 min-w-0 max-w-md mx-auto lg:mx-0 lg:pt-0">
-                        <p class="text-[10px] font-medium text-maroon-400 uppercase tracking-wide">{{ product.categories?.map(c => c.name).join(', ') || 'Kemeja' }}</p>
+                        <p class="text-[10px] font-medium text-maroon-400 uppercase tracking-wide">{{ product.categories?.map(c => c.name).join(', ') || '' }}</p>
                         <h1 class="text-xl lg:text-2xl font-bold text-charcoal dark:text-[#f0eeeb] mt-1 leading-tight">{{ product.name }}</h1>
 
                         <div class="mt-3 flex items-baseline gap-2">
@@ -120,7 +120,7 @@
 
                         <!-- Deskripsi — full, di bawah harga -->
                         <div v-if="product.description" class="mt-4 pt-4 border-t border-ink-10 dark:border-[#303032]">
-                            <p class="text-xs text-charcoal/60 dark:text-[#8a8a8e] leading-relaxed whitespace-pre-line">{{ product.description }}</p>
+                            <div class="text-xs text-charcoal/60 dark:text-[#8a8a8e] leading-relaxed prose prose-xs max-w-none" v-html="product.description"></div>
                         </div>
 
                         <!-- Jumlah -->
@@ -237,7 +237,7 @@
                                 </button>
                             </div>
                             <div class="p-2.5">
-                                <p class="text-[10px] font-medium text-maroon-400 uppercase tracking-wide">{{ rp.category?.name || 'Kemeja' }}</p>
+                                <p class="text-[10px] font-medium text-maroon-400 uppercase tracking-wide">{{ rp.categories?.map(c => c.name).join(', ') || '' }}</p>
                                 <h3 class="text-xs font-semibold text-charcoal dark:text-[#f0eeeb] mt-0.5 leading-snug line-clamp-2">{{ rp.name }}</h3>
                                 <p class="text-sm font-bold text-maroon dark:text-[#f0eeeb] mt-1">Rp{{ formatPrice(rp.price) }}</p>
                             </div>
