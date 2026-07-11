@@ -6,9 +6,13 @@ use App\Filament\Resources\OrderResource\Pages;
 use App\Models\Order;
 use App\Services\StockService;
 use App\Enums\StockMovementType;
+use App\Notifications\OrderStatusUpdatedNotification;
+use App\Notifications\OrderShippedNotification;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -143,6 +147,19 @@ class OrderResource extends Resource
                     ])
                     ->action(function (array $data, Order $record) {
                         $record->update(['status' => OrderStatus::from($data['status'])]);
+
+                        // Kirim notifikasi email ke customer
+                        try {
+                            $notification = new OrderStatusUpdatedNotification($record->fresh());
+                            if ($record->user_id) {
+                                $record->user->notify($notification);
+                            } else {
+                                Notification::route('mail', $record->customer_email)
+                                    ->notify($notification);
+                            }
+                        } catch (\Throwable $e) {
+                            Log::error('Gagal kirim notifikasi status order: ' . $e->getMessage(), ['order' => $record->order_number]);
+                        }
                     })
                     ->hidden(fn (Order $record): bool => in_array($record->status, [OrderStatus::Completed, OrderStatus::Cancelled, OrderStatus::Expired])),
 
@@ -177,6 +194,20 @@ class OrderResource extends Resource
                             'tracking_number' => $data['tracking_number'] ?: null,
                             'tracking_url'    => $record->courier ? ($courierUrls[$record->courier] ?? null) : $record->tracking_url,
                         ]);
+
+                        // Kirim notifikasi resi ke customer
+                        try {
+                            $fresh = $record->fresh();
+                            $notification = new OrderShippedNotification($fresh);
+                            if ($record->user_id) {
+                                $record->user->notify($notification);
+                            } else {
+                                Notification::route('mail', $record->customer_email)
+                                    ->notify($notification);
+                            }
+                        } catch (\Throwable $e) {
+                            Log::error('Gagal kirim notifikasi resi: ' . $e->getMessage(), ['order' => $record->order_number]);
+                        }
                     }),
 
                 Action::make('cancelOrder')
