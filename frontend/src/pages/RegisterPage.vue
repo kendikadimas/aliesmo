@@ -113,11 +113,12 @@ async function handleRegister() {
             password_confirmation: form.password_confirmation,
         })
         setToken(res.data.token)
+        window.dispatchEvent(new Event('auth:login'))
         success.value = true
         // Tampilkan banner verifikasi email, jangan langsung redirect
         needsVerification.value = true
-        // Redirect ke home setelah 5 detik — user bisa tetap di sini untuk resend
-        setTimeout(() => router.push('/'), 5000)
+        // Redirect ke profile setelah 3 detik
+        setTimeout(() => router.push('/profile'), 3000)
     } catch (e) {
         const errors = e.response?.data?.errors
         if (errors) {

@@ -93,13 +93,14 @@ async function handleLogin() {
             password: form.password,
         })
         setToken(res.data.token)
+        window.dispatchEvent(new Event('auth:login'))
         success.value = true
         // Jika ada guest orders yang ter-claim, tampilkan notif dan arahkan ke /orders
         if (res.data.claimed_orders > 0) {
             claimedMsg.value = `${res.data.claimed_orders} pesanan guest berhasil diklaim ke akunmu!`
             setTimeout(() => router.push('/orders'), 1500)
         } else {
-            setTimeout(() => router.push('/'), 800)
+            router.push('/profile')
         }
     } catch (e) {
         error.value = e.response?.data?.message || 'Login gagal, coba lagi ya!'

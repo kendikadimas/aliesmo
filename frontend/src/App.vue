@@ -402,6 +402,9 @@ onMounted(async () => {
     })
 
     // Sync isLoggedIn saat auth events dari api.js interceptor
+    window.addEventListener('auth:login', () => {
+        isLoggedIn.value = true
+    })
     window.addEventListener('auth:expired', () => {
         isLoggedIn.value = false
     })
