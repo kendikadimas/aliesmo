@@ -151,33 +151,17 @@ class OrderResource extends Resource
                     ->label('Input Resi')
                     ->icon('heroicon-o-truck')
                     ->form([
-                        // Jika kurir sudah ada di order, tampil read-only
                         TextInput::make('courier_display')
                             ->label('Kurir')
                             ->disabled()
-                            ->dehydrated(false)
-                            ->visible(fn (array $arguments, $record) => !empty($record?->courier)),
-                        // Jika kurir belum ada (order lama), admin pilih manual
-                        Select::make('courier')
-                            ->label('Kurir')
-                            ->options([
-                                'JNE'           => 'JNE',
-                                'JNT Express'   => 'J&T Express',
-                                'SiCepat'       => 'SiCepat',
-                                'Anteraja'      => 'Anteraja',
-                                'Ninja'         => 'Ninja Xpress',
-                                'Pos Indonesia' => 'Pos Indonesia',
-                                'Lion Parcel'   => 'Lion Parcel',
-                            ])
-                            ->required()
-                            ->visible(fn (array $arguments, $record) => empty($record?->courier)),
+                            ->dehydrated(false),
                         TextInput::make('tracking_number')
                             ->label('No. Resi')
                             ->required()
                             ->maxLength(255),
                     ])
                     ->fillForm(fn (Order $record): array => [
-                        'courier_display' => $record->courier ?? '',
+                        'courier_display' => $record->courier ?? '(tidak ada data kurir)',
                         'tracking_number' => $record->tracking_number,
                     ])
                     ->action(function (array $data, Order $record) {
@@ -190,12 +174,9 @@ class OrderResource extends Resource
                             'Pos Indonesia' => 'https://www.posindonesia.co.id/id/tracking',
                             'Lion Parcel'   => 'https://lionparcel.com/track',
                         ];
-                        // Pakai kurir dari record jika ada, fallback ke pilihan admin
-                        $courier = $record->courier ?: ($data['courier'] ?? null);
                         $record->update([
-                            'courier'         => $courier,
                             'tracking_number' => $data['tracking_number'] ?: null,
-                            'tracking_url'    => $courierUrls[$courier] ?? null,
+                            'tracking_url'    => $record->courier ? ($courierUrls[$record->courier] ?? null) : $record->tracking_url,
                         ]);
                     }),
 
