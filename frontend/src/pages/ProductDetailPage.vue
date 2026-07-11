@@ -352,10 +352,11 @@ function formatDate(dateString) {
 }
 
 function productImage(p, index) {
-    if (p.images && p.images[index]) return p.images[index].path
-    if (index === 0 && p.thumbnail) return p.thumbnail
-    if (p.thumbnail) return p.thumbnail
-    return ''
+    // index 0 = selalu thumbnail, index 1+ = gallery images[index-1]
+    if (index === 0) return p.thumbnail || ''
+    const imgIndex = index - 1
+    if (p.images && p.images[imgIndex]) return p.images[imgIndex].path
+    return p.thumbnail || ''
 }
 
 function getYoutubeVideoId(url) {

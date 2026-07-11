@@ -232,10 +232,11 @@ const filteredProducts = computed(() => {
 const groupedProducts = computed(() => filteredProducts.value)
 
 function productImage(product, index) {
-    if (product.images && product.images[index]) return product.images[index].path
-    if (index === 0 && product.thumbnail) return product.thumbnail
-    if (product.thumbnail) return product.thumbnail
-    return ''
+    // index 0 = selalu thumbnail, index 1+ = gallery images[index-1]
+    if (index === 0) return product.thumbnail || ''
+    const imgIndex = index - 1
+    if (product.images && product.images[imgIndex]) return product.images[imgIndex].path
+    return product.thumbnail || ''
 }
 
 function pauseCurrentVideo() {
