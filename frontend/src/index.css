@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 @theme {
     /* Brand Colors — maroon adalah warna hitam/gelap utama brand */
     --color-maroon: #111111;

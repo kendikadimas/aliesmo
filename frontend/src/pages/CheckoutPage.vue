@@ -20,7 +20,7 @@
             <div class="lg:col-span-3 space-y-6">
 
                 <!-- Data Diri -->
-                <div class="bg-white dark:bg-[#1c1c1e] p-6 lg:p-8 rounded-2xl border-2 border-maroon-50 dark:border-[#303032]">
+                <div class="bg-white dark:bg-[#1c1c1e] p-4 lg:p-8 rounded-2xl border-2 border-maroon-50 dark:border-[#303032]">
                     <h2 class="text-sm font-bold text-charcoal dark:text-[#f0eeeb] tracking-wide mb-6">Data Diri</h2>
                     <div class="space-y-4">
                         <div>
@@ -41,7 +41,7 @@
                 </div>
 
                 <!-- Alamat & Pengiriman -->
-                <div class="bg-white dark:bg-[#1c1c1e] p-6 lg:p-8 rounded-2xl border-2 border-maroon-50 dark:border-[#303032]">
+                <div class="bg-white dark:bg-[#1c1c1e] p-4 lg:p-8 rounded-2xl border-2 border-maroon-50 dark:border-[#303032]">
                     <h2 class="text-sm font-bold text-charcoal dark:text-[#f0eeeb] tracking-wide mb-6">Alamat & Pengiriman</h2>
                     <div class="space-y-4">
 
@@ -162,7 +162,7 @@
 
             <!-- Ringkasan Pesanan -->
             <div class="lg:col-span-2">
-                <div class="bg-white dark:bg-[#1c1c1e] p-6 lg:p-8 rounded-2xl border-2 border-maroon-50 dark:border-[#303032] lg:sticky lg:top-28">
+                <div class="bg-white dark:bg-[#1c1c1e] p-4 lg:p-8 rounded-2xl border-2 border-maroon-50 dark:border-[#303032] lg:sticky lg:top-28">
                     <h2 class="text-sm font-bold text-charcoal dark:text-[#f0eeeb] tracking-wide mb-4">Ringkasan Pesanan</h2>
                     <div class="space-y-3">
                         <div v-for="item in checkoutItems" :key="item.product_id" class="flex items-center gap-3">
