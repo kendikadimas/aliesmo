@@ -29,7 +29,7 @@
 
             <p class="mt-6 text-center text-sm text-charcoal/50 dark:text-[#8a8a8e]">
                 Ingat passwordnya?
-                <router-link to="/login" class="text-maroon hover:text-maroon-600 dark:hover:text-[#f0eeeb] font-semibold">Masuk sekarang</router-link>
+                <router-link to="/login" class="text-maroon dark:text-[#f0eeeb] hover:text-maroon-600 dark:hover:text-[#f0eeeb] font-semibold">Masuk sekarang</router-link>
             </p>
         </div>
     </div>

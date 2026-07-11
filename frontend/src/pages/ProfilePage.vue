@@ -101,7 +101,7 @@
                 <!-- Lupa Password link -->
                 <p class="mt-4 text-sm text-charcoal/50 dark:text-[#8a8a8e]">
                     Lupa password lama?
-                    <router-link to="/forgot-password" class="text-maroon dark:text-maroon hover:text-maroon-600 dark:hover:text-[#f0eeeb] font-semibold">Reset via email</router-link>
+                    <router-link to="/forgot-password" class="text-maroon dark:text-[#f0eeeb] hover:text-maroon-600 dark:hover:text-[#f0eeeb] font-semibold">Reset via email</router-link>
                 </p>
             </div>
 
