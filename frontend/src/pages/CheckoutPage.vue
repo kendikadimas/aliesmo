@@ -1,5 +1,5 @@
 ﻿<template>
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16 overflow-hidden">
         <h1 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Checkout</h1>
 
         <div v-if="submitting" class="mt-8 lg:mt-10 grid lg:grid-cols-5 gap-8 lg:gap-12">
