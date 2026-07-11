@@ -221,7 +221,7 @@
         </Transition>
 
         <!-- Main Content -->
-        <main class="min-h-[70vh] bg-white dark:bg-[#161618] transition-colors duration-200">
+        <main class="min-h-[70vh] bg-white dark:bg-[#161618] transition-colors duration-200 overflow-x-hidden">
             <router-view />
         </main>
 
