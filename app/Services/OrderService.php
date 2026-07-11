@@ -115,6 +115,7 @@ class OrderService
                 'total'           => $total,
                 'status'          => OrderStatus::Pending,
                 'payment_method'  => $customerData['payment_method'] ?? 'bank_transfer',
+                'selected_bank'   => $customerData['selected_bank'] ?? null,
             ]);
 
             $order->items()->createMany($orderItems);

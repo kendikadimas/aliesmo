@@ -270,21 +270,31 @@
                                 <!-- Bank Transfer -->
                                 <div v-if="paymentMethod === 'bank_transfer'" class="bg-maroon-50/40 dark:bg-[#28282a]/50 rounded-xl p-4 space-y-3">
                                     <div v-if="get('payment_banks', []).length === 0" class="text-xs text-charcoal/40 dark:text-[#6a6a6e]">Belum ada rekening bank diatur.</div>
-                                    <div v-for="(bank, i) in get('payment_banks', [])" :key="i" class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs" :class="i > 0 ? 'pt-2 border-t border-maroon-100 dark:border-[#303032]' : ''">
-                                        <div>
-                                            <p class="text-charcoal/40 dark:text-[#6a6a6e]">Bank</p>
-                                            <p class="font-bold text-charcoal dark:text-[#f0eeeb]">{{ bank.bank_name }}</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-charcoal/40 dark:text-[#6a6a6e]">No. Rekening</p>
-                                            <p class="font-bold text-charcoal dark:text-[#f0eeeb] font-mono tracking-wider">{{ bank.account_no }}</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-charcoal/40 dark:text-[#6a6a6e]">Atas Nama</p>
-                                            <p class="font-bold text-charcoal dark:text-[#f0eeeb]">{{ bank.account_name }}</p>
-                                        </div>
-                                    </div>
-                                    <p class="text-[10px] text-charcoal/40 dark:text-[#6a6a6e] pt-1 border-t border-maroon-100 dark:border-[#303032]">Kirim bukti transfer via WhatsApp setelah pembayaran.</p>
+                                    <template v-else>
+                                        <p class="text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e]">Pilih bank tujuan transfer:</p>
+                                        <label v-for="(bank, i) in get('payment_banks', [])" :key="i"
+                                            class="flex items-start gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all"
+                                            :class="selectedBank === bank.bank_name
+                                                ? 'border-maroon bg-maroon/5 dark:bg-maroon/10'
+                                                : 'border-maroon-100 dark:border-[#303032] hover:border-maroon-200'">
+                                            <input type="radio" :value="bank.bank_name" v-model="selectedBank" class="accent-maroon mt-0.5">
+                                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 text-xs flex-1">
+                                                <div>
+                                                    <p class="text-charcoal/40 dark:text-[#6a6a6e]">Bank</p>
+                                                    <p class="font-bold text-charcoal dark:text-[#f0eeeb]">{{ bank.bank_name }}</p>
+                                                </div>
+                                                <div>
+                                                    <p class="text-charcoal/40 dark:text-[#6a6a6e]">No. Rekening</p>
+                                                    <p class="font-bold text-charcoal dark:text-[#f0eeeb] font-mono tracking-wider">{{ bank.account_no }}</p>
+                                                </div>
+                                                <div>
+                                                    <p class="text-charcoal/40 dark:text-[#6a6a6e]">Atas Nama</p>
+                                                    <p class="font-bold text-charcoal dark:text-[#f0eeeb]">{{ bank.account_name }}</p>
+                                                </div>
+                                            </div>
+                                        </label>
+                                        <p class="text-[10px] text-charcoal/40 dark:text-[#6a6a6e] pt-1 border-t border-maroon-100 dark:border-[#303032]">Kirim bukti transfer via WhatsApp setelah pembayaran.</p>
+                                    </template>
                                 </div>
 
                                 <!-- QRIS -->
@@ -341,6 +351,7 @@ const checkoutItems = computed(() => items.value.filter(i => selectedIds.has(i.p
 
 // Payment method
 const paymentMethod = ref('bank_transfer')
+const selectedBank = ref('')
 const paymentMethods = [
     { value: 'bank_transfer', label: 'Transfer Bank', desc: 'BCA, BNI, Mandiri, dll', icon: BuildingLibraryIcon },
     { value: 'qris', label: 'QRIS', desc: 'Scan & Pay dari e-wallet manapun', icon: DevicePhoneMobileIcon },
@@ -550,6 +561,10 @@ async function submitOrder() {
         error.value = 'Pilih layanan pengiriman terlebih dahulu.'
         return
     }
+    if (paymentMethod.value === 'bank_transfer' && !selectedBank.value) {
+        error.value = 'Pilih bank tujuan transfer terlebih dahulu.'
+        return
+    }
     submitting.value = true
     error.value = ''
 
@@ -569,6 +584,7 @@ async function submitOrder() {
             shipping_courier: selectedShipping.value.courier,
             shipping_service: selectedShipping.value.service,
             payment_method: paymentMethod.value,
+            selected_bank: paymentMethod.value === 'bank_transfer' ? selectedBank.value : null,
             coupon_code: null, // diarsipkan sementara — appliedCoupon.value?.code || null
             items: checkoutItems.value.map(i => ({
                 product_id: i.product_id,

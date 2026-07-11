@@ -27,6 +27,7 @@ class StoreOrderRequest extends FormRequest
             'shipping_courier'     => ['required', 'string', 'max:50'],
             'shipping_service'     => ['required', 'string', 'max:50'],
             'payment_method'       => ['nullable', 'string', 'in:cod,bank_transfer,qris'],
+            'selected_bank'        => ['nullable', 'string', 'max:100'],
             'coupon_code'          => ['nullable', 'string', 'max:50'],
         ];
     }

@@ -133,7 +133,7 @@ class OrderController extends Controller
     /**
      * Ambil info pembayaran dari site_settings berdasarkan metode.
      */
-    private function getPaymentInfo(?string $method): array
+    private function getPaymentInfo(?string $method, ?string $selectedBank = null): array
     {
         $method ??= 'bank_transfer';
 
@@ -141,7 +141,7 @@ class OrderController extends Controller
             'bank_transfer' => [
                 'method'       => 'bank_transfer',
                 'label'        => 'Transfer Bank',
-                'banks'        => array_values(\App\Models\SiteSetting::get('payment_banks', [])),
+                'banks'        => $this->resolveBanks($selectedBank),
                 'instruction'  => 'Setelah transfer, kirim bukti pembayaran via WhatsApp.',
             ],
             'qris' => [
@@ -158,6 +158,14 @@ class OrderController extends Controller
             ],
             default => [],
         };
+    }
+
+    private function resolveBanks(?string $selectedBank): array
+    {
+        $allBanks = array_values(\App\Models\SiteSetting::get('payment_banks', []));
+        if (!$selectedBank) return $allBanks;
+        $filtered = array_filter($allBanks, fn($b) => strtolower($b['bank_name'] ?? '') === strtolower($selectedBank));
+        return array_values($filtered) ?: $allBanks;
     }
 
     private function generateWhatsAppMessage(Order $order): string
@@ -256,7 +264,7 @@ class OrderController extends Controller
         return response()->json([
             'data'            => $data,
             'whatsapp_number' => $this->whatsappNumber(),
-            'payment_info'    => $this->getPaymentInfo($order->payment_method ?? 'bank_transfer'),
+            'payment_info'    => $this->getPaymentInfo($order->payment_method ?? 'bank_transfer', $order->selected_bank),
         ]);
     }
 
