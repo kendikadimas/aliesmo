@@ -31,7 +31,7 @@ class OrderResource extends JsonResource
             'courier'          => $this->courier,
             'paid_at'          => $this->paid_at,
             'items'            => OrderItemResource::collection($this->whenLoaded('items')),
-            'payment'          => new PaymentResource($this->whenLoaded('payment')),
+            'payment'          => $this->whenLoaded('payment', fn() => new PaymentResource($this->payment)),
             'created_at'       => $this->created_at,
         ];
     }
