@@ -57,7 +57,7 @@
                             </svg>
                         </button>
                         <router-link to="/" class="flex items-center">
-                            <img src="/aliesmo-logo.svg" alt="Aliesmo" class="h-8 sm:h-9 lg:h-10 w-auto" />
+                            <img src="/aliesmo-logo.svg" alt="Aliesmo" class="h-8 sm:h-9 lg:h-10 w-auto transition-all" :class="isDark ? 'brightness-0 invert' : ''" />
                         </router-link>
                     </div>
 
