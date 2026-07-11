@@ -103,7 +103,7 @@ class OrderController extends Controller
                 $coupon
             );
 
-            $order->load(['items']);
+            $order->load(['items.product']);
 
             // Kirim order confirmation email jika ada user login
             if ($order->user_id) {
@@ -224,7 +224,7 @@ class OrderController extends Controller
         }
 
         $order = Order::where('order_number', strtoupper($orderNumber))
-            ->with(['items', 'payment'])
+            ->with(['items.product', 'payment'])
             ->firstOrFail();
 
         $user = auth('sanctum')->user();
@@ -295,7 +295,7 @@ class OrderController extends Controller
     {
         $order = auth()->user()->orders()
             ->where('order_number', strtoupper($orderNumber))
-            ->with(['items', 'payment'])
+            ->with(['items.product', 'payment'])
             ->firstOrFail();
 
         return response()->json([

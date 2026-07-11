@@ -40,9 +40,19 @@
             <div class="mt-8 bg-white dark:bg-[#1c1c1e] p-6 lg:p-8 rounded-2xl border-2 border-maroon-50 dark:border-[#303032] text-left">
                 <h2 class="text-sm font-bold text-charcoal dark:text-[#f0eeeb] tracking-wide mb-6">Detail Pesanan</h2>
                 <div v-if="order.items" class="space-y-3">
-                    <div v-for="(item, i) in order.items" :key="i" class="flex justify-between text-sm">
-                        <span class="text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca]">{{ item.product_name }} <span class="text-charcoal/40 dark:text-[#6a6a6e]">×{{ item.quantity }}</span></span>
-                        <span class="font-bold dark:text-[#f0eeeb]">Rp{{ formatPrice(item.subtotal || item.price * item.quantity) }}</span>
+                    <div v-for="(item, i) in order.items" :key="i" class="flex items-center gap-3 text-sm">
+                        <div class="w-12 h-12 rounded-xl overflow-hidden border border-maroon-100 dark:border-[#303032] shrink-0 bg-maroon-50/50 dark:bg-[#28282a]">
+                            <img v-if="item.product_image" :src="item.product_image" :alt="item.product_name" class="w-full h-full object-cover" />
+                            <div v-else class="w-full h-full flex items-center justify-center text-charcoal/20 dark:text-[#6a6a6e] text-xs">?</div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-medium text-charcoal dark:text-[#f0eeeb] truncate">{{ item.product_name }}</p>
+                            <p v-if="item.variant_name" class="text-xs text-charcoal/50 dark:text-[#6a6a6e] truncate">{{ item.variant_name }}</p>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <p class="font-bold text-charcoal dark:text-[#f0eeeb]">Rp{{ formatPrice(item.subtotal || item.price * item.quantity) }}</p>
+                            <p class="text-xs text-charcoal/40 dark:text-[#6a6a6e]">×{{ item.quantity }}</p>
+                        </div>
                     </div>
                 </div>
                 <div class="border-t-2 border-maroon-100 dark:border-[#303032] mt-4 pt-4 space-y-1.5 text-sm">
