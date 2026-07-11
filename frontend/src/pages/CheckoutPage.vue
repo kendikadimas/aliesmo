@@ -269,10 +269,10 @@
 
                                 <!-- Bank Transfer -->
                                 <div v-if="paymentMethod === 'bank_transfer'" class="bg-maroon-50/40 dark:bg-[#28282a]/50 rounded-xl p-4 space-y-3">
-                                    <div v-if="get('payment_banks', []).length === 0" class="text-xs text-charcoal/40 dark:text-[#6a6a6e]">Belum ada rekening bank diatur.</div>
+                                    <div v-if="availableBanks.length === 0" class="text-xs text-charcoal/40 dark:text-[#6a6a6e]">Belum ada rekening bank diatur.</div>
                                     <template v-else>
                                         <p class="text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e]">Pilih bank tujuan transfer:</p>
-                                        <label v-for="(bank, i) in get('payment_banks', [])" :key="i"
+                                        <label v-for="(bank, i) in availableBanks" :key="i"
                                             class="flex items-start gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all"
                                             :class="selectedBank === bank.bank_name
                                                 ? 'border-maroon bg-maroon/5 dark:bg-maroon/10'
@@ -352,6 +352,10 @@ const checkoutItems = computed(() => items.value.filter(i => selectedIds.has(i.p
 // Payment method
 const paymentMethod = ref('bank_transfer')
 const selectedBank = ref('')
+const availableBanks = computed(() => {
+    const banks = get('payment_banks', [])
+    return Array.isArray(banks) ? banks : Object.values(banks || {})
+})
 const paymentMethods = [
     { value: 'bank_transfer', label: 'Transfer Bank', desc: 'BCA, BNI, Mandiri, dll', icon: BuildingLibraryIcon },
     { value: 'qris', label: 'QRIS', desc: 'Scan & Pay dari e-wallet manapun', icon: DevicePhoneMobileIcon },
