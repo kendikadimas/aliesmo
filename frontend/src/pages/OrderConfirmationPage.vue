@@ -234,7 +234,13 @@ function statusClass(status) {
 
 onMounted(async () => {
     try {
-        const res = await api.get(`/orders/${route.params.orderNumber}/status`)
+        // Kalau user login, pakai endpoint authenticated agar order yang sudah di-claim bisa diakses
+        const isLoggedIn = !!localStorage.getItem('token')
+        const endpoint = isLoggedIn
+            ? `/me/orders/${route.params.orderNumber}`
+            : `/orders/${route.params.orderNumber}/status`
+        const res = await api.get(endpoint)
+        // me/orders/{orderNumber} return langsung object, status return { data: ... }
         order.value = res.data.data || res.data
         paymentInfo.value = res.data.payment_info || null
         whatsappNumber.value = res.data.whatsapp_number || ''

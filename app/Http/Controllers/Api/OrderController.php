@@ -298,7 +298,11 @@ class OrderController extends Controller
             ->with(['items', 'payment'])
             ->firstOrFail();
 
-        return response()->json(['data' => new OrderResource($order)]);
+        return response()->json([
+            'data'            => new OrderResource($order),
+            'whatsapp_number' => $this->whatsappNumber(),
+            'payment_info'    => $this->getPaymentInfo($order->payment_method ?? 'bank_transfer', $order->selected_bank),
+        ]);
     }
 
     public function cancel(string $orderNumber)
