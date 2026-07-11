@@ -319,7 +319,7 @@
                         </Transition>
                     </div>
 
-                    <button type="submit" :disabled="!selectedShipping && selectedCity !== ''" class="w-full mt-6 px-8 py-3.5 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 dark:hover:bg-maroon/80 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <button type="submit" :disabled="!selectedShipping && selectedCity !== ''" class="w-full mt-6 px-8 py-3.5 bg-maroon text-white dark:bg-[#f0eeeb] dark:text-[#161618] text-sm font-semibold rounded-xl hover:bg-maroon-600 dark:hover:bg-[#d0ceca] transition-all active:scale-[0.97] shadow-lg shadow-maroon/25 disabled:opacity-50 disabled:cursor-not-allowed">
                         Pesan Sekarang
                     </button>
 

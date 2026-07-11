@@ -47,11 +47,11 @@
 
             <p class="mt-6 text-center text-sm text-charcoal/50 dark:text-[#8a8a8e]">
                 Belum punya akun?
-                <router-link to="/register" class="text-maroon hover:text-maroon-600 dark:hover:text-[#f0eeeb] font-semibold">Daftar disini</router-link>
+                <router-link to="/register" class="text-maroon dark:text-[#f0eeeb] hover:text-maroon-600 dark:hover:text-[#d0ceca] font-semibold">Daftar disini</router-link>
             </p>
 
             <p class="mt-3 text-center text-sm text-charcoal/50 dark:text-[#8a8a8e]">
-                <router-link to="/forgot-password" class="text-maroon hover:text-maroon-600 dark:hover:text-[#f0eeeb] font-semibold">Lupa password?</router-link>
+                <router-link to="/forgot-password" class="text-maroon dark:text-[#f0eeeb] hover:text-maroon-600 dark:hover:text-[#d0ceca] font-semibold">Lupa password?</router-link>
             </p>
         </div>
     </div>

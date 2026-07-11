@@ -220,7 +220,7 @@
                     <p class="text-xs text-charcoal/40 dark:text-[#6a6a6e] mt-2">Atau kamu bisa lacak pesanan kapan saja di halaman <router-link to="/track-order" class="text-maroon dark:text-[#f0eeeb] font-semibold hover:underline">Lacak Pesanan</router-link></p>
                 </div>
 
-                <router-link to="/" class="inline-block mt-4 px-8 py-3 bg-maroon text-white text-sm font-semibold rounded-xl hover:bg-maroon-600 dark:hover:bg-maroon/80 transition-all active:scale-[0.97] shadow-lg shadow-maroon/25">
+                <router-link to="/" class="inline-block mt-4 px-8 py-3 bg-maroon text-white dark:bg-[#f0eeeb] dark:text-[#161618] text-sm font-semibold rounded-xl hover:bg-maroon-600 dark:hover:bg-[#d0ceca] transition-all active:scale-[0.97] shadow-lg shadow-maroon/25">
                     Belanja Lagi
                 </router-link>
             </div>

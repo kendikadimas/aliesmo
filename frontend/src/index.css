@@ -40,3 +40,8 @@
     background-color: var(--color-dm-base);
     color: var(--color-dm-text);
 }
+
+/* Radio button dark mode — accent-maroon (#111) tidak terlihat di bg gelap */
+.dark input[type="radio"] {
+    accent-color: #f0eeeb;
+}
