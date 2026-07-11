@@ -7,6 +7,7 @@ use App\Http\Resources\PublicOrderResource;
 use App\Models\Order;
 use App\Models\Coupon;
 use App\Notifications\OrderConfirmationNotification;
+use App\Notifications\NewOrderAdminNotification;
 use App\Services\OrderService;
 use App\Http\Requests\Api\StoreOrderRequest;
 use App\Models\SiteSetting;
@@ -105,12 +106,21 @@ class OrderController extends Controller
 
             $order->load(['items.product']);
 
-            // Kirim order confirmation email jika ada user login
+            // Kirim order confirmation email ke customer
             if ($order->user_id) {
                 $order->user->notify(new OrderConfirmationNotification($order));
             } else {
                 \Illuminate\Support\Facades\Notification::route('mail', $order->customer_email)
                     ->notify(new OrderConfirmationNotification($order));
+            }
+
+            // Kirim notifikasi pesanan baru ke CS/admin — wrapped try-catch agar tidak ganggu response customer
+            try {
+                $csEmail = config('mail.from.address', 'cs@aliesmo.id');
+                \Illuminate\Support\Facades\Notification::route('mail', $csEmail)
+                    ->notify(new NewOrderAdminNotification($order));
+            } catch (\Throwable $e) {
+                Log::error('Gagal kirim notifikasi CS: ' . $e->getMessage(), ['order' => $order->order_number]);
             }
 
             $whatsappNumber = $this->whatsappNumber();
