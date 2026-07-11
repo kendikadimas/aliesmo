@@ -5,22 +5,13 @@
             <div class="max-w-7xl mx-auto px-4 py-2">
                 <!-- Desktop View (3 columns) -->
                 <div class="hidden lg:grid grid-cols-3 gap-4 text-center">
-                    <router-link :to="promos[0]?.link || '/?shop=1'" class="hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors flex items-center justify-center gap-1.5">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                        </svg>
+                    <router-link :to="promos[0]?.link || '/?shop=1'" class="hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors flex items-center justify-center">
                         {{ promos[0]?.text || 'Bahan Premium Oxford &amp; Linen | Garansi 30 Hari' }}
                     </router-link>
-                    <router-link :to="promos[1]?.link || '/?shop=1'" class="hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors flex items-center justify-center gap-1.5 border-x border-zinc-200 dark:border-[#303032]">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                        </svg>
+                    <router-link :to="promos[1]?.link || '/?shop=1'" class="hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors flex items-center justify-center border-x border-zinc-200 dark:border-[#303032]">
                         {{ promos[1]?.text || 'Bahan Premium Oxford &amp; Linen | Garansi 30 Hari' }}
                     </router-link>
-                    <router-link :to="promos[2]?.link || '/login'" class="hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors flex items-center justify-center gap-1.5">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-                        </svg>
+                    <router-link :to="promos[2]?.link || '/login'" class="hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors flex items-center justify-center">
                         {{ promos[2]?.text || 'Diskon 10% First Order | Kode: ALIESNEW10' }}
                     </router-link>
                 </div>
@@ -28,15 +19,6 @@
                 <div class="lg:hidden text-center relative h-4 overflow-hidden flex items-center justify-center">
                     <TransitionGroup name="slide-up">
                         <div v-for="(promo, index) in promos" :key="index" v-show="activePromo === index" class="absolute w-full flex items-center justify-center gap-1.5">
-                            <span v-if="index === 0" class="flex items-center">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-                            </span>
-                            <span v-else-if="index === 1" class="flex items-center">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                            </span>
-                            <span v-else class="flex items-center">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-                            </span>
                             <router-link :to="promo.link" class="hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors">{{ promo.text }}</router-link>
                         </div>
                     </TransitionGroup>
@@ -195,7 +177,7 @@
         <!-- Mobile Navigation Drawer -->
         <Transition name="mobile-nav">
             <div v-if="mobileOpen" class="lg:hidden border-t border-zinc-200/50 dark:border-[#303032]/50 bg-white dark:bg-[#161618] shadow-xl fixed top-[110px] left-0 right-0 z-40 max-h-[calc(100vh-110px)] overflow-y-auto">
-                <nav class="px-5 py-6 space-y-5">
+                <nav class="px-5 pt-3 pb-6 space-y-5">
                     <router-link @click="mobileOpen = false" to="/" class="block text-sm font-bold text-charcoal/80 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] uppercase tracking-wide">Semua Koleksi</router-link>
                     <router-link v-if="isLoggedIn" @click="mobileOpen = false" to="/profile" class="block text-sm font-bold text-charcoal/80 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] uppercase tracking-wide">Akun Saya</router-link>
                     <router-link v-if="isLoggedIn" @click="mobileOpen = false" to="/profile?tab=pesanan" class="block text-sm font-bold text-charcoal/80 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] uppercase tracking-wide">Pesanan Saya</router-link>
