@@ -47,6 +47,14 @@
             </div>
         </div>
 
+        {{-- Info Note --}}
+        <div style="border-radius:0.75rem; border:1px solid rgba(59,130,246,0.2); background:rgba(59,130,246,0.06); padding:0.875rem 1rem; display:flex; align-items:flex-start; gap:0.625rem;">
+            <svg style="width:1rem; height:1rem; color:#60a5fa; flex-shrink:0; margin-top:0.125rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p style="font-size:0.8125rem; color:#93c5fd; margin:0; line-height:1.5;">
+                Laporan ini hanya menampilkan pesanan dengan status <strong style="color:#bfdbfe;">paid</strong>, <strong style="color:#bfdbfe;">processing</strong>, <strong style="color:#bfdbfe;">shipped</strong>, dan <strong style="color:#bfdbfe;">completed</strong>. Pesanan dengan status <em>pending</em>, <em>cancelled</em>, dan <em>expired</em> tidak dihitung. Data difilter berdasarkan tanggal pembuatan pesanan.
+            </p>
+        </div>
+
         {{-- Summary Stats --}}
         <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1rem;">
             <div style="border-radius:0.75rem; border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.04); padding:1.25rem;">
