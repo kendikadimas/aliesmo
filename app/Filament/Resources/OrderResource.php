@@ -9,6 +9,7 @@ use App\Enums\StockMovementType;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
+
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
@@ -150,25 +151,17 @@ class OrderResource extends Resource
                     ->label('Input Resi')
                     ->icon('heroicon-o-truck')
                     ->form([
-                        Select::make('courier')
+                        TextInput::make('courier_display')
                             ->label('Kurir')
-                            ->options([
-                                'JNE'          => 'JNE',
-                                'JNT Express'  => 'J&T Express',
-                                'SiCepat'      => 'SiCepat',
-                                'Anteraja'     => 'Anteraja',
-                                'Ninja'        => 'Ninja Xpress',
-                                'Pos Indonesia' => 'Pos Indonesia',
-                                'Lion Parcel'  => 'Lion Parcel',
-                            ])
-                            ->required(),
+                            ->disabled()
+                            ->dehydrated(false),
                         TextInput::make('tracking_number')
                             ->label('No. Resi')
                             ->required()
                             ->maxLength(255),
                     ])
                     ->fillForm(fn (Order $record): array => [
-                        'courier'         => $record->courier,
+                        'courier_display' => $record->courier ?? '-',
                         'tracking_number' => $record->tracking_number,
                     ])
                     ->action(function (array $data, Order $record) {
@@ -182,9 +175,8 @@ class OrderResource extends Resource
                             'Lion Parcel'   => 'https://lionparcel.com/track',
                         ];
                         $record->update([
-                            'courier'         => $data['courier'],
                             'tracking_number' => $data['tracking_number'] ?: null,
-                            'tracking_url'    => $courierUrls[$data['courier']] ?? null,
+                            'tracking_url'    => $courierUrls[$record->courier] ?? null,
                         ]);
                     }),
 
