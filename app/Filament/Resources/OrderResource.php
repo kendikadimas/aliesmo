@@ -91,11 +91,12 @@ class OrderResource extends Resource
                         RepeatableEntry::make('items')
                             ->schema([
                                 TextEntry::make('product_name')->label('Produk'),
+                                TextEntry::make('variant_name')->label('Varian')->placeholder('-'),
                                 TextEntry::make('price')->label('Harga')->money('IDR'),
                                 TextEntry::make('quantity')->label('Qty'),
                                 TextEntry::make('subtotal')->label('Subtotal')->money('IDR'),
                             ])
-                            ->columns(4),
+                            ->columns(5),
                     ]),
                 Section::make('Informasi Pembayaran')
                     ->schema([

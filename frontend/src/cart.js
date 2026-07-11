@@ -1,7 +1,17 @@
 import { reactive, toRefs } from 'vue'
 
+// Migrate item lama yang belum punya cart_key
+function migrateItems(items) {
+    return items.map(i => {
+        if (!i.cart_key) {
+            return { ...i, cart_key: i.variant_id ? `${i.product_id}_${i.variant_id}` : `${i.product_id}` }
+        }
+        return i
+    })
+}
+
 const state = reactive({
-    items: JSON.parse(localStorage.getItem('cart') || '[]'),
+    items: migrateItems(JSON.parse(localStorage.getItem('cart') || '[]')),
 })
 
 function save() {
