@@ -93,6 +93,7 @@ class OrderController extends Controller
                 'shipping_cache_key',
                 'shipping_courier',
                 'shipping_service',
+                'selected_bank',
             ]);
             $customerData['payment_method'] = $request->input('payment_method', 'bank_transfer');
 

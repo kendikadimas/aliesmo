@@ -99,6 +99,31 @@ class OrderService
 
             $total = max(0, $subtotal - $couponDiscount + $shippingCost);
 
+            // Normalize nama kurir dari RajaOngkir ke format display
+            $courierMap = [
+                'jne'        => 'JNE',
+                'jnt'        => 'JNT Express',
+                'j&t'        => 'JNT Express',
+                'sicepat'    => 'SiCepat',
+                'anteraja'   => 'Anteraja',
+                'ninja'      => 'Ninja',
+                'pos'        => 'Pos Indonesia',
+                'lion'       => 'Lion Parcel',
+                'lionparcel' => 'Lion Parcel',
+            ];
+            $courierTracking = [
+                'JNE'          => 'https://jne.co.id/tracking-package',
+                'JNT Express'  => 'https://jet.co.id/track',
+                'SiCepat'      => 'https://www.sicepat.com/',
+                'Anteraja'     => 'https://anteraja.id/id/tracking',
+                'Ninja'        => 'https://www.ninjaxpress.co/en-id/tracking',
+                'Pos Indonesia' => 'https://www.posindonesia.co.id/id/tracking',
+                'Lion Parcel'  => 'https://lionparcel.com/track',
+            ];
+            $rawCourier      = strtolower(trim($customerData['shipping_courier'] ?? ''));
+            $courierName     = $courierMap[$rawCourier] ?? strtoupper($rawCourier);
+            $courierUrl      = $courierTracking[$courierName] ?? null;
+
             $order = Order::create([
                 'order_number'           => $this->generateOrderNumber(),
                 'lookup_token'           => \Illuminate\Support\Str::random(32),
@@ -116,6 +141,8 @@ class OrderService
                 'status'          => OrderStatus::Pending,
                 'payment_method'  => $customerData['payment_method'] ?? 'bank_transfer',
                 'selected_bank'   => $customerData['selected_bank'] ?? null,
+                'courier'         => $courierName ?: null,
+                'tracking_url'    => $courierUrl,
             ]);
 
             $order->items()->createMany($orderItems);
