@@ -58,7 +58,7 @@
                                     @keydown.up.prevent="onArrowUp"
                                     @keydown.enter.prevent="onEnter"
                                     @keydown.escape="showDropdown = false"
-                                    placeholder="Ketik nama kota atau kecamatan (misal: Denpasar, Tebet)"
+                                    placeholder="Cari kota atau kecamatan tujuan..."
                                     class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:text-[#6a6a6e]/60 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-maroon focus:outline-none transition-colors"
                                     autocomplete="off"
                                     required
