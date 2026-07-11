@@ -5,25 +5,25 @@
                 <div class="w-14 h-14 rounded-2xl bg-maroon flex items-center justify-center mx-auto">
                     <span class="text-2xl font-bold text-white">A</span>
                 </div>
-                <h1 class="mt-4 text-2xl font-bold text-charcoal dark:text-[#f0eeeb] dark:text-slate-100">Reset Password</h1>
-                <p class="mt-1 text-sm text-charcoal/50 dark:text-[#8a8a8e] dark:text-slate-400">Masukkan password baru kamu</p>
+                <h1 class="mt-4 text-2xl font-bold text-charcoal dark:text-[#f0eeeb]">Reset Password</h1>
+                <p class="mt-1 text-sm text-charcoal/50 dark:text-[#8a8a8e]">Masukkan password baru kamu</p>
             </div>
 
             <div v-if="!token" class="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm text-center">
                 Token tidak valid. Minta link reset password baru.
-                <router-link to="/forgot-password" class="block mt-2 font-semibold underline">Kirim ulang</router-link>
+                <router-link to="/forgot-password" class="block mt-2 font-semibold underline dark:text-red-300">Kirim ulang</router-link>
             </div>
 
             <form v-else @submit.prevent="handleSubmit" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] dark:text-slate-400 mb-1.5">Password Baru</label>
+                    <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Password Baru</label>
                     <input v-model="form.password" type="password" required placeholder="Minimal 8 karakter"
-                        class="w-full border-2 border-maroon-100 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] dark:text-slate-100 placeholder:text-charcoal/30 dark:text-[#6a6a6e]/60 dark:placeholder:text-slate-500 bg-white dark:bg-slate-700 focus:border-maroon focus:outline-none transition-colors">
+                        class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-maroon dark:focus:border-[#f0eeeb] focus:outline-none transition-colors">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] dark:text-slate-400 mb-1.5">Ulangi Password Baru</label>
+                    <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Ulangi Password Baru</label>
                     <input v-model="form.password_confirmation" type="password" required
-                        class="w-full border-2 border-maroon-100 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] dark:text-slate-100 placeholder:text-charcoal/30 dark:text-[#6a6a6e]/60 dark:placeholder:text-slate-500 bg-white dark:bg-slate-700 focus:border-maroon focus:outline-none transition-colors">
+                        class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-maroon dark:focus:border-[#f0eeeb] focus:outline-none transition-colors">
                 </div>
 
                 <div v-if="error" class="p-3 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm">{{ error }}</div>
@@ -37,7 +37,7 @@
                 </button>
 
                 <router-link v-if="success" to="/login"
-                    class="block w-full text-center px-8 py-3 border-2 border-maroon text-maroon text-sm font-semibold rounded-xl hover:bg-maroon hover:text-white dark:hover:bg-maroon dark:hover:text-white transition-all">
+                    class="block w-full text-center px-8 py-3 border-2 border-maroon text-maroon dark:border-[#f0eeeb] dark:text-[#f0eeeb] text-sm font-semibold rounded-xl hover:bg-maroon hover:text-white dark:hover:bg-[#f0eeeb] dark:hover:text-[#161618] transition-all">
                     Masuk Sekarang
                 </router-link>
             </form>

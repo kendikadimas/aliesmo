@@ -5,7 +5,7 @@
 
         <div v-if="loading" class="py-24 text-center">
             <div class="inline-block w-10 h-10 border-4 border-maroon-100 border-t-maroon rounded-full animate-spin"></div>
-            <p class="mt-4 text-base text-charcoal/50">Memuat pesanan...</p>
+            <p class="mt-4 text-base text-charcoal/50 dark:text-[#8a8a8e]">Memuat pesanan...</p>
         </div>
 
         <div v-else-if="!isLoggedIn" class="py-24 text-center">

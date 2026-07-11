@@ -24,7 +24,7 @@
                         @input="form.order_number = form.order_number.toUpperCase()">
                 </div>
 
-                <div v-if="error" class="p-3 bg-ink-05 dark:bg-[#242426] dark:bg-ink-80/40 border border-ink-10 dark:border-ink-60 rounded-xl text-xs text-ink-60 dark:text-[#8a8a8e] dark:text-ink-20 dark:text-[#303032] font-medium">
+                <div v-if="error" class="p-3 bg-ink-05 dark:bg-[#242426] border border-ink-10 dark:border-[#444446] rounded-xl text-xs text-ink-60 dark:text-[#f0eeeb] font-medium">
                     {{ error }}
                 </div>
 
