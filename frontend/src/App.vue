@@ -57,7 +57,7 @@
                             </svg>
                         </button>
                         <router-link to="/" class="flex items-center">
-                            <span class="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-[0.22em] text-charcoal dark:text-[#f0eeeb] font-serif hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors">ALIESMO</span>
+                            <img src="/aliesmo-logo.svg" alt="Aliesmo" class="h-8 sm:h-9 lg:h-10 w-auto" />
                         </router-link>
                     </div>
 
@@ -248,7 +248,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
                     <div>
                         <div class="flex items-center gap-2">
-                            <span class="text-xl font-bold tracking-[0.15em] text-white font-serif">ALIESMO</span>
+                            <img src="/aliesmo-logo.svg" alt="Aliesmo" class="h-8 w-auto brightness-0 invert" />
                         </div>
                         <p class="mt-3 text-sm text-white/50 leading-relaxed max-w-xs">Kemeja batik dan casual berkualitas. Nyaman dipakai, bangga dengan budaya Indonesia.</p>
                         <!-- Social media links -->
