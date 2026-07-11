@@ -66,6 +66,7 @@ class ProductResource extends Resource
                             ->relationship('categories', 'name')
                             ->multiple()
                             ->preload()
+                            ->default([])
                             ->label('Kategori'),
                         Toggle::make('is_active'),
                          FileUpload::make('thumbnail')
