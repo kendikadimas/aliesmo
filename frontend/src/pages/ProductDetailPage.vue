@@ -123,6 +123,30 @@
                             <div class="text-xs text-charcoal/60 dark:text-[#8a8a8e] leading-relaxed prose prose-xs max-w-none" v-html="product.description"></div>
                         </div>
 
+                        <!-- Varian -->
+                        <div v-if="product.variants && product.variants.filter(v => v.is_active).length > 0" class="mt-4 pt-4 border-t border-ink-10 dark:border-[#303032]">
+                            <p class="text-[10px] font-semibold text-charcoal/50 dark:text-[#8a8a8e] mb-2">Varian</p>
+                            <div class="flex flex-wrap gap-2">
+                                <button
+                                    v-for="v in product.variants.filter(v => v.is_active)"
+                                    :key="v.id"
+                                    @click="selectedVariant = selectedVariant?.id === v.id ? null : v"
+                                    :disabled="v.stock === 0"
+                                    class="px-3 py-1.5 rounded-lg border-2 text-xs font-semibold transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+                                    :class="selectedVariant?.id === v.id
+                                        ? 'border-charcoal dark:border-[#f0eeeb] bg-charcoal dark:bg-[#f0eeeb] text-white dark:text-[#161618]'
+                                        : 'border-maroon-100 dark:border-[#303032] text-charcoal dark:text-[#f0eeeb] hover:border-charcoal dark:hover:border-[#f0eeeb]'"
+                                >
+                                    {{ v.name }}
+                                    <span v-if="v.stock === 0" class="ml-1 opacity-60">(Habis)</span>
+                                </button>
+                            </div>
+                            <p v-if="selectedVariant" class="mt-2 text-xs text-charcoal/50 dark:text-[#8a8a8e]">
+                                Stok: {{ selectedVariant.stock }} pcs
+                                <span v-if="selectedVariant.price !== product.price"> · Harga: Rp{{ formatPrice(selectedVariant.price) }}</span>
+                            </p>
+                        </div>
+
                         <!-- Jumlah -->
                         <div class="mt-4">
                             <p class="text-[10px] font-semibold text-charcoal/50 dark:text-[#8a8a8e] mb-1.5">Jumlah</p>
@@ -269,6 +293,7 @@ const showDescriptionModal = ref(false)
 const wishlist = ref(new Set())
 const relatedCarousel = ref(null)
 const product = ref(null)
+const selectedVariant = ref(null)
 const relatedProducts = ref([])
 const reviews = ref([])
 const reviewsLoading = ref(false)
@@ -286,6 +311,7 @@ async function fetchProduct(slug) {
     selectedMedia.value = { type: 'image', index: 0 }
     quantity.value = 1
     reviews.value = []
+    selectedVariant.value = null
     try {
         const res = await api.get(`/products/${slug}`)
         product.value = res.data.data || res.data
@@ -382,7 +408,10 @@ function decrementQty() {
 
 function addToCart() {
     if (product.value && quantity.value > 0) {
-        addItem(product.value, quantity.value)
+        const item = selectedVariant.value
+            ? { ...product.value, selectedVariant: selectedVariant.value, price: selectedVariant.value.price || product.value.price }
+            : product.value
+        addItem(item, quantity.value)
     }
 }
 
