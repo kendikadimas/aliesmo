@@ -304,15 +304,16 @@ const claimedMsg = ref('')
 let ordersLoaded = false
 
 // Watch tab changes — load orders lazily
-watch(activeTab, (tab) => {
+watch(activeTab, async (tab) => {
     // Update URL query
     const query = tab === 'profil' ? {} : { tab }
     router.replace({ query })
 
     if (tab === 'pesanan' && !ordersLoaded) {
         ordersLoaded = true
+        // Auto-claim guest orders dulu sebelum load list
+        await checkAndAutoClaim()
         loadOrders()
-        checkClaimable()
     }
 })
 
@@ -420,6 +421,18 @@ async function checkClaimable() {
         claimableCount.value = res.data.claimable_count || 0
     } catch {
         claimableCount.value = 0
+    }
+}
+
+async function checkAndAutoClaim() {
+    try {
+        const res = await api.get('/me/orders/claimable-count')
+        const count = res.data.claimable_count || 0
+        if (count > 0) {
+            await claimOrders()
+        }
+    } catch {
+        // silent fail — loadOrders tetap jalan
     }
 }
 
