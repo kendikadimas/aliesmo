@@ -29,7 +29,7 @@
                     @click="activeTab = tab.key"
                     class="relative px-5 py-3 text-xs font-bold tracking-wide uppercase whitespace-nowrap transition-all"
                     :class="activeTab === tab.key
-                        ? 'text-maroon after:absolute after:bottom-[-2px] after:left-0 after:right-0 after:h-[2px] after:bg-maroon'
+                        ? 'text-maroon dark:text-[#f0eeeb] after:absolute after:bottom-[-2px] after:left-0 after:right-0 after:h-[2px] after:bg-maroon dark:after:bg-[#f0eeeb]'
                         : 'text-charcoal/40 dark:text-[#6a6a6e] hover:text-charcoal dark:hover:text-[#f0eeeb] hover:text-charcoal/70 dark:text-[#d0ceca]/80 dark:hover:text-[#d0ceca]'">
                     {{ tab.label }}
                 </button>
@@ -252,7 +252,7 @@
 
                         <!-- Actions -->
                         <div class="mt-4 pt-4 border-t border-maroon-100 dark:border-[#303032] flex flex-col sm:flex-row gap-3">
-                            <router-link :to="`/order/${order.order_number}`" class="flex-1 text-center px-6 py-2.5 border-2 border-maroon text-maroon text-sm font-semibold rounded-xl hover:bg-maroon hover:text-white dark:hover:bg-maroon dark:hover:text-white transition-all">
+                            <router-link :to="`/order/${order.order_number}`" class="flex-1 text-center px-6 py-2.5 border-2 border-maroon text-maroon dark:border-[#f0eeeb] dark:text-[#f0eeeb] text-sm font-semibold rounded-xl hover:bg-maroon hover:text-white dark:hover:bg-[#f0eeeb] dark:hover:text-[#161618] transition-all">
                                 Lihat Detail
                             </router-link>
                             <a :href="waLink(order)" target="_blank" rel="noopener"
