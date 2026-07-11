@@ -91,8 +91,8 @@ Route::prefix('v1')->group(function () {
     Route::get('shipping/search', [ShippingController::class, 'search'])->middleware('throttle:30,1');
 
     // Auth - dengan rate limiting ketat untuk prevent brute force
-    Route::post('auth/register', [AuthController::class, 'register'])->middleware('throttle:5,1'); // 5 req/menit
-    Route::post('auth/login', [AuthController::class, 'login'])->middleware('throttle:5,1'); // 5 req/menit
+    Route::post('auth/register', [AuthController::class, 'register'])->middleware('throttle:10,1'); // 10 req/menit
+    Route::post('auth/login', [AuthController::class, 'login'])->middleware('throttle:10,1'); // 10 req/menit
     Route::post('auth/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:3,1'); // 3 req/menit
     Route::post('auth/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:5,1');
 
