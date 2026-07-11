@@ -14,7 +14,12 @@ class OrderStatsWidget extends BaseWidget
 
     protected function getStats(): array
     {
-        $totalRevenue = Order::whereIn('status', [OrderStatus::Paid, OrderStatus::Completed])->sum('total');
+        $totalRevenue = Order::whereIn('status', [
+            OrderStatus::Paid,
+            OrderStatus::Processing,
+            OrderStatus::Shipped,
+            OrderStatus::Completed,
+        ])->sum('total');
         $totalOrders = Order::count();
         $pendingCount = Order::where('status', OrderStatus::Pending)->count();
         $processingCount = Order::where('status', OrderStatus::Processing)->count();
@@ -23,7 +28,7 @@ class OrderStatsWidget extends BaseWidget
 
         return [
             Stat::make('Total Revenue', 'Rp ' . number_format($totalRevenue, 0, ',', '.'))
-                ->description('Dari order paid & completed')
+                ->description('Dari order paid, processing, shipped & completed')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color('success')
                 ->extraAttributes(['class' => 'stat-widget-revenue']),

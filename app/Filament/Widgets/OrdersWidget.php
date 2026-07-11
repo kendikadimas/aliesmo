@@ -20,7 +20,12 @@ class OrdersWidget extends BaseWidget
     {
         $totalOrders = Order::count();
         $pendingCount = Order::where('status', OrderStatus::Pending)->count();
-        $totalRevenue = Order::whereIn('status', [OrderStatus::Paid, OrderStatus::Completed])->sum('total');
+        $totalRevenue = Order::whereIn('status', [
+            OrderStatus::Paid,
+            OrderStatus::Processing,
+            OrderStatus::Shipped,
+            OrderStatus::Completed,
+        ])->sum('total');
 
         return [
             Stat::make('Total Pesanan', $totalOrders)
@@ -30,7 +35,7 @@ class OrdersWidget extends BaseWidget
                 ->url(route('filament.admin.resources.orders.index'))
                 ->extraAttributes(['class' => 'stat-widget-orders']),
             Stat::make('Total Revenue', 'Rp ' . number_format($totalRevenue, 0, ',', '.'))
-                ->description('Dari order paid & completed')
+                ->description('Dari order paid, processing, shipped & completed')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color('success')
                 ->url(route('filament.admin.resources.orders.index'))
