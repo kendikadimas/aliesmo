@@ -185,13 +185,16 @@ class PengaturanSitus extends Page implements HasSchemas
 
     public function save(): void
     {
-        $state = $this->form->getState();
+        try {
+            Log::info('[PengaturanSitus] save() - START');
 
-        Log::info('[PengaturanSitus] save() - form getState()', [
-            'full_state' => $state,
-            'payment_qris_image_type' => gettype($state['payment_qris_image'] ?? null),
-            'payment_qris_image_value' => $state['payment_qris_image'] ?? 'NULL',
-        ]);
+            $state = $this->form->getState();
+
+            Log::info('[PengaturanSitus] save() - form getState()', [
+                'full_state' => $state,
+                'payment_qris_image_type' => gettype($state['payment_qris_image'] ?? null),
+                'payment_qris_image_value' => $state['payment_qris_image'] ?? 'NULL',
+            ]);
 
         $textKeys = [
             'announcement_1', 'announcement_1_link',
@@ -266,5 +269,21 @@ class PengaturanSitus extends Page implements HasSchemas
             ->title('Pengaturan berhasil disimpan')
             ->success()
             ->send();
+
+        } catch (\Exception $e) {
+            Log::error('[PengaturanSitus] save() - EXCEPTION', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            Notification::make()
+                ->title('Error: ' . $e->getMessage())
+                ->danger()
+                ->send();
+
+            throw $e;
+        }
     }
 }
