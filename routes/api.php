@@ -117,10 +117,10 @@ Route::prefix('v1')->group(function () {
 
         // Orders
         Route::get('me/orders', [OrderController::class, 'myOrders']);
-        Route::get('me/orders/{orderNumber}', [OrderController::class, 'myOrder']);
-        Route::delete('me/orders/{orderNumber}', [OrderController::class, 'cancel']);
         Route::post('me/orders/claim', [OrderController::class, 'claimGuestOrders']);
         Route::get('me/orders/claimable-count', [OrderController::class, 'countClaimableOrders']);
+        Route::get('me/orders/{orderNumber}', [OrderController::class, 'myOrder']);
+        Route::delete('me/orders/{orderNumber}', [OrderController::class, 'cancel']);
 
         // Profile
         Route::get('me/profile', [ProfileController::class, 'show']);
