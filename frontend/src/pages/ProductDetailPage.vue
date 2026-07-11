@@ -107,7 +107,7 @@
                         <h1 class="text-xl lg:text-2xl font-bold text-charcoal dark:text-[#f0eeeb] mt-1 leading-tight">{{ product.name }}</h1>
 
                         <div class="mt-3 flex items-baseline gap-2">
-                            <span class="text-xl lg:text-2xl font-bold text-ink dark:text-[#f0eeeb] dark:text-[#f0eeeb]">Rp{{ formatPrice(product.price) }}</span>
+                            <span class="text-xl lg:text-2xl font-bold text-ink dark:text-[#f0eeeb]">Rp{{ formatPrice(product.price) }}</span>
                             <span class="text-xs text-charcoal/40 dark:text-[#6a6a6e] line-through">Rp{{ formatPrice(product.price + 50000) }}</span>
                         </div>
 
@@ -118,6 +118,12 @@
                             </span>
                         </div>
 
+                        <!-- Deskripsi — full, di bawah harga -->
+                        <div v-if="product.description" class="mt-4 pt-4 border-t border-ink-10 dark:border-[#303032]">
+                            <p class="text-xs text-charcoal/60 dark:text-[#8a8a8e] leading-relaxed whitespace-pre-line">{{ product.description }}</p>
+                        </div>
+
+                        <!-- Jumlah -->
                         <div class="mt-4">
                             <p class="text-[10px] font-semibold text-charcoal/50 dark:text-[#8a8a8e] mb-1.5">Jumlah</p>
                             <div class="flex items-center gap-3">
@@ -127,6 +133,7 @@
                             </div>
                         </div>
 
+                        <!-- Tombol keranjang -->
                         <div class="mt-4 flex gap-2">
                             <button @click="addToCart" :disabled="product.stock === 0" class="flex-1 px-6 py-3 bg-ink dark:bg-[#f0eeeb] text-white dark:text-[#161618] text-sm font-semibold rounded-xl hover:bg-ink-60 dark:hover:bg-[#d0ceca] transition-all active:scale-[0.98] disabled:bg-ink-10 dark:disabled:bg-[#303032] disabled:cursor-not-allowed disabled:active:scale-100 shadow-lg">
                                 {{ product.stock === 0 ? 'Stok Habis' : 'Masukin ke Keranjang' }}
@@ -134,14 +141,6 @@
                             <button @click="toggleWishlist(product.id)" class="w-12 h-11 flex items-center justify-center rounded-xl border-2 transition-all active:scale-95" :class="isWishlisted(product.id) ? 'bg-ink-05 dark:bg-[#242426] border-ink dark:border-[#f0eeeb] text-ink dark:text-[#f0eeeb]' : 'border-ink-10 dark:border-[#303032] text-charcoal/50 dark:text-[#8a8a8e] hover:border-ink hover:text-ink dark:hover:border-[#f0eeeb] dark:hover:text-[#f0eeeb]'">
                                 <HeartIcon class="w-[18px] h-[18px]" :class="isWishlisted(product.id) ? 'fill-current' : ''" />
                             </button>
-                        </div>
-
-                        <div class="mt-4 pt-4 border-t border-ink-10 dark:border-[#303032]">
-                            <p v-if="isDescriptionShort" class="text-xs font-semibold text-charcoal/50 dark:text-[#8a8a8e] leading-relaxed">{{ product.description }}</p>
-                            <div v-else>
-                                <p class="text-xs font-semibold text-charcoal/50 dark:text-[#8a8a8e] leading-relaxed line-clamp-3">{{ product.description }}</p>
-                                <button @click="showDescriptionModal = true" class="text-xs font-semibold text-ink dark:text-[#f0eeeb] hover:text-ink-60 dark:hover:text-[#d0ceca] dark:text-[#8a8a8e] mt-1">Lihat Selengkapnya</button>
-                            </div>
                         </div>
 
                         <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-charcoal/50 dark:text-[#8a8a8e]">
@@ -316,9 +315,10 @@ async function fetchReviews(slug) {
 }
 
 async function fetchRelated(p) {
-    if (!p?.category?.slug) return
+    const categorySlug = p?.categories?.[0]?.slug
+    if (!categorySlug) return
     try {
-        const res = await api.get('/products', { params: { category: p.category.slug, per_page: 10 } })
+        const res = await api.get('/products', { params: { category: categorySlug, per_page: 10 } })
         const all = res.data.data || res.data
         relatedProducts.value = all.filter(r => r.id !== p.id).slice(0, 10)
     } catch {
