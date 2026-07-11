@@ -1,6 +1,15 @@
 /* ══════════════════════════════════════════
-   SIDEBAR
+   HIDE DARK MODE TOGGLE
+   Admin panel hanya dark mode — toggle disembunyikan
    ══════════════════════════════════════════ */
+/* Sembunyikan semua tombol dark/light mode toggle di Filament */
+.fi-color-mode-switcher,
+[x-data*="colorMode"],
+button[x-on\:click*="mode"],
+li:has(button[x-on\:click*="mode"]) {
+  display: none !important;
+}
+
 .fi-sidebar {
   background-color: #0a0a0a !important;
   border-right: 1px solid #1a1a1a !important;
