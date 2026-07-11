@@ -10,8 +10,6 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use OpenSpout\Common\Entity\Row;
-use OpenSpout\Common\Entity\Style\Border;
-use OpenSpout\Common\Entity\Style\BorderPart;
 use OpenSpout\Common\Entity\Style\Color;
 use OpenSpout\Common\Entity\Style\Style;
 use OpenSpout\Writer\XLSX\Writer;
@@ -105,10 +103,7 @@ class SalesReport extends Page implements HasTable
         $headerStyle = (new Style())
             ->setFontBold()
             ->setFontColor(Color::WHITE)
-            ->setBackgroundColor(Color::rgb(128, 0, 0))
-            ->setBorder(new Border(
-                new BorderPart(BorderPart::BOTTOM, Color::BLACK, 1, Border::STYLE_THIN),
-            ));
+            ->setBackgroundColor(Color::rgb(128, 0, 0));
 
         $writer->addRow(Row::fromValues(
             ['No. Pesanan', 'Pelanggan', 'Total (Rp)', 'Status', 'Tanggal'],
