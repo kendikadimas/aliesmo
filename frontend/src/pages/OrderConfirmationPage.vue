@@ -28,6 +28,26 @@
             <h1 class="mt-6 text-2xl lg:text-4xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Pesanan Berhasil!</h1>
             <p class="mt-2 text-base text-charcoal/60 dark:text-[#8a8a8e]">Makasih ya <strong>{{ order.customer_name }}</strong>, pesananmu udah kami terima!</p>
 
+            <!-- Info box panduan pembayaran & riwayat -->
+            <div class="mt-4 mx-auto max-w-sm bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-2xl px-5 py-4 text-left space-y-2">
+                <div class="flex items-start gap-2.5">
+                    <span class="text-amber-500 mt-0.5 shrink-0">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    </span>
+                    <p class="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+                        <strong>Pembayaran dilakukan via WhatsApp</strong> — tim kami akan memandu kamu setelah pesan diterima.
+                    </p>
+                </div>
+                <div class="flex items-start gap-2.5">
+                    <span class="text-amber-500 mt-0.5 shrink-0">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </span>
+                    <p class="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+                        Untuk melihat <strong>riwayat & status pesanan</strong>, login dengan email yang sama lalu klik menu di kiri atas.
+                    </p>
+                </div>
+            </div>
+
             <div class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-maroon-50 dark:bg-maroon/20 rounded-xl text-sm max-w-full overflow-hidden">
                 <span class="font-semibold text-charcoal/60 dark:text-[#8a8a8e] shrink-0">No. Pesanan:</span>
                 <span class="font-bold text-maroon dark:text-[#f0eeeb] truncate">{{ order.order_number }}</span>
