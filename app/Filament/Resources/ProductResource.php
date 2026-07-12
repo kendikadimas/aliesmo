@@ -72,7 +72,7 @@ class ProductResource extends Resource
                          FileUpload::make('thumbnail')
                             ->image()
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                            ->maxSize(4096)
+                            ->maxSize(10240) // 10MB
                             ->disk('public')
                             ->directory('products')
                             ->visibility('public')
@@ -145,7 +145,7 @@ class ProductResource extends Resource
                                 FileUpload::make('path')
                                     ->image()
                                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                                    ->maxSize(2048) // 2MB
+                                    ->maxSize(8192) // 8MB
                                     ->disk('public')
                                     ->directory('products')
                                     ->visibility('public')
