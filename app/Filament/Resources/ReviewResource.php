@@ -156,14 +156,20 @@ class ReviewResource extends Resource
                     ->icon('heroicon-o-check')
                     ->color('success')
                     ->visible(fn($record) => !$record->is_approved)
-                    ->action(fn($record) => $record->update(['is_approved' => true])),
+                    ->action(function ($record) {
+                        $record->is_approved = true;
+                        $record->save();
+                    }),
 
                 Actions\Action::make('reject')
                     ->label('Tolak')
                     ->icon('heroicon-o-x-mark')
                     ->color('danger')
                     ->visible(fn($record) => $record->is_approved)
-                    ->action(fn($record) => $record->update(['is_approved' => false])),
+                    ->action(function ($record) {
+                        $record->is_approved = false;
+                        $record->save();
+                    }),
 
                 Actions\EditAction::make(),
                 Actions\DeleteAction::make(),
@@ -174,7 +180,10 @@ class ReviewResource extends Resource
                         ->label('Setujui Terpilih')
                         ->icon('heroicon-o-check')
                         ->color('success')
-                        ->action(fn($records) => $records->each->update(['is_approved' => true])),
+                        ->action(fn($records) => $records->each(function ($record) {
+                            $record->is_approved = true;
+                            $record->save();
+                        })),
 
                     Actions\DeleteBulkAction::make(),
                 ]),
