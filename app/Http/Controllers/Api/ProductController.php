@@ -27,6 +27,8 @@ class ProductController extends Controller
 
         try {
             $products = Product::with(['categories', 'images', 'variants' => fn ($q) => $q->where('is_active', true)])
+                ->withAvg(['reviews as avg_rating' => fn ($q) => $q->where('is_approved', true)], 'rating')
+                ->withCount(['reviews as reviews_count' => fn ($q) => $q->where('is_approved', true)])
                 ->where('is_active', true)
                 ->when(request('category'), fn($q, $slug) => $q->whereHas('categories', fn($q) => $q->where('slug', $slug)))
                 ->when(request('search'), fn($q, $search) => $q->where('name', 'like', "%{$search}%")
@@ -69,6 +71,8 @@ class ProductController extends Controller
 
         try {
             $product = Product::with(['categories', 'images', 'variants' => fn ($q) => $q->where('is_active', true), 'videos'])
+                ->withAvg(['reviews as avg_rating' => fn ($q) => $q->where('is_approved', true)], 'rating')
+                ->withCount(['reviews as reviews_count' => fn ($q) => $q->where('is_approved', true)])
                 ->where('slug', $slug)
                 ->where('is_active', true)
                 ->firstOrFail();

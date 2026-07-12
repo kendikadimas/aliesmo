@@ -30,6 +30,8 @@ class ProductResource extends JsonResource
             'images' => ProductImageResource::collection($this->whenLoaded('images')),
             'variants' => ProductVariantResource::collection($this->whenLoaded('variants')),
             'videos'   => ProductVideoResource::collection($this->whenLoaded('videos')),
+            'avg_rating'    => $this->avg_rating ? round((float) $this->avg_rating, 1) : null,
+            'reviews_count' => (int) ($this->reviews_count ?? 0),
             'created_at' => $this->created_at,
         ];
     }

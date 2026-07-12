@@ -301,13 +301,9 @@ const selectedVariant = ref(null)
 const relatedProducts = ref([])
 const reviews = ref([])
 const reviewsLoading = ref(false)
-const loading = ref(true)
+const avgRating = ref(0)
+const reviewsTotal = ref(0)
 const notFound = ref(false)
-
-const avgRating = computed(() => {
-    if (!reviews.value.length) return 0
-    return (reviews.value.reduce((sum, r) => sum + r.rating, 0) / reviews.value.length).toFixed(1)
-})
 
 // Varian aktif saja
 const activeVariants = computed(() =>
@@ -384,7 +380,10 @@ async function fetchReviews(slug) {
     reviewsLoading.value = true
     try {
         const res = await api.get(`/products/${slug}/reviews`)
-        reviews.value = res.data.data || res.data || []
+        // res.data.data adalah paginator object { data: [...], total: N }
+        reviews.value = res.data.data?.data || []
+        avgRating.value = res.data.avg_rating || 0
+        reviewsTotal.value = res.data.data?.total || 0
     } catch {
         reviews.value = []
     } finally {

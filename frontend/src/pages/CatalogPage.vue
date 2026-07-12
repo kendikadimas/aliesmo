@@ -69,9 +69,14 @@
                         <div class="p-2.5">
                             <p class="text-[10px] font-medium text-maroon-400 uppercase tracking-wide">{{ product.categories?.map(c => c.name).join(', ') || '' }}</p>
                             <h3 class="text-xs font-semibold text-charcoal dark:text-[#f0eeeb] mt-0.5 leading-snug line-clamp-2">{{ product.name }}</h3>
-                            <p class="text-sm font-bold text-maroon dark:text-[#f0eeeb] mt-1.5">
-                                <span class="text-[10px] font-normal text-charcoal/40 dark:text-[#6a6a6e] mr-0.5" v-if="product.variants?.filter(v => v.is_active).length">mulai </span>Rp{{ formatPrice(lowestPrice(product)) }}
-                            </p>
+                            <div class="flex items-center justify-between mt-1.5">
+                                <p class="text-sm font-bold text-maroon dark:text-[#f0eeeb]">
+                                    <span class="text-[10px] font-normal text-charcoal/40 dark:text-[#6a6a6e] mr-0.5" v-if="product.variants?.filter(v => v.is_active).length">mulai </span>Rp{{ formatPrice(lowestPrice(product)) }}
+                                </p>
+                                <span v-if="product.avg_rating" class="flex items-center gap-0.5 text-[10px] font-semibold text-amber-500">
+                                    ★ {{ product.avg_rating }}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
