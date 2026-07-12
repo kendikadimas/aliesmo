@@ -8,9 +8,41 @@ use Illuminate\Http\JsonResponse;
 
 class SiteSettingController extends Controller
 {
+    /**
+     * Daftar key yang boleh diekspos ke publik.
+     * Key di luar whitelist ini tidak akan dikembalikan ke frontend.
+     */
+    private const PUBLIC_KEYS = [
+        'store_name',
+        'store_tagline',
+        'store_email',
+        'store_phone',
+        'store_address',
+        'store_logo',
+        'store_favicon',
+        'announcement_text',
+        'announcement_enabled',
+        'announcement_color',
+        'payment_methods_enabled',
+        'payment_qris_enabled',
+        'payment_qris_image',
+        'payment_banks',
+        'whatsapp_number',
+        'whatsapp_enabled',
+        'social_instagram',
+        'social_facebook',
+        'social_tiktok',
+        'shipping_free_threshold',
+        'maintenance_mode',
+        'promo_banner_enabled',
+        'promo_banner_text',
+        'promo_banner_color',
+    ];
+
     public function index(): JsonResponse
     {
-        $settings = SiteSetting::all(['key', 'value', 'type', 'group'])
+        $settings = SiteSetting::whereIn('key', self::PUBLIC_KEYS)
+            ->get(['key', 'value', 'type'])
             ->mapWithKeys(fn($s) => [$s->key => match ($s->type) {
                 'boolean' => (bool) $s->value,
                 'json'    => json_decode($s->value, true),

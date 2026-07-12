@@ -20,8 +20,8 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         'password',
         'google_id',
         'avatar',
-        'email_verified_at',
-        // 'role' sengaja tidak di-fillable — cegah privilege escalation via mass assignment
+        // 'role' dan 'email_verified_at' sengaja tidak di-fillable
+        // cegah privilege escalation dan email verification bypass via mass assignment
     ];
 
     protected $hidden = [

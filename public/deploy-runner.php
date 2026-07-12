@@ -19,10 +19,8 @@ if (file_exists($envFile)) {
     }
 }
 
-// Terima token dari header (GitHub Actions) atau query string (fallback)
-$provided = $_SERVER['HTTP_X_DEPLOY_TOKEN']
-    ?? $_GET['token']
-    ?? '';
+// Terima token hanya dari header — jangan dari query string (akan masuk server log)
+$provided = $_SERVER['HTTP_X_DEPLOY_TOKEN'] ?? '';
 
 if (empty($token) || empty($provided) || !hash_equals($token, $provided)) {
     http_response_code(403);

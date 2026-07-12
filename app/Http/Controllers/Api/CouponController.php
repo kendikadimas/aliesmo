@@ -28,11 +28,10 @@ class CouponController extends Controller
 
         $discount = $coupon->calculateDiscount((float) $request->order_total);
 
+        // Hanya return discount amount — jangan ekspos type/value internal kupon
         return response()->json([
             'coupon' => [
                 'code'     => $coupon->code,
-                'type'     => $coupon->type,
-                'value'    => (float) $coupon->value,
                 'discount' => $discount,
             ],
         ]);

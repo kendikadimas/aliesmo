@@ -16,52 +16,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     // Public
-    Route::get('debug-qris', function () {
-        $qrisValue = \App\Models\SiteSetting::where('key', 'payment_qris_image')->value('value');
-        $storagePath = storage_path('app/public/payment');
-        $files = is_dir($storagePath) ? scandir($storagePath) : [];
-
-        return response()->json([
-            'db_value' => $qrisValue,
-            'db_value_empty' => empty($qrisValue),
-            'storage_path' => $storagePath,
-            'storage_exists' => is_dir($storagePath),
-            'files_in_payment' => array_diff($files, ['.', '..']),
-            'public_storage_link' => file_exists(public_path('storage')),
-            'asset_url' => $qrisValue ? asset('storage/' . $qrisValue) : null,
-            'file_exists_in_storage' => $qrisValue ? file_exists(storage_path('app/public/' . $qrisValue)) : false,
-        ]);
-    });
-
-    Route::get('fix-storage', function () {
-        $results = [];
-        
-        $dirs = [
-            storage_path('app/livewire-tmp'),
-            storage_path('app/public/payment'),
-            storage_path('logs'),
-        ];
-
-        foreach ($dirs as $dir) {
-            if (!is_dir($dir)) {
-                if (mkdir($dir, 0755, true)) {
-                    $results[$dir] = 'created';
-                } else {
-                    $results[$dir] = 'failed to create';
-                }
-            } else {
-                $results[$dir] = 'exists';
-            }
-
-            if (is_dir($dir)) {
-                @chmod($dir, 0755);
-                $results[$dir . '_perms'] = substr(sprintf('%o', fileperms($dir)), -4);
-            }
-        }
-
-        return response()->json($results);
-    });
-
     Route::get('banners', [BannerController::class, 'index'])->middleware('throttle:60,1');
     Route::get('homepage-videos', [HomepageVideoController::class, 'index'])->middleware('throttle:60,1');
     Route::get('settings', [SiteSettingController::class, 'index'])->middleware('throttle:60,1');
@@ -81,7 +35,7 @@ Route::prefix('v1')->group(function () {
 
     // Reviews (public read)
     Route::get('products/{slug}/videos', [ProductVideoController::class, 'index'])->middleware('throttle:60,1');
-    Route::get('products/{slug}/reviews', [ReviewController::class, 'index']);
+    Route::get('products/{slug}/reviews', [ReviewController::class, 'index'])->middleware('throttle:30,1');
 
     // Shipping (RajaOngkir)
     Route::get('shipping/provinces', [ShippingController::class, 'provinces'])->middleware('throttle:30,1');
@@ -91,8 +45,8 @@ Route::prefix('v1')->group(function () {
     Route::get('shipping/search', [ShippingController::class, 'search'])->middleware('throttle:30,1');
 
     // Auth - dengan rate limiting ketat untuk prevent brute force
-    Route::post('auth/register', [AuthController::class, 'register'])->middleware('throttle:10,1'); // 10 req/menit
-    Route::post('auth/login', [AuthController::class, 'login'])->middleware('throttle:10,1'); // 10 req/menit
+    Route::post('auth/register', [AuthController::class, 'register'])->middleware('throttle:5,1');   // 5 req/menit
+    Route::post('auth/login', [AuthController::class, 'login'])->middleware('throttle:5,1');         // 5 req/menit
     Route::post('auth/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:3,1'); // 3 req/menit
     Route::post('auth/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:5,1');
 

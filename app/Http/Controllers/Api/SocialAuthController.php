@@ -47,15 +47,18 @@ class SocialAuthController extends Controller
                 'avatar'    => $user->avatar ?? $googleUser->getAvatar(),
             ]);
         } else {
-            // Buat user baru
+            // Buat user baru — email_verified_at di-set via direct assignment
+            // karena tidak ada di $fillable (cegah bypass via mass assignment)
             $user = User::create([
-                'name'              => $googleUser->getName(),
-                'email'             => $googleUser->getEmail(),
-                'google_id'         => $googleUser->getId(),
-                'avatar'            => $googleUser->getAvatar(),
-                'email_verified_at' => now(), // Google sudah verifikasi email
-                'password'          => null,
+                'name'     => $googleUser->getName(),
+                'email'    => $googleUser->getEmail(),
+                'google_id'=> $googleUser->getId(),
+                'avatar'   => $googleUser->getAvatar(),
+                'password' => null,
             ]);
+            // Google sudah verifikasi email — set langsung, bukan via mass assignment
+            $user->email_verified_at = now();
+            $user->save();
         }
 
         // Hapus token lama, issue token baru
