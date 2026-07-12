@@ -580,43 +580,74 @@ async function submitOrder() {
         selectedDestination.value ? selectedDestination.value.label : '',
     ].filter(Boolean).join(', ')
 
-    try {
-        const payload = {
-            customer_name: form.customer_name,
-            customer_email: form.customer_email,
-            customer_phone: form.customer_phone,
-            shipping_address: fullAddress,
-            shipping_cache_key: shippingCacheKey.value,
-            shipping_courier: selectedShipping.value.courier,
-            shipping_service: selectedShipping.value.service,
-            payment_method: paymentMethod.value,
-            selected_bank: paymentMethod.value === 'bank_transfer' ? selectedBank.value : null,
-            coupon_code: null, // diarsipkan sementara — appliedCoupon.value?.code || null
-            items: checkoutItems.value.map(i => ({
-                    product_id: i.product_id,
-                    variant_id: i.variant_id || null,
-                    quantity: i.quantity,
-                })),
+    const payload = {
+        customer_name: form.customer_name,
+        customer_email: form.customer_email,
+        customer_phone: form.customer_phone,
+        shipping_address: fullAddress,
+        shipping_cache_key: shippingCacheKey.value,
+        shipping_courier: selectedShipping.value.courier,
+        shipping_service: selectedShipping.value.service,
+        payment_method: paymentMethod.value,
+        selected_bank: paymentMethod.value === 'bank_transfer' ? selectedBank.value : null,
+        coupon_code: null,
+        items: checkoutItems.value.map(i => ({
+            product_id: i.product_id,
+            variant_id: i.variant_id || null,
+            quantity: i.quantity,
+        })),
+    }
+
+    // Retry otomatis — max 3 percobaan dengan exponential backoff
+    // Tidak retry untuk error validasi (422) atau rate limit (429)
+    const maxRetries = 3
+    const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const res = await api.post('/orders', payload)
+            const orderData = res.data.order
+            const whatsappNumber = res.data.whatsapp_number
+            const whatsappMessage = res.data.whatsapp_message
+
+            clear()
+
+            if (whatsappNumber && whatsappMessage) {
+                const waUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`
+                window.open(waUrl, '_blank')
+            }
+
+            router.push(`/order/${orderData.order_number}`)
+            return // sukses, keluar dari loop
+
+        } catch (e) {
+            const status = e.response?.status
+            const msg = e.response?.data?.message
+
+            // Jangan retry untuk error validasi atau rate limit
+            if (status === 422) {
+                error.value = typeof msg === 'string' ? msg : 'Data tidak valid. Periksa kembali isian kamu.'
+                submitting.value = false
+                return
+            }
+
+            if (status === 429) {
+                error.value = 'Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.'
+                submitting.value = false
+                return
+            }
+
+            // Kalau sudah percobaan terakhir, tampilkan error
+            if (attempt === maxRetries) {
+                error.value = typeof msg === 'string' ? msg : 'Terjadi kesalahan. Coba lagi ya!'
+                submitting.value = false
+                return
+            }
+
+            // Exponential backoff: 1s, 2s sebelum retry berikutnya
+            error.value = `Koneksi bermasalah, mencoba ulang... (${attempt}/${maxRetries})`
+            await delay(attempt * 1000)
         }
-
-        const res = await api.post('/orders', payload)
-        const orderData = res.data.order
-        const whatsappNumber = res.data.whatsapp_number
-        const whatsappMessage = res.data.whatsapp_message
-
-        clear()
-
-        // Redirect ke WhatsApp dengan pesan otomatis
-        if (whatsappNumber && whatsappMessage) {
-            const waUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`
-            window.open(waUrl, '_blank')
-        }
-
-        router.push(`/order/${orderData.order_number}`)
-    } catch (e) {
-        const msg = e.response?.data?.message
-        error.value = typeof msg === 'string' ? msg : 'Terjadi kesalahan. Coba lagi ya!'
-        submitting.value = false
     }
 }
 </script>
