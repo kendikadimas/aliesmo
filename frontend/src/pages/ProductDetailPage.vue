@@ -303,6 +303,7 @@ const reviews = ref([])
 const reviewsLoading = ref(false)
 const avgRating = ref(0)
 const reviewsTotal = ref(0)
+const loading = ref(true)
 const notFound = ref(false)
 
 // Varian aktif saja
