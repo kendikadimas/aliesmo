@@ -7,7 +7,7 @@ use App\Models\Product;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -107,7 +107,10 @@ class ProductResource extends Resource
                     ]),
                 Section::make('Deskripsi')
                     ->schema([
-                        RichEditor::make('description'),
+                        Textarea::make('description')
+                            ->rows(6)
+                            ->autosize()
+                            ->columnSpanFull(),
                     ]),
                 Section::make('Video Produk')
                     ->description('Tambahkan video YouTube untuk produk ini. Video akan ditampilkan di halaman detail produk.')
