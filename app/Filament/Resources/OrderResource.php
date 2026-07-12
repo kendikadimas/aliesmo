@@ -146,7 +146,30 @@ class OrderResource extends Resource
                             ->required(),
                     ])
                     ->action(function (array $data, Order $record) {
-                        $record->update(['status' => OrderStatus::from($data['status'])]);
+                        $newStatus    = OrderStatus::from($data['status']);
+                        $prevStatus   = $record->status;
+                        $stockService = app(StockService::class);
+
+                        // Status yang dianggap sudah "terbayar" / stok harus dikurangi
+                        $paidStatuses = [
+                            OrderStatus::Paid,
+                            OrderStatus::Processing,
+                            OrderStatus::Shipped,
+                            OrderStatus::Completed,
+                        ];
+
+                        // Stok hanya dikurangi jika:
+                        // - Status sebelumnya belum pernah dikurangi (masih pending)
+                        // - Status baru masuk ke kategori paid/processing/shipped/completed
+                        $wasNotDecremented = !in_array($prevStatus, $paidStatuses);
+                        $shouldDecrement   = in_array($newStatus, $paidStatuses);
+
+                        if ($wasNotDecremented && $shouldDecrement) {
+                            $record->load('items');
+                            $stockService->decrementForOrder($record);
+                        }
+
+                        $record->update(['status' => $newStatus]);
 
                         // Kirim notifikasi email ke customer
                         try {
