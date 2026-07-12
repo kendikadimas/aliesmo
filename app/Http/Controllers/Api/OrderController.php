@@ -261,6 +261,7 @@ class OrderController extends Controller
             'created_at'       => $order->created_at,
             'items'            => $order->items->map(fn($i) => [
                 'product_name'  => $i->product_name,
+                'product_slug'  => $i->product?->slug,
                 'product_image' => $i->product?->thumbnail
                     ? (str_starts_with($i->product->thumbnail, 'http')
                         ? $i->product->thumbnail
