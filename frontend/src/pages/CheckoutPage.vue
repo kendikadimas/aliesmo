@@ -610,6 +610,12 @@ async function submitOrder() {
             const whatsappNumber = res.data.whatsapp_number
             const whatsappMessage = res.data.whatsapp_message
 
+            // Simpan lookup_token ke localStorage agar bisa akses order setelah
+            // kembali dari WhatsApp atau reload halaman (token berlaku 7 hari)
+            if (orderData?.lookup_token) {
+                localStorage.setItem(`order_token_${orderData.order_number}`, orderData.lookup_token)
+            }
+
             clear()
 
             if (whatsappNumber && whatsappMessage) {

@@ -437,7 +437,20 @@ onMounted(async () => {
         paymentInfo.value = res.data.payment_info || null
         whatsappNumber.value = res.data.whatsapp_number || ''
     } catch (e) {
-        // fallback ke sessionStorage jika API gagal (misal belum login)
+        // Fallback 1: coba pakai lookup_token dari localStorage (order milik user ini)
+        const savedToken = localStorage.getItem(`order_token_${route.params.orderNumber}`)
+        if (savedToken && e.response?.status === 403) {
+            try {
+                const res = await api.get(`/orders/token/${savedToken}`)
+                order.value = res.data.data || res.data
+                paymentInfo.value = res.data.payment_info || null
+                whatsappNumber.value = res.data.whatsapp_number || ''
+                loading.value = false
+                return
+            } catch {}
+        }
+
+        // Fallback 2: sessionStorage (data langsung dari response checkout)
         try {
             const stored = sessionStorage.getItem('lastOrder')
             if (stored) {
