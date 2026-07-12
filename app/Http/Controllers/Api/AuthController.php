@@ -50,6 +50,11 @@ class AuthController extends Controller
             return response()->json(['message' => 'Email atau password salah.'], 401);
         }
 
+        // Blokir admin dari login di frontend — arahkan ke admin panel
+        if ($user->role !== UserRole::Customer) {
+            return response()->json(['message' => 'Akun ini bukan akun pelanggan. Silakan login melalui halaman admin.'], 403);
+        }
+
         // Revoke semua token lama — cegah akumulasi token aktif (HIGH-2)
         $user->tokens()->delete();
 
