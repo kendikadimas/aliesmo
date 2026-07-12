@@ -104,6 +104,8 @@ class PengaturanSitus extends Page implements HasSchemas
                 Section::make('Statistik')
                     ->description('Angka-angka yang ditampilkan di halaman utama.')
                     ->columns(2)
+                    ->collapsible()
+                    ->collapsed()
                     ->schema([
                         TextInput::make('stat_kemeja_terjual')
                             ->label('Kemeja Terjual'),
