@@ -69,9 +69,19 @@
                             <p class="font-medium text-charcoal dark:text-[#f0eeeb] truncate">{{ item.product_name }}</p>
                             <p v-if="item.variant_name" class="text-xs text-charcoal/50 dark:text-[#6a6a6e] truncate">{{ item.variant_name }}</p>
                         </div>
-                        <div class="text-right shrink-0">
+                        <div class="text-right shrink-0 flex flex-col items-end gap-1">
                             <p class="font-bold text-charcoal dark:text-[#f0eeeb]">Rp{{ formatPrice(item.subtotal || item.price * item.quantity) }}</p>
                             <p class="text-xs text-charcoal/40 dark:text-[#6a6a6e]">×{{ item.quantity }}</p>
+                            <!-- Tombol review — hanya jika order completed & sudah login -->
+                            <button v-if="isCompleted && isLoggedIn && !reviewedProducts.has(item.product_slug)"
+                                @click="openReview(item)"
+                                class="text-[10px] font-semibold text-maroon dark:text-[#f0eeeb] border border-maroon-200 dark:border-[#303032] rounded-lg px-2 py-0.5 hover:bg-maroon hover:text-white dark:hover:bg-[#f0eeeb] dark:hover:text-[#161618] transition-colors">
+                                Beri Review
+                            </button>
+                            <span v-else-if="isCompleted && isLoggedIn && reviewedProducts.has(item.product_slug)"
+                                class="text-[10px] text-green-600 dark:text-green-400 font-semibold">
+                                ✓ Sudah direview
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -246,6 +256,53 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Review -->
+    <Teleport to="body">
+        <Transition name="fade">
+            <div v-if="reviewModal.open" class="fixed inset-0 z-50 flex items-center justify-center px-4" @click.self="reviewModal.open = false">
+                <div class="absolute inset-0 bg-black/50 dark:bg-black/70"></div>
+                <div class="relative w-full max-w-md bg-white dark:bg-[#1c1c1e] rounded-2xl border-2 border-maroon-50 dark:border-[#303032] p-6 shadow-2xl">
+                    <h3 class="text-sm font-bold text-charcoal dark:text-[#f0eeeb] tracking-wide mb-1">Beri Review</h3>
+                    <p class="text-xs text-charcoal/50 dark:text-[#8a8a8e] mb-4 truncate">{{ reviewModal.productName }}</p>
+
+                    <!-- Rating bintang -->
+                    <div class="mb-4">
+                        <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-2">Rating</label>
+                        <div class="flex gap-1">
+                            <button v-for="star in 5" :key="star" type="button"
+                                @click="reviewModal.rating = star"
+                                class="text-2xl transition-transform active:scale-110"
+                                :class="star <= reviewModal.rating ? 'text-amber-400' : 'text-charcoal/20 dark:text-[#303032]'">
+                                ★
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Komentar -->
+                    <div class="mb-4">
+                        <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Komentar <span class="font-normal">(opsional)</span></label>
+                        <textarea v-model="reviewModal.comment" rows="3" placeholder="Ceritakan pengalamanmu dengan produk ini..."
+                            class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-maroon focus:outline-none transition-colors resize-none"></textarea>
+                    </div>
+
+                    <div v-if="reviewModal.error" class="mb-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-xs">{{ reviewModal.error }}</div>
+                    <div v-if="reviewModal.success" class="mb-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 text-xs font-medium">Terima kasih! Review kamu sedang menunggu persetujuan.</div>
+
+                    <div class="flex gap-2">
+                        <button @click="reviewModal.open = false" type="button"
+                            class="flex-1 px-4 py-2.5 border-2 border-maroon-100 dark:border-[#303032] text-charcoal/60 dark:text-[#8a8a8e] text-sm font-semibold rounded-xl hover:border-maroon dark:hover:border-[#f0eeeb] transition-colors">
+                            Batal
+                        </button>
+                        <button @click="submitReview" :disabled="reviewModal.rating === 0 || reviewModal.submitting || reviewModal.success" type="button"
+                            class="flex-1 px-4 py-2.5 bg-maroon text-white dark:bg-[#f0eeeb] dark:text-[#161618] text-sm font-semibold rounded-xl hover:bg-maroon-600 dark:hover:bg-[#d0ceca] transition-all active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed">
+                            {{ reviewModal.submitting ? 'Mengirim...' : 'Kirim Review' }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+    </Teleport>
 </template>
 
 <script setup>
@@ -261,6 +318,57 @@ const paymentInfo = ref(null)
 const whatsappNumber = ref('')
 const loading = ref(true)
 const copied = ref(false)
+
+const isLoggedIn = !!localStorage.getItem('token')
+const isCompleted = computed(() => order.value?.status === 'completed')
+const reviewedProducts = ref(new Set())
+
+// Review modal state
+const reviewModal = ref({
+    open: false,
+    productName: '',
+    productSlug: '',
+    orderId: null,
+    rating: 0,
+    comment: '',
+    submitting: false,
+    error: '',
+    success: false,
+})
+
+function openReview(item) {
+    reviewModal.value = {
+        open: true,
+        productName: item.product_name,
+        productSlug: item.product_slug,
+        orderId: order.value?.id,
+        rating: 0,
+        comment: '',
+        submitting: false,
+        error: '',
+        success: false,
+    }
+}
+
+async function submitReview() {
+    if (reviewModal.value.rating === 0) return
+    reviewModal.value.submitting = true
+    reviewModal.value.error = ''
+    try {
+        await api.post(`/products/${reviewModal.value.productSlug}/reviews`, {
+            rating: reviewModal.value.rating,
+            comment: reviewModal.value.comment,
+            order_id: reviewModal.value.orderId,
+        })
+        reviewModal.value.success = true
+        reviewedProducts.value.add(reviewModal.value.productSlug)
+        setTimeout(() => { reviewModal.value.open = false }, 1800)
+    } catch (e) {
+        reviewModal.value.error = e.response?.data?.message || 'Gagal mengirim review. Coba lagi ya!'
+    } finally {
+        reviewModal.value.submitting = false
+    }
+}
 
 const trackUrl = computed(() => {
     if (!order.value?.lookup_token) return ''
@@ -320,7 +428,6 @@ function statusClass(status) {
 onMounted(async () => {
     try {
         // Kalau user login, pakai endpoint authenticated agar order yang sudah di-claim bisa diakses
-        const isLoggedIn = !!localStorage.getItem('token')
         const endpoint = isLoggedIn
             ? `/me/orders/${route.params.orderNumber}`
             : `/orders/${route.params.orderNumber}/status`
@@ -345,3 +452,8 @@ onMounted(async () => {
     }
 })
 </script>
+
+<style scoped>
+.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+</style>
