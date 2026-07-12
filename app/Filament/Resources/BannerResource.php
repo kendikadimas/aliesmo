@@ -114,6 +114,7 @@ class BannerResource extends Resource
 
                 ImageColumn::make('image_url')
                     ->label('Banner')
+                    ->disk('public')
                     ->height(48)
                     ->extraImgAttributes(['style' => 'object-fit:cover;border-radius:6px;aspect-ratio:2/1;width:96px']),
 
