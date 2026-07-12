@@ -64,7 +64,7 @@
                     <!-- Qty controls -->
                     <div class="flex items-center gap-2">
                         <button @click="decrease(item.cart_key)" class="w-8 h-8 rounded-lg border-2 border-maroon-200 dark:border-[#303032] flex items-center justify-center text-sm font-bold text-charcoal dark:text-[#d0ceca] hover:border-maroon hover:text-maroon dark:hover:text-[#f0eeeb] dark:hover:border-[#f0eeeb] transition-colors active:scale-95">−</button>
-                        <span class="w-8 text-center text-sm font-bold dark:text-[#f0eeeb]">{{ item.quantity }}</span>
+                        <span class="w-8 text-center text-sm font-bold text-charcoal dark:text-[#f0eeeb]">{{ item.quantity }}</span>
                         <button @click="updateQuantity(item.cart_key, item.quantity + 1)" class="w-8 h-8 rounded-lg border-2 border-maroon-200 dark:border-[#303032] flex items-center justify-center text-sm font-bold text-charcoal dark:text-[#d0ceca] hover:border-maroon hover:text-maroon dark:hover:text-[#f0eeeb] dark:hover:border-[#f0eeeb] transition-colors active:scale-95">+</button>
                     </div>
 
