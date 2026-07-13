@@ -112,7 +112,8 @@
                         </div>
 
                         <!-- Layanan Pengiriman - tampil otomatis setelah lokasi dipilih -->
-                        <div v-if="selectedCity">
+                        <!-- selectedCity bisa 0 jika Biteship result tanpa match Komerce, pakai selectedDestination sebagai guard -->
+                        <div v-if="selectedCity || selectedDestination">
                             <div v-if="loadingShipping" class="flex items-center gap-2 text-xs text-charcoal/50 dark:text-[#8a8a8e] py-3">
                                 <div class="w-4 h-4 border-2 border-maroon-100 border-t-maroon rounded-full animate-spin"></div>
                                 Mencari layanan pengiriman tersedia...
