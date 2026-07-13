@@ -556,7 +556,13 @@ async function fetchShippingCost() {
         if (!shippingOptions.value.length) {
             shippingError.value = 'Tidak ada layanan pengiriman tersedia untuk tujuan ini.'
         }
-    } catch {
+    } catch (err) {
+        const status  = err?.response?.status
+        const payload = err?.response?.data
+        console.error('[shipping] fetch error', status, payload)
+        if (status === 422) {
+            console.error('[shipping] 422 validation errors:', payload?.errors)
+        }
         shippingError.value = 'Gagal menghitung ongkir. Coba lagi.'
     } finally {
         loadingShipping.value = false
