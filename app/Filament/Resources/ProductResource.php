@@ -4,7 +4,7 @@ namespace App\Filament\Resources;
 use App\Enums\StockMovementType;
 use App\Filament\Resources\ProductResource\Pages;
 use App\Models\Product;
-use Filament\Tables\Actions\Action;
+use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
