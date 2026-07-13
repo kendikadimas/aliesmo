@@ -57,50 +57,41 @@
                             <!-- Image display -->
                             <img
                                 v-else
-                                :src="selectedMedia.type === 'variant-image'
-                                    ? selectedMedia.url
-                                    : (selectedMedia.index === 0 ? product.thumbnail : (product.images?.[selectedMedia.index - 1]?.path || product.thumbnail))"
+                                :src="allImages[selectedMedia.index]?.url ?? product.thumbnail"
                                 :alt="product.name"
                                 class="w-full h-full object-cover"
                             />
                         </div>
 
                         <!-- Thumbnails strip: videos first, then images -->
-                        <div v-if="product.videos?.length || product.images?.length" class="flex gap-2 mt-3 overflow-x-auto pb-1">
-                            <!-- Thumbnail image (first = product.thumbnail) -->
-                            <div
-                                class="w-14 h-14 shrink-0 bg-maroon-50 rounded-lg overflow-hidden border-2 cursor-pointer"
-                                :class="selectedMedia.type === 'image' && selectedMedia.index === 0 ? 'border-maroon' : 'border-transparent hover:border-maroon-200 dark:hover:border-[#f0eeeb]/40'"
-                                @click="selectedMedia = { type: 'image', index: 0 }"
-                            >
-                                <img :src="product.thumbnail" :alt="product.name" class="w-full h-full object-cover" />
-                            </div>
-
+                        <div v-if="product.videos?.length || allImages.length > 1" class="flex gap-2 mt-3 overflow-x-auto pb-1">
                             <!-- Video thumbnails -->
                             <div
                                 v-for="(vid, i) in product.videos"
                                 :key="`vid-${i}`"
-                                class="w-14 h-14 shrink-0 bg-zinc-800 rounded-lg overflow-hidden border-2 cursor-pointer relative"
+                                class="w-14 h-14 shrink-0 bg-maroon-50 rounded-lg overflow-hidden border-2 cursor-pointer relative"
                                 :class="selectedMedia.type === 'video' && selectedMedia.index === i ? 'border-maroon' : 'border-transparent hover:border-maroon-200 dark:hover:border-[#f0eeeb]/40'"
                                 @click="selectedMedia = { type: 'video', index: i }"
                             >
-                                <img :src="`https://img.youtube.com/vi/${getYoutubeVideoId(vid.youtube_url)}/mqdefault.jpg`" :alt="vid.title || `Video ${i + 1}`" class="w-full h-full object-cover" />
-                                <!-- Play icon overlay -->
-                                <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                                <img :src="`https://img.youtube.com/vi/${getYoutubeVideoId(vid.youtube_url)}/mqdefault.jpg`" :alt="vid.title || 'Video'" class="w-full h-full object-cover" />
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/30 rounded-lg">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                                 </div>
                             </div>
 
-                            <!-- Additional image thumbnails -->
+                            <!-- All image thumbnails (thumbnail + product gallery + variant images) -->
                             <div
-                                v-for="(img, i) in product.images"
+                                v-for="(img, i) in allImages"
                                 :key="`img-${i}`"
                                 class="w-14 h-14 shrink-0 bg-maroon-50 rounded-lg overflow-hidden border-2 cursor-pointer"
-                                :class="selectedMedia.type === 'image' && selectedMedia.index === i + 1 ? 'border-maroon' : 'border-transparent hover:border-maroon-200 dark:hover:border-[#f0eeeb]/40'"
-                                @click="selectedMedia = { type: 'image', index: i + 1 }"
+                                :class="selectedMedia.type === 'image' && selectedMedia.index === i ? 'border-maroon' : 'border-transparent hover:border-maroon-200 dark:hover:border-[#f0eeeb]/40'"
+                                @click="selectedMedia = { type: 'image', index: i }"
                             >
-                                <img :src="img.path" :alt="`${product.name} ${i + 1}`" class="w-full h-full object-cover" />
+                                <img :src="img.url" :alt="`${product.name} ${i}`" class="w-full h-full object-cover" />
                             </div>
+                        </div>
+                            <!-- Thumbnail image (first = product.thumbnail) -->
+                            <div
                         </div>
                     </div>
 
@@ -380,6 +371,42 @@ const wishlist       = ref(new Set())
 // ─── Media state ──────────────────────────────────────────────────────────────
 const selectedMedia  = ref({ type: 'image', index: 0 })
 
+// ─── Flat image list: thumbnail + product.images + unique variant images ───────
+// Each entry: { url: string, variantFirstVal: string|null }
+// variantFirstVal is used to auto-scroll when selecting a color/variant
+const allImages = computed(() => {
+    const imgs = []
+    const seen = new Set()
+
+    const push = (url, variantFirstVal = null) => {
+        if (!url || seen.has(url)) return
+        seen.add(url)
+        imgs.push({ url, variantFirstVal })
+    }
+
+    // 0: thumbnail
+    push(product.value?.thumbnail)
+
+    // 1+: product gallery images
+    for (const img of product.value?.images ?? []) {
+        push(img.path)
+    }
+
+    // Variant images — append at end, tagged with first attribute value
+    if (product.value?.variants) {
+        const firstLabel = attributeLabels.value[0] ?? null
+        for (const v of activeVariants.value) {
+            if (!v.image_url) continue
+            const firstVal = firstLabel
+                ? (v.parsed_attributes?.[firstLabel] ?? null)
+                : null
+            push(v.image_url, firstVal)
+        }
+    }
+
+    return imgs
+})
+
 // ─── SKU Matrix state ─────────────────────────────────────────────────────────
 // selectedOptions: { [attributeLabel]: value | null }
 const selectedOptions = ref({})
@@ -495,42 +522,37 @@ function selectOption(label, value) {
 }
 
 // ─── Image update based on selected variant or first attribute ────────────────
-// Priority 1: selected variant has its own image_url → use it as override
-// Priority 2: first attribute group maps positionally to product.images[]
+// Priority 1: selected complete variant has image_url → find its index in allImages
+// Priority 2: partial selection (first attr only) → find first variant image for that value
+// Priority 3: positional fallback to product gallery
 function updateImageForSelection() {
     if (!isMatrixMode.value) return
 
-    // If a complete variant is matched and it has its own image, show it
-    if (isSelectionComplete.value && selectedVariant.value?.image_url) {
-        selectedMedia.value = { type: 'variant-image', url: selectedVariant.value.image_url }
-        return
-    }
-
     const firstLabel = attributeLabels.value[0]
     const firstVal   = selectedOptions.value[firstLabel]
+
+    // Priority 1: complete selection with variant image
+    if (isSelectionComplete.value && selectedVariant.value?.image_url) {
+        const idx = allImages.value.findIndex(img => img.url === selectedVariant.value.image_url)
+        if (idx >= 0) { selectedMedia.value = { type: 'image', index: idx }; return }
+    }
+
     if (!firstVal) {
         selectedMedia.value = { type: 'image', index: 0 }
         return
     }
 
-    // Fallback: try to find any active variant matching the first attribute
-    // that has an image_url, regardless of other attributes
-    const variantWithImage = activeVariants.value.find(v => {
-        const attrs = v.parsed_attributes ?? { Varian: v.name }
-        return attrs[firstLabel] === firstVal && v.image_url
-    })
-    if (variantWithImage) {
-        selectedMedia.value = { type: 'variant-image', url: variantWithImage.image_url }
-        return
-    }
+    // Priority 2: any variant image tagged with this first attribute value
+    const idx = allImages.value.findIndex(img => img.variantFirstVal === firstVal)
+    if (idx >= 0) { selectedMedia.value = { type: 'image', index: idx }; return }
 
-    // Final fallback: positional mapping to product gallery images
+    // Priority 3: positional fallback to product gallery
     const uniqueFirstVals = attributeGroups.value[0]?.values ?? []
     const colorIndex = uniqueFirstVals.indexOf(firstVal)
     if (colorIndex >= 0) {
-        const imageCount = 1 + (product.value?.images?.length ?? 0)
+        const imageCount = allImages.value.length
         const imageIndex = Math.min(colorIndex + 1, imageCount - 1)
-        selectedMedia.value = { type: 'image', index: imageIndex > 0 ? imageIndex : 0 }
+        selectedMedia.value = { type: 'image', index: imageIndex }
     }
 }
 
