@@ -86,6 +86,7 @@ class ProductVariantResource extends JsonResource
             'is_active'         => $this->is_active,
             'sort_order'        => $this->sort_order,
             'parsed_attributes' => $this->parsedAttributes(),
+            'image_url'         => $this->image_url,
         ];
     }
 }

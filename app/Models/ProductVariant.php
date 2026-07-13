@@ -13,8 +13,14 @@ class ProductVariant extends Model
 
     protected $fillable = [
         'product_id', 'name', 'sku', 'price',
-        'stock', 'weight', 'is_active', 'sort_order',
+        'stock', 'weight', 'is_active', 'sort_order', 'image',
     ];
+
+    public function getImageUrlAttribute(): ?string
+    {
+        if (!$this->image) return null;
+        return asset('storage/' . $this->image);
+    }
 
     protected function casts(): array
     {

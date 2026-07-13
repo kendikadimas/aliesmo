@@ -209,6 +209,17 @@ class ProductResource extends Resource
                                     ->numeric()
                                     ->default(0)
                                     ->label('Urutan'),
+                                FileUpload::make('image')
+                                    ->image()
+                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                                    ->disk('public')
+                                    ->directory('variant-images')
+                                    ->imageCropAspectRatio('1:1')
+                                    ->imageResizeTargetWidth('600')
+                                    ->imageResizeTargetHeight('600')
+                                    ->nullable()
+                                    ->columnSpanFull()
+                                    ->label('Foto Varian (opsional)'),
                             ])
                             ->columns(2)
                             ->addActionLabel('+ Tambah Varian')

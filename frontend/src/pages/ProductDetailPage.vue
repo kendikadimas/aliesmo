@@ -57,7 +57,9 @@
                             <!-- Image display -->
                             <img
                                 v-else
-                                :src="selectedMedia.index === 0 ? product.thumbnail : (product.images?.[selectedMedia.index - 1]?.path || product.thumbnail)"
+                                :src="selectedMedia.type === 'variant-image'
+                                    ? selectedMedia.url
+                                    : (selectedMedia.index === 0 ? product.thumbnail : (product.images?.[selectedMedia.index - 1]?.path || product.thumbnail))"
                                 :alt="product.name"
                                 class="w-full h-full object-cover"
                             />
@@ -492,19 +494,37 @@ function selectOption(label, value) {
     variantError.value = ''
 }
 
-// ─── Image update based on selected first attribute ───────────────────────────
-// Convention: first attribute group is the "color" → maps to product images
+// ─── Image update based on selected variant or first attribute ────────────────
+// Priority 1: selected variant has its own image_url → use it as override
+// Priority 2: first attribute group maps positionally to product.images[]
 function updateImageForSelection() {
     if (!isMatrixMode.value) return
+
+    // If a complete variant is matched and it has its own image, show it
+    if (isSelectionComplete.value && selectedVariant.value?.image_url) {
+        selectedMedia.value = { type: 'variant-image', url: selectedVariant.value.image_url }
+        return
+    }
+
     const firstLabel = attributeLabels.value[0]
     const firstVal   = selectedOptions.value[firstLabel]
     if (!firstVal) {
         selectedMedia.value = { type: 'image', index: 0 }
         return
     }
-    // Find an image index associated with this value by scanning variant names
-    // Images are ordered: index 0 = thumbnail, index 1+ = product.images[n]
-    // We match the first attribute value to an image by its position among unique first-attr values
+
+    // Fallback: try to find any active variant matching the first attribute
+    // that has an image_url, regardless of other attributes
+    const variantWithImage = activeVariants.value.find(v => {
+        const attrs = v.parsed_attributes ?? { Varian: v.name }
+        return attrs[firstLabel] === firstVal && v.image_url
+    })
+    if (variantWithImage) {
+        selectedMedia.value = { type: 'variant-image', url: variantWithImage.image_url }
+        return
+    }
+
+    // Final fallback: positional mapping to product gallery images
     const uniqueFirstVals = attributeGroups.value[0]?.values ?? []
     const colorIndex = uniqueFirstVals.indexOf(firstVal)
     if (colorIndex >= 0) {
