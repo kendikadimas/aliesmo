@@ -11,7 +11,7 @@ return new class extends Migration
             [
                 'key'   => 'contact_whatsapp',
                 'label' => 'Nomor WhatsApp',
-                'value' => '6285196811722',
+                'value' => '628138883345',
                 'type'  => 'text',
                 'group' => 'general',
             ],

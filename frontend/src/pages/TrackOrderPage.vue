@@ -225,7 +225,7 @@ function reset() {
 }
 
 function payNow() {
-    const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '6285196811722'
+    const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '628138883345'
     let message = `Halo, saya ingin konfirmasi pembayaran:\n\n`
     message += `*Order #${order.value.order_number}*\n`
     message += `Total: Rp${formatPrice(order.value.total)}\n\n`
@@ -234,7 +234,7 @@ function payNow() {
 }
 
 function waLink(o) {
-    const number = import.meta.env.VITE_WHATSAPP_NUMBER || '6285196811722'
+    const number = import.meta.env.VITE_WHATSAPP_NUMBER || '628138883345'
     const msg = `Halo admin, saya ingin menanyakan pesanan saya:\n\n*No. Pesanan:* ${o.order_number}\n*Status:* ${statusLabel(o.status)}\n*Total:* Rp${formatPrice(o.total)}\n\nMohon bantuannya. Terima kasih!`
     return `https://wa.me/${number}?text=${encodeURIComponent(msg)}`
 }

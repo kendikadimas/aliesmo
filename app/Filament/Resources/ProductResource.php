@@ -4,7 +4,7 @@ namespace App\Filament\Resources;
 use App\Enums\StockMovementType;
 use App\Filament\Resources\ProductResource\Pages;
 use App\Models\Product;
-use Filament\Actions\Action;
+use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
@@ -76,6 +76,9 @@ class ProductResource extends Resource
                             ->disk('public')
                             ->directory('products')
                             ->visibility('public')
+                            ->imageCropAspectRatio('1:1')
+                            ->imageResizeTargetWidth('800')
+                            ->imageResizeTargetHeight('800')
                             ->label('Thumbnail'),
                     ]),
                 Section::make('Harga & Stok')
@@ -152,6 +155,9 @@ class ProductResource extends Resource
                                     ->disk('public')
                                     ->directory('products')
                                     ->visibility('public')
+                                    ->imageCropAspectRatio('1:1')
+                                    ->imageResizeTargetWidth('800')
+                                    ->imageResizeTargetHeight('800')
                                     ->required()
                                     ->label('Foto'),
                                 TextInput::make('sort_order')

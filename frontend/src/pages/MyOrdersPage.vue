@@ -218,7 +218,7 @@ function formatDate(dateString) {
 }
 
 function payNow(order) {
-    const whatsappNumber = get('whatsapp_number', import.meta.env.VITE_WHATSAPP_NUMBER || '6285196811722')
+    const whatsappNumber = get('whatsapp_number', import.meta.env.VITE_WHATSAPP_NUMBER || '628138883345')
     let message = `Halo, saya ingin konfirmasi pembayaran:\n\n`
     message += `*Order #${order.order_number}*\n`
     message += `Total: Rp${formatPrice(order.total)}\n\n`

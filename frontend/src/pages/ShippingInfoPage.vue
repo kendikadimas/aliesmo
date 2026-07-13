@@ -102,7 +102,7 @@ onMounted(async () => {
 
     // WA number dari settings, fallback ke env
     if (!waNumber.value) {
-        waNumber.value = get('whatsapp_number', '6285196811722')
+        waNumber.value = get('whatsapp_number', '628138883345')
     }
 
     // Couriers dari API

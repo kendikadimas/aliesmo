@@ -25,24 +25,27 @@ function itemKey(productId, variantId = null) {
 
 export function useCartStore() {
     function addItem(product, quantity = 1) {
-        const variantId = product.selectedVariant?.id || null
+        const variantId   = product.selectedVariant?.id || null
         const variantName = product.selectedVariant?.name || null
-        const price = product.selectedVariant?.price ?? product.price
-        const key = itemKey(product.id, variantId)
+        const price       = product.selectedVariant?.price ?? product.price
+        // Ambil weight dari varian jika ada, fallback ke weight produk, fallback 300g
+        const weight      = product.selectedVariant?.weight ?? product.weight ?? 300
+        const key         = itemKey(product.id, variantId)
 
         const existing = state.items.find(i => i.cart_key === key)
         if (existing) {
             existing.quantity += quantity
         } else {
             state.items.push({
-                cart_key: key,
-                product_id: product.id,
-                name: product.name,
-                slug: product.slug,
+                cart_key:     key,
+                product_id:   product.id,
+                name:         product.name,
+                slug:         product.slug,
                 price,
-                thumbnail: product.thumbnail,
+                weight,
+                thumbnail:    product.thumbnail,
                 quantity,
-                variant_id: variantId,
+                variant_id:   variantId,
                 variant_name: variantName,
             })
         }
@@ -54,10 +57,12 @@ export function useCartStore() {
 
     function updateQuantity(cartKey, quantity) {
         const item = state.items.find(i => i.cart_key === cartKey)
-        if (item) {
-            item.quantity = quantity
-            if (item.quantity <= 0) removeItem(cartKey)
+        if (!item) return
+        if (quantity <= 0) {
+            removeItem(cartKey) // removeItem sudah panggil save()
+            return
         }
+        item.quantity = quantity
         save()
     }
 

@@ -81,6 +81,21 @@ class BiteshipService
     }
 
     /**
+     * Return daftar kurir yang tersedia — format sama dengan RajaOngkirService::getAvailableCouriers().
+     */
+    public function getAvailableCouriers(): array
+    {
+        $couriers = [];
+        foreach (self::COURIER_NAMES as $code => $name) {
+            $couriers[] = [
+                'code' => $code,
+                'name' => $name,
+            ];
+        }
+        return $couriers;
+    }
+
+    /**
      * Ambil ongkir menggunakan Biteship Area ID — akurasi tertinggi.
      *
      * @throws \RuntimeException jika API gagal

@@ -321,7 +321,7 @@
                         </Transition>
                     </div>
 
-                    <button type="submit" :disabled="!selectedShipping && selectedCity !== ''" class="w-full mt-6 px-8 py-3.5 bg-maroon text-white dark:bg-[#f0eeeb] dark:text-[#161618] text-sm font-semibold rounded-xl hover:bg-maroon-600 dark:hover:bg-[#d0ceca] transition-all active:scale-[0.97] shadow-lg shadow-maroon/25 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <button type="submit" :disabled="submitting || !selectedShipping" class="w-full mt-6 px-8 py-3.5 bg-maroon text-white dark:bg-[#f0eeeb] dark:text-[#161618] text-sm font-semibold rounded-xl hover:bg-maroon-600 dark:hover:bg-[#d0ceca] transition-all active:scale-[0.97] shadow-lg shadow-maroon/25 disabled:opacity-50 disabled:cursor-not-allowed">
                         Pesan Sekarang
                     </button>
 
@@ -520,10 +520,15 @@ if (typeof window !== 'undefined') {
 
 onMounted(() => {
     fetchSettings()
+    if (!checkoutItems.value.length) {
+        router.replace('/cart')
+    }
 })
 
 async function fetchShippingCost() {
-    if (!selectedCity.value) return
+    // selectedCity bisa 0 jika Biteship result tanpa match Komerce — tetap fetch selama area_id atau postal_code ada
+    const dest = selectedDestination.value
+    if (!selectedCity.value && !dest?.area_id && !dest?.postal_code) return
     loadingShipping.value = true
     shippingError.value = ''
     shippingOptions.value = []
@@ -532,7 +537,7 @@ async function fetchShippingCost() {
         const dest = selectedDestination.value
         const res = await api.post('/shipping/cost', {
             destination: selectedCity.value,
-            weight: checkoutItems.value.reduce((sum, i) => sum + (i.weight || 300) * i.quantity, 0) || 500,
+            weight: checkoutItems.value.reduce((sum, i) => sum + (i.weight ?? 300) * i.quantity, 0) || 300,
             area_id:     dest?.area_id     || undefined,
             postal_code: dest?.postal_code || undefined,
         })

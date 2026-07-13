@@ -22,6 +22,8 @@ import SizeGuidePage from './pages/SizeGuidePage.vue'
 import TrackOrderPage from './pages/TrackOrderPage.vue'
 import EmailVerificationPage from './pages/EmailVerificationPage.vue'
 import AuthCallbackPage from './pages/AuthCallbackPage.vue'
+import BlogPage from './pages/BlogPage.vue'
+import ArticleDetailPage from './pages/ArticleDetailPage.vue'
 
 const routes = [
     { path: '/', name: 'home', component: HomePage },
@@ -32,6 +34,8 @@ const routes = [
     { path: '/checkout', name: 'checkout', component: CheckoutPage },
     { path: '/order/:orderNumber', name: 'order-confirmation', component: OrderConfirmationPage },
     { path: '/track-order', name: 'track-order', component: TrackOrderPage },
+    { path: '/blog', name: 'blog', component: BlogPage },
+    { path: '/blog/:slug', name: 'article-detail', component: ArticleDetailPage },
     { path: '/login', name: 'login', component: LoginPage },
     { path: '/register', name: 'register', component: RegisterPage },
     { path: '/orders', redirect: '/profile?tab=pesanan' },

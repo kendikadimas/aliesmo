@@ -59,6 +59,42 @@ Tidak ada akses SSH ke production. Opsi yang tersedia:
 
 ## Changelog
 
+### 2026-07-13 — Dynamic Product Variant Selection (SKU Matrix)
+
+**`app/Http/Resources/ProductVariantResource.php`**
+- Tambah field `parsed_attributes` pada response API varian
+- Parse `name` varian dengan separator ` / ` menjadi key-value atribut
+  - Contoh: `"Navy / S"` → `{ "Warna": "Navy", "Ukuran": "S" }`
+  - Flat name (`"S"`) → `{ "Varian": "S" }` (backward-compatible)
+- Auto-detect label atribut berdasarkan keyword warna dan ukuran umum (Navy, Hitam, S, M, L, XL, XXL, dll)
+- Fallback ke label posisional (`"Atribut 1"`, `"Atribut 2"`) jika keyword tidak dikenali
+
+**`frontend/src/pages/ProductDetailPage.vue`**
+- Tambah import `SkeletonLoader` yang sebelumnya hilang (bug fix — loading state tidak crash)
+- Refactor state management varian:
+  - `selectedOptions` — object `{ [label]: value }` untuk mencatat pilihan per atribut
+  - `isSelectionComplete` — boolean, true jika semua atribut sudah dipilih
+  - `isReadyToCart` — boolean, menggantikan `canAddToCart`
+  - `displayPriceMax` — untuk rentang harga min–max saat belum ada varian dipilih
+  - `maxQuantity` — batas quantity berdasarkan stok varian/produk yang aktif
+- Implementasi 3 fase interaksi:
+  - **Fase 1 (default):** tampil rentang harga min–max, total stok semua varian, quantity disabled
+  - **Fase 2 (parsial):** stok ter-filter berdasarkan atribut yang sudah dipilih, gambar update otomatis
+  - **Fase 3 (komplit):** harga & stok exact SKU, quantity enabled dengan max = stok varian, tombol aktif
+- Implementasi mode matrix vs flat:
+  - **Mode matrix** (nama varian mengandung `/`): tiap atribut tampil sebagai grup tombol terpisah
+  - **Mode flat** (nama tunggal, misal `S`/`M`/`L`): tampil seperti sebelumnya, backward-compatible
+- Disabled options: opsi dengan stok 0 dirender dengan `line-through + opacity rendah`, tidak bisa diklik
+- Auto-correction quantity: saat ganti pilihan dan stok baru lebih kecil dari quantity saat ini, quantity otomatis turun
+- Update gambar dinamis: saat atribut pertama (warna) dipilih, gambar utama otomatis ganti ke image yang sesuai posisi warna
+- Tombol CTA dinamis: menampilkan nama atribut yang belum dipilih (`"Pilih Warna Dulu"`, `"Pilih Ukuran Dulu"`)
+
+**`frontend/src/cart.js`**
+- Tambah field `weight` pada cart item — diambil dari `selectedVariant.weight ?? product.weight ?? 300`
+- Fix bug: sebelumnya `weight` tidak tersimpan di cart, menyebabkan ongkir selalu fallback ke 300g meskipun varian punya berat berbeda
+
+---
+
 ### 2026-07-11 — Tracking Resi & Info Pengiriman
 
 **`app/Filament/Resources/OrderResource.php`**

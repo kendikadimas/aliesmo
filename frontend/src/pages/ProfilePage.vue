@@ -412,7 +412,7 @@ async function savePassword() {
 }
 
 function waLink(order) {
-    const number = import.meta.env.VITE_WHATSAPP_NUMBER || '6285196811722'
+    const number = import.meta.env.VITE_WHATSAPP_NUMBER || '628138883345'
     const msg = `Halo admin, saya ingin menanyakan pesanan saya:\n\n*No. Pesanan:* ${order.order_number}\n*Status:* ${order.status}\n*Total:* Rp${formatPrice(order.total)}\n\nMohon bantuannya. Terima kasih!`
     return `https://wa.me/${number}?text=${encodeURIComponent(msg)}`
 }

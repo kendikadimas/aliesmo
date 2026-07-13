@@ -105,7 +105,7 @@ DB_USERNAME=root
 DB_PASSWORD=
 
 # WhatsApp admin toko
-WHATSAPP_NUMBER=6285196811722
+WHATSAPP_NUMBER=628138883345
 
 # Google OAuth
 GOOGLE_CLIENT_ID=
@@ -316,32 +316,84 @@ User bisa:
 Produk dapat memiliki varian yang dikelola dari Admin Panel > Produk.
 
 Data varian yang didukung:
-- Nama varian.
-- SKU varian.
-- Harga varian.
-- Stok varian.
-- Berat varian.
-- Status aktif/nonaktif.
-- Urutan tampil.
+- Nama varian (mendukung format flat `"S"` atau multi-atribut `"Navy / S"`)
+- SKU varian
+- Harga varian
+- Stok varian
+- Berat varian
+- Status aktif/nonaktif
+- Urutan tampil
+
+### Format Nama Varian
+
+Ada dua format yang didukung:
+
+**Format flat** — satu atribut tunggal:
+```
+S
+M
+L
+XL
+XXL
+```
+
+**Format multi-atribut (SKU Matrix)** — kombinasi atribut dipisah ` / ` (spasi-slash-spasi):
+```
+Navy / S
+Navy / M
+Navy / XL
+Putih / S
+Putih / M
+```
+
+Format multi-atribut akan otomatis dideteksi frontend dan ditampilkan sebagai grup tombol terpisah per atribut (misal: grup Warna dan grup Ukuran). Label atribut (`Warna`, `Ukuran`) di-infer otomatis dari keyword yang dikenali. Tidak ada perubahan schema database — cukup isi field `name` di repeater varian dengan format di atas.
+
+### Behavior di Storefront
 
 API produk memuat varian aktif pada endpoint:
 - `GET /api/v1/products`
 - `GET /api/v1/products/{slug}`
 
+Setiap varian pada response menyertakan field `parsed_attributes`:
+```json
+{
+  "id": 10,
+  "name": "Navy / S",
+  "price": 76900,
+  "stock": 1000,
+  "parsed_attributes": { "Warna": "Navy", "Ukuran": "S" }
+}
+```
+
 Frontend storefront memakai varian sebagai berikut:
-- Halaman detail produk menampilkan pilihan varian jika produk memiliki varian aktif.
-- Harga di detail produk berubah mengikuti varian yang dipilih.
-- Stok di detail produk berubah mengikuti varian yang dipilih.
-- Quantity dibatasi berdasarkan stok varian.
-- Tombol tambah ke keranjang menyimpan varian yang dipilih.
-- Cart membedakan produk yang sama dengan varian berbeda sebagai item terpisah.
-- Cart dan checkout menampilkan nama varian.
-- Checkout mengirim `variant_id` ke backend.
-- Backend memvalidasi bahwa `variant_id` benar-benar milik `product_id` yang dikirim.
-- Order item menyimpan `variant_id`, `variant_name`, harga varian, quantity, dan subtotal.
 
-Payload checkout item mendukung:
+**Fase 1 — Belum pilih varian:**
+- Harga tampil sebagai rentang min–max (`Rp50.000 – Rp76.900`)
+- Stok tampil sebagai total keseluruhan semua varian
+- Input quantity disabled
+- Tombol keranjang menampilkan atribut yang belum dipilih (`"Pilih Warna Dulu"`)
 
+**Fase 2 — Pilihan parsial (misal sudah pilih warna, belum pilih ukuran):**
+- Gambar utama produk berganti otomatis sesuai warna yang dipilih
+- Stok ter-filter ke total stok varian yang cocok dengan warna tersebut
+- Opsi ukuran yang stoknya 0 pada warna tersebut tampil disabled (dicoret)
+- Tombol keranjang tetap disabled
+
+**Fase 3 — Pilihan komplit (semua atribut dipilih):**
+- Harga berubah ke harga exact SKU tersebut
+- Stok berubah ke stok exact SKU tersebut
+- Input quantity di-enable, max = stok SKU
+- Jika quantity sebelumnya melebihi stok baru, otomatis di-koreksi turun
+- Tombol keranjang aktif
+
+**Cart dan checkout:**
+- Cart menyimpan `variant_id`, `variant_name`, `price`, dan `weight` varian
+- Produk yang sama dengan varian berbeda tersimpan sebagai item terpisah di cart
+- Checkout mengirim `variant_id` ke backend
+- Backend memvalidasi `variant_id` milik `product_id` yang benar, stok mencukupi, dan mengambil harga dari DB (tidak dari client)
+- Order item menyimpan `variant_id`, `variant_name`, harga varian, quantity, dan subtotal
+
+Payload checkout item:
 ```json
 {
   "product_id": 1,
@@ -352,7 +404,7 @@ Payload checkout item mendukung:
 
 Jika produk tidak memiliki varian, `variant_id` boleh `null` atau tidak dikirim.
 
-Catatan: UI varian hanya muncul jika admin sudah membuat varian aktif. Jika belum ada varian aktif, produk tetap memakai harga, stok, dan berat utama produk.
+Catatan: UI varian hanya muncul jika admin sudah membuat varian aktif. Jika belum ada varian aktif, produk memakai harga, stok, dan berat utama produk.
 
 ---
 
@@ -370,7 +422,7 @@ Cara mengubah nomor:
 1. Buka `/admin`.
 2. Masuk ke `Pengaturan Situs`.
 3. Edit setting `Nomor WhatsApp Admin` atau key `whatsapp_number`.
-4. Isi nomor dalam format internasional tanpa tanda plus, contoh `6285196811722`.
+4. Isi nomor dalam format internasional tanpa tanda plus, contoh `628138883345`.
 
 Jika setting tidak ada, backend fallback ke env `WHATSAPP_NUMBER`.
 
@@ -431,10 +483,17 @@ Bisa filter per kategori, search by nama, atau sort by harga.
 User klik produk, lihat foto (hover untuk gambar kedua), deskripsi, harga, stok.
 Tombol Tambah ke Keranjang akan trigger animasi fly-to-cart.
 
-Jika produk memiliki varian aktif:
-- User memilih varian terlebih dahulu.
-- Harga dan stok berubah sesuai varian.
-- Keranjang menyimpan varian sebagai item terpisah.
+Jika produk memiliki varian aktif dengan format multi-atribut (`"Navy / S"`):
+- Sistem otomatis masuk mode SKU Matrix — atribut tampil per grup (Warna, Ukuran)
+- Harga tampil sebagai rentang min–max sampai semua atribut dipilih
+- Gambar otomatis berganti saat atribut pertama (warna) dipilih
+- Opsi yang stoknya 0 dicoret dan tidak bisa diklik
+- Quantity baru bisa diisi setelah semua atribut dipilih
+- Auto-koreksi quantity jika pilihan diubah dan stok baru lebih kecil
+
+Jika produk memiliki varian aktif format flat (`"S"`, `"M"`, `"L"`):
+- Tombol varian tampil sebagai daftar tunggal seperti sebelumnya
+- Harga dan stok berubah sesuai varian yang dipilih
 
 ### 3. Keranjang
 
@@ -630,6 +689,7 @@ php artisan route:cache
 Hal yang masih perlu ditindaklanjuti:
 - Update `tests/Feature/OrderTest.php` agar sesuai flow checkout terbaru yang mewajibkan `shipping_cache_key`, `shipping_courier`, dan `shipping_service`.
 - Hapus atau update ekspektasi test payment callback lama yang masih mengharapkan status `410`.
-- Tambahkan data varian aktif dari admin atau seeder untuk menguji flow varian secara manual.
+- Tambahkan data varian aktif dari admin atau seeder untuk menguji flow varian secara manual — termasuk varian multi-atribut format `"Warna / Ukuran"` untuk menguji SKU Matrix.
 - Pastikan semua environment production sudah menjalankan seeder/settings terbaru agar `terms_sections` tersedia di Site Settings.
 - Jika admin panel juga perlu favicon/logo custom, tambahkan konfigurasi favicon pada Filament panel.
+- Pertimbangkan menambah helper di admin panel (hint teks atau tooltip) pada field `name` repeater varian untuk mengingatkan admin format `"Warna / Ukuran"` saat ingin menggunakan SKU Matrix.

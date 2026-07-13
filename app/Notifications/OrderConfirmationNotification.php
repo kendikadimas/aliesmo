@@ -64,6 +64,6 @@ class OrderConfirmationNotification extends Notification implements ShouldQueue
 
     private function getWhatsappNumber(): string
     {
-        return config('services.whatsapp.number', '6285196811722');
+        return config('services.whatsapp.number', '628138883345');
     }
 }

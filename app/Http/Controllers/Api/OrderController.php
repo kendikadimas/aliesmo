@@ -288,7 +288,7 @@ class OrderController extends Controller
 
     private function whatsappNumber(): string
     {
-        return (string) SiteSetting::get('whatsapp_number', config('services.whatsapp.number', '6285196811722'));
+        return (string) SiteSetting::get('whatsapp_number', config('services.whatsapp.number', '628138883345'));
     }
 
     private function maskEmail(string $email): string

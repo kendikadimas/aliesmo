@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\BannerController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CouponController;
@@ -23,6 +24,10 @@ Route::prefix('v1')->group(function () {
     Route::get('products', [ProductController::class, 'index'])->middleware('throttle:60,1');
     Route::get('products/{slug}', [ProductController::class, 'show'])->middleware('throttle:60,1');
     Route::get('categories', [CategoryController::class, 'index'])->middleware('throttle:60,1');
+
+    // Articles
+    Route::get('articles', [ArticleController::class, 'index'])->middleware('throttle:60,1')->name('api.articles.index');
+    Route::get('articles/{slug}', [ArticleController::class, 'show'])->middleware('throttle:60,1')->name('api.articles.show');
 
     // Orders - guest checkout
     Route::post('orders', [OrderController::class, 'store'])->middleware('throttle:10,1');

@@ -237,7 +237,7 @@ describe('CheckoutPage — Autocomplete Search', () => {
             data: {
                 manual: true,
                 message: 'Cek ongkir otomatis tidak tersedia.',
-                whatsapp: { number: '6285196811722', text: 'Halo Admin, tanya ongkir...' },
+                whatsapp: { number: '628138883345', text: 'Halo Admin, tanya ongkir...' },
             },
         })
 
@@ -259,7 +259,7 @@ describe('CheckoutPage — Autocomplete Search', () => {
         expect(wrapper.text()).toContain('Tanya Ongkir via WhatsApp')
         const waLink = wrapper.find('a[href*="wa.me"]')
         expect(waLink.exists()).toBe(true)
-        expect(waLink.attributes('href')).toContain('6285196811722')
+        expect(waLink.attributes('href')).toContain('628138883345')
         wrapper.unmount()
     })
 

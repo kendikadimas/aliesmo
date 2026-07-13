@@ -170,7 +170,7 @@ class SiteContentSeeder extends Seeder
             [
                 'key'   => 'contact_phone',
                 'label' => 'Nomor Telepon',
-                'value' => '+62 851-9681-1722',
+                'value' => '+62 813-888-3345',
                 'type'  => 'text',
                 'group' => 'general',
             ],
@@ -184,7 +184,7 @@ class SiteContentSeeder extends Seeder
             [
                 'key'   => 'whatsapp_number',
                 'label' => 'Nomor WhatsApp Admin',
-                'value' => '6285196811722',
+                'value' => '628138883345',
                 'type'  => 'text',
                 'group' => 'general',
             ],

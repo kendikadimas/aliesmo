@@ -121,10 +121,10 @@ class ShippingTest extends TestCase
         $response->assertJsonValidationErrors(['destination', 'weight']);
     }
 
-    public function test_cost_returns_results_from_komerce(): void
+    public function test_cost_returns_results_from_biteship(): void
     {
-        $this->mock(RajaOngkirService::class, function ($mock) {
-            $mock->shouldReceive('getAllShippingCosts')
+        $this->mock(BiteshipService::class, function ($mock) {
+            $mock->shouldReceive('getAllShippingCostsByAreaId')
                 ->andReturn([
                     [
                         'code'        => 'jne',
@@ -132,45 +132,7 @@ class ShippingTest extends TestCase
                         'service'     => 'REG',
                         'description' => 'Layanan Reguler',
                         'cost'        => 15000,
-                        'etd'         => '2-3',
-                        'source'      => 'komerce',
-                    ],
-                ]);
-        });
-
-        $response = $this->postJson('/api/v1/shipping/cost', [
-            'destination' => 152,
-            'weight'      => 500,
-        ]);
-
-        $response->assertStatus(200);
-        $response->assertJsonPath('source', 'komerce');
-        $response->assertJsonStructure([
-            'data' => [
-                '*' => ['code', 'courier', 'service', 'description', 'cost', 'etd'],
-            ],
-            'cache_key',
-            'source',
-        ]);
-    }
-
-    public function test_cost_falls_back_to_biteship_when_komerce_fails(): void
-    {
-        $this->mock(RajaOngkirService::class, function ($mock) {
-            $mock->shouldReceive('getAllShippingCosts')
-                ->andThrow(new \RuntimeException('RajaOngkir daily limit tercapai.'));
-        });
-
-        $this->mock(BiteshipService::class, function ($mock) {
-            $mock->shouldReceive('getAllShippingCostsByAreaId')
-                ->andReturn([
-                    [
-                        'code'        => 'jnt',
-                        'courier'     => 'J&T Express',
-                        'service'     => 'EZ',
-                        'description' => 'J&T EZ',
-                        'cost'        => 18000,
-                        'etd'         => '2-4 hari',
+                        'etd'         => '2-3 hari',
                         'source'      => 'biteship',
                     ],
                 ]);
@@ -184,16 +146,45 @@ class ShippingTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJsonPath('source', 'biteship');
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => ['code', 'courier', 'service', 'description', 'cost', 'etd'],
+            ],
+            'cache_key',
+            'source',
+        ]);
+    }
+
+    public function test_cost_via_postal_code_when_no_area_id(): void
+    {
+        $this->mock(BiteshipService::class, function ($mock) {
+            $mock->shouldReceive('getAllShippingCosts')
+                ->andReturn([
+                    [
+                        'code'        => 'sicepat',
+                        'courier'     => 'SiCepat',
+                        'service'     => 'REG',
+                        'description' => 'SiCepat Reguler',
+                        'cost'        => 12000,
+                        'etd'         => '2-3 hari',
+                        'source'      => 'biteship',
+                    ],
+                ]);
+        });
+
+        $response = $this->postJson('/api/v1/shipping/cost', [
+            'destination' => 152,
+            'weight'      => 500,
+            'postal_code' => '10110',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('source', 'biteship');
         $this->assertNotEmpty($response->json('data'));
     }
 
-    public function test_cost_returns_manual_whatsapp_when_all_providers_fail(): void
+    public function test_cost_returns_manual_whatsapp_when_biteship_fails(): void
     {
-        $this->mock(RajaOngkirService::class, function ($mock) {
-            $mock->shouldReceive('getAllShippingCosts')
-                ->andThrow(new \RuntimeException('Komerce gagal.'));
-        });
-
         $this->mock(BiteshipService::class, function ($mock) {
             $mock->shouldReceive('getAllShippingCostsByAreaId')
                 ->andThrow(new \RuntimeException('Biteship gagal.'));
@@ -219,8 +210,8 @@ class ShippingTest extends TestCase
     {
         $callCount = 0;
 
-        $this->mock(RajaOngkirService::class, function ($mock) use (&$callCount) {
-            $mock->shouldReceive('getAllShippingCosts')
+        $this->mock(BiteshipService::class, function ($mock) use (&$callCount) {
+            $mock->shouldReceive('getAllShippingCostsByAreaId')
                 ->andReturnUsing(function () use (&$callCount) {
                     $callCount++;
                     return [
@@ -230,17 +221,17 @@ class ShippingTest extends TestCase
                             'service'     => 'REG',
                             'description' => 'Layanan Reguler',
                             'cost'        => 15000,
-                            'etd'         => '2-3',
-                            'source'      => 'komerce',
+                            'etd'         => '2-3 hari',
+                            'source'      => 'biteship',
                         ],
                     ];
                 });
         });
 
         // Request pertama — hit API
-        $this->postJson('/api/v1/shipping/cost', ['destination' => 152, 'weight' => 500]);
+        $this->postJson('/api/v1/shipping/cost', ['destination' => 152, 'weight' => 500, 'area_id' => 'IDNP6IDNC152IDND1001']);
         // Request kedua — harusnya dari cache
-        $this->postJson('/api/v1/shipping/cost', ['destination' => 152, 'weight' => 500]);
+        $this->postJson('/api/v1/shipping/cost', ['destination' => 152, 'weight' => 500, 'area_id' => 'IDNP6IDNC152IDND1001']);
 
         $this->assertEquals(1, $callCount, 'API seharusnya hanya dipanggil sekali — request kedua dari cache.');
     }
