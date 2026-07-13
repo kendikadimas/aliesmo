@@ -143,8 +143,14 @@ class BiteshipService
 
         $data = $response->json();
 
+        Log::info('Biteship rates/area_id response', [
+            'success'       => $data['success'] ?? null,
+            'pricing_count' => count($data['pricing'] ?? []),
+            'error'         => $data['error'] ?? null,
+        ]);
+
         if (empty($data['success']) || empty($data['pricing'])) {
-            throw new \RuntimeException('Biteship tidak mengembalikan data harga.');
+            throw new \RuntimeException('Biteship tidak mengembalikan data harga: ' . ($data['error'] ?? 'pricing kosong'));
         }
 
         return $this->normalizePricing($data['pricing']);
@@ -198,8 +204,14 @@ class BiteshipService
 
         $data = $response->json();
 
+        Log::info('Biteship rates/postal response', [
+            'success'       => $data['success'] ?? null,
+            'pricing_count' => count($data['pricing'] ?? []),
+            'error'         => $data['error'] ?? null,
+        ]);
+
         if (empty($data['success']) || empty($data['pricing'])) {
-            throw new \RuntimeException('Biteship tidak mengembalikan data harga.');
+            throw new \RuntimeException('Biteship tidak mengembalikan data harga: ' . ($data['error'] ?? 'pricing kosong'));
         }
 
         return $this->normalizePricing($data['pricing']);
