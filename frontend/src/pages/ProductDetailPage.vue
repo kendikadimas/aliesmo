@@ -627,6 +627,7 @@ function selectFlatVariant(v) {
         if (quantity.value > v.stock) quantity.value = Math.max(1, v.stock)
     }
     variantError.value = ''
+    updateImageForSelection()
 }
 
 // ─── Cart action ──────────────────────────────────────────────────────────────
