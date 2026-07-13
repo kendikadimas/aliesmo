@@ -44,7 +44,7 @@
                 <div class="lg:flex lg:items-start lg:gap-8 xl:gap-12">
                     <div class="lg:sticky lg:top-24 lg:self-start w-full max-w-md mx-auto lg:mx-0 shrink-0">
                         <!-- Main media display -->
-                        <div class="aspect-[3/4] bg-maroon-50 rounded-xl overflow-hidden relative max-h-[420px] lg:max-h-[520px]">
+                        <div class="aspect-square bg-maroon-50 rounded-xl overflow-hidden relative max-h-[520px]">
                             <!-- Video embed -->
                             <iframe
                                 v-if="selectedMedia.type === 'video'"
