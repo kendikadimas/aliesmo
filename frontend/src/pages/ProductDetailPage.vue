@@ -523,15 +523,15 @@ function selectOption(label, value) {
 
 // ─── Image update based on selected variant or first attribute ────────────────
 // Priority 1: selected complete variant has image_url → find its index in allImages
-// Priority 2: partial selection (first attr only) → find first variant image for that value
+// Priority 2: partial selection → find first variant image for that first-attr value
 // Priority 3: positional fallback to product gallery
 function updateImageForSelection() {
-    if (!isMatrixMode.value) return
+    if (!hasVariants.value) return
 
-    const firstLabel = attributeLabels.value[0]
-    const firstVal   = selectedOptions.value[firstLabel]
+    const firstLabel = attributeLabels.value[0] ?? null
+    const firstVal   = firstLabel ? selectedOptions.value[firstLabel] : null
 
-    // Priority 1: complete selection with variant image
+    // Priority 1: complete selection — matched variant has its own image
     if (isSelectionComplete.value && selectedVariant.value?.image_url) {
         const idx = allImages.value.findIndex(img => img.url === selectedVariant.value.image_url)
         if (idx >= 0) { selectedMedia.value = { type: 'image', index: idx }; return }
@@ -542,9 +542,17 @@ function updateImageForSelection() {
         return
     }
 
-    // Priority 2: any variant image tagged with this first attribute value
-    const idx = allImages.value.findIndex(img => img.variantFirstVal === firstVal)
-    if (idx >= 0) { selectedMedia.value = { type: 'image', index: idx }; return }
+    // Priority 2: find any variant image tagged with this first-attr value
+    // Search directly in activeVariants in case allImages hasn't recomputed yet
+    const variantWithImg = activeVariants.value.find(v => {
+        if (!v.image_url) return false
+        const attrs = v.parsed_attributes ?? { Varian: v.name }
+        return firstLabel ? attrs[firstLabel] === firstVal : false
+    })
+    if (variantWithImg) {
+        const idx = allImages.value.findIndex(img => img.url === variantWithImg.image_url)
+        if (idx >= 0) { selectedMedia.value = { type: 'image', index: idx }; return }
+    }
 
     // Priority 3: positional fallback to product gallery
     const uniqueFirstVals = attributeGroups.value[0]?.values ?? []
