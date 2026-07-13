@@ -90,9 +90,6 @@
                                 <img :src="img.url" :alt="`${product.name} ${i}`" class="w-full h-full object-cover" />
                             </div>
                         </div>
-                            <!-- Thumbnail image (first = product.thumbnail) -->
-                            <div
-                        </div>
                     </div>
 
                     <div class="flex-1 min-w-0 max-w-md mx-auto lg:mx-0 lg:pt-0">
