@@ -538,8 +538,8 @@ async function fetchShippingCost() {
         const res = await api.post('/shipping/cost', {
             destination: selectedCity.value,
             weight: checkoutItems.value.reduce((sum, i) => sum + (i.weight ?? 300) * i.quantity, 0) || 300,
-            area_id:     dest?.area_id     || undefined,
-            postal_code: dest?.postal_code || undefined,
+            area_id:     dest?.area_id                          || undefined,
+            postal_code: dest?.postal_code != null ? String(dest.postal_code) : undefined,
         })
 
         // Handle manual fallback — semua provider gagal
