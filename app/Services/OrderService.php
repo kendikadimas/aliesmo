@@ -127,16 +127,11 @@ class OrderService
 
             $total = max(0, $subtotal - $couponDiscount + $shippingCost);
 
-            // Normalize nama kurir dari RajaOngkir ke format display
-            // Normalize kurir — cover kode mentah (jne, jnt) dan nama display (J&T Express, AnterAja, dll)
+            // Normalize kurir — cover kode mentah (jne, jnt) dan nama display (J&T Express, dll)
             $courierTracking = [
                 'JNE'           => 'https://jne.co.id/tracking-package',
                 'JNT Express'   => 'https://jet.co.id/track',
-                'SiCepat'       => 'https://www.sicepat.com/',
-                'Anteraja'      => 'https://anteraja.id/id/tracking',
-                'Ninja'         => 'https://www.ninjaxpress.co/en-id/tracking',
                 'Pos Indonesia' => 'https://www.posindonesia.co.id/id/tracking',
-                'Lion Parcel'   => 'https://lionparcel.com/track',
             ];
             // Map dari lowercase (kode atau nama display) ke canonical name
             $courierMap = [
@@ -145,17 +140,8 @@ class OrderService
                 'j&t'           => 'JNT Express',
                 'j&t express'   => 'JNT Express',
                 'jnt express'   => 'JNT Express',
-                'sicepat'       => 'SiCepat',
-                'anteraja'      => 'Anteraja',
-                'anterAja'      => 'Anteraja',
-                'ninja'         => 'Ninja',
-                'ninja express' => 'Ninja',
-                'ninja xpress'  => 'Ninja',
                 'pos'           => 'Pos Indonesia',
                 'pos indonesia' => 'Pos Indonesia',
-                'lion'          => 'Lion Parcel',
-                'lion parcel'   => 'Lion Parcel',
-                'lionparcel'    => 'Lion Parcel',
             ];
             $rawCourier  = strtolower(trim($customerData['shipping_courier'] ?? ''));
             $courierName = $courierMap[$rawCourier] ?? null;
