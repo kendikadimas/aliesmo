@@ -41,7 +41,7 @@
 
             <section>
                 <h2 class="text-base font-bold text-charcoal dark:text-[#f0eeeb] mb-3">8. Kontak</h2>
-                <p class="text-sm text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca] leading-relaxed">Pertanyaan terkait syarat & ketentuan? Hubungi kami via <span class="text-maroon font-medium">WhatsApp</span> atau email di <span class="text-maroon font-medium">admin@aliesmo.com</span></p>
+                <p class="text-sm text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca] leading-relaxed">Pertanyaan terkait syarat & ketentuan? Hubungi kami via <span class="text-maroon font-medium">WhatsApp</span> atau email di <span class="text-maroon font-medium">cs@aliesmo.id</span></p>
             </section>
         </div>
     </div>

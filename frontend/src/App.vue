@@ -311,7 +311,7 @@
                     <div>
                         <h4 class="text-sm font-semibold text-white mb-4">Kontak</h4>
                         <ul class="space-y-2 text-sm text-white/50">
-                            <li>{{ get('contact_email', 'hello@aliesmo.com') }}</li>
+                            <li>{{ get('contact_email', 'cs@aliesmo.id') }}</li>
                             <li>{{ get('contact_phone', '+62 813-888-3345') }}</li>
                             <li>{{ get('contact_address', 'Ulujami, Pemalang, Jawa Tengah') }}</li>
                         </ul>

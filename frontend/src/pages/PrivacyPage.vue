@@ -36,7 +36,7 @@
 
             <section>
                 <h2 class="text-base font-bold text-charcoal dark:text-[#f0eeeb] mb-3">6. Hubungi Kami</h2>
-                <p class="text-sm text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca] leading-relaxed">Pertanyaan tentang kebijakan privasi ini? Hubungi kami di <span class="text-maroon font-medium">admin@aliesmo.com</span></p>
+                <p class="text-sm text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca] leading-relaxed">Pertanyaan tentang kebijakan privasi ini? Hubungi kami di <span class="text-maroon font-medium">cs@aliesmo.id</span></p>
             </section>
         </div>
     </div>
