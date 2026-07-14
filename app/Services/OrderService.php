@@ -7,6 +7,7 @@ use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\ProductVariantSize;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -31,8 +32,10 @@ class OrderService
 
                 // Jika ada variant_id, validasi dan pakai stok + harga varian
                 $variant     = null;
+                $size        = null;
                 $itemPrice   = $product->price;
                 $variantName = null;
+                $sizeName    = null;
 
                 if (!empty($item['variant_id'])) {
                     $variant = ProductVariant::lockForUpdate()
@@ -46,10 +49,33 @@ class OrderService
                         );
                     }
 
-                    if ($variant->stock < $item['quantity']) {
-                        throw new \RuntimeException(
-                            "Insufficient stock for '{$product->name}' variant '{$variant->name}'. Available: {$variant->stock}, requested: {$item['quantity']}."
-                        );
+                    // Jika ada size_id, validasi size dan pakai stok size
+                    if (!empty($item['size_id'])) {
+                        $size = ProductVariantSize::lockForUpdate()
+                            ->where('id', $item['size_id'])
+                            ->where('variant_id', $variant->id)
+                            ->firstOrFail();
+
+                        if (!$size->is_active) {
+                            throw new \RuntimeException(
+                                "Size '{$size->name}' of variant '{$variant->name}' is not available."
+                            );
+                        }
+
+                        if ($size->stock < $item['quantity']) {
+                            throw new \RuntimeException(
+                                "Insufficient stock for '{$product->name}' {$variant->name} - {$size->name}. Available: {$size->stock}, requested: {$item['quantity']}."
+                            );
+                        }
+
+                        $sizeName = $size->name;
+                    } else {
+                        // Variant tanpa size — cek stok varian langsung
+                        if ($variant->stock < $item['quantity']) {
+                            throw new \RuntimeException(
+                                "Insufficient stock for '{$product->name}' variant '{$variant->name}'. Available: {$variant->stock}, requested: {$item['quantity']}."
+                            );
+                        }
                     }
 
                     $itemPrice   = $variant->price;
@@ -71,6 +97,8 @@ class OrderService
                     'product_name' => $product->name,
                     'variant_id'   => $variant?->id,
                     'variant_name' => $variantName,
+                    'size_id'      => $size?->id,
+                    'size_name'    => $sizeName,
                     'price'        => $itemPrice,
                     'quantity'     => $item['quantity'],
                     'subtotal'     => $lineSubtotal,

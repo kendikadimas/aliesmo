@@ -28,8 +28,10 @@ class ProductApiTest extends TestCase
     {
         $category = Category::factory()->create(['slug' => 'electronics']);
         $otherCategory = Category::factory()->create(['slug' => 'clothing']);
-        Product::factory(3)->create(['category_id' => $category->id, 'is_active' => true]);
-        Product::factory(5)->create(['category_id' => $otherCategory->id, 'is_active' => true]);
+        $products = Product::factory(3)->create(['is_active' => true]);
+        $products->each(fn($p) => $p->categories()->sync([$category->id]));
+        $otherProducts = Product::factory(5)->create(['is_active' => true]);
+        $otherProducts->each(fn($p) => $p->categories()->sync([$otherCategory->id]));
 
         $response = $this->getJson('/api/v1/products?category=electronics');
 

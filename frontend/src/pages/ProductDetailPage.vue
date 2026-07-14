@@ -1,17 +1,14 @@
 ﻿<template>
     <div class="min-h-screen bg-white dark:bg-[#161618]">
         <div v-if="loading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 lg:py-8">
-            <!-- back link placeholder -->
             <SkeletonLoader :loading="true" :radius="99" height="14px" width="80px" class="mb-4" />
             <div class="lg:flex lg:items-start lg:gap-8 xl:gap-12">
-                <!-- image column -->
                 <div class="w-full max-w-md mx-auto lg:mx-0 shrink-0">
-                    <SkeletonLoader :loading="true" :radius="12" height="100%" class="aspect-[3/4] max-h-[420px] lg:max-h-[520px] w-full" />
+                    <SkeletonLoader :loading="true" :radius="12" height="100%" class="aspect-square max-h-[420px] lg:max-h-[520px] w-full" />
                     <div class="flex gap-2 mt-3">
                         <SkeletonLoader v-for="t in 4" :key="t" :loading="true" :radius="8" height="64px" width="64px" />
                     </div>
                 </div>
-                <!-- info column -->
                 <div class="mt-6 lg:mt-0 flex-1 space-y-4">
                     <SkeletonLoader :loading="true" :radius="99" height="12px" width="80px" />
                     <SkeletonLoader :loading="true" :radius="8" height="32px" width="75%" />
@@ -45,7 +42,6 @@
                     <div class="lg:sticky lg:top-24 lg:self-start w-full max-w-md mx-auto lg:mx-0 shrink-0">
                         <!-- Main media display -->
                         <div class="aspect-square bg-maroon-50 rounded-xl overflow-hidden relative max-h-[520px]">
-                            <!-- Video embed -->
                             <iframe
                                 v-if="selectedMedia.type === 'video'"
                                 :src="getYoutubeEmbedUrl(product.videos[selectedMedia.index].youtube_url)"
@@ -54,7 +50,6 @@
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                 allowfullscreen
                             ></iframe>
-                            <!-- Image display -->
                             <img
                                 v-else
                                 :src="allImages[selectedMedia.index]?.url ?? product.thumbnail"
@@ -65,7 +60,6 @@
 
                         <!-- Thumbnails strip: videos first, then images -->
                         <div v-if="product.videos?.length || allImages.length > 1" class="flex gap-2 mt-3 overflow-x-auto pb-1">
-                            <!-- Video thumbnails -->
                             <div
                                 v-for="(vid, i) in product.videos"
                                 :key="`vid-${i}`"
@@ -79,7 +73,6 @@
                                 </div>
                             </div>
 
-                            <!-- All image thumbnails (thumbnail + product gallery + variant images) -->
                             <div
                                 v-for="(img, i) in allImages"
                                 :key="`img-${i}`"
@@ -103,7 +96,7 @@
                                 <span v-if="displayPriceMax" class="text-base font-semibold"> – Rp{{ formatPrice(displayPriceMax) }}</span>
                             </span>
                             <span v-if="product.original_price && !selectedVariant" class="text-xs text-charcoal/40 dark:text-[#6a6a6e] line-through">Rp{{ formatPrice(product.original_price) }}</span>
-                            <span v-if="hasVariants && !isSelectionComplete" class="text-[10px] text-charcoal/40 dark:text-[#6a6a6e]">mulai dari</span>
+                            <span v-if="hasVariants && !selectedVariant" class="text-[10px] text-charcoal/40 dark:text-[#6a6a6e]">mulai dari</span>
                         </div>
 
                         <!-- Stok -->
@@ -112,80 +105,77 @@
                             <span class="text-xs font-medium transition-colors" :class="displayStock > 0 ? 'text-ink-60 dark:text-[#8a8a8e]' : 'text-ink-40'">
                                 <template v-if="displayStock > 0">
                                     Tersedia
-                                    <span v-if="isSelectionComplete || selectedCount > 0">({{ displayStock }} pcs)</span>
+                                    <span v-if="isReadyToCart">({{ displayStock }} pcs)</span>
                                 </template>
                                 <template v-else>Stok habis kak :(</template>
                             </span>
                         </div>
 
-                        <!-- Deskripsi — full, di bawah harga -->
+                        <!-- Deskripsi -->
                         <div v-if="product.description" class="mt-4 pt-4 border-t border-ink-10 dark:border-[#303032]">
                             <div class="text-xs text-charcoal/60 dark:text-[#8a8a8e] leading-relaxed prose prose-xs max-w-none" v-html="product.description"></div>
                         </div>
 
-                        <!-- ── SKU MATRIX / VARIAN ── -->
+                        <!-- ── WARNA (VARIAN) ── -->
                         <div v-if="hasVariants" class="mt-4 pt-4 border-t border-ink-10 dark:border-[#303032] space-y-4">
-
-                            <!-- MODE: Multi-atribut (SKU Matrix) -->
-                            <template v-if="isMatrixMode">
-                                <div v-for="group in attributeGroups" :key="group.label">
-                                    <div class="flex items-center gap-2 mb-2">
-                                        <p class="text-[10px] font-semibold text-charcoal/50 dark:text-[#8a8a8e] uppercase tracking-wide">{{ group.label }}</p>
-                                        <span v-if="selectedOptions[group.label]" class="text-[10px] font-semibold text-charcoal dark:text-[#f0eeeb]">: {{ selectedOptions[group.label] }}</span>
-                                    </div>
-                                    <div class="flex flex-wrap gap-2">
-                                        <button
-                                            v-for="val in group.values"
-                                            :key="val"
-                                            @click="isOptionAvailable(group.label, val) && selectOption(group.label, val)"
-                                            :disabled="!isOptionAvailable(group.label, val)"
-                                            class="relative px-3 py-1.5 rounded-lg border-2 text-xs font-semibold transition-all active:scale-95 select-none"
-                                            :class="[
-                                                !isOptionAvailable(group.label, val)
-                                                    ? 'border-ink-10 dark:border-[#303032] text-charcoal/25 dark:text-[#f0eeeb]/20 cursor-not-allowed line-through'
-                                                    : selectedOptions[group.label] === val
-                                                        ? 'border-charcoal dark:border-[#f0eeeb] bg-charcoal dark:bg-[#f0eeeb] text-white dark:text-[#161618]'
-                                                        : 'border-maroon-100 dark:border-[#303032] text-charcoal dark:text-[#f0eeeb] hover:border-charcoal dark:hover:border-[#f0eeeb]'
-                                            ]"
-                                        >
-                                            {{ val }}
-                                        </button>
-                                    </div>
+                            <div>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <p class="text-[10px] font-semibold text-charcoal/50 dark:text-[#8a8a8e] uppercase tracking-wide">Warna</p>
+                                    <span v-if="selectedVariant" class="text-[10px] font-semibold text-charcoal dark:text-[#f0eeeb]">: {{ selectedVariant.name }}</span>
                                 </div>
-                            </template>
-
-                            <!-- MODE: Flat varian (nama tunggal, e.g. S/M/L/XL) -->
-                            <template v-else>
-                                <div>
-                                    <p class="text-[10px] font-semibold text-charcoal/50 dark:text-[#8a8a8e] uppercase tracking-wide mb-2">Varian</p>
-                                    <div class="flex flex-wrap gap-2">
-                                        <button
-                                            v-for="v in activeVariants"
-                                            :key="v.id"
-                                            @click="v.stock > 0 && selectFlatVariant(v)"
-                                            :disabled="v.stock === 0"
-                                            class="px-3 py-1.5 rounded-lg border-2 text-xs font-semibold transition-all active:scale-95"
-                                            :class="[
-                                                v.stock === 0
-                                                    ? 'border-ink-10 dark:border-[#303032] text-charcoal/25 dark:text-[#f0eeeb]/20 cursor-not-allowed line-through'
-                                                    : selectedVariant?.id === v.id
-                                                        ? 'border-charcoal dark:border-[#f0eeeb] bg-charcoal dark:bg-[#f0eeeb] text-white dark:text-[#161618]'
-                                                        : 'border-maroon-100 dark:border-[#303032] text-charcoal dark:text-[#f0eeeb] hover:border-charcoal dark:hover:border-[#f0eeeb]'
-                                            ]"
-                                        >
-                                            {{ v.name }}
-                                        </button>
-                                    </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <button
+                                        v-for="v in activeVariants"
+                                        :key="v.id"
+                                        @click="selectVariant(v)"
+                                        class="relative px-3 py-1.5 rounded-lg border-2 text-xs font-semibold transition-all active:scale-95 select-none"
+                                        :class="
+                                            selectedVariant?.id === v.id
+                                                ? 'border-charcoal dark:border-[#f0eeeb] bg-charcoal dark:bg-[#f0eeeb] text-white dark:text-[#161618]'
+                                                : 'border-maroon-100 dark:border-[#303032] text-charcoal dark:text-[#f0eeeb] hover:border-charcoal dark:hover:border-[#f0eeeb]'
+                                        "
+                                    >
+                                        {{ v.name }}
+                                    </button>
                                 </div>
-                            </template>
+                            </div>
 
-                            <!-- Hint: belum pilih semua atribut -->
-                            <p v-if="hasVariants && !isSelectionComplete && selectedCount === 0" class="text-[10px] text-charcoal/40 dark:text-[#6a6a6e]">
-                                Pilih {{ attributeGroups.map(g => g.label).join(' dan ') }} terlebih dahulu
+                            <!-- ── UKURAN (jika variant punya sizes) ── -->
+                            <div v-if="selectedVariant && availableSizes.length > 0">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <p class="text-[10px] font-semibold text-charcoal/50 dark:text-[#8a8a8e] uppercase tracking-wide">Ukuran</p>
+                                    <span v-if="selectedSize" class="text-[10px] font-semibold text-charcoal dark:text-[#f0eeeb]">: {{ selectedSize.name }}</span>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <button
+                                        v-for="s in availableSizes"
+                                        :key="s.id"
+                                        @click="s.stock > 0 && selectSize(s)"
+                                        :disabled="s.stock === 0"
+                                        class="px-3 py-1.5 rounded-lg border-2 text-xs font-semibold transition-all active:scale-95 select-none"
+                                        :class="[
+                                            s.stock === 0
+                                                ? 'border-ink-10 dark:border-[#303032] text-charcoal/25 dark:text-[#f0eeeb]/20 cursor-not-allowed line-through'
+                                                : selectedSize?.id === s.id
+                                                    ? 'border-charcoal dark:border-[#f0eeeb] bg-charcoal dark:bg-[#f0eeeb] text-white dark:text-[#161618]'
+                                                    : 'border-maroon-100 dark:border-[#303032] text-charcoal dark:text-[#f0eeeb] hover:border-charcoal dark:hover:border-[#f0eeeb]'
+                                        ]"
+                                    >
+                                        {{ s.name }}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Hint -->
+                            <p v-if="!selectedVariant" class="text-[10px] text-charcoal/40 dark:text-[#6a6a6e]">
+                                Pilih warna terlebih dahulu
+                            </p>
+                            <p v-else-if="availableSizes.length > 0 && !selectedSize" class="text-[10px] text-charcoal/40 dark:text-[#6a6a6e]">
+                                Pilih ukuran terlebih dahulu
                             </p>
                         </div>
 
-                        <!-- Jumlah — disabled saat belum pilih varian -->
+                        <!-- Jumlah -->
                         <div class="mt-4">
                             <p class="text-[10px] font-semibold mb-1.5 transition-colors" :class="isReadyToCart || !hasVariants ? 'text-charcoal/50 dark:text-[#8a8a8e]' : 'text-charcoal/25 dark:text-[#f0eeeb]/20'">Jumlah</p>
                             <div class="flex items-center gap-3">
@@ -204,7 +194,7 @@
                             </div>
                         </div>
 
-                        <!-- Error varian -->
+                        <!-- Error -->
                         <p v-if="variantError" class="mt-3 text-xs font-medium text-red-500 dark:text-red-400">{{ variantError }}</p>
 
                         <!-- Tombol keranjang -->
@@ -216,10 +206,10 @@
                                     ? 'bg-ink dark:bg-[#f0eeeb] text-white dark:text-[#161618] hover:bg-ink-60 dark:hover:bg-[#d0ceca] cursor-pointer'
                                     : 'bg-ink-10 dark:bg-[#303032] text-charcoal/40 dark:text-[#f0eeeb]/30 cursor-not-allowed active:scale-100'"
                             >
-                                <template v-if="displayStock === 0">Stok Habis</template>
-                                <template v-else-if="hasVariants && !isSelectionComplete">
-                                    Pilih {{ attributeGroups.find(g => !selectedOptions[g.label])?.label ?? 'Varian' }} Dulu
-                                </template>
+                                <template v-if="hasVariants && displayStock === 0 && isReadyToCart">Stok Habis</template>
+                                <template v-else-if="hasVariants && !selectedVariant">Pilih Warna Dulu</template>
+                                <template v-else-if="hasVariants && availableSizes.length > 0 && !selectedSize">Pilih Ukuran Dulu</template>
+                                <template v-else-if="hasVariants && selectedVariant && availableSizes.length === 0 && displayStock === 0">Stok Habis</template>
                                 <template v-else>Masukin ke Keranjang</template>
                             </button>
                             <button @click="toggleWishlist(product.id)" class="w-12 h-11 flex items-center justify-center rounded-xl border-2 transition-all active:scale-95" :class="isWishlisted(product.id) ? 'bg-ink-05 dark:bg-[#242426] border-ink dark:border-[#f0eeeb] text-ink dark:text-[#f0eeeb]' : 'border-ink-10 dark:border-[#303032] text-charcoal/50 dark:text-[#8a8a8e] hover:border-ink hover:text-ink dark:hover:border-[#f0eeeb] dark:hover:text-[#f0eeeb]'">
@@ -369,16 +359,14 @@ const wishlist       = ref(new Set())
 const selectedMedia  = ref({ type: 'image', index: 0 })
 
 // ─── Flat image list: thumbnail + product.images + unique variant images ───────
-// Each entry: { url: string, variantFirstVal: string|null }
-// variantFirstVal is used to auto-scroll when selecting a color/variant
 const allImages = computed(() => {
     const imgs = []
     const seen = new Set()
 
-    const push = (url, variantFirstVal = null) => {
+    const push = (url) => {
         if (!url || seen.has(url)) return
         seen.add(url)
-        imgs.push({ url, variantFirstVal })
+        imgs.push({ url })
     }
 
     // 0: thumbnail
@@ -389,27 +377,20 @@ const allImages = computed(() => {
         push(img.path)
     }
 
-    // Variant images — append at end, tagged with first attribute value
+    // Variant images — append at end
     if (product.value?.variants) {
-        const firstLabel = attributeLabels.value[0] ?? null
         for (const v of activeVariants.value) {
             if (!v.image_url) continue
-            const firstVal = firstLabel
-                ? (v.parsed_attributes?.[firstLabel] ?? null)
-                : null
-            push(v.image_url, firstVal)
+            push(v.image_url)
         }
     }
 
     return imgs
 })
 
-// ─── SKU Matrix state ─────────────────────────────────────────────────────────
-// selectedOptions: { [attributeLabel]: value | null }
-const selectedOptions = ref({})
-// Explicit matched variant (all attributes selected)
+// ─── Variant (warna) selection state ──────────────────────────────────────────
 const selectedVariant = ref(null)
-// quantity (orderQuantity)
+const selectedSize    = ref(null)
 const quantity        = ref(1)
 const variantError    = ref('')
 
@@ -420,145 +401,70 @@ const activeVariants = computed(() =>
 
 const hasVariants = computed(() => activeVariants.value.length > 0)
 
-// ─── SKU Matrix: extract attribute labels & values ────────────────────────────
-// e.g. [{ label: 'Warna', values: ['Navy','Putih'] }, { label: 'Ukuran', values: ['S','M','L'] }]
-const attributeGroups = computed(() => {
-    if (!hasVariants.value) return []
-    const map = new Map() // label -> Set of values
-    for (const v of activeVariants.value) {
-        const attrs = v.parsed_attributes ?? { Varian: v.name }
-        for (const [label, value] of Object.entries(attrs)) {
-            if (!map.has(label)) map.set(label, new Set())
-            map.get(label).add(value)
-        }
-    }
-    return Array.from(map.entries()).map(([label, valSet]) => ({
-        label,
-        values: Array.from(valSet),
-    }))
+// ─── Sizes untuk variant yang dipilih ─────────────────────────────────────────
+const availableSizes = computed(() => {
+    if (!selectedVariant.value) return []
+    return (selectedVariant.value.sizes ?? []).filter(s => s.is_active)
 })
 
-// Whether product uses multi-attribute (SKU matrix) or flat variants
-const isMatrixMode = computed(() => attributeGroups.value.length > 1)
-
-// All attribute labels
-const attributeLabels = computed(() => attributeGroups.value.map(g => g.label))
-
-// How many attributes need to be selected
-const totalAttributes = computed(() => attributeGroups.value.length)
-
-// Count of selected attributes
-const selectedCount = computed(() =>
-    Object.values(selectedOptions.value).filter(v => v !== null && v !== undefined).length
-)
-
-// All attributes selected?
-const isSelectionComplete = computed(() =>
-    totalAttributes.value > 0 && selectedCount.value === totalAttributes.value
-)
-
-// ─── Find variant matching current selectedOptions ────────────────────────────
-function findMatchingVariant(opts) {
-    return activeVariants.value.find(v => {
-        const attrs = v.parsed_attributes ?? { Varian: v.name }
-        return Object.entries(opts).every(([label, value]) => attrs[label] === value)
-    }) ?? null
-}
-
-// ─── Check if an option value is available given current partial selections ───
-// For a given attribute label + value, check if ANY variant exists that:
-//   - matches all already-selected other attributes
-//   - has this label=value
-//   - has stock > 0
-function isOptionAvailable(label, value) {
-    return activeVariants.value.some(v => {
-        const attrs = v.parsed_attributes ?? { Varian: v.name }
-        if (attrs[label] !== value) return false
-        // Check all OTHER already-selected options also match
-        for (const [otherLabel, otherValue] of Object.entries(selectedOptions.value)) {
-            if (otherLabel === label) continue
-            if (otherValue !== null && otherValue !== undefined && attrs[otherLabel] !== otherValue) return false
-        }
-        return v.stock > 0
-    })
-}
-
-// ─── Handle option click ──────────────────────────────────────────────────────
-function selectOption(label, value) {
-    const current = selectedOptions.value[label]
-    // Toggle off if already selected
-    if (current === value) {
-        selectedOptions.value = { ...selectedOptions.value, [label]: null }
-    } else {
-        selectedOptions.value = { ...selectedOptions.value, [label]: value }
-    }
-
-    // Re-resolve matched variant
-    if (isSelectionComplete.value) {
-        const matched = findMatchingVariant(selectedOptions.value)
-        selectedVariant.value = matched
-
-        // Auto-correct quantity if it exceeds new stock
-        if (matched && quantity.value > matched.stock) {
-            quantity.value = Math.max(1, matched.stock)
-        }
-
-        // Beri tahu user jika kombinasi tidak ditemukan
-        if (!matched) {
-            variantError.value = 'Kombinasi varian ini tidak tersedia.'
-        }
-        // Update display image if first attribute (assumed Warna) changed
-        updateImageForSelection()
-    } else {
+// ─── Select variant (warna) ──────────────────────────────────────────────────
+function selectVariant(v) {
+    if (selectedVariant.value?.id === v.id) {
+        // Toggle off
         selectedVariant.value = null
-        // Still update image on partial selection (first attribute = color)
-        updateImageForSelection()
+        selectedSize.value = null
+    } else {
+        selectedVariant.value = v
+        selectedSize.value = null
+        // Auto-select size jika cuma ada 1
+        const sizes = (v.sizes ?? []).filter(s => s.is_active)
+        if (sizes.length === 1 && sizes[0].stock > 0) {
+            selectedSize.value = sizes[0]
+        }
+        // Auto-correct quantity
+        const stock = effectiveStock(v, null)
+        if (quantity.value > stock) quantity.value = Math.max(1, stock)
     }
+    variantError.value = ''
+    updateImageForSelection()
+}
 
+// ─── Select size ─────────────────────────────────────────────────────────────
+function selectSize(s) {
+    if (selectedSize.value?.id === s.id) {
+        selectedSize.value = null
+    } else {
+        selectedSize.value = s
+        if (quantity.value > s.stock) quantity.value = Math.max(1, s.stock)
+    }
     variantError.value = ''
 }
 
-// ─── Image update based on selected variant or first attribute ────────────────
-// Priority 1: selected complete variant has image_url → find its index in allImages
-// Priority 2: partial selection → find first variant image for that first-attr value
-// Priority 3: positional fallback to product gallery
+// ─── Helper: effective stock for a variant+size combo ─────────────────────────
+function effectiveStock(variant, size) {
+    if (!variant) return product.value?.stock ?? 0
+    const sizes = (variant.sizes ?? []).filter(s => s.is_active)
+    if (sizes.length > 0) {
+        if (size) return size.stock
+        // No size selected — sum all sizes
+        return sizes.reduce((sum, s) => sum + (s.stock || 0), 0)
+    }
+    // Variant without sizes — use variant.stock for backward compat
+    return variant.stock ?? 0
+}
+
+// ─── Image update based on selected variant ───────────────────────────────────
 function updateImageForSelection() {
     if (!hasVariants.value) return
 
-    const firstLabel = attributeLabels.value[0] ?? null
-    const firstVal   = firstLabel ? selectedOptions.value[firstLabel] : null
-
-    // Priority 1: complete selection — matched variant has its own image
-    if (isSelectionComplete.value && selectedVariant.value?.image_url) {
+    // Priority 1: selected variant has image
+    if (selectedVariant.value?.image_url) {
         const idx = allImages.value.findIndex(img => img.url === selectedVariant.value.image_url)
         if (idx >= 0) { selectedMedia.value = { type: 'image', index: idx }; return }
     }
 
-    if (!firstVal) {
-        selectedMedia.value = { type: 'image', index: 0 }
-        return
-    }
-
-    // Priority 2: find any variant image tagged with this first-attr value
-    // Search directly in activeVariants in case allImages hasn't recomputed yet
-    const variantWithImg = activeVariants.value.find(v => {
-        if (!v.image_url) return false
-        const attrs = v.parsed_attributes ?? { Varian: v.name }
-        return firstLabel ? attrs[firstLabel] === firstVal : false
-    })
-    if (variantWithImg) {
-        const idx = allImages.value.findIndex(img => img.url === variantWithImg.image_url)
-        if (idx >= 0) { selectedMedia.value = { type: 'image', index: idx }; return }
-    }
-
-    // Priority 3: positional fallback to product gallery
-    const uniqueFirstVals = attributeGroups.value[0]?.values ?? []
-    const colorIndex = uniqueFirstVals.indexOf(firstVal)
-    if (colorIndex >= 0) {
-        const imageCount = allImages.value.length
-        const imageIndex = Math.min(colorIndex + 1, imageCount - 1)
-        selectedMedia.value = { type: 'image', index: imageIndex }
-    }
+    // Reset to thumbnail
+    selectedMedia.value = { type: 'image', index: 0 }
 }
 
 // ─── Display price ────────────────────────────────────────────────────────────
@@ -583,22 +489,21 @@ const displayPriceMax = computed(() => {
 
 // ─── Display stock ────────────────────────────────────────────────────────────
 const displayStock = computed(() => {
-    if (selectedVariant.value) return selectedVariant.value.stock
-
-    if (isMatrixMode.value && selectedCount.value > 0 && !isSelectionComplete.value) {
-        // Partial selection: sum stock of variants matching selected attrs so far
-        const partial = activeVariants.value.filter(v => {
-            const attrs = v.parsed_attributes ?? { Varian: v.name }
-            return Object.entries(selectedOptions.value).every(([label, value]) => {
-                if (value === null || value === undefined) return true
-                return attrs[label] === value
-            })
-        })
-        return partial.reduce((sum, v) => sum + (v.stock || 0), 0)
+    if (selectedVariant.value) {
+        return effectiveStock(selectedVariant.value, selectedSize.value)
     }
-
     if (hasVariants.value) {
-        return activeVariants.value.reduce((sum, v) => sum + (v.stock || 0), 0)
+        // Sum all stock across all variants and sizes
+        let total = 0
+        for (const v of activeVariants.value) {
+            const sizes = (v.sizes ?? []).filter(s => s.is_active)
+            if (sizes.length > 0) {
+                total += sizes.reduce((sum, s) => sum + (s.stock || 0), 0)
+            } else {
+                total += v.stock || 0
+            }
+        }
+        return total
     }
     return product.value?.stock ?? 0
 })
@@ -607,45 +512,45 @@ const displayStock = computed(() => {
 const isReadyToCart = computed(() => {
     if (!product.value) return false
     if (hasVariants.value) {
-        if (isMatrixMode.value) return isSelectionComplete.value && !!selectedVariant.value && selectedVariant.value.stock > 0
-        return !!selectedVariant.value && selectedVariant.value.stock > 0
+        if (!selectedVariant.value) return false
+        const sizes = availableSizes.value
+        if (sizes.length > 0) {
+            // Need size selection
+            return !!selectedSize.value && selectedSize.value.stock > 0
+        }
+        // No sizes — variant stock (backward compat)
+        return effectiveStock(selectedVariant.value, null) > 0
     }
     return (product.value?.stock ?? 0) > 0
 })
-
-// ─── Flat (non-matrix) variant select ────────────────────────────────────────
-function selectFlatVariant(v) {
-    if (selectedVariant.value?.id === v.id) {
-        selectedVariant.value = null
-        selectedOptions.value = {}
-    } else {
-        selectedVariant.value = v
-        selectedOptions.value = { Varian: v.name }
-        if (quantity.value > v.stock) quantity.value = Math.max(1, v.stock)
-    }
-    variantError.value = ''
-    updateImageForSelection()
-}
 
 // ─── Cart action ──────────────────────────────────────────────────────────────
 function addToCart() {
     if (!product.value) return
     if (hasVariants.value && !isReadyToCart.value) {
-        variantError.value = isSelectionComplete.value
-            ? 'Stok habis untuk pilihan ini'
-            : 'Pilih semua variasi dulu ya!'
+        if (!selectedVariant.value) {
+            variantError.value = 'Pilih warna dulu ya!'
+        } else if (availableSizes.value.length > 0 && !selectedSize.value) {
+            variantError.value = 'Pilih ukuran dulu ya!'
+        } else {
+            variantError.value = 'Stok habis untuk pilihan ini'
+        }
         return
     }
     variantError.value = ''
-    const item = selectedVariant.value
-        ? { ...product.value, selectedVariant: selectedVariant.value }
-        : product.value
+    const item = {
+        ...product.value,
+        selectedVariant: selectedVariant.value || null,
+        selectedSize: selectedSize.value || null,
+    }
     addItem(item, quantity.value)
 }
 
 // ─── Quantity controls ────────────────────────────────────────────────────────
 const maxQuantity = computed(() => {
-    if (selectedVariant.value) return selectedVariant.value.stock
+    if (selectedVariant.value) {
+        return effectiveStock(selectedVariant.value, selectedSize.value)
+    }
     return displayStock.value
 })
 
@@ -665,7 +570,7 @@ async function fetchProduct(slug) {
     quantity.value      = 1
     reviews.value       = []
     selectedVariant.value = null
-    selectedOptions.value = {}
+    selectedSize.value    = null
     variantError.value  = ''
 
     try {
@@ -678,7 +583,8 @@ async function fetchProduct(slug) {
             id: img.id, path: img.path, sort_order: img.sort_order,
         })))
         console.log('variants:', product.value?.variants?.map(v => ({
-            id: v.id, name: v.name, parsed_attributes: v.parsed_attributes, stock: v.stock
+            id: v.id, name: v.name, price: v.price, image_url: v.image_url,
+            sizes: v.sizes?.map(s => ({ id: s.id, name: s.name, stock: s.stock }))
         })))
         console.groupEnd()
 
@@ -722,11 +628,6 @@ onMounted(() => fetchProduct(route.params.slug))
 watch(() => route.params.slug, (slug) => { if (slug) fetchProduct(slug) })
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-const isDescriptionShort = computed(() => {
-    if (!product.value?.description) return true
-    return product.value.description.length < 150
-})
-
 function formatDate(dateString) {
     if (!dateString) return ''
     return new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(dateString))

@@ -15,7 +15,6 @@ class ProductFactory extends Factory
         $name = fake()->words(rand(2, 4), true);
 
         return [
-            'category_id' => Category::inRandomOrder()->first()?->id ?? Category::factory()->create()->id,
             'name' => ucfirst($name),
             'slug' => Str::slug($name),
             'sku' => 'SKU-' . strtoupper(fake()->unique()->bothify('???####')),
@@ -24,6 +23,16 @@ class ProductFactory extends Factory
             'stock' => fake()->randomElement([0, 2, 3, 5, 10, 15, 20, 25, 50, 100]),
             'is_active' => fake()->boolean(90),
         ];
+    }
+
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Product $product) {
+            if ($product->categories()->count() === 0) {
+                $category = Category::inRandomOrder()->first() ?? Category::factory()->create();
+                $product->categories()->attach($category->id);
+            }
+        });
     }
 
     public function inactive(): static

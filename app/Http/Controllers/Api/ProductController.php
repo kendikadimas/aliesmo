@@ -26,7 +26,11 @@ class ProductController extends Controller
         ]);
 
         try {
-            $products = Product::with(['categories', 'images', 'variants' => fn ($q) => $q->where('is_active', true)])
+            $products = Product::with(['categories', 'images', 'variants' => function ($q) {
+                    $q->where('is_active', true)->with(['sizes' => function ($sq) {
+                        $sq->where('is_active', true)->orderBy('sort_order');
+                    }]);
+                }])
                 ->withAvg(['reviews as avg_rating' => fn ($q) => $q->where('is_approved', true)], 'rating')
                 ->withCount(['reviews as reviews_count' => fn ($q) => $q->where('is_approved', true)])
                 ->where('is_active', true)
@@ -70,7 +74,11 @@ class ProductController extends Controller
         ]);
 
         try {
-            $product = Product::with(['categories', 'images', 'variants' => fn ($q) => $q->where('is_active', true), 'videos'])
+            $product = Product::with(['categories', 'images', 'variants' => function ($q) {
+                    $q->where('is_active', true)->with(['sizes' => function ($sq) {
+                        $sq->where('is_active', true)->orderBy('sort_order');
+                    }]);
+                }, 'videos'])
                 ->withAvg(['reviews as avg_rating' => fn ($q) => $q->where('is_approved', true)], 'rating')
                 ->withCount(['reviews as reviews_count' => fn ($q) => $q->where('is_approved', true)])
                 ->where('slug', $slug)

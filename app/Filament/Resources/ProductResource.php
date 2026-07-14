@@ -172,16 +172,16 @@ class ProductResource extends Resource
                             ->defaultItems(0)
                             ->itemLabel(fn (array $state): string => 'Image #' . (($state['sort_order'] ?? 0) + 1)),
                     ]),
-                Section::make('Varian')
-                    ->description('Tambahkan varian produk seperti ukuran (S, M, L, XL) atau warna. Setiap varian bisa punya harga dan stok berbeda. Jika produk tidak punya varian, kosongkan bagian ini.')
+                Section::make('Varian (Warna) & Ukuran')
+                    ->description('Tambahkan varian warna produk. Setiap warna bisa punya ukuran (S, M, L, XL) dengan stok masing-masing. Jika produk tidak punya varian, kosongkan bagian ini.')
                     ->schema([
                         Repeater::make('variants')
                             ->relationship('variants')
                             ->schema([
                                 TextInput::make('name')
                                     ->required()
-                                    ->placeholder('Contoh: S, M, L, XL, Merah, Biru...')
-                                    ->label('Nama Varian'),
+                                    ->placeholder('Contoh: Merah, Biru, Navy...')
+                                    ->label('Nama Warna'),
                                 TextInput::make('sku')
                                     ->nullable()
                                     ->unique('product_variants', 'sku', ignoreRecord: true)
@@ -192,11 +192,6 @@ class ProductResource extends Resource
                                     ->numeric()
                                     ->prefix('Rp ')
                                     ->label('Harga'),
-                                TextInput::make('stock')
-                                    ->required()
-                                    ->numeric()
-                                    ->default(0)
-                                    ->label('Stok'),
                                 TextInput::make('weight')
                                     ->numeric()
                                     ->suffix('gram')
@@ -219,14 +214,52 @@ class ProductResource extends Resource
                                     ->imageResizeTargetHeight('600')
                                     ->nullable()
                                     ->columnSpanFull()
-                                    ->label('Foto Varian (opsional)'),
+                                    ->label('Foto Warna (opsional)'),
+
+                                // Nested sizes repeater
+                                Repeater::make('sizes')
+                                    ->relationship('sizes')
+                                    ->schema([
+                                        TextInput::make('name')
+                                            ->required()
+                                            ->placeholder('S, M, L, XL, XXL...')
+                                            ->label('Ukuran'),
+                                        TextInput::make('stock')
+                                            ->required()
+                                            ->numeric()
+                                            ->default(0)
+                                            ->label('Stok'),
+                                        TextInput::make('sku')
+                                            ->nullable()
+                                            ->unique('product_variant_sizes', 'sku', ignoreRecord: true)
+                                            ->label('SKU'),
+                                        TextInput::make('weight')
+                                            ->numeric()
+                                            ->suffix('gram')
+                                            ->placeholder('Override berat')
+                                            ->label('Berat (opsional)'),
+                                        Toggle::make('is_active')
+                                            ->default(true)
+                                            ->label('Aktif'),
+                                        TextInput::make('sort_order')
+                                            ->numeric()
+                                            ->default(0)
+                                            ->label('Urutan'),
+                                    ])
+                                    ->columns(3)
+                                    ->addActionLabel('+ Tambah Ukuran')
+                                    ->reorderable('sort_order')
+                                    ->collapsible()
+                                    ->defaultItems(0)
+                                    ->itemLabel(fn (array $state): string => $state['name'] ?? 'Ukuran Baru')
+                                    ->columnSpanFull(),
                             ])
                             ->columns(2)
-                            ->addActionLabel('+ Tambah Varian')
+                            ->addActionLabel('+ Tambah Warna')
                             ->reorderable('sort_order')
                             ->collapsible()
                             ->defaultItems(0)
-                            ->itemLabel(fn (array $state): string => $state['name'] ?? 'Varian Baru'),
+                            ->itemLabel(fn (array $state): string => $state['name'] ?? 'Warna Baru'),
                     ]),
             ]);
     }

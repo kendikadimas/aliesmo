@@ -38,6 +38,11 @@ class ProductVariant extends Model
         return $this->belongsTo(Product::class);
     }
 
+    public function sizes(): HasMany
+    {
+        return $this->hasMany(ProductVariantSize::class, 'variant_id')->orderBy('sort_order');
+    }
+
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class, 'variant_id');

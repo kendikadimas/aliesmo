@@ -175,7 +175,7 @@
                             <!-- Info -->
                             <div class="flex-1 min-w-0">
                                 <p class="text-xs font-semibold text-charcoal dark:text-[#f0eeeb] truncate">{{ item.name }}</p>
-                                <p v-if="item.variant_name" class="text-[10px] text-charcoal/50 dark:text-[#6a6a6e] truncate">{{ item.variant_name }}</p>
+                                <p v-if="item.variant_name || item.size_name" class="text-[10px] text-charcoal/50 dark:text-[#6a6a6e] truncate">{{ [item.variant_name, item.size_name].filter(Boolean).join(' - ') }}</p>
                                 <p class="text-[10px] text-charcoal/40 dark:text-[#6a6a6e] mt-0.5">Rp{{ formatPrice(item.price) }} × {{ item.quantity }}</p>
                             </div>
                             <!-- Subtotal -->
@@ -606,6 +606,7 @@ async function submitOrder() {
         items: checkoutItems.value.map(i => ({
             product_id: i.product_id,
             variant_id: i.variant_id || null,
+            size_id: i.size_id || null,
             quantity: i.quantity,
         })),
     }

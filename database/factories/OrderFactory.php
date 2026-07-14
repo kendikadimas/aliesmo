@@ -15,7 +15,7 @@ class OrderFactory extends Factory
         $shipping = fake()->randomFloat(2, 0, 50000);
 
         return [
-            'order_number' => 'ORD-' . now()->format('Ymd') . '-' . str_pad((string) fake()->unique()->randomNumber(4), 4, '0', STR_PAD_LEFT),
+            'order_number' => 'ORD-' . now()->format('Ymd') . '-' . str_pad((string) fake()->unique()->randomNumber(4), 4, '0', STR_PAD_LEFT) . '-' . strtoupper(fake()->bothify('???')),
             'customer_name' => fake()->name(),
             'customer_email' => fake()->email(),
             'customer_phone' => fake()->phoneNumber(),
