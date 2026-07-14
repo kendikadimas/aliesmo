@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 use App\Enums\OrderStatus;
 use App\Filament\Resources\OrderResource\Pages;
 use App\Models\Order;
+use App\Services\OrderService;
 use App\Services\StockService;
 use App\Enums\StockMovementType;
 use App\Notifications\OrderStatusUpdatedNotification;
@@ -89,6 +90,25 @@ class OrderResource extends Resource
                             ->url(fn (?string $state): ?string => $state)
                             ->openUrlInNewTab()
                             ->placeholder('Belum diinput'),
+                        TextEntry::make('biteship_order_id')
+                            ->label('Biteship Order ID')
+                            ->placeholder('-')
+                            ->copyable(),
+                        TextEntry::make('biteship_waybill_id')
+                            ->label('Biteship Waybill')
+                            ->placeholder('-'),
+                        TextEntry::make('biteship_status')
+                            ->label('Status Biteship')
+                            ->badge()
+                            ->color(fn (?string $state): string => match ($state) {
+                                'confirmed' => 'info',
+                                'picking', 'picked' => 'warning',
+                                'dropping', 'dropped' => 'success',
+                                'delivered' => 'success',
+                                'returned', 'cancelled' => 'danger',
+                                default => 'gray',
+                            })
+                            ->placeholder('-'),
                     ])->columns(3),
                 Section::make('Item Pesanan')
                     ->schema([
@@ -128,10 +148,40 @@ class OrderResource extends Resource
                 TextColumn::make('status')->label('Status')->badge()->sortable(),
                 TextColumn::make('payment_method')->label('Metode Bayar'),
                 TextColumn::make('tracking_number')->label('No. Resi')->searchable()->toggleable(),
+                TextColumn::make('biteship_status')->label('Biteship')->badge()
+                    ->color(fn (?string $state): string => match ($state) {
+                        'confirmed' => 'info',
+                        'picking', 'picked' => 'warning',
+                        'dropping', 'dropped' => 'success',
+                        'delivered' => 'success',
+                        'returned', 'cancelled' => 'danger',
+                        default => 'gray',
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')->label('Tanggal')->dateTime()->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([
+                Action::make('confirmPayment')
+                    ->label('Konfirmasi Pembayaran')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Konfirmasi Pembayaran')
+                    ->modalDescription('Konfirmasi pembayaran order ini? Stok akan dikurangi dan order pengiriman Biteship akan dibuat otomatis.')
+                    ->modalSubmitActionLabel('Ya, Konfirmasi')
+                    ->action(function (Order $record) {
+                        $orderService = app(OrderService::class);
+                        $orderService->markAsPaid($record, $record->payment_method ?? 'bank_transfer');
+                        
+                        \Filament\Notifications\Notification::make()
+                            ->title('Pembayaran dikonfirmasi')
+                            ->body("Order #{$record->order_number} sudah dibayar. Order Biteship sedang diproses.")
+                            ->success()
+                            ->send();
+                    })
+                    ->hidden(fn (Order $record): bool => $record->status !== OrderStatus::Pending),
+
                 Action::make('updateStatus')
                     ->label('Ubah Status')
                     ->icon('heroicon-o-arrow-path')
