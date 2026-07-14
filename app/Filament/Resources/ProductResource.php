@@ -69,14 +69,23 @@ class ProductResource extends Resource
                             ->default([])
                             ->label('Kategori'),
                         Toggle::make('is_active'),
-                         FileUpload::make('thumbnail')
+                         Select::make('thumbnail_ratio')
+                            ->options([
+                                '1:1' => '1:1 (Persegi)',
+                                '3:4' => '3:4 (Portrait)',
+                            ])
+                            ->default('1:1')
+                            ->live()
+                            ->dehydrated(false)
+                            ->label('Rasio Thumbnail'),
+                        FileUpload::make('thumbnail')
                             ->image()
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                             ->maxSize(10240) // 10MB
                             ->disk('public')
                             ->directory('products')
                             ->visibility('public')
-                            ->imageCropAspectRatio('1:1')
+                            ->imageCropAspectRatio(fn ($state, $get) => $get('thumbnail_ratio') ?? '1:1')
                             ->imageResizeTargetWidth('800')
                             ->imageResizeTargetHeight('800')
                             ->label('Thumbnail'),
@@ -148,6 +157,15 @@ class ProductResource extends Resource
                         Repeater::make('images')
                             ->relationship('images')
                             ->schema([
+                                Select::make('image_ratio')
+                                    ->options([
+                                        '1:1' => '1:1 (Persegi)',
+                                        '3:4' => '3:4 (Portrait)',
+                                    ])
+                                    ->default('1:1')
+                                    ->live()
+                                    ->dehydrated(false)
+                                    ->label('Rasio'),
                                 FileUpload::make('path')
                                     ->image()
                                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
@@ -155,7 +173,7 @@ class ProductResource extends Resource
                                     ->disk('public')
                                     ->directory('products')
                                     ->visibility('public')
-                                    ->imageCropAspectRatio('1:1')
+                                    ->imageCropAspectRatio(fn ($state, $get) => $get('image_ratio') ?? '1:1')
                                     ->imageResizeTargetWidth('800')
                                     ->imageResizeTargetHeight('800')
                                     ->required()
@@ -204,12 +222,21 @@ class ProductResource extends Resource
                                     ->numeric()
                                     ->default(0)
                                     ->label('Urutan'),
+                                Select::make('variant_image_ratio')
+                                    ->options([
+                                        '1:1' => '1:1 (Persegi)',
+                                        '3:4' => '3:4 (Portrait)',
+                                    ])
+                                    ->default('1:1')
+                                    ->live()
+                                    ->dehydrated(false)
+                                    ->label('Rasio Foto'),
                                 FileUpload::make('image')
                                     ->image()
                                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                                     ->disk('public')
                                     ->directory('variant-images')
-                                    ->imageCropAspectRatio('1:1')
+                                    ->imageCropAspectRatio(fn ($state, $get) => $get('variant_image_ratio') ?? '1:1')
                                     ->imageResizeTargetWidth('600')
                                     ->imageResizeTargetHeight('600')
                                     ->nullable()
