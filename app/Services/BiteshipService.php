@@ -252,4 +252,110 @@ class BiteshipService
 
         return $results;
     }
+
+    /**
+     * Buat order pengiriman di Biteship.
+     * Dipanggil setelah order dibayar (paid) agar saldo Biteship tidak terpotong jika order dibatalkan.
+     *
+     * @param array $params [
+     *     'order_number'       => string,
+     *     'customer_name'      => string,
+     *     'customer_phone'     => string,
+     *     'customer_email'     => string,
+     *     'shipping_address'   => string,
+     *     'shipping_area_id'   => string (Biteship area_id),
+     *     'courier_company'    => string (jne, jnt, pos),
+     *     'courier_type'       => string (reg, express, dll),
+     *     'items'              => array [['name', 'value', 'quantity', 'weight'], ...],
+     * ]
+     * @return array ['biteship_order_id', 'tracking_id', 'waybill_id', 'status', 'price']
+     * @throws \RuntimeException jika gagal
+     */
+    public function createOrder(array $params): array
+    {
+        if (!$this->isAvailable()) {
+            throw new \RuntimeException('Biteship API key tidak dikonfigurasi.');
+        }
+
+        // Map courier code ke company name Biteship
+        $courierMap = [
+            'jne' => 'jne',
+            'jnt' => 'jnt',
+            'pos' => 'pos',
+        ];
+        $courierCode = strtolower($params['courier_company']);
+        $courierCompany = $courierMap[$courierCode] ?? $courierCode;
+
+        // Siapkan items untuk Biteship
+        $items = [];
+        foreach ($params['items'] as $item) {
+            $items[] = [
+                'name'     => $item['name'],
+                'category' => 'fashion',
+                'value'    => (int) $item['value'],
+                'quantity' => (int) $item['quantity'],
+                'weight'   => (int) $item['weight'],
+                'height'   => 3,
+                'length'   => 30,
+                'width'    => 25,
+            ];
+        }
+
+        // Origin dari config
+        $originParams = $this->originAreaId
+            ? ['origin_area_id' => $this->originAreaId]
+            : ['origin_postal_code' => (int) $this->originPostal];
+
+        $payload = array_merge($originParams, [
+            'origin_contact_name'  => config('app.name', 'Aliesmo'),
+            'origin_contact_phone' => config('services.biteship.origin_phone', '08138883345'),
+            'origin_address'       => config('services.biteship.origin_address', 'Ulujami, Pemalang, Jawa Tengah'),
+            'destination_contact_name'  => $params['customer_name'],
+            'destination_contact_phone' => $params['customer_phone'],
+            'destination_contact_email' => $params['customer_email'] ?? null,
+            'destination_address'       => $params['shipping_address'],
+            'destination_area_id'       => $params['shipping_area_id'],
+            'courier_company'           => $courierCompany,
+            'courier_type'              => $params['courier_type'] ?? 'reg',
+            'delivery_type'             => 'now',
+            'order_note'                => 'Order #' . $params['order_number'],
+            'reference_id'              => $params['order_number'],
+            'items'                     => $items,
+        ]);
+
+        Log::info('Biteship createOrder request', [
+            'order_number' => $params['order_number'],
+            'courier'      => $courierCompany . ' ' . ($params['courier_type'] ?? 'reg'),
+            'destination'  => $params['shipping_address'],
+        ]);
+
+        $response = Http::timeout(15)
+            ->withHeaders([
+                'Authorization' => 'Bearer ' . $this->apiKey,
+                'Content-Type'  => 'application/json',
+            ])
+            ->post("{$this->baseUrl}/v1/orders", $payload);
+
+        $data = $response->json();
+
+        Log::info('Biteship createOrder response', [
+            'success' => $data['success'] ?? null,
+            'id'      => $data['id'] ?? null,
+            'status'  => $data['status'] ?? null,
+            'error'   => $data['error'] ?? null,
+        ]);
+
+        if (!$response->successful() || empty($data['success'])) {
+            $errorMsg = $data['error'] ?? $data['message'] ?? 'HTTP ' . $response->status();
+            throw new \RuntimeException("Gagal membuat order Biteship: {$errorMsg}");
+        }
+
+        return [
+            'biteship_order_id'    => $data['id'],
+            'biteship_tracking_id' => $data['courier']['tracking_id'] ?? null,
+            'biteship_waybill_id'  => $data['courier']['waybill_id'] ?? null,
+            'biteship_status'      => $data['status'] ?? 'confirmed',
+            'price'                => (int) ($data['price'] ?? 0),
+        ];
+    }
 }

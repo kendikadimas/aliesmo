@@ -22,6 +22,7 @@ class StoreOrderRequest extends FormRequest
             'customer_email'       => ['required', 'email', 'max:255'],
             'customer_phone'       => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\-\s()]{7,20}$/'],
             'shipping_address'     => ['required', 'string', 'max:1000'],
+            'shipping_area_id'     => ['nullable', 'string', 'max:100'],
             // shipping_cost tidak lagi diterima dari client — diambil dari cache server-side
             // Client wajib kirim shipping_cache_key + courier yang dipilih
             'shipping_cache_key'   => ['required', 'string', 'size:41'], // "shipping:" + 32 char md5

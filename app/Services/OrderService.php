@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\Log;
 class OrderService
 {
     public function __construct(
-        private StockService $stockService
+        private StockService $stockService,
+        private BiteshipService $biteshipService
     ) {}
 
     public function createFromCart(array $items, array $customerData, ?Coupon $coupon = null): Order
@@ -161,6 +162,7 @@ class OrderService
                 'customer_email'  => $customerData['customer_email'],
                 'customer_phone'  => $customerData['customer_phone'] ?? null,
                 'shipping_address'=> $customerData['shipping_address'],
+                'shipping_area_id'=> $customerData['shipping_area_id'] ?? null,
                 'subtotal'        => $subtotal,
                 'shipping_cost'   => $shippingCost,
                 'coupon_discount' => $couponDiscount,
@@ -191,7 +193,94 @@ class OrderService
             $this->stockService->decrementForOrder($order);
 
             Log::info('Order marked as paid', ['order' => $order->order_number]);
+
+            // Buat order pengiriman di Biteship setelah pembayaran dikonfirmasi
+            $this->createBiteshipShipment($order);
         });
+    }
+
+    /**
+     * Buat order pengiriman di Biteship.
+     * Dipanggil setelah order dibayar agar saldo Biteship tidak terpotong jika order dibatalkan.
+     */
+    private function createBiteshipShipment(Order $order): void
+    {
+        try {
+            // Skip jika tidak ada area_id atau courier
+            if (empty($order->shipping_area_id) || empty($order->courier)) {
+                Log::warning('Skip Biteship order: missing area_id or courier', [
+                    'order' => $order->order_number,
+                    'area_id' => $order->shipping_area_id,
+                    'courier' => $order->courier,
+                ]);
+                return;
+            }
+
+            // Skip jika sudah ada biteship_order_id (idempotent)
+            if (!empty($order->biteship_order_id)) {
+                Log::info('Biteship order already exists', [
+                    'order' => $order->order_number,
+                    'biteship_id' => $order->biteship_order_id,
+                ]);
+                return;
+            }
+
+            // Siapkan items dari order items
+            $items = [];
+            foreach ($order->items as $item) {
+                $items[] = [
+                    'name'     => $item->product_name . ($item->variant_name ? " ({$item->variant_name})" : '') . ($item->size_name ? " - {$item->size_name}" : ''),
+                    'value'    => $item->price,
+                    'quantity' => $item->quantity,
+                    'weight'   => 300, // default 300g per item (bisa dihitung dari produk)
+                ];
+            }
+
+            // Map courier name ke code untuk Biteship
+            $courierMap = [
+                'JNE'           => ['company' => 'jne', 'type' => 'reg'],
+                'JNT Express'   => ['company' => 'jnt', 'type' => 'reg'],
+                'Pos Indonesia' => ['company' => 'pos', 'type' => 'reg'],
+            ];
+
+            $courierCode = $courierMap[$order->courier] ?? ['company' => strtolower($order->courier), 'type' => 'reg'];
+
+            $result = $this->biteshipService->createOrder([
+                'order_number'     => $order->order_number,
+                'customer_name'    => $order->customer_name,
+                'customer_phone'   => $order->customer_phone,
+                'customer_email'   => $order->customer_email,
+                'shipping_address' => $order->shipping_address,
+                'shipping_area_id' => $order->shipping_area_id,
+                'courier_company'  => $courierCode['company'],
+                'courier_type'     => $courierCode['type'],
+                'items'            => $items,
+            ]);
+
+            // Simpan data Biteship ke order
+            $order->update([
+                'biteship_order_id'    => $result['biteship_order_id'],
+                'biteship_tracking_id' => $result['biteship_tracking_id'],
+                'biteship_waybill_id'  => $result['biteship_waybill_id'],
+                'biteship_status'      => $result['biteship_status'],
+                'tracking_number'      => $result['biteship_waybill_id'] ?? $order->tracking_number,
+            ]);
+
+            Log::info('Biteship order created successfully', [
+                'order'        => $order->order_number,
+                'biteship_id'  => $result['biteship_order_id'],
+                'waybill_id'   => $result['biteship_waybill_id'],
+                'status'       => $result['biteship_status'],
+                'price'        => $result['price'],
+            ]);
+
+        } catch (\Exception $e) {
+            // Log error tapi jangan gagalkan order — admin bisa manual create shipment
+            Log::error('Gagal membuat Biteship order', [
+                'order'  => $order->order_number,
+                'error'  => $e->getMessage(),
+            ]);
+        }
     }
 
     public function cancel(Order $order, string $reason = ''): void

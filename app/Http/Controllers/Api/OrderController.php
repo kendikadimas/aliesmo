@@ -91,6 +91,7 @@ class OrderController extends Controller
                 'customer_email',
                 'customer_phone',
                 'shipping_address',
+                'shipping_area_id',
                 'shipping_cache_key',
                 'shipping_courier',
                 'shipping_service',

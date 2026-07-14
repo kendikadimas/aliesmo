@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\BannerController;
+use App\Http\Controllers\Api\BiteshipWebhookController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CouponController;
 use App\Http\Controllers\Api\HomepageVideoController;
@@ -91,3 +92,7 @@ Route::prefix('v1')->group(function () {
         Route::post('products/{slug}/reviews', [ReviewController::class, 'store']);
     });
 });
+
+// Biteship Webhook — outside auth, protected by webhook secret
+Route::post('v1/webhooks/biteship', [BiteshipWebhookController::class, 'handle'])
+    ->middleware('throttle:60,1');

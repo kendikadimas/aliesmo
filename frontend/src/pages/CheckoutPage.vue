@@ -597,6 +597,7 @@ async function submitOrder() {
         customer_email: form.customer_email,
         customer_phone: form.customer_phone,
         shipping_address: fullAddress,
+        shipping_area_id: selectedDestination.value?.area_id || null,
         shipping_cache_key: shippingCacheKey.value,
         shipping_courier: selectedShipping.value.courier,
         shipping_service: selectedShipping.value.service,
