@@ -174,52 +174,90 @@
             </div>
         </header>
 
-        <!-- Mobile Navigation Drawer -->
-        <Transition name="mobile-nav">
-            <div v-if="mobileOpen" class="lg:hidden border-t border-zinc-200/50 dark:border-[#303032]/50 bg-white dark:bg-[#161618] shadow-xl fixed top-[110px] left-0 right-0 z-40 max-h-[calc(100vh-110px)] overflow-y-auto">
-                <nav class="px-5 pt-3 pb-6 space-y-5">
-                    <router-link @click="mobileOpen = false" to="/" class="block text-sm font-bold text-charcoal/80 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] uppercase tracking-wide">Beranda</router-link>
-                    <router-link @click="mobileOpen = false" to="/blog" class="block text-sm font-bold text-charcoal/80 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] uppercase tracking-wide">Blog</router-link>
-                    <router-link @click="mobileOpen = false" to="/#shop" class="block text-sm font-bold text-charcoal/80 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] uppercase tracking-wide">Semua Koleksi</router-link>
-                    <router-link v-if="isLoggedIn" @click="mobileOpen = false" to="/profile" class="block text-sm font-bold text-charcoal/80 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] uppercase tracking-wide">Akun Saya</router-link>
-                    <router-link v-if="isLoggedIn" @click="mobileOpen = false" to="/profile?tab=pesanan" class="block text-sm font-bold text-charcoal/80 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] uppercase tracking-wide">Pesanan Saya</router-link>
-                    
-                    <div class="h-[1px] bg-zinc-100 dark:bg-[#28282a]"></div>
-                    
+        <!-- Mobile Navigation Sidebar (half-screen) -->
+        <Transition name="sidebar-overlay">
+            <div v-if="mobileOpen" @click="mobileOpen = false" class="lg:hidden fixed inset-0 bg-black/40 z-40"></div>
+        </Transition>
+        <Transition name="sidebar">
+            <aside v-if="mobileOpen" class="lg:hidden fixed top-0 left-0 bottom-0 w-[75vw] max-w-[320px] bg-white dark:bg-[#161618] z-50 shadow-2xl flex flex-col">
+                <!-- Header -->
+                <div class="flex items-center justify-between px-5 py-4 border-b border-zinc-100 dark:border-[#303032]">
+                    <img src="/aliesmo-logo.svg" alt="Aliesmo" class="h-16 w-auto" :class="isDark ? 'brightness-0 invert' : ''" />
+                    <button @click="mobileOpen = false" class="p-2 -mr-2 text-charcoal/60 dark:text-[#8a8a8e] hover:text-charcoal dark:hover:text-[#f0eeeb] transition-colors" aria-label="Tutup">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+
+                <!-- Menu List -->
+                <nav class="flex-1 overflow-y-auto px-5 py-4 space-y-1">
+                    <router-link @click="mobileOpen = false" to="/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-charcoal/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#1c1c1e] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors uppercase tracking-wide">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        Beranda
+                    </router-link>
+                    <router-link @click="mobileOpen = false" to="/blog" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-charcoal/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#1c1c1e] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors uppercase tracking-wide">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                        Blog
+                    </router-link>
+                    <router-link @click="mobileOpen = false" to="/#shop" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-charcoal/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#1c1c1e] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors uppercase tracking-wide">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                        Semua Koleksi
+                    </router-link>
+
+                    <!-- Categories Dropdown -->
                     <div>
-                        <p class="text-[10px] font-bold text-zinc-400 dark:text-[#6a6a6e] uppercase tracking-widest mb-3 px-1">Kategori</p>
-                        <div class="grid grid-cols-2 gap-3">
-                            <router-link
-                                v-for="cat in categories"
-                                :key="cat.slug"
-                                @click="mobileOpen = false"
-                                :to="`/catalog/${cat.slug}`"
-                                class="block text-xs font-semibold text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#8a8a8e] hover:text-maroon dark:hover:text-[#f0eeeb] bg-zinc-50 dark:bg-[#1c1c1e] hover:bg-maroon-50/30 dark:hover:bg-[#303032] px-3 py-2.5 rounded-lg uppercase tracking-wider text-center transition-all border border-zinc-100 dark:border-[#303032]"
-                            >
-                                {{ cat.name }}
-                            </router-link>
-                        </div>
+                        <button @click="mobileCatsOpen = !mobileCatsOpen" class="flex items-center justify-between w-full gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-charcoal/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#1c1c1e] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors uppercase tracking-wide">
+                            <span class="flex items-center gap-3">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                                Kategori
+                            </span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200" :class="mobileCatsOpen ? 'rotate-180' : ''"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                        <Transition name="accordion">
+                            <div v-if="mobileCatsOpen" class="ml-6 mt-1 space-y-0.5 border-l-2 border-zinc-100 dark:border-[#303032] pl-3">
+                                <router-link @click="mobileOpen = false" to="/catalog" class="block px-3 py-2 rounded-lg text-xs font-medium text-charcoal/60 dark:text-[#8a8a8e] hover:text-maroon dark:hover:text-[#f0eeeb] hover:bg-zinc-50 dark:hover:bg-[#1c1c1e] transition-colors uppercase tracking-wider">
+                                    Semua Kategori
+                                </router-link>
+                                <router-link
+                                    v-for="cat in categories"
+                                    :key="cat.slug"
+                                    @click="mobileOpen = false"
+                                    :to="`/catalog/${cat.slug}`"
+                                    class="block px-3 py-2 rounded-lg text-xs font-medium text-charcoal/60 dark:text-[#8a8a8e] hover:text-maroon dark:hover:text-[#f0eeeb] hover:bg-zinc-50 dark:hover:bg-[#1c1c1e] transition-colors uppercase tracking-wider"
+                                >
+                                    {{ cat.name }}
+                                </router-link>
+                            </div>
+                        </Transition>
                     </div>
-                    
-                    <div class="h-[1px] bg-zinc-100 dark:bg-[#28282a]"></div>
-                    
-                    <!-- Dark Mode Toggle (Mobile) -->
-                    <button @click="toggle" class="flex items-center gap-3 text-sm font-bold text-charcoal/80 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] uppercase tracking-wide w-full">
-                        <svg v-if="isDark" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-                        </svg>
-                        <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                        </svg>
+
+                    <div class="h-px bg-zinc-100 dark:bg-[#28282a] my-2"></div>
+
+                    <!-- Account Section -->
+                    <router-link v-if="isLoggedIn" @click="mobileOpen = false" to="/profile" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-charcoal/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#1c1c1e] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors uppercase tracking-wide">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        Akun Saya
+                    </router-link>
+                    <router-link v-if="isLoggedIn" @click="mobileOpen = false" to="/profile?tab=pesanan" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-charcoal/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#1c1c1e] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors uppercase tracking-wide">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                        Pesanan Saya
+                    </router-link>
+
+                    <div class="h-px bg-zinc-100 dark:bg-[#28282a] my-2"></div>
+
+                    <!-- Dark Mode Toggle -->
+                    <button @click="toggle" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-semibold text-charcoal/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#1c1c1e] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors uppercase tracking-wide">
+                        <svg v-if="isDark" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                        <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
                         {{ isDark ? 'Mode Terang' : 'Mode Gelap' }}
                     </button>
-
-                    <div class="space-y-3 pb-4">
-                        <router-link v-if="!isLoggedIn" @click="mobileOpen = false" to="/login" class="block text-center text-xs font-bold text-white bg-maroon py-3 rounded-lg uppercase tracking-wider transition-colors hover:bg-maroon-600 dark:hover:bg-maroon/80">Masuk / Daftar</router-link>
-                        <button v-else @click="triggerMobileLogout" class="block w-full text-center text-xs font-bold text-white bg-charcoal dark:bg-[#f0eeeb] dark:text-[#161618] py-3 rounded-lg uppercase tracking-wider cursor-pointer">Keluar</button>
-                    </div>
                 </nav>
-            </div>
+
+                <!-- Bottom CTA -->
+                <div class="px-5 py-4 border-t border-zinc-100 dark:border-[#303032]">
+                    <router-link v-if="!isLoggedIn" @click="mobileOpen = false" to="/login" class="block text-center text-xs font-bold text-white bg-maroon py-3 rounded-lg uppercase tracking-wider transition-colors hover:bg-maroon-600 dark:hover:bg-maroon/80">Masuk / Daftar</router-link>
+                    <button v-else @click="triggerMobileLogout" class="block w-full text-center text-xs font-bold text-white bg-charcoal dark:bg-[#f0eeeb] dark:text-[#161618] py-3 rounded-lg uppercase tracking-wider cursor-pointer">Keluar</button>
+                </div>
+            </aside>
         </Transition>
 
         <!-- Main Content -->
@@ -345,6 +383,7 @@ const { items } = useCartStore()
 const { fetchSettings, get } = useSettings()
 const { isDark, toggle, init: initDarkMode } = useDarkMode()
 const mobileOpen = ref(false)
+const mobileCatsOpen = ref(false)
 const isLoggedIn = ref(false)
 const userMenuOpen = ref(false)
 const categories = ref([])
@@ -530,6 +569,46 @@ onUnmounted(() => {
 .mobile-nav-leave-to {
     opacity: 0;
     transform: translateY(-8px);
+}
+
+/* Sidebar overlay transition */
+.sidebar-overlay-enter-active,
+.sidebar-overlay-leave-active {
+    transition: opacity 0.25s ease;
+}
+.sidebar-overlay-enter-from,
+.sidebar-overlay-leave-to {
+    opacity: 0;
+}
+
+/* Sidebar slide-in transition */
+.sidebar-enter-active,
+.sidebar-leave-active {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.sidebar-enter-from,
+.sidebar-leave-to {
+    transform: translateX(-100%);
+}
+
+/* Accordion transition for categories */
+.accordion-enter-active,
+.accordion-leave-active {
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+.accordion-enter-from,
+.accordion-leave-to {
+    opacity: 0;
+    max-height: 0;
+    margin-top: 0 !important;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+.accordion-enter-to,
+.accordion-leave-from {
+    opacity: 1;
+    max-height: 500px;
 }
 
 /* Slide up animation for promo bar */
