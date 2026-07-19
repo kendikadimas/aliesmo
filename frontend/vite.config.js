@@ -4,10 +4,13 @@ import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 import forceDarkClassPlugin from './force-dark-class-plugin.js'
 
+const isVercel = process.env.VERCEL === '1'
+
 export default defineConfig({
     plugins: [vue(), tailwindcss(), forceDarkClassPlugin()],
+    base: isVercel ? '/' : '/build/',
     build: {
-        outDir: path.resolve(__dirname, '../public/build'),
+        outDir: isVercel ? path.resolve(__dirname, 'dist') : path.resolve(__dirname, '../public/build'),
         emptyOutDir: true,
         manifest: 'manifest.json',
         rollupOptions: {
@@ -15,9 +18,16 @@ export default defineConfig({
         },
     },
     server: {
+        host: '0.0.0.0',
+        port: 5173,
+        strictPort: false,
         proxy: {
             '/api': {
-                target: process.env.VITE_API_URL || 'http://aliesmo.test',
+                target: 'http://localhost:8000',
+                changeOrigin: true,
+            },
+            '/storage': {
+                target: 'http://localhost:8000',
                 changeOrigin: true,
             },
         },
