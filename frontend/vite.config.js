@@ -12,10 +12,15 @@ export default defineConfig({
     build: {
         outDir: isVercel ? path.resolve(__dirname, 'dist') : path.resolve(__dirname, '../public/build'),
         emptyOutDir: true,
-        manifest: 'manifest.json',
-        rollupOptions: {
-            input: path.resolve(__dirname, 'src/main.js'),
-        },
+        // Laravel needs manifest + JS entry; Vercel SPA needs index.html entry
+        ...(isVercel
+            ? {}
+            : {
+                manifest: 'manifest.json',
+                rollupOptions: {
+                    input: path.resolve(__dirname, 'src/main.js'),
+                },
+            }),
     },
     server: {
         host: '0.0.0.0',
