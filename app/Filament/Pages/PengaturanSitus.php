@@ -54,6 +54,7 @@ class PengaturanSitus extends Page implements HasSchemas
             'stat_kemeja_terjual', 'stat_kota', 'stat_kualitas', 'stat_garansi',
             'contact_email', 'contact_phone', 'contact_address', 'contact_whatsapp',
             'social_instagram', 'social_facebook', 'social_tiktok', 'social_youtube',
+            'social_shopee', 'social_tiktokshop',
             'payment_qris_name',
         ];
 
@@ -137,6 +138,12 @@ class PengaturanSitus extends Page implements HasSchemas
                             ->label('TikTok'),
                         TextInput::make('social_youtube')
                             ->label('YouTube'),
+                        TextInput::make('social_shopee')
+                            ->label('Shopee')
+                            ->placeholder('https://shopee.co.id/aliesmo.id'),
+                        TextInput::make('social_tiktokshop')
+                            ->label('TikTok Shop')
+                            ->placeholder('https://www.tiktok.com/shop/...'),
                     ]),
 
                 Section::make('Pembayaran')
@@ -205,6 +212,7 @@ class PengaturanSitus extends Page implements HasSchemas
             'stat_kemeja_terjual', 'stat_kota', 'stat_kualitas', 'stat_garansi',
             'contact_email', 'contact_phone', 'contact_address', 'contact_whatsapp',
             'social_instagram', 'social_facebook', 'social_tiktok', 'social_youtube',
+            'social_shopee', 'social_tiktokshop',
             'payment_qris_name',
         ];
 
