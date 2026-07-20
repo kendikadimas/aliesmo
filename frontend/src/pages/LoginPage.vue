@@ -3,7 +3,7 @@
         <div class="w-full max-w-sm">
             <div class="text-center mb-8">
                 <div class="flex items-center justify-center mx-auto">
-                    <img src="/aliesmo-logo.svg" alt="Aliesmo" class="w-[168px] h-[168px] object-contain dark:invert dark:brightness-200">
+                    <img src="/aliesmo.png" alt="Aliesmo" class="w-[168px] h-[168px] object-contain invert dark:invert-0">
                 </div>
                 <h1 class="mt-4 text-2xl font-bold text-charcoal dark:text-[#f0eeeb]">Masuk dulu yuk!</h1>
                 <p class="mt-1 text-sm text-charcoal/50 dark:text-[#8a8a8e]">Masuk buat liat riwayat pesanan kamu</p>
