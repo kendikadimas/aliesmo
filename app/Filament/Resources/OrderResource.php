@@ -167,7 +167,8 @@ class OrderResource extends Resource
                             ->icon('heroicon-o-printer')
                             ->color('primary')
                             ->url(fn (Order $record): string => route('orders.label', $record))
-                            ->openUrlInNewTab(),
+                            ->openUrlInNewTab()
+                            ->visible(false), // TODO: label custom belum selesai — print dari dashboard Biteship
                         Action::make('biteshipDashboard')
                             ->label('Buka di Biteship')
                             ->icon('heroicon-o-arrow-top-right-on-square')
