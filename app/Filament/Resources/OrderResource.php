@@ -122,6 +122,46 @@ class OrderResource extends Resource
                             ->placeholder('-'),
                     ])
                     ->headerActions([
+                        Action::make('processCodOrder')
+                            ->label('Proses Order COD')
+                            ->icon('heroicon-o-truck')
+                            ->color('warning')
+                            ->requiresConfirmation()
+                            ->modalHeading('Proses Order COD')
+                            ->modalDescription('Buat pengiriman Biteship untuk order COD ini? Paket akan siap dijemput kurir.')
+                            ->modalSubmitActionLabel('Ya, Proses')
+                            ->action(function (Order $record) {
+                                try {
+                                    $orderService = app(OrderService::class);
+
+                                    // Untuk COD: kurangi stok + buat shipment Biteship
+                                    // Tidak set paid_at karena customer bayar saat paket tiba
+                                    DB::transaction(function () use ($record) {
+                                        $record->update(['status' => OrderStatus::Processing]);
+                                        app(StockService::class)->decrementForOrder($record);
+                                    });
+
+                                    // Buat shipment di Biteship — di luar transaction agar timeout tidak rollback DB
+                                    $orderService->createBiteshipShipment($record->fresh());
+
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Order COD diproses')
+                                        ->body("Shipment Biteship untuk order #{$record->order_number} sudah dibuat.")
+                                        ->success()
+                                        ->send();
+                                } catch (\Throwable $e) {
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Gagal memproses order COD')
+                                        ->body($e->getMessage())
+                                        ->danger()
+                                        ->send();
+                                }
+                            })
+                            ->visible(fn (Order $record): bool =>
+                                $record->payment_method === 'cod'
+                                && empty($record->biteship_order_id)
+                                && in_array($record->status, [OrderStatus::Pending, OrderStatus::Processing])
+                            ),
                         Action::make('printLabel')
                             ->label('Cetak Label')
                             ->icon('heroicon-o-printer')
