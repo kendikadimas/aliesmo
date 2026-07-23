@@ -6,9 +6,11 @@ import forceDarkClassPlugin from './force-dark-class-plugin.js'
 
 const isVercel = process.env.VERCEL === '1'
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
     plugins: [vue(), tailwindcss(), forceDarkClassPlugin()],
-    base: isVercel ? '/' : '/build/',
+    // dev server pakai '/' agar index.html bisa load /src/main.js
+    // production build pakai '/build/' agar Laravel bisa serve assets dari public/build/
+    base: (command === 'build' && !isVercel) ? '/build/' : '/',
     build: {
         outDir: isVercel ? path.resolve(__dirname, 'dist') : path.resolve(__dirname, '../public/build'),
         emptyOutDir: true,

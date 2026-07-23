@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\SiteSetting;
-use App\Services\RajaOngkirService;
 use App\Services\BiteshipService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -12,40 +11,28 @@ use Illuminate\Support\Facades\Log;
 class ShippingController extends Controller
 {
     public function __construct(
-        private RajaOngkirService $rajaOngkir,
-        private BiteshipService   $biteship,
+        private BiteshipService $biteship,
     ) {}
-
-    public function provinces()
-    {
-        return response()->json([
-            'data' => $this->rajaOngkir->getProvinces(),
-        ]);
-    }
-
-    public function cities(Request $request, int $provinceId)
-    {
-        return response()->json([
-            'data' => $this->rajaOngkir->getCities($provinceId),
-        ]);
-    }
 
     public function cost(Request $request)
     {
         $request->validate([
-            'destination' => 'required|integer',
+            'destination' => 'nullable|integer',
             'weight'      => 'required|integer|min:1|max:100000',
-            'area_id'     => 'nullable|string',   // Biteship area_id (opsional, dari autocomplete)
-            'postal_code' => 'nullable|string',   // Biteship postal code (opsional)
+            'area_id'     => 'nullable|string',
+            'postal_code' => 'nullable|string',
+            // cod_amount: total order dalam rupiah — jika diisi, rates akan include COD fee
+            'cod_amount'  => 'nullable|integer|min:0',
         ]);
 
-        $destination = (int) $request->destination;
+        $destination = (int) $request->input('destination', 0);
         $weight      = (int) $request->weight;
         $areaId      = $request->input('area_id');
         $postalCode  = $request->input('postal_code');
+        $codAmount   = $request->input('cod_amount') ? (int) $request->input('cod_amount') : null;
 
-        // Cache key mencakup area_id jika ada untuk akurasi lebih tinggi
-        $cacheKey = $this->generateShippingCacheKey($destination, $weight, $areaId);
+        // Cache key berbeda untuk COD vs non-COD — harga berbeda karena ada COD fee
+        $cacheKey = $this->generateShippingCacheKey($destination, $weight, $areaId, $codAmount);
 
         // 1. Cek cache dulu — return langsung jika ada
         $cached = cache()->get($cacheKey);
@@ -57,34 +44,34 @@ class ShippingController extends Controller
             ]);
         }
 
-        // 2. Biteship sebagai primary provider
+        // 2. Biteship — satu-satunya provider
         $costs  = null;
         $source = null;
 
         try {
             if ($areaId) {
-                Log::info('Biteship primary via area_id', ['area_id' => $areaId]);
-                $costs  = $this->biteship->getAllShippingCostsByAreaId($areaId, $weight);
+                Log::info('Biteship cost via area_id', ['area_id' => $areaId, 'cod_amount' => $codAmount]);
+                $costs  = $this->biteship->getAllShippingCostsByAreaId($areaId, $weight, 100000, $codAmount);
                 $source = 'biteship';
             } elseif ($postalCode) {
-                Log::info('Biteship primary via postal_code', ['postal_code' => $postalCode]);
-                $costs  = $this->biteship->getAllShippingCosts($postalCode, $weight);
+                Log::info('Biteship cost via postal_code', ['postal_code' => $postalCode, 'cod_amount' => $codAmount]);
+                $costs  = $this->biteship->getAllShippingCosts($postalCode, $weight, $codAmount);
                 $source = 'biteship';
             } else {
                 $resolvedPostal = $this->getPostalCodeByCityId($destination);
-                Log::info('Biteship primary via cities.json', ['resolved_postal' => $resolvedPostal]);
+                Log::info('Biteship cost via cities.json', ['resolved_postal' => $resolvedPostal]);
                 if ($resolvedPostal) {
-                    $costs  = $this->biteship->getAllShippingCosts($resolvedPostal, $weight);
+                    $costs  = $this->biteship->getAllShippingCosts($resolvedPostal, $weight, $codAmount);
                     $source = 'biteship';
                 }
             }
         } catch (\RuntimeException $e) {
-            Log::warning('Biteship gagal', ['reason' => $e->getMessage()]);
+            Log::warning('Biteship cost gagal', ['reason' => $e->getMessage()]);
         }
 
-        // 3. Jika Biteship gagal, arahkan ke admin WA toko
+        // 3. Jika Biteship tidak tersedia, arahkan ke admin WA toko
         if (empty($costs)) {
-            Log::error('Semua provider ongkir gagal', [
+            Log::error('Biteship tidak dapat menghitung ongkir', [
                 'destination' => $destination,
                 'weight'      => $weight,
             ]);
@@ -114,9 +101,8 @@ class ShippingController extends Controller
     }
 
     /**
-     * Search destinasi — Biteship Maps API sebagai primary.
-     * Komerce digunakan untuk enrich city_id (agar kompatibel dengan parameter ?destination=).
-     * Setiap hasil mengandung area_id + postal_code (Biteship) + city_id (Komerce, opsional).
+     * Search destinasi via Biteship Maps API.
+     * Hasil mengandung area_id + postal_code + label lengkap dari Biteship.
      */
     public function search(Request $request)
     {
@@ -124,87 +110,53 @@ class ShippingController extends Controller
             'q' => 'required|string|min:2',
         ]);
 
-        $query = $request->q;
+        $biteshipAreas = $this->biteship->searchArea($request->q);
 
-        // Primary: Biteship Maps API
-        $biteshipAreas  = $this->biteship->searchArea($query);
-
-        // Enrichment: Komerce untuk mendapatkan city_id (integer) yang dipakai cache key
-        // Juga dipakai sebagai fallback jika Biteship tidak tersedia
-        $komerceResults = $this->rajaOngkir->searchDestinations($query);
-
-        // Jika Biteship kosong (API key tidak ada atau gagal), fallback ke Komerce saja
         if (empty($biteshipAreas)) {
-            $results = array_map(function ($item) {
-                return [
-                    'id'          => (int) $item['id'],
-                    'label'       => $item['label'] ?? strtoupper(($item['city_name'] ?? '') . ', ' . ($item['province_name'] ?? '')),
-                    'city_name'   => $item['city_name'] ?? '',
-                    'province'    => $item['province_name'] ?? '',
-                    'zip_code'    => $item['zip_code'] ?? '',
-                    'area_id'     => null,
-                    'postal_code' => $item['zip_code'] ?? null,
-                ];
-            }, $komerceResults);
-
-            return response()->json(['data' => array_values($results)]);
+            return response()->json(['data' => []]);
         }
 
-        // Buat lookup Komerce berdasarkan nama kota/kecamatan (lowercase)
-        $komerceByCity = [];
-        foreach ($komerceResults as $item) {
-            $key = strtolower(trim($item['city_name'] ?? ''));
-            if ($key && !isset($komerceByCity[$key])) {
-                $komerceByCity[$key] = $item;
-            }
-        }
+        // Bangun hasil dari Biteship, hapus duplikat berdasarkan area_id
+        $seen    = [];
+        $results = [];
 
-        // Bangun hasil dari Biteship, enrich dengan city_id dari Komerce
-        $results = array_map(function ($area) use ($komerceByCity) {
-            $cityKey = strtolower(trim($area['district'] ?: $area['city']));
-            $match   = $komerceByCity[$cityKey] ?? null;
-
-            // Fallback city_id: pakai 0 jika tidak ada match Komerce
-            // cost() akan resolve via area_id atau postal_code jika city_id = 0
-            $cityId = $match ? (int) $match['id'] : 0;
+        foreach ($biteshipAreas as $area) {
+            $areaId = $area['area_id'] ?? null;
+            if (empty($areaId) || isset($seen[$areaId])) continue;
+            $seen[$areaId] = true;
 
             $label = trim(implode(', ', array_filter([
-                $area['district'],
-                $area['city'],
-                $area['province'],
+                $area['district'] ?? '',
+                $area['city'] ?? '',
+                $area['province'] ?? '',
             ])));
 
-            return [
-                'id'          => $cityId,
+            $results[] = [
+                'id'          => 0,                          // city_id tidak digunakan, cost() pakai area_id
                 'label'       => $label ?: ($area['label'] ?? ''),
                 'city_name'   => $area['city'] ?? '',
+                'district'    => $area['district'] ?? '',
                 'province'    => $area['province'] ?? '',
                 'zip_code'    => $area['postal_code'] ?? '',
-                'area_id'     => $area['area_id'],          // Biteship area_id — primary untuk cost()
+                'area_id'     => $areaId,
                 'postal_code' => $area['postal_code'] ?? null,
+                'latitude'    => $area['latitude'] ?? null,
+                'longitude'   => $area['longitude'] ?? null,
             ];
-        }, $biteshipAreas);
+        }
 
-        // Hapus duplikat berdasarkan area_id
-        $seen    = [];
-        $results = array_values(array_filter($results, function ($r) use (&$seen) {
-            if (empty($r['area_id']) || isset($seen[$r['area_id']])) return false;
-            $seen[$r['area_id']] = true;
-            return true;
-        }));
-
-        return response()->json([
-            'data' => $results,
-        ]);
+        return response()->json(['data' => $results]);
     }
 
     // Naikkan versi ini setiap kali kurir whitelist berubah agar cache lama invalid
-    private const CACHE_VERSION = 3;
+    private const CACHE_VERSION = 5; // bump: COD fee dibebankan ke customer, cache COD/non-COD dipisah
 
-    private function generateShippingCacheKey(int $destination, int $weight, ?string $areaId = null): string
+    private function generateShippingCacheKey(int $destination, int $weight, ?string $areaId = null, ?int $codAmount = null): string
     {
         $key = "v" . self::CACHE_VERSION . ":{$destination}:{$weight}";
         if ($areaId) $key .= ":{$areaId}";
+        // Cache COD terpisah dari non-COD — harga berbeda karena ada COD fee
+        if ($codAmount !== null && $codAmount > 0) $key .= ":cod{$codAmount}";
         return 'shipping:' . md5($key);
     }
 

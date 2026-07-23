@@ -6,6 +6,9 @@ use App\Http\Resources\OrderResource;
 use App\Http\Resources\PublicOrderResource;
 use App\Models\Order;
 use App\Models\Coupon;
+use App\Models\Payment;
+use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 use App\Notifications\OrderConfirmationNotification;
 use App\Notifications\NewOrderAdminNotification;
 use App\Services\OrderService;
@@ -73,8 +76,148 @@ class OrderController extends Controller
         return response()->json(['data' => new PublicOrderResource($order)]);
     }
 
+    /**
+     * Upload bukti pembayaran oleh customer.
+     * Endpoint ini bisa diakses dengan lookup_token (guest) atau authenticated user.
+     */
+    public function uploadProof(\Illuminate\Http\Request $request, string $orderNumber)
+    {
+        Log::info('Upload proof started', [
+            'order_number' => $orderNumber,
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        try {
+            $request->validate([
+                'proof_image' => ['required', 'image', 'max:5120'], // max 5MB
+                'proof_note'  => ['nullable', 'string', 'max:500'],
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('Upload proof validation failed', [
+                'order_number' => $orderNumber,
+                'error' => $e->getMessage(),
+                'errors' => method_exists($e, 'errors') ? $e->errors() : null,
+            ]);
+            throw $e;
+        }
+
+        // Cari order — bisa via auth atau lookup_token
+        $order = null;
+        
+        // Coba via auth
+        if ($request->user('sanctum')) {
+            Log::debug('Upload proof: trying auth user', [
+                'user_id' => $request->user('sanctum')->id,
+                'order_number' => $orderNumber,
+            ]);
+            $order = Order::where('order_number', $orderNumber)
+                ->where('user_id', $request->user('sanctum')->id)
+                ->first();
+        }
+        
+        // Coba via lookup_token di header/query
+        if (!$order) {
+            $token = $request->header('X-Lookup-Token') ?? $request->query('token');
+            Log::debug('Upload proof: trying lookup token', [
+                'order_number' => $orderNumber,
+                'has_token' => !empty($token),
+                'token_valid' => $token ? preg_match('/^[a-zA-Z0-9]{32}$/', $token) : false,
+            ]);
+            if ($token && preg_match('/^[a-zA-Z0-9]{32}$/', $token)) {
+                $order = Order::where('order_number', $orderNumber)
+                    ->where('lookup_token', $token)
+                    ->where('lookup_token_expires_at', '>', now())
+                    ->first();
+            }
+        }
+
+        if (!$order) {
+            Log::warning('Upload proof: order not found', [
+                'order_number' => $orderNumber,
+                'ip' => $request->ip(),
+            ]);
+            return response()->json(['message' => 'Pesanan tidak ditemukan.'], 404);
+        }
+
+        Log::debug('Upload proof: order found', [
+            'order_id' => $order->id,
+            'order_number' => $order->order_number,
+            'status' => $order->status->value,
+            'has_payment' => $order->payment !== null,
+        ]);
+
+        // Hanya bisa upload jika status pending
+        if ($order->status !== OrderStatus::Pending) {
+            Log::warning('Upload proof: order not pending', [
+                'order_number' => $order->order_number,
+                'current_status' => $order->status->value,
+            ]);
+            return response()->json(['message' => 'Bukti pembayaran sudah dikonfirmasi atau pesanan sudah diproses.'], 422);
+        }
+
+        try {
+            // Simpan gambar
+            $file = $request->file('proof_image');
+            Log::debug('Upload proof: storing file', [
+                'original_name' => $file->getClientOriginalName(),
+                'mime_type' => $file->getMimeType(),
+                'size_kb' => round($file->getSize() / 1024, 2),
+            ]);
+            
+            $path = $file->store('payment-proofs', 'public');
+            
+            Log::debug('Upload proof: file stored', ['path' => $path]);
+
+            // Update atau create payment record
+            $payment = $order->payment()->updateOrCreate(
+                ['order_id' => $order->id],
+                [
+                    'gateway'   => 'manual',
+                    'amount'    => $order->total,
+                    'status'    => PaymentStatus::Pending,
+                    'proof_image' => $path,
+                    'proof_note'  => $request->input('proof_note'),
+                ]
+            );
+
+            Log::info('Upload proof: SUCCESS', [
+                'order_number' => $order->order_number,
+                'payment_id' => $payment->id,
+                'proof_path' => $path,
+                'amount' => $order->total,
+            ]);
+
+            // Ubah status order ke processing — bukti sudah diterima, menunggu verifikasi admin
+            $order->update(['status' => OrderStatus::Processing]);
+
+            return response()->json([
+                'message' => 'Bukti pembayaran berhasil diunggah. Admin akan memverifikasi pembayaran Anda.',
+                'order'   => new OrderResource($order->fresh()),
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Upload proof: FAILED', [
+                'order_number' => $order->order_number,
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return response()->json(['message' => 'Gagal mengunggah bukti pembayaran. Silakan coba lagi.'], 500);
+        }
+    }
+
     public function store(StoreOrderRequest $request)
     {
+        Log::info('Order creation started', [
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'item_count' => count($request->items ?? []),
+            'payment_method' => $request->input('payment_method'),
+            'shipping_courier' => $request->input('shipping_courier'),
+            'has_coupon' => !empty($request->coupon_code),
+        ]);
+
         try {
             $couponDiscount = 0;
             $coupon = null;
@@ -82,8 +225,14 @@ class OrderController extends Controller
             if ($request->coupon_code) {
                 $coupon = Coupon::where('code', strtoupper($request->coupon_code))->first();
                 if (!$coupon || !$coupon->isValid()) {
+                    Log::warning('Order creation: invalid coupon', [
+                        'coupon_code' => $request->coupon_code,
+                        'found' => $coupon !== null,
+                        'is_valid' => $coupon?->isValid(),
+                    ]);
                     return response()->json(['message' => 'Kode kupon tidak valid atau sudah kadaluarsa.'], 422);
                 }
+                Log::debug('Order creation: coupon applied', ['coupon_code' => $coupon->code]);
             }
 
             $customerData = $request->only([
@@ -99,29 +248,36 @@ class OrderController extends Controller
             ]);
             $customerData['payment_method'] = $request->input('payment_method', 'bank_transfer');
 
+            Log::debug('Order creation: calling createFromCart', [
+                'customer_email' => $customerData['customer_email'] ?? null,
+                'shipping_courier' => $customerData['shipping_courier'] ?? null,
+                'shipping_area_id' => $customerData['shipping_area_id'] ?? null,
+            ]);
+
             $order = $this->orderService->createFromCart(
                 $request->items,
                 $customerData,
                 $coupon
             );
 
+            Log::info('Order created successfully', [
+                'order_id' => $order->id,
+                'order_number' => $order->order_number,
+                'total' => $order->total,
+                'item_count' => $order->items->count(),
+            ]);
+
             $order->load(['items.product']);
 
-            // Kirim order confirmation email ke customer
-            if ($order->user_id) {
-                $order->user->notify(new OrderConfirmationNotification($order));
-            } else {
-                \Illuminate\Support\Facades\Notification::route('mail', $order->customer_email)
-                    ->notify(new OrderConfirmationNotification($order));
-            }
-
-            // Kirim notifikasi pesanan baru ke CS/admin — wrapped try-catch agar tidak ganggu response customer
+            // Queue email notifications (async) — doesn't block response
             try {
-                $csEmail = config('mail.from.address', 'cs@aliesmo.id');
-                \Illuminate\Support\Facades\Notification::route('mail', $csEmail)
-                    ->notify(new NewOrderAdminNotification($order));
+                \App\Jobs\SendOrderNotifications::dispatch($order);
+                Log::debug('Order notifications queued', ['order' => $order->order_number]);
             } catch (\Throwable $e) {
-                Log::error('Gagal kirim notifikasi CS: ' . $e->getMessage(), ['order' => $order->order_number]);
+                Log::error('Failed to queue notifications', [
+                    'order' => $order->order_number,
+                    'error' => $e->getMessage(),
+                ]);
             }
 
             $whatsappNumber = $this->whatsappNumber();
@@ -129,6 +285,11 @@ class OrderController extends Controller
 
             // Kirim info pembayaran sesuai metode yang dipilih
             $paymentInfo = $this->getPaymentInfo($order->payment_method ?? 'bank_transfer', $order->selected_bank);
+
+            Log::info('Order store completed', [
+                'order_number' => $order->order_number,
+                'whatsapp_number' => $whatsappNumber,
+            ]);
 
             return response()->json([
                 'order'             => new OrderResource($order),
@@ -138,7 +299,20 @@ class OrderController extends Controller
                 'payment_info'      => $paymentInfo,
             ], 201);
         } catch (\RuntimeException $e) {
+            Log::error('Order creation failed (Runtime)', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
             return response()->json(['message' => $e->getMessage()], 422);
+        } catch (\Throwable $e) {
+            Log::error('Order creation failed (Unexpected)', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return response()->json(['message' => 'Terjadi kesalahan saat membuat pesanan. Silakan coba lagi.'], 500);
         }
     }
 
@@ -229,25 +403,51 @@ class OrderController extends Controller
 
     public function status(string $orderNumber)
     {
+        Log::debug('Order status check', [
+            'order_number' => $orderNumber,
+            'ip' => request()->ip(),
+        ]);
+
         // Validasi format order number sebelum hit DB (MED-4)
-        if (!preg_match('/^ORD-\d{8}-\d{4}-[A-Z0-9]{3}$/', strtoupper($orderNumber))) {
+        // Terima format normal (ORD-YYYYMMDD-XXXX-XXX) dan format lama dengan double dash
+        if (!preg_match('/^ORD-\d{8}--?\d{4}-[A-Z0-9]{3}$/', strtoupper($orderNumber))) {
+            Log::warning('Order status: invalid format', ['order_number' => $orderNumber]);
             abort(404);
         }
 
         $order = Order::where('order_number', strtoupper($orderNumber))
             ->with(['items.product', 'payment'])
-            ->firstOrFail();
+            ->first();
+
+        if (!$order) {
+            Log::warning('Order status: not found', ['order_number' => $orderNumber]);
+            abort(404);
+        }
 
         $user = auth('sanctum')->user();
 
         // Order milik user tertentu — wajib login sebagai owner
         if ($order->user_id && (!$user || $order->user_id !== $user->id)) {
+            Log::warning('Order status: unauthorized access attempt', [
+                'order_number' => $orderNumber,
+                'order_user_id' => $order->user_id,
+                'request_user_id' => $user?->id,
+                'ip' => request()->ip(),
+            ]);
             abort(403, 'Unauthorized access to order.');
         }
 
         // Guest order — return data tapi TANPA field sensitif (IDOR fix)
         // Field sensitif hanya dikembalikan kalau user login sebagai owner
         $isOwner = $user && $order->user_id === $user->id;
+
+        Log::debug('Order status: returning data', [
+            'order_number' => $orderNumber,
+            'status' => $order->status->value,
+            'is_owner' => $isOwner,
+            'has_payment' => $order->payment !== null,
+            'has_proof' => $order->payment?->proof_image !== null,
+        ]);
 
         $data = [
             'id'               => $order->id,
@@ -259,6 +459,9 @@ class OrderController extends Controller
             'coupon_discount'  => (float) ($order->coupon_discount ?? 0),
             'total'            => (float) $order->total,
             'payment_method'   => $order->payment_method,
+            'courier'          => $order->courier,
+            'tracking_number'  => $order->tracking_number,
+            'tracking_url'     => $order->tracking_url,
             'created_at'       => $order->created_at,
             'items'            => $order->items->map(fn($i) => [
                 'product_name'  => $i->product_name,
@@ -277,7 +480,19 @@ class OrderController extends Controller
             'customer_name'    => $isOwner || !$order->user_id ? $order->customer_name    : null,
             'customer_email'   => $isOwner ? $order->customer_email   : $this->maskEmail($order->customer_email),
             'customer_phone'   => $isOwner ? $order->customer_phone   : null,
-            'shipping_address' => $isOwner || !$order->user_id ? $order->shipping_address : null,
+            'shipping_address'    => $isOwner || !$order->user_id ? $order->shipping_address : null,
+            // Info resi & pengiriman
+            'courier'            => $order->courier,
+            'courier_service'    => $order->courier_service,
+            'tracking_number'    => $order->tracking_number,
+            'tracking_url'       => $order->tracking_url,
+            'biteship_status'    => $order->biteship_status,
+            'biteship_waybill_id'=> $order->biteship_waybill_id,
+            // Info bukti pembayaran (hanya path & status, tidak expose data sensitif)
+            'payment'            => $order->payment ? [
+                'proof_image' => $order->payment->proof_image,
+                'status'      => $order->payment->status->value,
+            ] : null,
         ];
 
         return response()->json([

@@ -103,12 +103,44 @@ class TestBiteshipOrder extends Command
         try {
             $biteship = app(BiteshipService::class);
 
-            $items = $order->items->map(fn($item) => [
-                'name'     => $item->product_name . ($item->variant_name ? " ({$item->variant_name})" : ''),
-                'value'    => $item->price,
-                'quantity' => $item->quantity,
-                'weight'   => 300,
-            ])->toArray();
+            $order->loadMissing(['items.product', 'items.variant', 'items.size']);
+
+            $itemValue = 0;
+            $items = $order->items->map(function ($item) use (&$itemValue) {
+                $name = $item->product_name;
+                if ($item->variant_name) $name .= " ({$item->variant_name})";
+                if ($item->size_name)    $name .= " - {$item->size_name}";
+
+                // Prioritas weight: size → variant → product → default 300g
+                $weight = $item->size?->weight
+                    ?? $item->variant?->weight
+                    ?? $item->product?->weight
+                    ?? 300;
+
+                $itemValue += (int) $item->price;
+
+                return [
+                    'name'     => $name,
+                    'value'    => (int) $item->price,
+                    'quantity' => $item->quantity,
+                    'weight'   => max(1, (int) $weight),
+                ];
+            })->toArray();
+
+            // Map courier canonical name → Biteship code + type
+            // POS Indonesia harus type 'sps', bukan 'reg'
+            $courierNameMap = [
+                'JNE'           => ['company' => 'jne', 'type' => BiteshipService::COURIER_SERVICE_MAP['jne']],
+                'JNT Express'   => ['company' => 'jnt', 'type' => BiteshipService::COURIER_SERVICE_MAP['jnt']],
+                'J&T Express'   => ['company' => 'jnt', 'type' => BiteshipService::COURIER_SERVICE_MAP['jnt']],
+                'POS Indonesia' => ['company' => 'pos', 'type' => BiteshipService::COURIER_SERVICE_MAP['pos']],
+                'Pos Indonesia' => ['company' => 'pos', 'type' => BiteshipService::COURIER_SERVICE_MAP['pos']],
+            ];
+            $courierEntry = $courierNameMap[$order->courier]
+                ?? ['company' => strtolower(explode(' ', $order->courier)[0]), 'type' => $order->courier_service ?? 'reg'];
+
+            $isCod     = ($order->payment_method === 'cod');
+            $codAmount = $isCod ? (int) $order->total : null;
 
             $result = $biteship->createOrder([
                 'order_number'     => $order->order_number,
@@ -117,9 +149,14 @@ class TestBiteshipOrder extends Command
                 'customer_email'   => $order->customer_email,
                 'shipping_address' => $order->shipping_address,
                 'shipping_area_id' => $order->shipping_area_id,
-                'courier_company'  => strtolower(explode(' ', $order->courier)[0]),
-                'courier_type'     => 'reg',
+                'destination_lat'  => $order->destination_lat,
+                'destination_lng'  => $order->destination_lng,
+                'courier_company'  => $courierEntry['company'],
+                'courier_type'     => $courierEntry['type'],
+                'item_value'       => $itemValue,
                 'items'            => $items,
+                'is_cod'           => $isCod,
+                'cod_amount'       => $codAmount,
             ]);
 
             $order->update([
@@ -128,6 +165,7 @@ class TestBiteshipOrder extends Command
                 'biteship_waybill_id'  => $result['biteship_waybill_id'],
                 'biteship_status'      => $result['biteship_status'],
                 'tracking_number'      => $result['biteship_waybill_id'] ?? $order->tracking_number,
+                'tracking_url'         => $result['tracking_url'] ?? $order->tracking_url,
             ]);
 
             $this->info('✓ Biteship order created!');
@@ -172,15 +210,25 @@ class TestBiteshipOrder extends Command
         $this->newLine();
 
         // Simulate order.status webhook
+        // Status resmi Biteship (sesuai docs): confirmed, scheduled, allocated, picking_up,
+        // picked, cancelled, on_hold, in_transit, dropping_off, return_in_transit,
+        // returned, rejected, disposed, courier_not_found, delivered
         $status = $this->choice('Select status to simulate', [
-            'confirmed'  => 'Confirmed (order accepted)',
-            'picking'    => 'Picking (courier picking up)',
-            'picked'     => 'Picked (courier has the package)',
-            'dropping'   => 'Dropping (in transit)',
-            'dropped'    => 'Dropped (delivered)',
-            'returned'   => 'Returned',
-            'cancelled'  => 'Cancelled',
-        ], 'picked');
+            'confirmed'         => 'Confirmed (order accepted by Biteship)',
+            'allocated'         => 'Allocated (courier assigned)',
+            'picking_up'        => 'Picking Up (courier on the way)',
+            'picked'            => 'Picked (courier has the package)',
+            'in_transit'        => 'In Transit (package in delivery)',
+            'dropping_off'      => 'Dropping Off (courier at destination)',
+            'delivered'         => 'Delivered → syncs Order to Completed',
+            'return_in_transit' => 'Return In Transit → syncs Order to Cancelled',
+            'returned'          => 'Returned → syncs Order to Cancelled',
+            'cancelled'         => 'Cancelled → syncs Order to Cancelled',
+            'rejected'          => 'Rejected → syncs Order to Cancelled',
+            'disposed'          => 'Disposed → syncs Order to Cancelled',
+            'courier_not_found' => 'Courier Not Found',
+            'on_hold'           => 'On Hold',
+        ], 'in_transit');
 
         $payload = [
             'event'                => 'order.status',

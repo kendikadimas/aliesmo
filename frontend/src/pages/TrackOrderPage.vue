@@ -120,6 +120,36 @@
                     <p class="text-sm text-charcoal/70 dark:text-[#d0ceca]/80 dark:text-[#d0ceca]">{{ order.shipping_address }}</p>
                 </div>
 
+                <!-- Informasi Resi & Tracking -->
+                <div v-if="order.courier" class="border-t border-maroon-100 dark:border-[#303032] mt-4 pt-4">
+                    <p class="text-xs font-semibold text-charcoal/50 dark:text-[#8a8a8e] mb-2 uppercase tracking-wide">Informasi Resi</p>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center gap-2">
+                            <span class="text-charcoal/50 dark:text-[#8a8a8e] w-20 shrink-0">Kurir</span>
+                            <span class="font-semibold text-charcoal dark:text-[#f0eeeb]">{{ order.courier }}</span>
+                        </div>
+                        <div v-if="order.tracking_number" class="flex items-center gap-2">
+                            <span class="text-charcoal/50 dark:text-[#8a8a8e] w-20 shrink-0">No. Resi</span>
+                            <span class="font-mono font-bold text-charcoal dark:text-[#f0eeeb] tracking-wide">{{ order.tracking_number }}</span>
+                        </div>
+                        <div v-if="order.biteship_status" class="flex items-center gap-2">
+                            <span class="text-charcoal/50 dark:text-[#8a8a8e] w-20 shrink-0">Status</span>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold"
+                                :class="biteshipStatusClass(order.biteship_status)">
+                                {{ biteshipStatusLabel(order.biteship_status) }}
+                            </span>
+                        </div>
+                        <div v-if="order.tracking_url" class="flex items-center gap-2">
+                            <span class="text-charcoal/50 dark:text-[#8a8a8e] w-20 shrink-0">Lacak</span>
+                            <a :href="order.tracking_url" target="_blank" rel="noopener noreferrer"
+                                class="inline-flex items-center gap-1 text-maroon dark:text-[#f0eeeb] font-semibold hover:underline text-xs">
+                                Cek Resi
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Bantuan via WhatsApp — selalu muncul -->
                 <div class="mt-6 pt-4 border-t border-maroon-100 dark:border-[#303032]">
                     <a :href="waLink(order)" target="_blank" rel="noopener"
@@ -245,6 +275,34 @@ function statusLabel(status) {
         shipped: 'Dikirim', completed: 'Selesai', cancelled: 'Dibatalkan', expired: 'Kadaluarsa',
     }
     return labels[status] || status
+}
+
+function biteshipStatusLabel(status) {
+    const labels = {
+        confirmed: 'Dikonfirmasi',
+        picking: 'Sedang Diambil',
+        picked: 'Sudah Diambil',
+        dropping: 'Dalam Perjalanan',
+        dropped: 'Sampai Tujuan',
+        delivered: 'Terkirim',
+        returned: 'Dikembalikan',
+        cancelled: 'Dibatalkan',
+    }
+    return labels[status] || status
+}
+
+function biteshipStatusClass(status) {
+    const classes = {
+        confirmed: 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400',
+        picking: 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400',
+        picked: 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400',
+        dropping: 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400',
+        dropped: 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400',
+        delivered: 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400',
+        returned: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400',
+        cancelled: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400',
+    }
+    return classes[status] || 'bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-400'
 }
 
 function statusClass(status) {

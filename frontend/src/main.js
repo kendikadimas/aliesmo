@@ -9,6 +9,7 @@ import CartPage from './pages/CartPage.vue'
 import CatalogPage from './pages/CatalogPage.vue'
 import CheckoutPage from './pages/CheckoutPage.vue'
 import OrderConfirmationPage from './pages/OrderConfirmationPage.vue'
+import PaymentProofPage from './pages/PaymentProofPage.vue'
 import LoginPage from './pages/LoginPage.vue'
 import RegisterPage from './pages/RegisterPage.vue'
 import ProfilePage from './pages/ProfilePage.vue'
@@ -33,6 +34,7 @@ const routes = [
     { path: '/catalog/:slug', name: 'catalog-category', component: CatalogPage },
     { path: '/checkout', name: 'checkout', component: CheckoutPage },
     { path: '/order/:orderNumber', name: 'order-confirmation', component: OrderConfirmationPage },
+    { path: '/order/:orderNumber/pay', name: 'payment-proof', component: PaymentProofPage },
     { path: '/track-order', name: 'track-order', component: TrackOrderPage },
     { path: '/blog', name: 'blog', component: BlogPage },
     { path: '/blog/:slug', name: 'article-detail', component: ArticleDetailPage },

@@ -11,7 +11,8 @@ class Payment extends Model
 
     protected $fillable = [
         'order_id', 'gateway', 'gateway_transaction_id',
-        'gateway_reference', 'amount', 'status', 'raw_payload'
+        'gateway_reference', 'amount', 'status', 'raw_payload',
+        'proof_image', 'proof_note', 'confirmed_at'
     ];
 
     protected function casts(): array
@@ -20,11 +21,17 @@ class Payment extends Model
             'amount' => 'decimal:2',
             'status' => \App\Enums\PaymentStatus::class,
             'raw_payload' => 'array',
+            'confirmed_at' => 'datetime',
         ];
     }
 
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
+    }
+
+    public function getProofImageUrlAttribute(): ?string
+    {
+        return $this->proof_image ? asset('storage/' . $this->proof_image) : null;
     }
 }

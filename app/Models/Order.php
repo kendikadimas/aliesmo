@@ -14,9 +14,10 @@ class Order extends Model
 
     protected $fillable = [
         'order_number', 'lookup_token', 'lookup_token_expires_at', 'user_id', 'customer_name', 'customer_email',
-        'customer_phone', 'shipping_address', 'shipping_area_id', 'subtotal', 'shipping_cost',
+        'customer_phone', 'shipping_address', 'shipping_area_id', 'destination_lat', 'destination_lng',
+        'subtotal', 'shipping_cost',
         'coupon_discount', 'coupon_code', 'total', 'status', 'payment_method', 'selected_bank',
-        'tracking_number', 'tracking_url', 'courier',
+        'tracking_number', 'tracking_url', 'courier', 'courier_service',
         'biteship_order_id', 'biteship_tracking_id', 'biteship_waybill_id', 'biteship_status',
         'paid_at'
     ];

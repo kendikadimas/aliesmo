@@ -25,7 +25,15 @@ class PublicOrderResource extends JsonResource
             'coupon_discount'  => (float) ($this->coupon_discount ?? 0),
             'total'            => (float) $this->total,
             'status'           => $this->status->value,
+            'courier'          => $this->courier,
+            'tracking_number'  => $this->tracking_number,
+            'tracking_url'     => $this->tracking_url,
+            'biteship_status'  => $this->biteship_status,
             'items'            => OrderItemResource::collection($this->whenLoaded('items')),
+            'payment'          => $this->whenLoaded('payment', fn() => [
+                'proof_image' => $this->payment->proof_image,
+                'status'      => $this->payment->status->value,
+            ]),
             'created_at'       => $this->created_at,
         ];
     }

@@ -35,7 +35,7 @@
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                     </span>
                     <p class="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
-                        <strong>Pembayaran dilakukan via WhatsApp</strong> — tim kami akan memandu kamu setelah pesan diterima.
+                        <strong>Upload bukti pembayaran</strong> — silakan transfer ke rekening yang dipilih, lalu upload bukti transfer.
                     </p>
                 </div>
                 <div class="flex items-start gap-2.5">
@@ -46,6 +46,24 @@
                         Untuk melihat <strong>riwayat & status pesanan</strong>, login dengan email yang sama lalu klik menu di kiri atas.
                     </p>
                 </div>
+            </div>
+
+            <!-- Tombol Upload Bukti Bayar — hanya non-COD -->
+            <div v-if="order.status === 'pending' && !hasProof && order.payment_method !== 'cod'" class="mt-6">
+                <router-link :to="`/order/${order.order_number}/pay`"
+                    class="inline-flex items-center gap-2 px-6 py-3.5 bg-maroon text-white font-semibold text-sm rounded-xl hover:bg-maroon-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                    </svg>
+                    Upload Bukti Pembayaran
+                </router-link>
+                <p class="mt-2 text-xs text-charcoal/40">atau hubungi kami via WhatsApp</p>
+            </div>
+
+            <!-- Sudah upload bukti -->
+            <div v-if="order.status === 'pending' && hasProof" class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-2xl max-w-sm mx-auto">
+                <p class="text-sm font-semibold text-blue-800 dark:text-blue-300">Bukti pembayaran sudah diunggah</p>
+                <p class="text-xs text-blue-600 dark:text-blue-400 mt-1">Admin akan memverifikasi dalam 1x24 jam.</p>
             </div>
 
             <div class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-maroon-50 dark:bg-maroon/20 rounded-xl text-sm max-w-full overflow-hidden">
@@ -119,32 +137,77 @@
 
                 <!-- Info Resi & Tracking -->
                 <div class="mt-4 pt-4 border-t border-maroon-100 dark:border-[#303032]">
-                    <p class="text-xs font-semibold text-charcoal/50 dark:text-[#8a8a8e] mb-2 uppercase tracking-wide">Informasi Resi</p>
+                    <p class="text-xs font-semibold text-charcoal/50 dark:text-[#8a8a8e] mb-3 uppercase tracking-wide">Status Pengiriman</p>
 
-                    <!-- Kurir ada -->
-                    <div v-if="order.courier" class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                    <!-- Timeline pengiriman Biteship -->
+                    <div v-if="order.courier || order.biteship_status" class="mb-4">
+                        <!-- Baris kurir + resi + link tracking -->
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm mb-3">
+                            <span class="flex items-center gap-1.5">
+                                <svg class="w-4 h-4 shrink-0 text-charcoal/40 dark:text-[#6a6a6e]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2M8 4v4h8V4M8 4h8"/></svg>
+                                <span class="font-semibold text-charcoal dark:text-[#f0eeeb] uppercase tracking-wide">{{ order.courier }}</span>
+                                <span v-if="order.courier_service" class="text-xs text-charcoal/40 dark:text-[#6a6a6e] uppercase">{{ order.courier_service }}</span>
+                            </span>
+                            <template v-if="order.tracking_number">
+                                <span class="text-charcoal/40 dark:text-[#6a6a6e]">·</span>
+                                <span class="font-mono text-xs font-bold text-charcoal dark:text-[#f0eeeb] tracking-wider">{{ order.tracking_number }}</span>
+                                <a v-if="order.tracking_url" :href="order.tracking_url" target="_blank" rel="noopener noreferrer"
+                                    class="inline-flex items-center gap-1 text-xs font-semibold text-maroon dark:text-[#f0eeeb] hover:underline">
+                                    Lacak
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+                                </a>
+                            </template>
+                        </div>
+
+                        <!-- Stepper timeline -->
+                        <div class="relative">
+                            <!-- Garis vertikal -->
+                            <div class="absolute left-[11px] top-3 bottom-3 w-0.5 bg-maroon-100 dark:bg-[#303032]"></div>
+                            <div class="space-y-0">
+                                <div v-for="(step, i) in shippingSteps" :key="step.key"
+                                    class="relative flex items-start gap-3 pb-3 last:pb-0">
+                                    <!-- Dot -->
+                                    <div class="relative z-10 flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mt-0.5"
+                                        :class="step.state === 'done' ? 'bg-green-500' : step.state === 'active' ? 'bg-maroon dark:bg-[#f0eeeb]' : step.state === 'error' ? 'bg-red-500' : 'bg-maroon-100 dark:bg-[#303032]'">
+                                        <!-- Done: centang -->
+                                        <svg v-if="step.state === 'done'" class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                        <!-- Active: lingkaran -->
+                                        <div v-else-if="step.state === 'active'" class="w-2 h-2 rounded-full bg-white dark:bg-[#111111]"></div>
+                                        <!-- Error: silang -->
+                                        <svg v-else-if="step.state === 'error'" class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        <!-- Pending: kosong -->
+                                        <div v-else class="w-2 h-2 rounded-full bg-maroon-200 dark:bg-[#505052]"></div>
+                                    </div>
+                                    <!-- Label -->
+                                    <div class="pt-0.5">
+                                        <p class="text-sm font-semibold leading-tight"
+                                            :class="step.state === 'done' ? 'text-charcoal dark:text-[#f0eeeb]' : step.state === 'active' ? 'text-maroon dark:text-[#f0eeeb]' : step.state === 'error' ? 'text-red-600 dark:text-red-400' : 'text-charcoal/30 dark:text-[#505052]'">
+                                            {{ step.label }}
+                                        </p>
+                                        <p v-if="step.state === 'active' && step.desc" class="text-xs text-charcoal/50 dark:text-[#8a8a8e] mt-0.5">{{ step.desc }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kurir ada tapi Biteship belum ada status — tampilan lama inline -->
+                    <div v-else-if="order.courier" class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
                         <span class="flex items-center gap-1.5 text-charcoal/60 dark:text-[#8a8a8e]">
                             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2M8 4v4h8V4M8 4h8"/></svg>
                             <span class="font-semibold text-charcoal dark:text-[#f0eeeb]">{{ order.courier }}</span>
                         </span>
-
-                        <!-- Sudah ada resi -->
                         <template v-if="order.tracking_number">
                             <span class="flex items-center gap-1.5 text-charcoal/60 dark:text-[#8a8a8e]">
                                 <span class="text-xs">No. Resi:</span>
                                 <span class="font-mono font-bold text-charcoal dark:text-[#f0eeeb] tracking-wide">{{ order.tracking_number }}</span>
                             </span>
-                            <a v-if="order.tracking_url"
-                                :href="order.tracking_url"
-                                target="_blank"
-                                rel="noopener noreferrer"
+                            <a v-if="order.tracking_url" :href="order.tracking_url" target="_blank" rel="noopener noreferrer"
                                 class="inline-flex items-center gap-1 text-xs font-semibold text-maroon dark:text-[#f0eeeb] hover:underline">
                                 Cek Resi
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
                             </a>
                         </template>
-
-                        <!-- Belum ada resi — tooltip -->
                         <template v-else>
                             <span class="relative group inline-flex items-center gap-1 text-xs text-charcoal/40 dark:text-[#6a6a6e] cursor-help">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -166,7 +229,7 @@
                     </div>
 
                     <!-- Kurir belum ada sama sekali -->
-                    <div v-else class="flex items-center gap-1.5 text-xs text-charcoal/40 dark:text-[#6a6a6e]">
+                    <div v-if="!order.courier && !order.biteship_status" class="flex items-center gap-1.5 text-xs text-charcoal/40 dark:text-[#6a6a6e]">
                         <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         Info pengiriman akan diupdate setelah pesanan diproses.
                     </div>
@@ -321,6 +384,7 @@ const copied = ref(false)
 
 const isLoggedIn = !!localStorage.getItem('token')
 const isCompleted = computed(() => order.value?.status === 'completed')
+const hasProof = computed(() => !!order.value?.payment?.proof_image)
 const reviewedProducts = ref(new Set())
 
 // Review modal state
@@ -409,8 +473,92 @@ function statusLabel(status) {
         cancelled: 'Dibatalkan',
         expired: 'Kadaluarsa',
     }
+    // Jika sudah upload bukti tapi status masih pending
+    if (status === 'pending' && hasProof.value) return 'Menunggu Verifikasi'
     return labels[status] || status
 }
+
+// Status resmi Biteship docs: confirmed, scheduled, allocated, picking_up, picked,
+// dropping_off, delivered, cancelled, on_hold, in_transit,
+// return_in_transit, returned, rejected, disposed, courier_not_found
+function biteshipStatusLabel(status) {
+    const labels = {
+        confirmed:         'Order Dikonfirmasi',
+        scheduled:         'Dijadwalkan',
+        allocated:         'Kurir Dialokasikan',
+        picking_up:        'Kurir Menuju Pengirim',
+        picked:            'Paket Diambil Kurir',
+        in_transit:        'Dalam Perjalanan',
+        dropping_off:      'Menuju Lokasi Tujuan',
+        delivered:         'Paket Terkirim',
+        on_hold:           'Ditahan Sementara',
+        return_in_transit: 'Sedang Diretur',
+        returned:          'Paket Diretur',
+        cancelled:         'Dibatalkan',
+        rejected:          'Ditolak',
+        disposed:          'Dimusnahkan',
+        courier_not_found: 'Kurir Tidak Ditemukan',
+    }
+    return labels[status] || status
+}
+
+// Computed: daftar step timeline sesuai urutan status Biteship
+const shippingSteps = computed(() => {
+    const current = order.value?.biteship_status
+    const isCancelled  = ['cancelled', 'rejected', 'disposed', 'courier_not_found'].includes(current)
+    const isReturning  = ['return_in_transit', 'returned'].includes(current)
+
+    // Urutan normal
+    const normalFlow = [
+        { key: 'confirmed',    label: 'Pesanan Dikonfirmasi',     desc: 'Biteship sedang mengalokasikan kurir' },
+        { key: 'allocated',    label: 'Kurir Dialokasikan',       desc: 'Kurir sudah ditentukan' },
+        { key: 'picking_up',   label: 'Kurir Menuju Pengirim',    desc: 'Kurir dalam perjalanan ke lokasi pengambilan' },
+        { key: 'picked',       label: 'Paket Diambil',            desc: 'Paket sudah ada di tangan kurir' },
+        { key: 'in_transit',   label: 'Dalam Perjalanan',         desc: 'Paket sedang dikirim ke tujuan' },
+        { key: 'dropping_off', label: 'Menuju Lokasi Tujuan',     desc: 'Kurir sedang menuju alamatmu' },
+        { key: 'delivered',    label: 'Paket Terkirim',           desc: 'Paket berhasil diterima' },
+    ]
+
+    // Order status Biteship untuk menentukan index yang sudah lewat
+    const orderIndex = {
+        confirmed: 0, scheduled: 0, allocated: 1,
+        picking_up: 2, picked: 3,
+        in_transit: 4, dropping_off: 5,
+        delivered: 6,
+        on_hold: 4, // tetap di in_transit
+    }
+
+    const currentIdx = orderIndex[current] ?? -1
+
+    if (isCancelled) {
+        // Tampilkan sampai step terakhir yang tercapai + step cancelled
+        const lastReached = Object.keys(orderIndex).reduce((max, k) => {
+            if (order.value?.biteship_status_history?.includes(k)) {
+                return Math.max(max, orderIndex[k])
+            }
+            return max
+        }, -1)
+        return [
+            ...normalFlow.slice(0, Math.max(lastReached + 1, 1)).map((s, i) => ({
+                ...s, state: 'done'
+            })),
+            { key: 'cancelled', label: biteshipStatusLabel(current), desc: '', state: 'error' },
+        ]
+    }
+
+    if (isReturning) {
+        return [
+            ...normalFlow.map(s => ({ ...s, state: 'done' })),
+            { key: 'return_in_transit', label: 'Paket Sedang Diretur', desc: '', state: current === 'returned' ? 'done' : 'active' },
+            ...(current === 'returned' ? [{ key: 'returned', label: 'Paket Diretur ke Pengirim', desc: '', state: 'done' }] : []),
+        ]
+    }
+
+    return normalFlow.map((s, i) => ({
+        ...s,
+        state: i < currentIdx ? 'done' : i === currentIdx ? 'active' : 'pending',
+    }))
+})
 
 function statusClass(status) {
     const classes = {

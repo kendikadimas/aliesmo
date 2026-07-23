@@ -63,7 +63,7 @@ class SecurityHeaders
             "img-src 'self' data: blob: https:; " .
             "frame-src https://www.youtube.com; " .
             "worker-src 'self' blob:; " .
-            "connect-src 'self' https://www.youtube.com{$connectDevSources};"
+            "connect-src 'self' https://www.youtube.com https://nominatim.openstreetmap.org{$connectDevSources};"
         );
 
         return $response;

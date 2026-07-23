@@ -59,6 +59,81 @@ Tidak ada akses SSH ke production. Opsi yang tersedia:
 
 ## Changelog
 
+### 2026-07-15 — Cetak Label Pengiriman
+
+**Backend**
+
+**`app/Http/Controllers/ShippingLabelController.php`** (baru)
+- Controller untuk halaman cetak label pengiriman
+- Data: waybill_id, courier type, service type, postal code, total weight
+
+**`resources/views/shipping-label.blade.php`** (baru)
+- Halaman cetak label dengan layout standar thermal label (100mm x 150mm)
+- Barcode Code128 menggunakan JsBarcode CDN
+- CSS `@media print` untuk cetak tanpa header/footer browser
+- Section: Header (brand + service type) → Order Info → Recipient → Sender → Details → Barcode → Footer
+
+**`routes/web.php`**
+- Tambah route `GET /admin/orders/{order}/label` → `ShippingLabelController@show`
+
+**Admin Panel**
+
+**`app/Filament/Resources/OrderResource.php`**
+- Tambah tombol "Cetak Label" di section "Informasi Resi" (header action)
+- Membuka halaman label di tab baru
+
+---
+
+### 2026-07-14 — Biteship Tracking URL & Status Pengiriman
+
+**Backend**
+
+**`config/services.php`**
+- Tambah `origin_latitude` (`-6.909194`) dan `origin_longitude` (`109.555889`) ke konfigurasi Biteship
+- Koordinat toko: 6°54'33.1"S, 109°33'21.2"E (Ulujami, Pemalang)
+
+**`app/Services/BiteshipService.php`**
+- `createOrder()`: return `tracking_url` dari response `$data['courier']['link']`
+- `createOrder()`: tambah `origin_coordinate` ke payload (latitude/longitude dari config)
+
+**`app/Services/OrderService.php`**
+- `createBiteshipShipment()`: simpan `tracking_url` dari Biteship response ke database
+
+**`app/Http/Resources/OrderResource.php`**
+- Tambah field `biteship_status` ke API response authenticated
+
+**`app/Http/Resources/PublicOrderResource.php`**
+- Tambah field `courier`, `tracking_number`, `tracking_url`, `biteship_status` ke API response public
+
+**`app/Filament/Resources/OrderResource.php`**
+- Tracking URL: prioritaskan Biteship URL (jika ada) daripada hardcoded courier URLs
+- `createBiteshipShipment`: visibility diubah ke `public`
+
+**`app/Http/Controllers/Api/BiteshipWebhookController.php`**
+- `handleStatusUpdate()`: simpan `courier_link` dari webhook ke `tracking_url`
+- `handleWaybill()`: simpan `courier_link` dari webhook ke `tracking_url`
+
+**`app/Console/Commands/TestBiteshipOrder.php`**
+- Update: gunakan map kurir yang benar (J&T=`'ez'`)
+- Update: kirim `destination_lat`/`destination_lng` ke `createOrder()`
+- Update: simpan `tracking_url` ke database
+
+**Frontend**
+
+**`frontend/src/pages/OrderConfirmationPage.vue`**
+- Tambah `biteshipStatusLabel()` dan `biteshipStatusClass()` helper functions
+- Tambah badge status pengiriman (Biteship status) di bawah info resi
+
+**`frontend/src/pages/TrackOrderPage.vue`**
+- Tambah section "Informasi Resi" lengkap: kurir, no. resi, status pengiriman, link tracking
+- Tambah `biteshipStatusLabel()` dan `biteshipStatusClass()` helper functions
+
+**`frontend/src/pages/MyOrdersPage.vue`**
+- Tambah badge Biteship status di setiap order card
+- Tambah `biteshipStatusLabel()` dan `biteshipStatusClass()` helper functions
+
+---
+
 ### 2026-07-13 — Dynamic Product Variant Selection (SKU Matrix)
 
 **`app/Http/Resources/ProductVariantResource.php`**
@@ -198,51 +273,85 @@ Tidak ada akses SSH ke production. Opsi yang tersedia:
 aliesmo/
 ├── .github/workflows/deploy.yml      # GitHub Actions CI/CD
 ├── app/
+│   ├── Console/Commands/
+│   │   └── TestBiteshipOrder.php     # Artisan: biteship:test
+│   ├── Enums/
+│   │   ├── OrderStatus.php           # Order status enum
+│   │   └── PaymentStatus.php         # Payment status enum
 │   ├── Filament/Resources/
-│   │   └── OrderResource.php         # Admin panel order management
+│   │   └── OrderResource.php         # Admin panel: order, Biteship, bukti bayar, cetak label
 │   ├── Http/
+│   │   ├── Controllers/
+│   │   │   └── ShippingLabelController.php  # Cetak label pengiriman
 │   │   ├── Controllers/Api/
-│   │   │   └── OrderController.php   # API order endpoints
+│   │   │   ├── BiteshipWebhookController.php  # Webhook handler
+│   │   │   ├── OrderController.php            # Order + upload bukti bayar
+│   │   │   └── ShippingController.php         # Cek ongkir (Biteship-only)
+│   │   ├── Middleware/
+│   │   │   └── SecurityHeaders.php   # CSP (termasuk Nominatim)
 │   │   ├── Requests/Api/
 │   │   │   └── StoreOrderRequest.php # Validasi order
 │   │   └── Resources/
-│   │       ├── OrderResource.php     # API resource order
-│   │       ├── OrderItemResource.php # API resource item (include product_image)
+│   │       ├── OrderResource.php     # API resource (authenticated, include biteship_status)
+│   │       ├── PublicOrderResource.php # API resource (guest, include biteship_status)
+│   │       ├── OrderItemResource.php # API resource item
 │   │       └── PaymentResource.php   # API resource payment
+│   ├── Jobs/
+│   │   └── SendOrderNotifications.php # Async email (customer + admin)
+│   ├── Models/
+│   │   ├── Order.php                 # $fillable: destination_lat/lng, tracking_url
+│   │   └── Payment.php               # proof_image, confirmed_at
 │   └── Services/
-│       └── OrderService.php          # Business logic: buat order, normalisasi kurir
+│       ├── BiteshipService.php       # createOrder (return tracking_url), searchArea, shippingCosts
+│       └── OrderService.php          # createBiteshipShipment, createFromCart, generateOrderNumber
+├── config/
+│   └── services.php                  # Biteship: origin coords, area_id, postal
 ├── database/migrations/              # Semua migration — jalankan php artisan migrate
-├── frontend/src/
-│   ├── App.vue                       # Navbar, footer, logo, social media
-│   ├── pages/
-│   │   ├── CheckoutPage.vue          # Checkout, bank selection
-│   │   ├── OrderConfirmationPage.vue # Konfirmasi order
-│   │   ├── ProfilePage.vue           # Profil, pesanan, info pengiriman
-│   │   └── MyOrdersPage.vue          # Daftar pesanan
-│   └── useSettings.js                # Settings cache
+├── frontend/
+│   ├── index.html                    # Preconnect hints
+│   ├── vite.config.js                # Proxy + base: '/build/'
+│   └── src/
+│       ├── App.vue                   # Navbar, footer, logo, social media
+│       ├── api.js                    # Axios instance
+│       ├── cart.js                   # 3-level key, weight
+│       ├── mock-data.js              # formatPrice
+│       ├── useSettings.js            # Module-level cache
+│       ├── components/
+│       │   └── MapPicker.vue         # Leaflet + Nominatim geocoding
+│       └── pages/
+│           ├── CheckoutPage.vue      # Checkout, bank, MapPicker, selectDestination retry
+│           ├── OrderConfirmationPage.vue # Biteship status badge, tracking info
+│           ├── TrackOrderPage.vue    # Biteship status badge, tracking info
+│           ├── PaymentProofPage.vue  # Upload bukti bayar (dark mode)
+│           ├── ProfilePage.vue       # Profil, pesanan, info pengiriman
+│           └── MyOrdersPage.vue      # Daftar pesanan + Biteship status badge
 ├── public/
 │   ├── deploy-runner.php             # Post-deploy: migrate + storage:link + optimize:clear
 │   └── aliesmo-logo.svg              # Logo SVG
-└── routes/api.php                    # API routes (urutan penting: static sebelum wildcard)
+├── resources/
+│   └── views/
+│       └── shipping-label.blade.php  # Cetak label pengiriman (thermal 100x150mm)
+└── routes/
+    ├── api.php                       # API routes (urutan penting: static sebelum wildcard)
+    └── web.php                       # SPA catch-all (exclude assets path)
 ```
 
 ---
 
 ## Kurir yang Didukung
 
-| Nama di DB | Tracking URL |
-|---|---|
-| JNE | https://jne.co.id/tracking-package |
-| JNT Express | https://jet.co.id/track |
-| SiCepat | https://www.sicepat.com/ |
-| Anteraja | https://anteraja.id/id/tracking |
-| Ninja | https://www.ninjaxpress.co/en-id/tracking |
-| Pos Indonesia | https://www.posindonesia.co.id/id/tracking |
-| Lion Parcel | https://lionparcel.com/track |
+| Nama di DB | Company | Courier Type | Tracking URL |
+|---|---|---|---|
+| JNE | `jne` | `reg` | Biteship tracking URL |
+| JNT Express | `jnt` | `ez` | Biteship tracking URL |
+| POS Indonesia | `pos` | `reg` | Biteship tracking URL |
 
-Mapping ini ada di dua tempat:
-- `app/Services/OrderService.php` — saat order dibuat
-- `app/Filament/Resources/OrderResource.php` — saat admin input resi
+Hanya 3 kurir yang didukung. Tracking URL menggunakan Biteship (`courier.link` dari API response).
+
+Mapping ada di:
+- `app/Services/BiteshipService.php` — `COURIERS` dan `COURIER_NAMES`
+- `app/Services/OrderService.php` — `createBiteshipShipment()` line 273-277
+- `app/Console/Commands/TestBiteshipOrder.php` — `COURIERS` map
 
 ---
 
@@ -253,3 +362,10 @@ Mapping ini ada di dua tempat:
 - **Route order**: static routes (`claimable-count`, `claim`) harus di atas wildcard `{orderNumber}` di `routes/api.php`
 - **Settings cache**: jika setting baru tidak muncul di frontend, lakukan hard refresh (Ctrl+Shift+R) atau tunggu cache expire
 - Error `contentscript.js MaxListenersExceededWarning` di console adalah dari ekstensi browser (MetaMask) — bukan dari app
+- **J&T courier_type = `'ez'`** — JANGAN gunakan `'reg'` (akan error 40002027). Test script membuktikan ini definitif.
+- **Biteship createOrder**: kirim `origin_coordinate` dan `destination_coordinate` untuk routing yang lebih akurat
+- **Biteship searchArea**: return `latitude: null, longitude: null` untuk semua alamat Indonesia — gunakan Nominatim geocoding
+- **Leaflet invalidateSize()**: WAJIB dipanggil saat map container lazy-loaded (defineAsyncComponent + Suspense)
+- **Async email**: `SendOrderNotifications` job di-queue (bukan sync) agar tidak blocking order creation
+- **CSP**: Nominatim (`https://nominatim.openstreetmap.org`) harus ada di `connect-src` SecurityHeaders
+- **window.axios TIDAK ADA** — gunakan `import api from '../api'` di semua komponen Vue

@@ -54,13 +54,15 @@ return [
     ],
 
     'biteship' => [
-        'api_key'        => env('BITESHIP_API_KEY'),
-        'base_url'       => env('BITESHIP_BASE_URL', 'https://api.biteship.com'),
-        'origin_postal'  => env('BITESHIP_ORIGIN_POSTAL', '52371'),                          // kode pos Ulujami
-        'origin_area_id' => env('BITESHIP_ORIGIN_AREA_ID', 'IDNP10IDNC348IDND4071IDZ52371'), // area_id Ulujami, Pemalang
-        'origin_phone'   => env('BITESHIP_ORIGIN_PHONE', '08138883345'),
-        'origin_address' => env('BITESHIP_ORIGIN_ADDRESS', 'Ulujami, Pemalang, Jawa Tengah'),
-        'webhook_secret' => env('BITESHIP_WEBHOOK_SECRET'),
+        'api_key'           => env('BITESHIP_API_KEY'),
+        'base_url'          => env('BITESHIP_BASE_URL', 'https://api.biteship.com'),
+        'origin_postal'     => env('BITESHIP_ORIGIN_POSTAL', '52371'),                          // kode pos Ulujami
+        'origin_area_id'    => env('BITESHIP_ORIGIN_AREA_ID', 'IDNP10IDNC348IDND4071IDZ52371'), // area_id Ulujami, Pemalang
+        'origin_phone'      => env('BITESHIP_ORIGIN_PHONE', '08138883345'),
+        'origin_address'    => env('BITESHIP_ORIGIN_ADDRESS', 'Ulujami, Pemalang, Jawa Tengah'),
+        'origin_latitude'   => env('BITESHIP_ORIGIN_LATITUDE', '-6.909194'),   // 6°54'33.1"S
+        'origin_longitude'  => env('BITESHIP_ORIGIN_LONGITUDE', '109.555889'), // 109°33'21.2"E
+        'webhook_secret'    => env('BITESHIP_WEBHOOK_SECRET'),
     ],
 
     'google' => [

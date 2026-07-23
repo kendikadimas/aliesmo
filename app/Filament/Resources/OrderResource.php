@@ -14,9 +14,11 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\URL;
 
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -82,6 +84,10 @@ class OrderResource extends Resource
                         TextEntry::make('courier')
                             ->label('Kurir')
                             ->placeholder('Belum diinput'),
+                        TextEntry::make('courier_service')
+                            ->label('Layanan')
+                            ->placeholder('-')
+                            ->formatStateUsing(fn (?string $state): string => $state ? strtoupper($state) : '-'),
                         TextEntry::make('tracking_number')
                             ->label('No. Resi')
                             ->placeholder('Belum diinput'),
@@ -94,9 +100,14 @@ class OrderResource extends Resource
                             ->label('Biteship Order ID')
                             ->placeholder('-')
                             ->copyable(),
+                        TextEntry::make('biteship_tracking_id')
+                            ->label('Biteship Tracking ID')
+                            ->placeholder('-')
+                            ->copyable(),
                         TextEntry::make('biteship_waybill_id')
                             ->label('Biteship Waybill')
-                            ->placeholder('-'),
+                            ->placeholder('-')
+                            ->copyable(),
                         TextEntry::make('biteship_status')
                             ->label('Status Biteship')
                             ->badge()
@@ -109,7 +120,26 @@ class OrderResource extends Resource
                                 default => 'gray',
                             })
                             ->placeholder('-'),
-                    ])->columns(3),
+                    ])
+                    ->headerActions([
+                        Action::make('printLabel')
+                            ->label('Cetak Label')
+                            ->icon('heroicon-o-printer')
+                            ->color('primary')
+                            ->url(fn (Order $record): string => route('orders.label', $record))
+                            ->openUrlInNewTab(),
+                        Action::make('biteshipDashboard')
+                            ->label('Buka di Biteship')
+                            ->icon('heroicon-o-arrow-top-right-on-square')
+                            ->color('gray')
+                            ->url(fn (Order $record): string =>
+                                $record->biteship_order_id
+                                    ? 'https://dashboard.biteship.com/orders/' . $record->biteship_order_id
+                                    : 'https://dashboard.biteship.com/orders'
+                            )
+                            ->openUrlInNewTab(),
+                    ])
+                    ->columns(3),
                 Section::make('Item Pesanan')
                     ->schema([
                         RepeatableEntry::make('items')
@@ -127,9 +157,75 @@ class OrderResource extends Resource
                         TextEntry::make('subtotal')->label('Subtotal')->money('IDR'),
                         TextEntry::make('shipping_cost')->label('Ongkir')->money('IDR'),
                         TextEntry::make('total')->label('Total')->money('IDR'),
-                        TextEntry::make('payment_method')->label('Metode Pembayaran'),
+                        TextEntry::make('payment_method')
+                            ->label('Metode Pembayaran')
+                            ->badge()
+                            ->color(fn (?string $state): string => match ($state) {
+                                'cod'           => 'warning',
+                                'qris'          => 'info',
+                                'bank_transfer' => 'primary',
+                                default         => 'gray',
+                            })
+                            ->formatStateUsing(fn (?string $state): string => match ($state) {
+                                'cod'           => 'COD (Bayar di Tempat)',
+                                'qris'          => 'QRIS',
+                                'bank_transfer' => 'Transfer Bank',
+                                default         => $state ?? '-',
+                            }),
                         TextEntry::make('paid_at')->label('Waktu Konfirmasi Pembayaran')->dateTime()->placeholder('Belum dikonfirmasi'),
                     ])->columns(2),
+                Section::make('Bukti Pembayaran')
+                    ->schema([
+                        ImageEntry::make('payment.proof_image')
+                            ->label('Foto Bukti Bayar')
+                            ->disk('public')
+                            ->height(300)
+                            ->width(300)
+                            ->extraImgAttributes(fn (Order $record): array => [
+                                'class'  => 'cursor-zoom-in rounded-lg object-contain',
+                                'title'  => 'Klik untuk melihat full size',
+                            ])
+                            ->url(fn (Order $record): ?string =>
+                                $record->payment?->proof_image
+                                    ? \Illuminate\Support\Facades\Storage::disk('public')->url($record->payment->proof_image)
+                                    : null
+                            )
+                            ->openUrlInNewTab()
+                            ->placeholder('Belum diunggah'),
+                        TextEntry::make('payment.proof_note')
+                            ->label('Catatan')
+                            ->placeholder('-'),
+                        TextEntry::make('payment.created_at')
+                            ->label('Waktu Upload')
+                            ->dateTime()
+                            ->placeholder('-'),
+                    ])
+                    ->headerActions([
+                        Action::make('confirmPaymentInline')
+                            ->label('Konfirmasi Pembayaran')
+                            ->icon('heroicon-o-check-circle')
+                            ->color('success')
+                            ->requiresConfirmation()
+                            ->modalHeading('Konfirmasi Pembayaran')
+                            ->modalDescription('Konfirmasi pembayaran order ini? Stok akan dikurangi dan order pengiriman Biteship akan dibuat otomatis.')
+                            ->modalSubmitActionLabel('Ya, Konfirmasi')
+                            ->action(function (Order $record) {
+                                $orderService = app(OrderService::class);
+                                $orderService->markAsPaid($record, $record->payment_method ?? 'bank_transfer');
+
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Pembayaran dikonfirmasi')
+                                    ->body("Order #{$record->order_number} sudah dikonfirmasi.")
+                                    ->success()
+                                    ->send();
+                            })
+                            ->visible(fn (Order $record): bool =>
+                                in_array($record->status, [OrderStatus::Pending, OrderStatus::Processing])
+                                && $record->payment_method !== 'cod'
+                            ),
+                    ])
+                    ->columns(3)
+                    ->visible(fn (Order $record): bool => $record->payment && $record->payment->proof_image),
             ]);
     }
 
@@ -181,6 +277,39 @@ class OrderResource extends Resource
                             ->send();
                     })
                     ->hidden(fn (Order $record): bool => $record->status !== OrderStatus::Pending),
+
+                Action::make('retryBiteship')
+                    ->label('Retry Biteship')
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading('Retry Biteship Order')
+                    ->modalDescription('Buat order pengiriman Biteship untuk order ini?')
+                    ->modalSubmitActionLabel('Ya, Retry')
+                    ->action(function (Order $record) {
+                        $orderService = app(OrderService::class);
+                        $orderService->createBiteshipShipment($record);
+                        
+                        $record->refresh();
+                        
+                        if ($record->biteship_order_id) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Biteship order berhasil dibuat')
+                                ->body("Order ID: {$record->biteship_order_id}")
+                                ->success()
+                                ->send();
+                        } else {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Gagal membuat Biteship order')
+                                ->body('Cek log untuk detail error.')
+                                ->danger()
+                                ->send();
+                        }
+                    })
+                    ->visible(fn (Order $record): bool => 
+                        in_array($record->status, [OrderStatus::Paid, OrderStatus::Processing, OrderStatus::Shipped]) 
+                        && empty($record->biteship_order_id)
+                    ),
 
                 Action::make('updateStatus')
                     ->label('Ubah Status')
@@ -263,9 +392,11 @@ class OrderResource extends Resource
                             'Pos Indonesia' => 'https://www.posindonesia.co.id/id/tracking',
                             'Lion Parcel'   => 'https://lionparcel.com/track',
                         ];
+                        // Use Biteship tracking URL if available, otherwise use hardcoded courier URLs
+                        $trackingUrl = $record->tracking_url ?? ($record->courier ? ($courierUrls[$record->courier] ?? null) : null);
                         $record->update([
                             'tracking_number' => $data['tracking_number'] ?: null,
-                            'tracking_url'    => $record->courier ? ($courierUrls[$record->courier] ?? null) : $record->tracking_url,
+                            'tracking_url'    => $trackingUrl,
                         ]);
 
                         // Kirim notifikasi resi ke customer
@@ -292,20 +423,48 @@ class OrderResource extends Resource
                     ->modalDescription('Batalkan order ini dan kembalikan stok produk secara otomatis?')
                     ->modalSubmitActionLabel('Ya, Batalkan')
                     ->action(function (Order $record) {
-                        DB::transaction(function () use ($record) {
-                            // Restock setiap item
-                            $stockService = app(StockService::class);
-                            $record->load('items');
-                            foreach ($record->items as $item) {
-                                try {
-                                    $stockService->adjustStock(
-                                        $item->product_id,
-                                        $item->quantity,
-                                        StockMovementType::Return,
-                                        "Restock - Order #{$record->order_number} dibatalkan"
-                                    );
-                                } catch (\Exception $e) {
-                                    // Produk mungkin sudah dihapus, skip saja
+                        // Hanya order yang sudah pernah deduct stok yang perlu direstock
+                        // Status pending = belum bayar = stok belum pernah dikurangi
+                        $paidStatuses = [
+                            OrderStatus::Paid,
+                            OrderStatus::Processing,
+                            OrderStatus::Shipped,
+                            OrderStatus::Completed,
+                        ];
+                        $shouldRestock = in_array($record->status, $paidStatuses);
+
+                        DB::transaction(function () use ($record, $shouldRestock) {
+                            if ($shouldRestock) {
+                                $stockService = app(StockService::class);
+                                $record->load('items');
+                                foreach ($record->items as $item) {
+                                    try {
+                                        if ($item->size_id) {
+                                            $stockService->adjustSizeStock(
+                                                $item->size_id,
+                                                $item->quantity,
+                                                StockMovementType::Return,
+                                                "Restock - Order #{$record->order_number} dibatalkan"
+                                            );
+                                        } elseif ($item->variant_id) {
+                                            $stockService->adjustVariantStock(
+                                                $item->variant_id,
+                                                $item->quantity,
+                                                StockMovementType::Return,
+                                                "Restock - Order #{$record->order_number} dibatalkan"
+                                            );
+                                        } else {
+                                            $stockService->adjustStock(
+                                                $item->product_id,
+                                                $item->quantity,
+                                                StockMovementType::Return,
+                                                "Restock - Order #{$record->order_number} dibatalkan"
+                                            );
+                                        }
+                                    } catch (\Exception $e) {
+                                        // Produk/variant/size mungkin sudah dihapus, skip saja
+                                        Log::warning("Restock skip item order #{$record->order_number}: " . $e->getMessage());
+                                    }
                                 }
                             }
                             $record->update(['status' => OrderStatus::Cancelled]);
@@ -335,14 +494,9 @@ class OrderResource extends Resource
                     ->label('Export Excel')
                     ->icon('heroicon-o-document-arrow-down')
                     ->action(function ($livewire) {
-                        $records = $livewire->getTableRecords();
-                        if ($records->isEmpty()) {
-                            $records = Order::query();
-                            foreach ($livewire->getTableFiltersForm()->getState() as $filter => $value) {
-                                // Apply filters
-                            }
-                            $records = $records->get();
-                        }
+                        // Gunakan query yang sudah terfilter dari tabel, bukan fallback ke semua order
+                        $query = $livewire->getFilteredTableQuery();
+                        $records = $query->get();
 
                         $tempFile = tempnam(sys_get_temp_dir(), 'orders_');
 

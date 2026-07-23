@@ -95,6 +95,10 @@
                             Cek Resi
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
                         </a>
+                        <span v-if="order.biteship_status" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                            :class="biteshipStatusClass(order.biteship_status)">
+                            {{ biteshipStatusLabel(order.biteship_status) }}
+                        </span>
                     </div>
                 </div>
 
@@ -191,6 +195,34 @@ function statusLabel(status) {
         expired: 'Kadaluarsa',
     }
     return labels[status] || status
+}
+
+function biteshipStatusLabel(status) {
+    const labels = {
+        confirmed: 'Dikonfirmasi',
+        picking: 'Sedang Diambil',
+        picked: 'Sudah Diambil',
+        dropping: 'Dalam Perjalanan',
+        dropped: 'Sampai Tujuan',
+        delivered: 'Terkirim',
+        returned: 'Dikembalikan',
+        cancelled: 'Dibatalkan',
+    }
+    return labels[status] || status
+}
+
+function biteshipStatusClass(status) {
+    const classes = {
+        confirmed: 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400',
+        picking: 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400',
+        picked: 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400',
+        dropping: 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400',
+        dropped: 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400',
+        delivered: 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400',
+        returned: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400',
+        cancelled: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400',
+    }
+    return classes[status] || 'bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-400'
 }
 
 function statusClass(status) {

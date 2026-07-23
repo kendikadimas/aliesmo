@@ -35,6 +35,9 @@ Route::prefix('v1')->group(function () {
     Route::get('orders/{orderNumber}/status', [OrderController::class, 'status'])->middleware('throttle:30,1');
     Route::post('orders/track', [OrderController::class, 'track'])->middleware('throttle:5,1');
     Route::get('orders/token/{token}', [OrderController::class, 'trackByToken'])->middleware('throttle:10,1');
+    
+    // Upload bukti pembayaran — bisa diakses guest dengan lookup_token
+    Route::post('orders/{orderNumber}/payment-proof', [OrderController::class, 'uploadProof'])->middleware('throttle:10,1');
 
     // Coupon validation (public - needed at checkout)
     Route::post('coupons/validate', [CouponController::class, 'validate'])->middleware('throttle:10,1');
@@ -43,9 +46,7 @@ Route::prefix('v1')->group(function () {
     Route::get('products/{slug}/videos', [ProductVideoController::class, 'index'])->middleware('throttle:60,1');
     Route::get('products/{slug}/reviews', [ReviewController::class, 'index'])->middleware('throttle:30,1');
 
-    // Shipping (RajaOngkir)
-    Route::get('shipping/provinces', [ShippingController::class, 'provinces'])->middleware('throttle:30,1');
-    Route::get('shipping/cities/{provinceId}', [ShippingController::class, 'cities'])->middleware('throttle:30,1');
+    // Shipping (Biteship only)
     Route::post('shipping/cost', [ShippingController::class, 'cost'])->middleware('throttle:20,1');
     Route::get('shipping/couriers', [ShippingController::class, 'couriers'])->middleware('throttle:30,1');
     Route::get('shipping/search', [ShippingController::class, 'search'])->middleware('throttle:30,1');

@@ -108,11 +108,13 @@ class OrderService
 
             // Resolve shipping cost dari cache server-side — TIDAK dari client input
             // Ini mencegah manipulasi ongkir oleh client (CRIT-2)
-            $shippingCost = $this->resolveShippingCost(
+            $shippingResult  = $this->resolveShippingCost(
                 $customerData['shipping_cache_key'],
                 $customerData['shipping_courier'],
                 $customerData['shipping_service']
             );
+            $shippingCost    = $shippingResult['cost'];
+            $courierService  = $shippingResult['courier_service'];
             $couponDiscount  = 0;
             $couponCode      = null;
 
@@ -163,6 +165,8 @@ class OrderService
                 'customer_phone'  => $customerData['customer_phone'] ?? null,
                 'shipping_address'=> $customerData['shipping_address'],
                 'shipping_area_id'=> $customerData['shipping_area_id'] ?? null,
+                'destination_lat' => $customerData['destination_lat'] ?? null,
+                'destination_lng' => $customerData['destination_lng'] ?? null,
                 'subtotal'        => $subtotal,
                 'shipping_cost'   => $shippingCost,
                 'coupon_discount' => $couponDiscount,
@@ -172,6 +176,7 @@ class OrderService
                 'payment_method'  => $customerData['payment_method'] ?? 'bank_transfer',
                 'selected_bank'   => $customerData['selected_bank'] ?? null,
                 'courier'         => $courierName ?: null,
+                'courier_service' => $courierService ?? null,
                 'tracking_url'    => $courierUrl,
             ]);
 
@@ -183,6 +188,13 @@ class OrderService
 
     public function markAsPaid(Order $order, string $paymentMethod = 'whatsapp'): void
     {
+        Log::info('markAsPaid: START', [
+            'order' => $order->order_number,
+            'current_status' => $order->status->value,
+            'payment_method' => $paymentMethod,
+            'total' => $order->total,
+        ]);
+
         DB::transaction(function () use ($order, $paymentMethod) {
             $order->update([
                 'status'         => OrderStatus::Paid,
@@ -190,25 +202,46 @@ class OrderService
                 'paid_at'        => now(),
             ]);
 
-            $this->stockService->decrementForOrder($order);
+            Log::debug('markAsPaid: status updated to Paid', ['order' => $order->order_number]);
 
-            Log::info('Order marked as paid', ['order' => $order->order_number]);
+            try {
+                $this->stockService->decrementForOrder($order);
+                Log::debug('markAsPaid: stock decremented', ['order' => $order->order_number]);
+            } catch (\Throwable $e) {
+                Log::error('markAsPaid: stock decrement failed', [
+                    'order' => $order->order_number,
+                    'error' => $e->getMessage(),
+                ]);
+                throw $e;
+            }
 
-            // Buat order pengiriman di Biteship setelah pembayaran dikonfirmasi
-            $this->createBiteshipShipment($order);
+            Log::info('markAsPaid: order confirmed', ['order' => $order->order_number]);
+
         });
+
+        // Panggil Biteship DI LUAR transaction — HTTP timeout tidak boleh rollback DB order
+        $this->createBiteshipShipment($order->fresh());
+
+        Log::info('markAsPaid: COMPLETED', ['order' => $order->order_number]);
     }
 
     /**
      * Buat order pengiriman di Biteship.
      * Dipanggil setelah order dibayar agar saldo Biteship tidak terpotong jika order dibatalkan.
      */
-    private function createBiteshipShipment(Order $order): void
+    public function createBiteshipShipment(Order $order): void
     {
+        Log::info('createBiteshipShipment: START', [
+            'order' => $order->order_number,
+            'shipping_area_id' => $order->shipping_area_id,
+            'courier' => $order->courier,
+            'biteship_order_id' => $order->biteship_order_id,
+        ]);
+
         try {
             // Skip jika tidak ada area_id atau courier
             if (empty($order->shipping_area_id) || empty($order->courier)) {
-                Log::warning('Skip Biteship order: missing area_id or courier', [
+                Log::warning('createBiteshipShipment: SKIP - missing area_id or courier', [
                     'order' => $order->order_number,
                     'area_id' => $order->shipping_area_id,
                     'courier' => $order->courier,
@@ -218,32 +251,68 @@ class OrderService
 
             // Skip jika sudah ada biteship_order_id (idempotent)
             if (!empty($order->biteship_order_id)) {
-                Log::info('Biteship order already exists', [
+                Log::info('createBiteshipShipment: SKIP - already exists', [
                     'order' => $order->order_number,
                     'biteship_id' => $order->biteship_order_id,
                 ]);
                 return;
             }
 
-            // Siapkan items dari order items
-            $items = [];
+            // Siapkan items dari order items — eager load relasi untuk ambil weight
+            $items      = [];
+            $itemValue  = 0; // total nilai barang untuk insurance
+            $order->loadMissing(['items.product', 'items.variant', 'items.size']);
+
             foreach ($order->items as $item) {
+                $itemName = $item->product_name;
+                if ($item->variant_name) $itemName .= " ({$item->variant_name})";
+                if ($item->size_name)    $itemName .= " - {$item->size_name}";
+
+                // Prioritas weight: size → variant → product → default 300g
+                $weight = $item->size?->weight
+                    ?? $item->variant?->weight
+                    ?? $item->product?->weight
+                    ?? 300;
+
+                $itemValue += (int) $item->price;
+
                 $items[] = [
-                    'name'     => $item->product_name . ($item->variant_name ? " ({$item->variant_name})" : '') . ($item->size_name ? " - {$item->size_name}" : ''),
-                    'value'    => $item->price,
+                    'name'     => $itemName,
+                    'value'    => (int) $item->price,
                     'quantity' => $item->quantity,
-                    'weight'   => 300, // default 300g per item (bisa dihitung dari produk)
+                    'weight'   => max(1, (int) $weight),
                 ];
             }
 
-            // Map courier name ke code untuk Biteship
-            $courierMap = [
-                'JNE'           => ['company' => 'jne', 'type' => 'reg'],
-                'JNT Express'   => ['company' => 'jnt', 'type' => 'reg'],
-                'Pos Indonesia' => ['company' => 'pos', 'type' => 'reg'],
+            // Map courier canonical name → Biteship code
+            // Canonical name disimpan di $order->courier (contoh: 'JNE', 'J&T Express', 'POS Indonesia')
+            $courierNameMap = [
+                'JNE'           => 'jne',
+                'JNT Express'   => 'jnt',
+                'J&T Express'   => 'jnt',
+                'POS Indonesia' => 'pos',
+                'Pos Indonesia' => 'pos',
             ];
+            $courierCompany = $courierNameMap[$order->courier]
+                ?? strtolower(explode(' ', $order->courier)[0]);
 
-            $courierCode = $courierMap[$order->courier] ?? ['company' => strtolower($order->courier), 'type' => 'reg'];
+            // Courier type: pakai courier_service yang tersimpan di order (dari cache ongkir saat checkout),
+            // fallback ke COURIER_SERVICE_MAP agar benar per kurir (J&T = 'ez', bukan 'reg').
+            $courierType = $order->courier_service
+                ?? BiteshipService::COURIER_SERVICE_MAP[$courierCompany]
+                ?? 'reg';
+
+            Log::debug('createBiteshipShipment: calling API', [
+                'order'           => $order->order_number,
+                'courier_company' => $courierCompany,
+                'courier_type'    => $courierType,
+                'item_count'      => count($items),
+                'item_value'      => $itemValue,
+                'area_id'         => $order->shipping_area_id,
+            ]);
+
+            $isCod    = ($order->payment_method === 'cod');
+            $codAmount = $isCod ? (int) $order->total : null;
 
             $result = $this->biteshipService->createOrder([
                 'order_number'     => $order->order_number,
@@ -252,9 +321,20 @@ class OrderService
                 'customer_email'   => $order->customer_email,
                 'shipping_address' => $order->shipping_address,
                 'shipping_area_id' => $order->shipping_area_id,
-                'courier_company'  => $courierCode['company'],
-                'courier_type'     => $courierCode['type'],
+                'destination_lat'  => $order->destination_lat,
+                'destination_lng'  => $order->destination_lng,
+                'courier_company'  => $courierCompany,
+                'courier_type'     => $courierType,
+                'item_value'       => $itemValue,
                 'items'            => $items,
+                // COD: kirim is_cod + cod_amount agar BiteshipService pasang destination_cash_on_delivery
+                'is_cod'           => $isCod,
+                'cod_amount'       => $codAmount,
+            ]);
+
+            Log::debug('createBiteshipShipment: API response', [
+                'order' => $order->order_number,
+                'result' => $result,
             ]);
 
             // Simpan data Biteship ke order
@@ -264,9 +344,10 @@ class OrderService
                 'biteship_waybill_id'  => $result['biteship_waybill_id'],
                 'biteship_status'      => $result['biteship_status'],
                 'tracking_number'      => $result['biteship_waybill_id'] ?? $order->tracking_number,
+                'tracking_url'         => $result['tracking_url'] ?? $order->tracking_url,
             ]);
 
-            Log::info('Biteship order created successfully', [
+            Log::info('createBiteshipShipment: SUCCESS', [
                 'order'        => $order->order_number,
                 'biteship_id'  => $result['biteship_order_id'],
                 'waybill_id'   => $result['biteship_waybill_id'],
@@ -276,9 +357,12 @@ class OrderService
 
         } catch (\Exception $e) {
             // Log error tapi jangan gagalkan order — admin bisa manual create shipment
-            Log::error('Gagal membuat Biteship order', [
+            Log::error('createBiteshipShipment: FAILED', [
                 'order'  => $order->order_number,
                 'error'  => $e->getMessage(),
+                'file'   => $e->getFile(),
+                'line'   => $e->getLine(),
+                'trace'  => $e->getTraceAsString(),
             ]);
         }
     }
@@ -286,14 +370,40 @@ class OrderService
     public function cancel(Order $order, string $reason = ''): void
     {
         DB::transaction(function () use ($order, $reason) {
-            if ($order->status === OrderStatus::Paid) {
+            $restorableStatuses = [
+                OrderStatus::Paid,
+                OrderStatus::Processing,
+                OrderStatus::Shipped,
+                OrderStatus::Completed,
+            ];
+
+            if (in_array($order->status, $restorableStatuses)) {
+                $order->loadMissing(['items.variant', 'items.size']);
+
                 foreach ($order->items as $item) {
-                    $this->stockService->adjustStock(
-                        $item->product_id,
-                        $item->quantity,
-                        StockMovementType::Return,
-                        "Cancelled order #{$order->order_number}: {$reason}"
-                    );
+                    // Prioritas restock: size → variant → product
+                    if ($item->size_id && $item->size) {
+                        $this->stockService->adjustSizeStock(
+                            $item->size_id,
+                            $item->quantity,
+                            StockMovementType::Return,
+                            "Cancelled order #{$order->order_number}: {$reason}"
+                        );
+                    } elseif ($item->variant_id && $item->variant) {
+                        $this->stockService->adjustVariantStock(
+                            $item->variant_id,
+                            $item->quantity,
+                            StockMovementType::Return,
+                            "Cancelled order #{$order->order_number}: {$reason}"
+                        );
+                    } else {
+                        $this->stockService->adjustStock(
+                            $item->product_id,
+                            $item->quantity,
+                            StockMovementType::Return,
+                            "Cancelled order #{$order->order_number}: {$reason}"
+                        );
+                    }
                 }
             }
 
@@ -305,9 +415,11 @@ class OrderService
      * Resolve ongkir dari cache server-side berdasarkan cache_key, courier, dan service.
      * Mencegah manipulasi ongkir oleh client (CRIT-2).
      *
+     * Return array: ['cost' => int, 'courier_service' => string]
+     *
      * @throws \RuntimeException jika cache tidak ditemukan atau kombinasi courier/service tidak valid
      */
-    private function resolveShippingCost(string $cacheKey, string $courier, string $service): int
+    private function resolveShippingCost(string $cacheKey, string $courier, string $service): array
     {
         $cachedCosts = cache()->get($cacheKey);
 
@@ -318,15 +430,20 @@ class OrderService
         }
 
         // Format cache: array of ['courier' => 'jne', 'service' => 'REG', 'cost' => 12000, ...]
-        $courierLower  = strtolower(trim($courier));
-        $serviceUpper  = strtoupper(trim($service));
+        $courierLower = strtolower(trim($courier));
+        $serviceUpper = strtoupper(trim($service));
 
         foreach ($cachedCosts as $option) {
             if (
                 strtolower($option['courier'] ?? '') === $courierLower &&
                 strtoupper($option['service'] ?? '') === $serviceUpper
             ) {
-                return (int) $option['cost'];
+                return [
+                    'cost'           => (int) $option['cost'],
+                    // Kode service Biteship (reg, ez, sps) — disimpan di orders.courier_service
+                    // agar createBiteshipShipment tahu courier_type yang benar tanpa hardcode
+                    'courier_service' => strtolower($option['service'] ?? ''),
+                ];
             }
         }
 
@@ -343,7 +460,9 @@ class OrderService
             ->first();
 
         if ($lastOrder) {
-            $lastNumber = (int) substr($lastOrder->order_number, -4);
+            // Format: ORD-YYYYMMDD-XXXX-SUFFIX — ambil segment ke-3 (XXXX)
+            $parts = explode('-', $lastOrder->order_number);
+            $lastNumber = isset($parts[2]) ? (int) $parts[2] : 0;
             $newNumber = $lastNumber + 1;
         } else {
             $newNumber = 1;

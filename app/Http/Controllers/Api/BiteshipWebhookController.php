@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Enums\OrderStatus;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -19,12 +20,21 @@ class BiteshipWebhookController extends Controller
      */
     public function handle(Request $request)
     {
+        Log::debug('Biteship webhook: incoming request', [
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'headers' => $request->headers->all(),
+        ]);
+
         // Verify webhook secret if configured
         $webhookSecret = config('services.biteship.webhook_secret');
         if ($webhookSecret) {
             $providedSecret = $request->header('Authorization') ?? $request->input('secret');
             if ($providedSecret !== $webhookSecret && $providedSecret !== 'Bearer ' . $webhookSecret) {
-                Log::warning('Biteship webhook: invalid secret');
+                Log::warning('Biteship webhook: invalid secret', [
+                    'ip' => $request->ip(),
+                    'provided' => substr($providedSecret ?? '', 0, 10) . '...',
+                ]);
                 return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
             }
         }
@@ -35,6 +45,7 @@ class BiteshipWebhookController extends Controller
         Log::info('Biteship webhook received', [
             'event'    => $event,
             'order_id' => $orderId,
+            'status'   => $request->input('status'),
             'payload'  => $request->all(),
         ]);
 
@@ -42,9 +53,18 @@ class BiteshipWebhookController extends Controller
         $order = Order::where('biteship_order_id', $orderId)->first();
 
         if (!$order) {
-            Log::warning('Biteship webhook: order not found', ['order_id' => $orderId]);
+            Log::warning('Biteship webhook: order not found', [
+                'order_id' => $orderId,
+                'event' => $event,
+            ]);
             return response()->json(['success' => true, 'message' => 'Order not found, ignored']);
         }
+
+        Log::debug('Biteship webhook: order found', [
+            'order_number' => $order->order_number,
+            'current_status' => $order->status->value,
+            'current_biteship_status' => $order->biteship_status,
+        ]);
 
         switch ($event) {
             case 'order.status':
@@ -57,7 +77,10 @@ class BiteshipWebhookController extends Controller
                 return $this->handlePriceUpdate($order, $request);
 
             default:
-                Log::info('Biteship webhook: unknown event', ['event' => $event]);
+                Log::info('Biteship webhook: unknown event', [
+                    'event' => $event,
+                    'order' => $order->order_number,
+                ]);
                 return response()->json(['success' => true]);
         }
     }
@@ -65,7 +88,9 @@ class BiteshipWebhookController extends Controller
     /**
      * Handle order status update from Biteship.
      *
-     * Statuses: confirmed, picking, picked, dropping, dropped, delivered, returned, cancelled
+     * Statuses resmi (docs): confirmed, scheduled, allocated, picking_up, picked,
+     * cancelled, on_hold, in_transit, dropping_off, return_in_transit,
+     * returned, rejected, disposed, courier_not_found, delivered
      */
     private function handleStatusUpdate(Order $order, Request $request)
     {
@@ -74,19 +99,59 @@ class BiteshipWebhookController extends Controller
         $waybillId = $request->input('courier_waybill_id');
         $driverName = $request->input('courier_driver_name');
         $driverPhone = $request->input('courier_driver_phone');
+        $trackingLink = $request->input('courier_link');
 
-        $order->update([
+        Log::debug('Biteship handleStatusUpdate', [
+            'order' => $order->order_number,
+            'old_status' => $order->biteship_status,
+            'new_status' => $status,
+            'tracking_id' => $trackingId,
+            'waybill_id' => $waybillId,
+            'driver' => $driverName,
+        ]);
+
+        $updateData = [
             'biteship_status'      => $status,
             'biteship_tracking_id' => $trackingId ?? $order->biteship_tracking_id,
             'biteship_waybill_id'  => $waybillId ?? $order->biteship_waybill_id,
             'tracking_number'      => $waybillId ?? $order->tracking_number,
-        ]);
+        ];
+
+        if ($trackingLink) {
+            $updateData['tracking_url'] = $trackingLink;
+        }
+
+        // Sync Order::status berdasarkan status Biteship
+        // Form aktivasi Biteship membutuhkan ini agar order status terupdate otomatis
+        // Status resmi Biteship (dari docs): confirmed, scheduled, allocated, picking_up,
+        // picked, cancelled, on_hold, in_transit, dropping_off, return_in_transit,
+        // returned, rejected, disposed, courier_not_found, delivered
+        $orderStatusMap = [
+            'delivered'         => OrderStatus::Completed,
+            'returned'          => OrderStatus::Cancelled,
+            'return_in_transit' => OrderStatus::Cancelled,
+            'cancelled'         => OrderStatus::Cancelled,
+            'rejected'          => OrderStatus::Cancelled,
+            'disposed'          => OrderStatus::Cancelled,
+        ];
+        if (isset($orderStatusMap[$status])) {
+            $updateData['status'] = $orderStatusMap[$status];
+
+            Log::info('Biteship webhook: syncing order status', [
+                'order'           => $order->order_number,
+                'biteship_status' => $status,
+                'order_status'    => $orderStatusMap[$status]->value,
+            ]);
+        }
+
+        $order->update($updateData);
 
         Log::info('Biteship status updated', [
             'order'      => $order->order_number,
             'status'     => $status,
             'waybill_id' => $waybillId,
             'driver'     => $driverName,
+            'driver_phone' => $driverPhone,
         ]);
 
         return response()->json(['success' => true]);
@@ -99,13 +164,20 @@ class BiteshipWebhookController extends Controller
     {
         $waybillId = $request->input('courier_waybill_id');
         $trackingId = $request->input('courier_tracking_id');
+        $trackingLink = $request->input('courier_link');
 
         if ($waybillId) {
-            $order->update([
+            $updateData = [
                 'biteship_waybill_id'  => $waybillId,
                 'biteship_tracking_id' => $trackingId ?? $order->biteship_tracking_id,
                 'tracking_number'      => $waybillId,
-            ]);
+            ];
+
+            if ($trackingLink) {
+                $updateData['tracking_url'] = $trackingLink;
+            }
+
+            $order->update($updateData);
 
             Log::info('Biteship waybill updated', [
                 'order'      => $order->order_number,
@@ -119,22 +191,39 @@ class BiteshipWebhookController extends Controller
     /**
      * Handle price update from Biteship.
      * Price changes when actual weight differs from estimated.
+     * Update shipping_cost dan recalculate total order secara otomatis.
      */
     private function handlePriceUpdate(Order $order, Request $request)
     {
-        $price = $request->input('price');
+        $newPrice = $request->input('price');
 
         Log::info('Biteship price update', [
             'order'        => $order->order_number,
-            'new_price'    => $price,
+            'new_price'    => $newPrice,
             'old_shipping' => $order->shipping_cost,
         ]);
 
-        // Optional: update shipping cost if different
-        // For now, just log it — admin can manually adjust if needed
-        // if ($price && (int) $price !== (int) $order->shipping_cost) {
-        //     $order->update(['shipping_cost' => $price]);
-        // }
+        if ($newPrice && (int) $newPrice !== (int) $order->shipping_cost) {
+            $oldShipping = (int) $order->shipping_cost;
+            $oldTotal    = (float) $order->total;   // simpan sebelum update()
+            $newShipping = (int) $newPrice;
+
+            // Recalculate total: hapus ongkir lama, masukkan ongkir baru
+            $newTotal = $oldTotal - $oldShipping + $newShipping;
+
+            $order->update([
+                'shipping_cost' => $newShipping,
+                'total'         => max(0, $newTotal),
+            ]);
+
+            Log::info('Biteship price updated — shipping_cost & total adjusted', [
+                'order'        => $order->order_number,
+                'old_shipping' => $oldShipping,
+                'new_shipping' => $newShipping,
+                'old_total'    => $oldTotal,
+                'new_total'    => max(0, $newTotal),
+            ]);
+        }
 
         return response()->json(['success' => true]);
     }

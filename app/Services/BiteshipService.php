@@ -22,6 +22,18 @@ class BiteshipService
         'pos' => 'POS Indonesia',
     ];
 
+    /**
+     * Mapping courier_code → courier_service_code (type) yang benar per Biteship docs.
+     * JNE  : reg  (reguler)
+     * J&T  : ez   (bukan reg — bug umum)
+     * POS  : sps  (surat pos biasa)
+     */
+    public const COURIER_SERVICE_MAP = [
+        'jne' => 'reg',
+        'jnt' => 'ez',
+        'pos' => 'sps',
+    ];
+
     public function __construct()
     {
         $this->apiKey       = config('services.biteship.api_key');
@@ -62,6 +74,8 @@ class BiteshipService
                     'province'    => $area['administrative_division_level_1_name'] ?? '',
                     'city'        => $area['administrative_division_level_2_name'] ?? '',
                     'district'    => $area['administrative_division_level_3_name'] ?? '',
+                    'latitude'    => $area['latitude'] ?? null,
+                    'longitude'   => $area['longitude'] ?? null,
                 ];
             }, array_slice($areas, 0, 20));
 
@@ -96,38 +110,44 @@ class BiteshipService
      *
      * @throws \RuntimeException jika API gagal
      */
-    public function getAllShippingCostsByAreaId(string $destinationAreaId, int $weight, int $itemValue = 100000): array
+    public function getAllShippingCostsByAreaId(string $destinationAreaId, int $weight, int $itemValue = 100000, ?int $codAmount = null): array
     {
         if (!$this->isAvailable()) {
             throw new \RuntimeException('Biteship API key tidak dikonfigurasi.');
         }
 
-        // Gunakan origin_area_id jika tersedia (akurasi tertinggi), fallback ke postal code
         $originParams = $this->originAreaId
             ? ['origin_area_id'    => $this->originAreaId]
             : ['origin_postal_code' => (int) $this->originPostal];
+
+        $rateParams = array_merge($originParams, [
+            'destination_area_id' => $destinationAreaId,
+            'couriers'            => self::COURIERS,
+            'items'               => [
+                [
+                    'name'     => 'Kemeja',
+                    'category' => 'fashion',
+                    'value'    => $itemValue,
+                    'weight'   => $weight,
+                    'quantity' => 1,
+                    'height'   => 3,
+                    'length'   => 30,
+                    'width'    => 25,
+                ],
+            ],
+        ]);
+
+        // Kirim cod_amount agar Biteship hitung COD fee — dibebankan ke customer
+        if ($codAmount !== null && $codAmount > 0) {
+            $rateParams['cash_on_delivery'] = $codAmount;
+        }
 
         $response = Http::timeout(10)
             ->withHeaders([
                 'Authorization' => 'Bearer ' . $this->apiKey,
                 'Content-Type'  => 'application/json',
             ])
-            ->post("{$this->baseUrl}/v1/rates/couriers", array_merge($originParams, [
-                'destination_area_id' => $destinationAreaId,
-                'couriers'            => self::COURIERS,
-                'items'               => [
-                    [
-                        'name'     => 'Kemeja',
-                        'category' => 'fashion',
-                        'value'    => $itemValue,
-                        'weight'   => $weight,
-                        'quantity' => 1,
-                        'height'   => 3,
-                        'length'   => 30,
-                        'width'    => 25,
-                    ],
-                ],
-            ]));
+            ->post("{$this->baseUrl}/v1/rates/couriers", $rateParams);
 
         if (!$response->successful()) {
             Log::warning('Biteship getAllShippingCostsByAreaId error', [
@@ -160,35 +180,41 @@ class BiteshipService
      * @param  int    $itemValue          Nilai barang untuk insurance (opsional)
      * @throws \RuntimeException jika API gagal
      */
-    public function getAllShippingCosts(string $destinationPostal, int $weight, int $itemValue = 100000): array
+    public function getAllShippingCosts(string $destinationPostal, int $weight, ?int $codAmount = null, int $itemValue = 100000): array
     {
         if (!$this->isAvailable()) {
             throw new \RuntimeException('Biteship API key tidak dikonfigurasi.');
         }
 
-        // Gunakan origin_area_id jika tersedia (akurasi tertinggi), fallback ke postal code
         $originParams = $this->originAreaId
             ? ['origin_area_id'    => $this->originAreaId]
             : ['origin_postal_code' => (int) $this->originPostal];
+
+        $rateParams = array_merge($originParams, [
+            'destination_postal_code' => (int) $destinationPostal,
+            'couriers'                => self::COURIERS,
+            'items'                   => [
+                [
+                    'name'     => 'Kemeja',
+                    'category' => 'fashion',
+                    'value'    => $itemValue,
+                    'weight'   => $weight,
+                    'quantity' => 1,
+                ],
+            ],
+        ]);
+
+        // Kirim cod_amount agar Biteship hitung COD fee — dibebankan ke customer
+        if ($codAmount !== null && $codAmount > 0) {
+            $rateParams['cash_on_delivery'] = $codAmount;
+        }
 
         $response = Http::timeout(10)
             ->withHeaders([
                 'Authorization' => 'Bearer ' . $this->apiKey,
                 'Content-Type'  => 'application/json',
             ])
-            ->post("{$this->baseUrl}/v1/rates/couriers", array_merge($originParams, [
-                'destination_postal_code' => (int) $destinationPostal,
-                'couriers'                => self::COURIERS,
-                'items'                   => [
-                    [
-                        'name'     => 'Kemeja',
-                        'category' => 'fashion',
-                        'value'    => $itemValue,
-                        'weight'   => $weight,
-                        'quantity' => 1,
-                    ],
-                ],
-            ]));
+            ->post("{$this->baseUrl}/v1/rates/couriers", $rateParams);
 
         if (!$response->successful()) {
             Log::warning('Biteship API error', [
@@ -240,13 +266,15 @@ class BiteshipService
             }
 
             $results[] = [
-                'code'        => $code,
-                'courier'     => self::COURIER_NAMES[$code] ?? strtoupper($code),
-                'service'     => $service,
-                'description' => $item['courier_service_name'] ?? 'Layanan Reguler',
-                'cost'        => $cost,
-                'etd'         => $etd,
-                'source'      => 'biteship', // untuk debugging
+                'code'         => $code,
+                'courier'      => self::COURIER_NAMES[$code] ?? strtoupper($code),
+                'service'      => $service,
+                'description'  => $item['courier_service_name'] ?? 'Layanan Reguler',
+                'cost'         => $cost,
+                'etd'          => $etd,
+                'source'       => 'biteship',
+                // Field COD dari Biteship rates response — dipakai untuk filter kurir saat COD dipilih
+                'supports_cod' => (bool) ($item['available_for_cash_on_delivery'] ?? false),
             ];
         }
 
@@ -277,14 +305,16 @@ class BiteshipService
             throw new \RuntimeException('Biteship API key tidak dikonfigurasi.');
         }
 
-        // Map courier code ke company name Biteship
-        $courierMap = [
-            'jne' => 'jne',
-            'jnt' => 'jnt',
-            'pos' => 'pos',
-        ];
-        $courierCode = strtolower($params['courier_company']);
-        $courierCompany = $courierMap[$courierCode] ?? $courierCode;
+        // Normalisasi courier code
+        $courierCode    = strtolower($params['courier_company']);
+        $courierCompany = $courierCode; // Biteship pakai kode langsung (jne, jnt, pos)
+
+        // Courier type: pakai dari params jika ada (berasal dari cache ongkir),
+        // fallback ke COURIER_SERVICE_MAP agar setiap kurir dapat type yang benar.
+        // BUG SEBELUMNYA: semua kurir hardcode 'reg' — J&T harus 'ez', POS harus 'sps'.
+        $courierType = !empty($params['courier_type'])
+            ? $params['courier_type']
+            : (self::COURIER_SERVICE_MAP[$courierCode] ?? 'reg');
 
         // Siapkan items untuk Biteship
         $items = [];
@@ -307,26 +337,62 @@ class BiteshipService
             : ['origin_postal_code' => (int) $this->originPostal];
 
         $payload = array_merge($originParams, [
-            'origin_contact_name'  => config('app.name', 'Aliesmo'),
-            'origin_contact_phone' => config('services.biteship.origin_phone', '08138883345'),
-            'origin_address'       => config('services.biteship.origin_address', 'Ulujami, Pemalang, Jawa Tengah'),
+            'origin_contact_name'       => config('app.name', 'Aliesmo'),
+            'origin_contact_phone'      => config('services.biteship.origin_phone', '08138883345'),
+            'origin_address'            => config('services.biteship.origin_address', 'Ulujami, Pemalang, Jawa Tengah'),
+            'origin_coordinate'         => [
+                'latitude'  => (float) config('services.biteship.origin_latitude', -6.909194),
+                'longitude' => (float) config('services.biteship.origin_longitude', 109.555889),
+            ],
             'destination_contact_name'  => $params['customer_name'],
             'destination_contact_phone' => $params['customer_phone'],
             'destination_contact_email' => $params['customer_email'] ?? null,
             'destination_address'       => $params['shipping_address'],
             'destination_area_id'       => $params['shipping_area_id'],
             'courier_company'           => $courierCompany,
-            'courier_type'              => $params['courier_type'] ?? 'reg',
+            'courier_type'              => $courierType,
+            // delivery_type wajib diisi — 'now' = pengambilan segera (sandbox & production)
             'delivery_type'             => 'now',
             'order_note'                => 'Order #' . $params['order_number'],
             'reference_id'              => $params['order_number'],
             'items'                     => $items,
         ]);
 
+        // destination_coordinate hanya dikirim jika lat/lng tersedia — null akan reject oleh Biteship
+        $lat = $params['destination_lat'] ?? null;
+        $lng = $params['destination_lng'] ?? null;
+        if ($lat !== null && $lng !== null) {
+            $payload['destination_coordinate'] = [
+                'latitude'  => (float) $lat,
+                'longitude' => (float) $lng,
+            ];
+        }
+
+        // COD: kirim destination_cash_on_delivery sesuai docs resmi Biteship
+        // Format: destination_cash_on_delivery = number (nominal), destination_cash_on_delivery_type = string
+        // type '7_days' = remittance 7 hari kerja (default untuk reg/standard courier)
+        if (!empty($params['is_cod']) && !empty($params['cod_amount'])) {
+            $payload['destination_cash_on_delivery']      = (int) $params['cod_amount'];
+            $payload['destination_cash_on_delivery_type'] = '7_days';
+        }
+
         Log::info('Biteship createOrder request', [
+            'order_number'   => $params['order_number'],
+            'courier'        => $courierCompany . ' ' . $courierType,
+            'destination'    => $params['shipping_address'],
+            'area_id'        => $params['shipping_area_id'],
+            'item_count'     => count($items),
+            'has_coordinate' => isset($payload['destination_coordinate']),
+            'insurance'      => $payload['courier_insurance'] ?? 0,
+            'is_cod'         => !empty($params['is_cod']),
+            'cod_amount'     => $params['cod_amount'] ?? null,
+        ]);
+
+        Log::debug('Biteship createOrder payload', [
             'order_number' => $params['order_number'],
-            'courier'      => $courierCompany . ' ' . ($params['courier_type'] ?? 'reg'),
-            'destination'  => $params['shipping_address'],
+            'payload_keys' => array_keys($payload),
+            'origin' => $originParams,
+            'destination_area_id' => $params['shipping_area_id'],
         ]);
 
         $response = Http::timeout(15)
@@ -339,10 +405,14 @@ class BiteshipService
         $data = $response->json();
 
         Log::info('Biteship createOrder response', [
-            'success' => $data['success'] ?? null,
-            'id'      => $data['id'] ?? null,
-            'status'  => $data['status'] ?? null,
-            'error'   => $data['error'] ?? null,
+            'order_number' => $params['order_number'],
+            'http_status'  => $response->status(),
+            'success'      => $data['success'] ?? null,
+            'id'           => $data['id'] ?? null,
+            'status'       => $data['status'] ?? null,
+            'price'        => $data['price'] ?? null,
+            'error'        => $data['error'] ?? null,
+            'message'      => $data['message'] ?? null,
         ]);
 
         if (!$response->successful() || empty($data['success'])) {
@@ -355,6 +425,7 @@ class BiteshipService
             'biteship_tracking_id' => $data['courier']['tracking_id'] ?? null,
             'biteship_waybill_id'  => $data['courier']['waybill_id'] ?? null,
             'biteship_status'      => $data['status'] ?? 'confirmed',
+            'tracking_url'         => $data['courier']['link'] ?? null,
             'price'                => (int) ($data['price'] ?? 0),
         ];
     }

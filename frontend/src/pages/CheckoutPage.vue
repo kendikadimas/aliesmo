@@ -34,7 +34,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-1.5">Telepon</label>
-                                <input v-model="form.customer_phone" placeholder="0812-xxxx-xxxx" class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:text-[#6a6a6e]/60 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-maroon focus:outline-none transition-colors">
+                                <input v-model="form.customer_phone" required type="tel" placeholder="0812-xxxx-xxxx" class="w-full border-2 border-maroon-100 dark:border-[#303032] rounded-xl px-4 py-2.5 text-sm text-charcoal dark:text-[#f0eeeb] placeholder:text-charcoal/30 dark:text-[#6a6a6e]/60 dark:placeholder:text-[#6a6a6e] bg-white dark:bg-[#28282a] focus:border-maroon focus:outline-none transition-colors">
                             </div>
                         </div>
                     </div>
@@ -111,6 +111,25 @@
                             <p class="text-[10px] text-charcoal/40 dark:text-[#6a6a6e] mt-1">Nama jalan, nomor rumah, RT/RW, atau patokan terdekat.</p>
                         </div>
 
+                        <!-- Pin Lokasi -->
+                        <div v-if="selectedCity || selectedDestination">
+                            <Suspense>
+                                <MapPicker 
+                                    ref="mapPickerRef"
+                                    v-model="pinCoordinates"
+                                    :initialLat="selectedDestination?.latitude"
+                                    :initialLng="selectedDestination?.longitude"
+                                />
+                                <template #fallback>
+                                    <div class="bg-gray-100 dark:bg-[#28282a] rounded-xl p-4 animate-pulse">
+                                        <div class="h-4 bg-gray-200 dark:bg-[#3a3a3c] rounded w-1/3 mb-3"></div>
+                                        <div class="h-[200px] bg-gray-200 dark:bg-[#3a3a3c] rounded-xl"></div>
+                                        <div class="h-3 bg-gray-200 dark:bg-[#3a3a3c] rounded w-2/3 mt-3"></div>
+                                    </div>
+                                </template>
+                            </Suspense>
+                        </div>
+
                         <!-- Layanan Pengiriman - tampil otomatis setelah lokasi dipilih -->
                         <!-- selectedCity bisa 0 jika Biteship result tanpa match Komerce, pakai selectedDestination sebagai guard -->
                         <div v-if="selectedCity || selectedDestination">
@@ -121,16 +140,38 @@
 
                             <div v-else-if="shippingOptions.length">
                                 <label class="block text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] mb-2">Pilih Layanan Pengiriman</label>
+
+                                <!-- Info COD hanya tersedia kurir tertentu -->
+                                <div v-if="paymentMethod === 'cod'"
+                                    class="mb-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-xl text-xs text-blue-700 dark:text-blue-400">
+                                    COD hanya tersedia untuk kurir yang mendukung. Kurir tanpa tanda COD tidak bisa dipilih.
+                                </div>
+
                                 <div class="space-y-2">
                                     <label v-for="opt in shippingOptions" :key="opt.code + '-' + opt.service"
-                                        class="flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all"
-                                        :class="selectedShipping?.code === opt.code && selectedShipping?.service === opt.service
-                                            ? 'border-maroon bg-maroon-50/30 dark:bg-maroon/10'
-                                            : 'border-maroon-100 dark:border-[#303032] hover:border-maroon-200 dark:hover:border-[#f0eeeb]'">
+                                        class="flex items-center justify-between p-3 rounded-xl border-2 transition-all"
+                                        :class="[
+                                            paymentMethod === 'cod' && !opt.supports_cod
+                                                ? 'opacity-40 cursor-not-allowed border-maroon-100 dark:border-[#303032]'
+                                                : 'cursor-pointer',
+                                            selectedShipping?.code === opt.code && selectedShipping?.service === opt.service
+                                                ? 'border-maroon bg-maroon-50/30 dark:bg-maroon/10'
+                                                : paymentMethod !== 'cod' || opt.supports_cod
+                                                    ? 'border-maroon-100 dark:border-[#303032] hover:border-maroon-200 dark:hover:border-[#f0eeeb]'
+                                                    : 'border-maroon-100 dark:border-[#303032]'
+                                        ]">
                                         <div class="flex items-center gap-3">
-                                            <input type="radio" :value="opt" v-model="selectedShipping" class="accent-maroon">
+                                            <input type="radio" :value="opt" v-model="selectedShipping"
+                                                :disabled="paymentMethod === 'cod' && !opt.supports_cod"
+                                                class="accent-maroon">
                                             <div>
-                                                <p class="text-xs font-bold text-charcoal dark:text-[#f0eeeb]">{{ opt.courier }}</p>
+                                                <div class="flex items-center gap-1.5">
+                                                    <p class="text-xs font-bold text-charcoal dark:text-[#f0eeeb]">{{ opt.courier }}</p>
+                                                    <span v-if="opt.supports_cod"
+                                                        class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
+                                                        COD
+                                                    </span>
+                                                </div>
                                                 <p class="text-xs text-charcoal/60 dark:text-[#8a8a8e]">{{ opt.service }} · {{ opt.description }}</p>
                                                 <p class="text-xs text-charcoal/40 dark:text-[#6a6a6e]">Estimasi {{ opt.etd || '-' }} hari</p>
                                             </div>
@@ -334,13 +375,17 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { reactive, ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { BuildingLibraryIcon, DevicePhoneMobileIcon, CreditCardIcon } from '@heroicons/vue/24/outline'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '../cart'
 import { formatPrice } from '../mock-data'
 import api from '../api'
 import { useSettings } from '../useSettings'
+import { defineAsyncComponent } from 'vue'
+
+// Lazy load MapPicker - only loads when user scrolls to address section
+const MapPicker = defineAsyncComponent(() => import('../components/MapPicker.vue'))
 
 const router = useRouter()
 const { items, clear } = useCartStore()
@@ -359,11 +404,35 @@ const availableBanks = computed(() => {
     const banks = get('payment_banks', [])
     return Array.isArray(banks) ? banks : Object.values(banks || {})
 })
-const paymentMethods = [
+const allPaymentMethods = [
     { value: 'bank_transfer', label: 'Transfer Bank', desc: 'BCA, BNI, Mandiri, dll', icon: BuildingLibraryIcon },
     { value: 'qris', label: 'QRIS', desc: 'Scan & Pay dari e-wallet manapun', icon: DevicePhoneMobileIcon },
     { value: 'cod', label: 'COD (Bayar di Tempat)', desc: 'Bayar langsung saat barang tiba', icon: CreditCardIcon },
 ]
+// Filter COD berdasarkan setting admin — hanya tampil jika payment_cod_enabled = true
+const paymentMethods = computed(() => {
+    const codEnabled = get('payment_cod_enabled', false)
+    return allPaymentMethods.filter(pm => pm.value !== 'cod' || codEnabled)
+})
+
+// Saat COD dipilih, hanya tampilkan kurir yang support COD
+const filteredShippingOptions = computed(() => {
+    if (paymentMethod.value !== 'cod') return shippingOptions.value
+    return shippingOptions.value.filter(opt => opt.supports_cod)
+})
+
+// Re-fetch ongkir saat user pindah ke/dari COD — harga berbeda karena ada COD fee
+watch(paymentMethod, (val, prev) => {
+    const isCodSwitch = (val === 'cod') !== (prev === 'cod')
+    if (isCodSwitch && shippingOptions.value.length) {
+        selectedShipping.value = null
+        fetchShippingCost()
+    }
+    // Reset selectedShipping kalau kurir aktif tidak support COD
+    if (val === 'cod' && selectedShipping.value && !selectedShipping.value.supports_cod) {
+        selectedShipping.value = null
+    }
+})
 
 // Form data
 const form = reactive({
@@ -392,6 +461,10 @@ const searchInputRef = ref(null)
 const itemRefs = ref([])
 const activeIndex = ref(-1)
 let searchTimeout = null
+
+// Pin location state
+const pinCoordinates = ref(null)
+const mapPickerRef = ref(null)
 
 const shippingCost = computed(() => {
     if (!selectedShipping.value) return 0
@@ -502,6 +575,38 @@ function selectDestination(destination) {
     selectedShipping.value = null
     activeIndex.value = -1
     itemRefs.value = []
+    
+    // Use Biteship coordinates directly if available (most accurate)
+    // Only fallback to Nominatim geocoding if coordinates not provided
+    // Wait for lazy-loaded MapPicker to be ready (handles first-input timing issue)
+    const tryMovePin = () => {
+        if (mapPickerRef.value && destination.label) {
+            const lat = parseFloat(destination.latitude)
+            const lng = parseFloat(destination.longitude)
+            
+            if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
+                // Biteship has exact coordinates — use them directly
+                console.log('[Checkout] Using Biteship coordinates:', lat, lng)
+                mapPickerRef.value.moveTo(lat, lng)
+            } else {
+                // Fallback: Nominatim geocoding
+                console.log('[Checkout] No Biteship coordinates, using Nominatim geocoding')
+                mapPickerRef.value.moveToAddress(destination.label, {
+                    district: destination.district,
+                    city: destination.city,
+                    province: destination.province,
+                    postal_code: destination.postal_code
+                })
+            }
+        } else {
+            // MapPicker not ready yet (lazy-loaded), retry after short delay
+            console.log('[Checkout] MapPicker not ready, retrying...')
+            setTimeout(tryMovePin, 200)
+        }
+    }
+    
+    nextTick(tryMovePin)
+    
     fetchShippingCost()
 }
 
@@ -536,11 +641,14 @@ async function fetchShippingCost() {
     manualShipping.value = null
     try {
         const dest = selectedDestination.value
+        // Kirim cod_amount saat COD dipilih agar harga sudah include COD fee
+        const subtotal = checkoutItems.value.reduce((sum, i) => sum + (i.price * i.quantity), 0)
         const res = await api.post('/shipping/cost', {
             destination: selectedCity.value,
             weight: checkoutItems.value.reduce((sum, i) => sum + (i.weight ?? 300) * i.quantity, 0) || 300,
             area_id:     dest?.area_id                          || undefined,
             postal_code: dest?.postal_code != null ? String(dest.postal_code) : undefined,
+            cod_amount:  paymentMethod.value === 'cod' ? subtotal : undefined,
         })
 
         // Handle manual fallback — semua provider gagal
@@ -571,20 +679,34 @@ async function fetchShippingCost() {
 }
 
 async function submitOrder() {
+    console.log('[Checkout] submitOrder called', {
+        checkoutItems: checkoutItems.value.length,
+        shippingCacheKey: shippingCacheKey.value,
+        selectedShipping: selectedShipping.value ? { courier: selectedShipping.value.courier, service: selectedShipping.value.service } : null,
+        paymentMethod: paymentMethod.value,
+        selectedBank: selectedBank.value,
+        selectedDestination: selectedDestination.value ? { area_id: selectedDestination.value.area_id, label: selectedDestination.value.label } : null,
+    })
+
     if (!checkoutItems.value.length) {
+        console.warn('[Checkout] Blocked: cart empty')
         error.value = 'Wah, keranjangmu kosong!'
         return
     }
     if (!shippingCacheKey.value || !selectedShipping.value) {
+        console.warn('[Checkout] Blocked: no shipping selected', { shippingCacheKey: shippingCacheKey.value, selectedShipping: selectedShipping.value })
         error.value = 'Pilih layanan pengiriman terlebih dahulu.'
         return
     }
     if (paymentMethod.value === 'bank_transfer' && !selectedBank.value) {
+        console.warn('[Checkout] Blocked: no bank selected')
         error.value = 'Pilih bank tujuan transfer terlebih dahulu.'
         return
     }
     submitting.value = true
     error.value = ''
+
+    console.log('[Checkout] All validations passed, preparing payload...')
 
     // Gabungkan alamat dengan label lokasi tujuan
     const fullAddress = [
@@ -598,6 +720,9 @@ async function submitOrder() {
         customer_phone: form.customer_phone,
         shipping_address: fullAddress,
         shipping_area_id: selectedDestination.value?.area_id || null,
+        // Use pin coordinates if available (more precise), otherwise fallback to area-level
+        destination_lat: pinCoordinates.value?.lat || selectedDestination.value?.latitude || null,
+        destination_lng: pinCoordinates.value?.lng || selectedDestination.value?.longitude || null,
         shipping_cache_key: shippingCacheKey.value,
         shipping_courier: selectedShipping.value.courier,
         shipping_service: selectedShipping.value.service,
@@ -619,10 +744,29 @@ async function submitOrder() {
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
+            console.log('[Checkout] Submitting order', {
+                attempt,
+                item_count: payload.items.length,
+                payment_method: payload.payment_method,
+                shipping_courier: payload.shipping_courier,
+            })
+
             const res = await api.post('/orders', payload)
+
+            console.log('[Checkout] API response received', {
+                status: res.status,
+                data: res.data,
+                hasOrder: !!res.data?.order,
+                orderKeys: res.data?.order ? Object.keys(res.data.order) : null,
+            })
+
             const orderData = res.data.order
-            const whatsappNumber = res.data.whatsapp_number
-            const whatsappMessage = res.data.whatsapp_message
+
+            console.log('[Checkout] Order data extracted', {
+                order_number: orderData?.order_number,
+                total: orderData?.total,
+                has_lookup_token: !!orderData?.lookup_token,
+            })
 
             // Simpan lookup_token ke localStorage agar bisa akses order setelah
             // kembali dari WhatsApp atau reload halaman (token berlaku 7 hari)
@@ -632,17 +776,23 @@ async function submitOrder() {
 
             clear()
 
-            if (whatsappNumber && whatsappMessage) {
-                const waUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`
-                window.open(waUrl, '_blank')
-            }
-
-            router.push(`/order/${orderData.order_number}`)
+            // Redirect ke halaman upload bukti bayar
+            const redirectUrl = `/order/${orderData.order_number}/pay`
+            console.log('[Checkout] Redirecting to:', redirectUrl)
+            router.push(redirectUrl)
             return // sukses, keluar dari loop
 
         } catch (e) {
             const status = e.response?.status
             const msg = e.response?.data?.message
+
+            console.error('[Checkout] Order submission failed', {
+                attempt,
+                status,
+                message: msg,
+                error: e.message,
+                data: e.response?.data,
+            })
 
             // Jangan retry untuk error validasi atau rate limit
             if (status === 422) {
