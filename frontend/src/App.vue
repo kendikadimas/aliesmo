@@ -181,8 +181,8 @@
         <Transition name="sidebar">
             <aside v-if="mobileOpen" class="lg:hidden fixed top-0 left-0 bottom-0 w-[75vw] max-w-[320px] bg-white dark:bg-[#161618] z-50 shadow-2xl flex flex-col">
                 <!-- Header -->
-                <div class="flex items-center justify-between px-5 py-3 border-b border-zinc-100 dark:border-[#303032]">
-                    <img src="/aliesmo.png" alt="Aliesmo" class="w-40 h-auto" :class="isDark ? '' : 'invert'" />
+                <div class="flex items-center justify-between px-4 py-0 border-b border-zinc-100 dark:border-[#303032]">
+                    <img src="/aliesmo.png" alt="Aliesmo" class="w-36 h-auto" :class="isDark ? '' : 'invert'" />
                     <button @click="mobileOpen = false" class="p-2 -mr-2 text-charcoal/60 dark:text-[#8a8a8e] hover:text-charcoal dark:hover:text-[#f0eeeb] transition-colors" aria-label="Tutup">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                     </button>
