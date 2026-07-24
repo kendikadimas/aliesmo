@@ -271,9 +271,15 @@
                     <div>
                         <h4 class="text-sm font-semibold text-white mb-4">Kontak</h4>
                         <ul class="space-y-2 text-sm text-white/50">
-                            <li>{{ get('contact_email', 'cs@aliesmo.id') }}</li>
-                            <li>{{ get('contact_phone', '+62 813-888-3345') }}</li>
-                            <li>{{ get('contact_address', 'Ulujami, Pemalang, Jawa Tengah') }}</li>
+                            <li>
+                                <a :href="`mailto:${get('contact_email', 'cs@aliesmo.id')}`" class="hover:text-white transition-colors">{{ get('contact_email', 'cs@aliesmo.id') }}</a>
+                            </li>
+                            <li>
+                                <a :href="`https://wa.me/${(get('whatsapp_number') || get('contact_phone', '628138883345')).replace(/\D/g, '').replace(/^0/, '62')}`" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">{{ get('contact_phone', '+62 813-888-3345') }}</a>
+                            </li>
+                            <li>
+                                <a href="https://maps.app.goo.gl/5zU5GcPsxZaEwRuG9" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">{{ get('contact_address', 'Ulujami, Pemalang, Jawa Tengah') }}</a>
+                            </li>
                         </ul>
                     </div>
                 </div>
