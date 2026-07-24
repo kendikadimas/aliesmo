@@ -52,7 +52,9 @@
                 </div>
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
                     <div v-for="(item, i) in advantages" :key="i" class="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-100 dark:border-[#303032] p-6 lg:p-7 text-center hover:shadow-md hover:border-maroon-200 dark:hover:border-[#f0eeeb]/20 transition-all">
-                        <div class="w-12 h-12 mx-auto rounded-xl bg-maroon/10 dark:bg-[#f0eeeb]/10 flex items-center justify-center" v-html="item.icon"></div>
+                        <div class="w-12 h-12 mx-auto rounded-xl bg-maroon/10 dark:bg-[#f0eeeb]/10 flex items-center justify-center">
+                            <component :is="item.icon" class="w-6 h-6 text-maroon dark:text-[#f0eeeb]" />
+                        </div>
                         <h3 class="mt-4 text-sm font-bold text-charcoal dark:text-[#f0eeeb]">{{ item.title }}</h3>
                         <p class="mt-1.5 text-xs text-charcoal/60 dark:text-[#8a8a8e] leading-relaxed">{{ item.desc }}</p>
                     </div>
@@ -416,7 +418,13 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { ArrowTopRightOnSquareIcon } from '@heroicons/vue/24/outline'
+import {
+    ArrowTopRightOnSquareIcon,
+    ShieldCheckIcon,
+    TruckIcon,
+    TrophyIcon,
+    UserGroupIcon,
+} from '@heroicons/vue/24/outline'
 
 import { useRoute, useRouter } from 'vue-router'
 import { watch } from 'vue'
@@ -443,31 +451,24 @@ const route = useRoute()
 const router = useRouter()
 const { addItem } = useCartStore()
 
-const advantageIcons = [
-    '<svg class="w-6 h-6 text-maroon dark:text-[#f0eeeb]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>',
-    '<svg class="w-6 h-6 text-maroon dark:text-[#f0eeeb]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/></svg>',
-    '<svg class="w-6 h-6 text-maroon dark:text-[#f0eeeb]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0016.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.023 6.023 0 01-2.77.896m0 0a6.023 6.023 0 01-2.77-.896"/></svg>',
-    '<svg class="w-6 h-6 text-maroon dark:text-[#f0eeeb]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>',
-]
-
 const advantages = computed(() => [
     {
-        icon: advantageIcons[0],
+        icon: ShieldCheckIcon,
         title: get('advantage_1_title', 'Kualitas Premium'),
         desc: get('advantage_1_desc', 'Bahan oxford & linen premium, jahitan presisi, nyaman dipakai seharian.')
     },
     {
-        icon: advantageIcons[1],
+        icon: TruckIcon,
         title: get('advantage_2_title', 'Pengiriman Cepat'),
         desc: get('advantage_2_desc', 'Dikemas rapi dan dikirim dari Pemalang, sampai ke seluruh Indonesia.')
     },
     {
-        icon: advantageIcons[2],
+        icon: TrophyIcon,
         title: get('advantage_3_title', 'Garansi 30 Hari'),
         desc: get('advantage_3_desc', 'Tenang belanja dengan garansi 30 hari. Kami pastikan kamu puas.')
     },
     {
-        icon: advantageIcons[3],
+        icon: UserGroupIcon,
         title: get('advantage_4_title', 'Layanan Pelanggan'),
         desc: get('advantage_4_desc', 'CS ramah siap bantu kamu dari pilih ukuran sampai pesanan sampai.')
     }
