@@ -30,7 +30,7 @@
         <header class="sticky top-0 z-50 bg-white/95 dark:bg-ink-90/95 backdrop-blur-md border-b border-zinc-200/60 dark:border-ink-80/60 shadow-xs">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- Middle Row: Logo, Search, Navigation Icons -->
-                <div class="flex items-center justify-between h-16 lg:h-[72px]">
+                <div class="flex items-center justify-between h-20 lg:h-24">
                     <!-- Left: Hamburger & Logo -->
                     <div class="flex items-center gap-3">
                         <button @click="mobileOpen = !mobileOpen" class="lg:hidden p-2 -ml-2 text-charcoal dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors" aria-label="Menu">
