@@ -307,9 +307,9 @@
                         <span class="text-sm font-semibold">TikTok</span>
                         <ArrowTopRightOnSquareIcon class="w-4 h-4 ml-auto opacity-60 group-hover:opacity-100 transition-opacity" />
                     </a>
-                    <a :href="get('social_shopee', 'https://shopee.co.id/aliesmo.id')" target="_blank" rel="noopener noreferrer" class="group flex items-center gap-3 px-6 py-4 bg-white dark:bg-[#1c1c1e] border border-zinc-200 dark:border-[#303032] rounded-2xl text-charcoal dark:text-[#f0eeeb] hover:shadow-xl hover:scale-[1.03] transition-all min-w-[180px]">
-                        <!-- ponytail: logo oranye butuh bg putih, jangan di atas bg #ee4d2d -->
-                        <img src="/Shopee_logo.svg" alt="Shopee" class="w-7 h-7 shrink-0 object-contain" />
+                    <a :href="get('social_shopee', 'https://shopee.co.id/aliesmo.id')" target="_blank" rel="noopener noreferrer" class="group flex items-center gap-3 px-6 py-4 bg-[#ee4d2d] rounded-2xl text-white hover:shadow-xl hover:scale-[1.03] transition-all min-w-[180px]">
+                        <!-- ponytail: SVG oranye → putih via filter di atas bg brand -->
+                        <img src="/Shopee_logo.svg" alt="Shopee" class="w-7 h-7 shrink-0 object-contain brightness-0 invert" />
                         <span class="text-sm font-semibold">Shopee</span>
                         <ArrowTopRightOnSquareIcon class="w-4 h-4 ml-auto opacity-60 group-hover:opacity-100 transition-opacity" />
                     </a>
