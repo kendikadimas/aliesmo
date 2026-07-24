@@ -119,7 +119,7 @@
                 <!-- Mobile Search bar -->
                 <div class="pb-3 lg:hidden">
                     <form @submit.prevent="handleSearch" class="relative w-full">
-                        <input v-model="searchQuery" type="text" placeholder="Cari kemeja, batik, atau koleksi..." class="w-full pl-5 pr-12 py-2 rounded-full border border-zinc-200 dark:border-[#303032] focus:outline-none focus:border-maroon text-xs bg-zinc-50/20 dark:bg-[#1c1c1e] dark:text-[#f0eeeb] placeholder-zinc-400 dark:placeholder-[#8a8a8e]" />
+                        <input v-model="searchQuery" type="text" placeholder="Cari kemeja atau koleksi..." class="w-full pl-5 pr-12 py-2 rounded-full border border-zinc-200 dark:border-[#303032] focus:outline-none focus:border-maroon text-xs bg-zinc-50/20 dark:bg-[#1c1c1e] dark:text-[#f0eeeb] placeholder-zinc-400 dark:placeholder-[#8a8a8e]" />
                         <button type="submit" class="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-charcoal dark:bg-[#f0eeeb] hover:bg-maroon text-white dark:text-[#161618] flex items-center justify-center transition-colors" aria-label="Cari">
                             <MagnifyingGlassIcon class="w-3 h-3" />
                         </button>
@@ -226,7 +226,7 @@
                     <div>
                         <!-- ponytail: footer always dark bg → keep default (white) logo -->
                         <img src="/aliesmo-horizontal.png" alt="Aliesmo" class="block h-9 w-auto" />
-                        <p class="mt-2 text-sm text-white/50 leading-relaxed max-w-xs">Kemeja batik dan casual berkualitas. Nyaman dipakai, bangga dengan budaya Indonesia.</p>
+                        <p class="mt-2 text-sm text-white/50 leading-relaxed max-w-xs">Kemeja oxford & linen premium. Nyaman dipakai seharian, cocok untuk kerja maupun santai.</p>
                         <!-- Social media links -->
                         <div class="mt-4 flex items-center gap-3">
                             <a :href="get('social_instagram', 'https://www.instagram.com/aliesmo.id')" target="_blank" rel="noopener noreferrer" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 transition-colors" aria-label="Instagram">

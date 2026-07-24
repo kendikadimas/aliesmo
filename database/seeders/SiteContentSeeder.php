@@ -226,7 +226,7 @@ class SiteContentSeeder extends Seeder
             [
                 'key'   => 'store_description',
                 'label' => 'Deskripsi Toko',
-                'value' => 'Kemeja batik dan casual berkualitas. Nyaman dipakai, bangga dengan budaya Indonesia.',
+                'value' => 'Kemeja oxford & linen premium. Nyaman dipakai seharian, cocok untuk kerja maupun santai.',
                 'type'  => 'text',
                 'group' => 'general',
             ],
