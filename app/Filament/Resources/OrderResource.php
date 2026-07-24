@@ -9,6 +9,7 @@ use App\Services\StockService;
 use App\Notifications\OrderStatusUpdatedNotification;
 use App\Notifications\OrderShippedNotification;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Illuminate\Support\Facades\Log;
@@ -489,6 +490,13 @@ class OrderResource extends Resource
                         OrderStatus::Expired,
                         OrderStatus::Shipped,
                     ])),
+
+                // SoftDeletes: arsip order dari list; riwayat item tetap di DB
+                DeleteAction::make()
+                    ->label('Hapus')
+                    ->requiresConfirmation()
+                    ->modalHeading('Hapus Pesanan')
+                    ->modalDescription('Pesanan diarsipkan (soft delete) dan hilang dari daftar. Data tetap di database. Batalkan dulu di Biteship jika shipment masih aktif.'),
             ])
             ->filters([
                 SelectFilter::make('status')
