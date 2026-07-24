@@ -111,23 +111,14 @@
                             <p class="text-[10px] text-charcoal/40 dark:text-[#6a6a6e] mt-1">Nama jalan, nomor rumah, RT/RW, atau patokan terdekat.</p>
                         </div>
 
-                        <!-- Pin Lokasi -->
+                        <!-- Pin Lokasi (MapPicker static import — avoids stale Vite chunk 404 after deploy) -->
                         <div v-if="selectedCity || selectedDestination">
-                            <Suspense>
-                                <MapPicker 
-                                    ref="mapPickerRef"
-                                    v-model="pinCoordinates"
-                                    :initialLat="selectedDestination?.latitude"
-                                    :initialLng="selectedDestination?.longitude"
-                                />
-                                <template #fallback>
-                                    <div class="bg-gray-100 dark:bg-[#28282a] rounded-xl p-4 animate-pulse">
-                                        <div class="h-4 bg-gray-200 dark:bg-[#3a3a3c] rounded w-1/3 mb-3"></div>
-                                        <div class="h-[200px] bg-gray-200 dark:bg-[#3a3a3c] rounded-xl"></div>
-                                        <div class="h-3 bg-gray-200 dark:bg-[#3a3a3c] rounded w-2/3 mt-3"></div>
-                                    </div>
-                                </template>
-                            </Suspense>
+                            <MapPicker
+                                ref="mapPickerRef"
+                                v-model="pinCoordinates"
+                                :initialLat="selectedDestination?.latitude"
+                                :initialLng="selectedDestination?.longitude"
+                            />
                         </div>
 
                         <!-- Layanan Pengiriman - tampil otomatis setelah lokasi dipilih -->
@@ -382,10 +373,7 @@ import { useCartStore } from '../cart'
 import { formatPrice } from '../mock-data'
 import api from '../api'
 import { useSettings } from '../useSettings'
-import { defineAsyncComponent } from 'vue'
-
-// Lazy load MapPicker - only loads when user scrolls to address section
-const MapPicker = defineAsyncComponent(() => import('../components/MapPicker.vue'))
+import MapPicker from '../components/MapPicker.vue'
 
 const router = useRouter()
 const { items, clear } = useCartStore()

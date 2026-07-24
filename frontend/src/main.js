@@ -70,11 +70,48 @@ function logErr(msg) {
     errBox.style.display = 'block'
     errBox.innerHTML += `<div>${String(msg).replace(/</g,'&lt;')}</div>`
 }
-window.onerror = (msg, src, line, col, err) => { logErr(`[onerror] ${msg} @ ${src}:${line}:${col}`) }
-window.addEventListener('unhandledrejection', e => { logErr(`[unhandledrejection] ${e.reason}`) })
+
+// After deploy, old main.js may request stale Vite chunks (e.g. MapPicker-XXXX.js).
+// One hard reload fetches the new entry + hashes. Guard with sessionStorage to avoid loops.
+function isStaleChunkError(err) {
+    const msg = String(err?.message || err || '')
+    return (
+        msg.includes('Failed to fetch dynamically imported module')
+        || msg.includes('Importing a module script failed')
+        || msg.includes('error loading dynamically imported module')
+        || (err?.name === 'TypeError' && msg.includes('Loading chunk'))
+    )
+}
+function reloadForStaleChunk(err) {
+    if (!isStaleChunkError(err)) return false
+    const key = 'aliesmo:chunk-reload'
+    if (sessionStorage.getItem(key)) return false
+    sessionStorage.setItem(key, '1')
+    window.location.reload()
+    return true
+}
+window.addEventListener('load', () => {
+    // Clear reload guard after a successful full load
+    setTimeout(() => sessionStorage.removeItem('aliesmo:chunk-reload'), 2000)
+})
+
+window.onerror = (msg, src, line, col, err) => {
+    if (reloadForStaleChunk(err || msg)) return
+    logErr(`[onerror] ${msg} @ ${src}:${line}:${col}`)
+}
+window.addEventListener('unhandledrejection', e => {
+    if (reloadForStaleChunk(e.reason)) {
+        e.preventDefault()
+        return
+    }
+    logErr(`[unhandledrejection] ${e.reason}`)
+})
 
 const app = createApp(App)
-app.config.errorHandler = (err, instance, info) => { logErr(`[vue] ${err?.message || err} (${info})`) }
+app.config.errorHandler = (err, instance, info) => {
+    if (reloadForStaleChunk(err)) return
+    logErr(`[vue] ${err?.message || err} (${info})`)
+}
 app.config.warnHandler = (msg) => { logErr(`[vue:warn] ${msg}`) }
 app.use(router)
 app.component('SkeletonLoader', SkeletonLoader)
