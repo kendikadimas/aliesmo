@@ -72,4 +72,31 @@ class StockTest extends TestCase
             'Test oversell'
         );
     }
+
+    public function test_decrement_for_order_is_idempotent(): void
+    {
+        $this->product->update(['stock' => 10]);
+
+        $order = \App\Models\Order::factory()->create([
+            'status' => \App\Enums\OrderStatus::Pending,
+            'stock_decremented_at' => null,
+        ]);
+        $order->items()->create([
+            'product_id'   => $this->product->id,
+            'product_name' => $this->product->name,
+            'price'        => 10000,
+            'quantity'     => 2,
+            'subtotal'     => 20000,
+        ]);
+
+        $this->stockService->decrementForOrder($order->fresh(['items']));
+        $this->stockService->decrementForOrder($order->fresh(['items'])); // second call no-op
+
+        $this->assertEquals(8, $this->product->fresh()->stock);
+        $this->assertNotNull($order->fresh()->stock_decremented_at);
+
+        $this->stockService->restockForOrder($order->fresh(['items']));
+        $this->assertEquals(10, $this->product->fresh()->stock);
+        $this->assertNull($order->fresh()->stock_decremented_at);
+    }
 }

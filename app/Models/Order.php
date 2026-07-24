@@ -19,7 +19,7 @@ class Order extends Model
         'coupon_discount', 'coupon_code', 'total', 'status', 'payment_method', 'selected_bank',
         'tracking_number', 'tracking_url', 'courier', 'courier_service',
         'biteship_order_id', 'biteship_tracking_id', 'biteship_waybill_id', 'biteship_status',
-        'paid_at'
+        'paid_at', 'stock_decremented_at',
     ];
 
     protected function casts(): array
@@ -31,6 +31,7 @@ class Order extends Model
             'total'                    => 'decimal:2',
             'status'                   => \App\Enums\OrderStatus::class,
             'paid_at'                  => 'datetime',
+            'stock_decremented_at'     => 'datetime',
             'lookup_token_expires_at'  => 'datetime',
         ];
     }

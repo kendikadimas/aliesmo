@@ -31,7 +31,7 @@ class PublicOrderResource extends JsonResource
             'biteship_status'  => $this->biteship_status,
             'items'            => OrderItemResource::collection($this->whenLoaded('items')),
             'payment'          => $this->whenLoaded('payment', fn() => [
-                'proof_image' => $this->payment->proof_image,
+                'proof_image' => (bool) $this->payment->proof_image, // flag only, path private
                 'status'      => $this->payment->status->value,
             ]),
             'created_at'       => $this->created_at,

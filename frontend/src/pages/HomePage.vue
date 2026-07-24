@@ -247,6 +247,44 @@
             </div>
         </section>
 
+        <!-- ===================== TESTIMONI ===================== -->
+        <section v-if="testimonials.length" class="py-14 lg:py-20 bg-maroon-50/40 dark:bg-[#1c1c1e]/50 overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-10">
+                    <p class="text-[10px] font-semibold text-maroon-400 uppercase tracking-widest mb-2">Testimoni</p>
+                    <h2 class="text-2xl lg:text-3xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Kata Mereka</h2>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+                    <div
+                        v-for="t in testimonials"
+                        :key="t.id"
+                        class="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-maroon-50 dark:border-[#303032] p-5 lg:p-6 flex flex-col"
+                    >
+                        <div class="flex items-center gap-3 mb-4">
+                            <img
+                                v-if="t.avatar_url"
+                                :src="t.avatar_url"
+                                :alt="t.name"
+                                class="w-11 h-11 rounded-full object-cover shrink-0"
+                            />
+                            <div
+                                v-else
+                                class="w-11 h-11 rounded-full bg-maroon/10 dark:bg-[#303032] flex items-center justify-center text-sm font-bold text-maroon dark:text-[#f0eeeb] shrink-0"
+                            >
+                                {{ (t.name || '?').charAt(0).toUpperCase() }}
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-sm font-bold text-charcoal dark:text-[#f0eeeb] truncate">{{ t.name }}</p>
+                                <p v-if="t.role" class="text-[11px] text-charcoal/50 dark:text-[#8a8a8e] truncate">{{ t.role }}</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-charcoal/70 dark:text-[#8a8a8e] leading-relaxed flex-1">“{{ t.content }}”</p>
+                        <p class="mt-4 text-amber-500 text-xs font-semibold tracking-wide">{{ '★'.repeat(Math.min(5, Math.max(1, t.rating || 5))) }}</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- ===================== 8. IKUTI KAMI DI IG, TIKTOK, SHOPEE ===================== -->
         <section class="py-14 lg:py-20 overflow-hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -441,6 +479,7 @@ const videos = ref([])
 const bestSellers = ref([])
 const newArrivals = ref([])
 const articles = ref([])
+const testimonials = ref([])
 const loading = ref(false)
 const selectedCategory = ref('')
 const searchTerm = ref('')
@@ -572,7 +611,7 @@ async function fetchData() {
     loading.value = true
     currentPage.value = 1
     try {
-        const [bannersRes, settingsRes, categoriesRes, productsRes, videosRes, bestSellersRes, newArrivalsRes, articlesRes] = await Promise.all([
+        const [bannersRes, settingsRes, categoriesRes, productsRes, videosRes, bestSellersRes, newArrivalsRes, articlesRes, testimonialsRes] = await Promise.all([
             api.get('/banners'),
             fetchSettings(),
             api.get('/categories'),
@@ -581,6 +620,7 @@ async function fetchData() {
             api.get('/products', { params: { per_page: 4, sort: 'best_seller' } }).catch(() => ({ data: { data: [] } })),
             api.get('/products', { params: { per_page: 4, sort: 'newest' } }).catch(() => ({ data: { data: [] } })),
             api.get('/articles', { params: { per_page: 3 } }).catch(() => ({ data: { data: [] } })),
+            api.get('/testimonials').catch(() => ({ data: { data: [] } })),
         ])
         banners.value = (bannersRes.data.data || bannersRes.data).filter(b => b.is_active !== false)
         categoriesList.value = categoriesRes.data.data || categoriesRes.data
@@ -591,6 +631,7 @@ async function fetchData() {
         bestSellers.value = (bestSellersRes.data.data || bestSellersRes.data || []).slice(0, 4)
         newArrivals.value = (newArrivalsRes.data.data || newArrivalsRes.data || []).slice(0, 4)
         articles.value = articlesRes.data.data || articlesRes.data || []
+        testimonials.value = testimonialsRes.data.data || testimonialsRes.data || []
     } catch (e) {
         console.error('Failed to fetch data:', e)
         categoriesList.value = []

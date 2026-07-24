@@ -645,7 +645,13 @@ async function fetchShippingCost() {
         const subtotal = checkoutItems.value.reduce((sum, i) => sum + (i.price * i.quantity), 0)
         const res = await api.post('/shipping/cost', {
             destination: selectedCity.value,
-            weight: checkoutItems.value.reduce((sum, i) => sum + (i.weight ?? 300) * i.quantity, 0) || 300,
+            // weight dihitung server-side dari items — client weight diabaikan
+            items: checkoutItems.value.map(i => ({
+                product_id: i.product_id,
+                variant_id: i.variant_id || null,
+                size_id: i.size_id || null,
+                quantity: i.quantity,
+            })),
             area_id:     dest?.area_id                          || undefined,
             postal_code: dest?.postal_code != null ? String(dest.postal_code) : undefined,
             cod_amount:  paymentMethod.value === 'cod' ? subtotal : undefined,

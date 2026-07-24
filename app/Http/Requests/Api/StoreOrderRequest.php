@@ -28,6 +28,8 @@ class StoreOrderRequest extends FormRequest
             'shipping_cache_key'   => ['required', 'string', 'size:41'], // "shipping:" + 32 char md5
             'shipping_courier'     => ['required', 'string', 'max:50'],
             'shipping_service'     => ['required', 'string', 'max:50'],
+            'destination_lat'      => ['nullable', 'numeric', 'between:-90,90'],
+            'destination_lng'      => ['nullable', 'numeric', 'between:-180,180'],
             'payment_method'       => ['nullable', 'string', 'in:cod,bank_transfer,qris'],
             'selected_bank'        => ['nullable', 'string', 'max:100'],
             'coupon_code'          => ['nullable', 'string', 'max:50'],

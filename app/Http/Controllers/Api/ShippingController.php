@@ -18,18 +18,34 @@ class ShippingController extends Controller
     {
         $request->validate([
             'destination' => 'nullable|integer',
-            'weight'      => 'required|integer|min:1|max:100000',
+            // items (server weight) ATAU weight fallback — salah satu wajib
+            'weight'      => 'required_without:items|nullable|integer|min:1|max:100000',
             'area_id'     => 'nullable|string',
             'postal_code' => 'nullable|string',
             // cod_amount: total order dalam rupiah — jika diisi, rates akan include COD fee
             'cod_amount'  => 'nullable|integer|min:0',
+            'items'                  => 'required_without:weight|nullable|array|max:20',
+            'items.*.product_id'     => 'required_with:items|integer|exists:products,id',
+            'items.*.variant_id'     => 'nullable|integer|exists:product_variants,id',
+            'items.*.size_id'        => 'nullable|integer|exists:product_variant_sizes,id',
+            'items.*.quantity'       => 'required_with:items|integer|min:1|max:100',
         ]);
 
         $destination = (int) $request->input('destination', 0);
-        $weight      = (int) $request->weight;
         $areaId      = $request->input('area_id');
         $postalCode  = $request->input('postal_code');
         $codAmount   = $request->input('cod_amount') ? (int) $request->input('cod_amount') : null;
+
+        if (!$areaId && !$postalCode && $destination <= 0) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'destination' => ['Tujuan pengiriman wajib diisi (area_id, postal_code, atau destination).'],
+            ]);
+        }
+
+        // Server-side weight dari items — client weight hanya fallback tanpa items
+        $weight = !empty($request->items)
+            ? $this->computeWeightFromItems($request->items)
+            : max(1, (int) $request->input('weight', 300));
 
         // Cache key berbeda untuk COD vs non-COD — harga berbeda karena ada COD fee
         $cacheKey = $this->generateShippingCacheKey($destination, $weight, $areaId, $codAmount);
@@ -149,7 +165,7 @@ class ShippingController extends Controller
     }
 
     // Naikkan versi ini setiap kali kurir whitelist berubah agar cache lama invalid
-    private const CACHE_VERSION = 5; // bump: COD fee dibebankan ke customer, cache COD/non-COD dipisah
+    private const CACHE_VERSION = 6; // bump: server-side weight recompute
 
     private function generateShippingCacheKey(int $destination, int $weight, ?string $areaId = null, ?int $codAmount = null): string
     {
@@ -158,6 +174,37 @@ class ShippingController extends Controller
         // Cache COD terpisah dari non-COD — harga berbeda karena ada COD fee
         if ($codAmount !== null && $codAmount > 0) $key .= ":cod{$codAmount}";
         return 'shipping:' . md5($key);
+    }
+
+    /**
+     * Hitung berat total (gram) dari product/variant/size di DB — bukan input client.
+     */
+    private function computeWeightFromItems(array $items): int
+    {
+        $total = 0;
+
+        foreach ($items as $item) {
+            $qty = max(1, (int) ($item['quantity'] ?? 1));
+            $weight = 300;
+
+            if (!empty($item['size_id'])) {
+                $size = \App\Models\ProductVariantSize::with('variant.product')->find($item['size_id']);
+                $weight = $size?->weight
+                    ?? $size?->variant?->weight
+                    ?? $size?->variant?->product?->weight
+                    ?? 300;
+            } elseif (!empty($item['variant_id'])) {
+                $variant = \App\Models\ProductVariant::with('product')->find($item['variant_id']);
+                $weight = $variant?->weight ?? $variant?->product?->weight ?? 300;
+            } elseif (!empty($item['product_id'])) {
+                $product = \App\Models\Product::find($item['product_id']);
+                $weight = $product?->weight ?? 300;
+            }
+
+            $total += max(1, (int) $weight) * $qty;
+        }
+
+        return max(1, $total);
     }
 
     /**

@@ -45,36 +45,77 @@ class StockService
 
     public function decrementForOrder(Order $order): void
     {
-        // Tidak pakai nested DB::transaction di sini karena adjustStock() sudah punya
-        // transaction sendiri — nested transaction pada SQLite/MySQL bisa deadlock.
-        // Caller (OrderService::createFromCart) sudah wrap dalam transaction.
-        foreach ($order->items as $item) {
-            if ($item->size_id) {
-                // Deduct dari stok ukuran (variant + size)
-                $this->adjustSizeStock(
-                    $item->size_id,
-                    -$item->quantity,
-                    StockMovementType::Sale,
-                    "Order #{$order->order_number}"
-                );
-            } elseif ($item->variant_id) {
-                // Deduct dari stok varian (tanpa size)
-                $this->adjustVariantStock(
-                    $item->variant_id,
-                    -$item->quantity,
-                    StockMovementType::Sale,
-                    "Order #{$order->order_number}"
-                );
-            } else {
-                // Produk tanpa varian — deduct dari stok produk langsung
-                $this->adjustStock(
-                    $item->product_id,
-                    -$item->quantity,
-                    StockMovementType::Sale,
-                    "Order #{$order->order_number}"
-                );
+        // Transaction wajib agar lockForUpdate efektif (juga saat dipanggil di luar TX)
+        DB::transaction(function () use ($order) {
+            $locked = Order::lockForUpdate()->find($order->id);
+            if (!$locked || $locked->stock_decremented_at) {
+                Log::info('decrementForOrder: SKIP already decremented', [
+                    'order' => $order->order_number,
+                    'at'    => $locked?->stock_decremented_at,
+                ]);
+                return;
             }
-        }
+
+            $locked->loadMissing('items');
+
+            foreach ($locked->items as $item) {
+                if ($item->size_id) {
+                    $this->adjustSizeStock(
+                        $item->size_id,
+                        -$item->quantity,
+                        StockMovementType::Sale,
+                        "Order #{$locked->order_number}"
+                    );
+                } elseif ($item->variant_id) {
+                    $this->adjustVariantStock(
+                        $item->variant_id,
+                        -$item->quantity,
+                        StockMovementType::Sale,
+                        "Order #{$locked->order_number}"
+                    );
+                } else {
+                    $this->adjustStock(
+                        $item->product_id,
+                        -$item->quantity,
+                        StockMovementType::Sale,
+                        "Order #{$locked->order_number}"
+                    );
+                }
+            }
+
+            $locked->update(['stock_decremented_at' => now()]);
+            $order->setAttribute('stock_decremented_at', $locked->stock_decremented_at);
+        });
+    }
+
+    public function restockForOrder(Order $order, string $reason = ''): void
+    {
+        DB::transaction(function () use ($order, $reason) {
+            $locked = Order::lockForUpdate()->find($order->id);
+            if (!$locked || !$locked->stock_decremented_at) {
+                return;
+            }
+
+            $locked->loadMissing(['items.variant', 'items.size']);
+            $note = $reason !== '' ? $reason : "Restock order #{$locked->order_number}";
+
+            foreach ($locked->items as $item) {
+                try {
+                    if ($item->size_id) {
+                        $this->adjustSizeStock($item->size_id, $item->quantity, StockMovementType::Return, $note);
+                    } elseif ($item->variant_id) {
+                        $this->adjustVariantStock($item->variant_id, $item->quantity, StockMovementType::Return, $note);
+                    } else {
+                        $this->adjustStock($item->product_id, $item->quantity, StockMovementType::Return, $note);
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning("restockForOrder skip item #{$item->id}: " . $e->getMessage());
+                }
+            }
+
+            $locked->update(['stock_decremented_at' => null]);
+            $order->setAttribute('stock_decremented_at', null);
+        });
     }
 
     public function adjustVariantStock(

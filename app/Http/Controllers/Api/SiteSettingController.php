@@ -66,7 +66,14 @@ class SiteSettingController extends Controller
 
     public function group(string $group): JsonResponse
     {
+        // Whitelist group — cegah leak key internal via ?group=anything
+        $allowedGroups = ['general', 'payment', 'shipping', 'social', 'announcement', 'promo'];
+        if (!in_array($group, $allowedGroups, true)) {
+            return response()->json(['message' => 'Group tidak valid.'], 404);
+        }
+
         $settings = SiteSetting::where('group', $group)
+            ->whereIn('key', self::PUBLIC_KEYS)
             ->get(['key', 'value', 'type'])
             ->mapWithKeys(fn($s) => [$s->key => match ($s->type) {
                 'boolean' => (bool) $s->value,

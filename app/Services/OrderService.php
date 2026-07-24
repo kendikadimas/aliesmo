@@ -2,7 +2,6 @@
 namespace App\Services;
 
 use App\Enums\OrderStatus;
-use App\Enums\StockMovementType;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\Product;
@@ -370,42 +369,11 @@ class OrderService
     public function cancel(Order $order, string $reason = ''): void
     {
         DB::transaction(function () use ($order, $reason) {
-            $restorableStatuses = [
-                OrderStatus::Paid,
-                OrderStatus::Processing,
-                OrderStatus::Shipped,
-                OrderStatus::Completed,
-            ];
-
-            if (in_array($order->status, $restorableStatuses)) {
-                $order->loadMissing(['items.variant', 'items.size']);
-
-                foreach ($order->items as $item) {
-                    // Prioritas restock: size → variant → product
-                    if ($item->size_id && $item->size) {
-                        $this->stockService->adjustSizeStock(
-                            $item->size_id,
-                            $item->quantity,
-                            StockMovementType::Return,
-                            "Cancelled order #{$order->order_number}: {$reason}"
-                        );
-                    } elseif ($item->variant_id && $item->variant) {
-                        $this->stockService->adjustVariantStock(
-                            $item->variant_id,
-                            $item->quantity,
-                            StockMovementType::Return,
-                            "Cancelled order #{$order->order_number}: {$reason}"
-                        );
-                    } else {
-                        $this->stockService->adjustStock(
-                            $item->product_id,
-                            $item->quantity,
-                            StockMovementType::Return,
-                            "Cancelled order #{$order->order_number}: {$reason}"
-                        );
-                    }
-                }
-            }
+            // Restock hanya jika stok pernah di-decrement (flag, bukan tebak dari status)
+            $this->stockService->restockForOrder(
+                $order,
+                "Cancelled order #{$order->order_number}: {$reason}"
+            );
 
             $order->update(['status' => OrderStatus::Cancelled]);
         });

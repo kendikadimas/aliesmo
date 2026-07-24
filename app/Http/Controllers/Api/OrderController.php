@@ -165,7 +165,8 @@ class OrderController extends Controller
                 'size_kb' => round($file->getSize() / 1024, 2),
             ]);
             
-            $path = $file->store('payment-proofs', 'public');
+            // Disk local (private) — bukan public, cegah akses langsung via /storage
+            $path = $file->store('payment-proofs', 'local');
             
             Log::debug('Upload proof: file stored', ['path' => $path]);
 
@@ -245,6 +246,8 @@ class OrderController extends Controller
                 'shipping_courier',
                 'shipping_service',
                 'selected_bank',
+                'destination_lat',
+                'destination_lng',
             ]);
             $customerData['payment_method'] = $request->input('payment_method', 'bank_transfer');
 
@@ -449,6 +452,8 @@ class OrderController extends Controller
             'has_proof' => $order->payment?->proof_image !== null,
         ]);
 
+        $hasProof = $order->payment?->proof_image !== null;
+
         $data = [
             'id'               => $order->id,
             'order_number'     => $order->order_number,
@@ -488,9 +493,9 @@ class OrderController extends Controller
             'tracking_url'       => $order->tracking_url,
             'biteship_status'    => $order->biteship_status,
             'biteship_waybill_id'=> $order->biteship_waybill_id,
-            // Info bukti pembayaran (hanya path & status, tidak expose data sensitif)
+            // Jangan expose path bukti — cukup flag boolean (file di disk private)
             'payment'            => $order->payment ? [
-                'proof_image' => $order->payment->proof_image,
+                'proof_image' => $hasProof, // boolean: sudah upload atau belum
                 'status'      => $order->payment->status->value,
             ] : null,
         ];
@@ -564,8 +569,14 @@ class OrderController extends Controller
     {
         $user = auth()->user();
 
+        if (!$user->hasVerifiedEmail()) {
+            return response()->json([
+                'message' => 'Verifikasi email dulu sebelum mengklaim pesanan.',
+                'claimed_count' => 0,
+            ], 403);
+        }
+
         $claimed = DB::transaction(function () use ($user) {
-            // Ambil semua guest order dengan email yang sama, belum di-claim
             $orders = Order::where('customer_email', $user->email)
                 ->whereNull('user_id')
                 ->lockForUpdate()
@@ -602,6 +613,10 @@ class OrderController extends Controller
     public function countClaimableOrders()
     {
         $user = auth()->user();
+
+        if (!$user->hasVerifiedEmail()) {
+            return response()->json(['claimable_count' => 0]);
+        }
 
         $count = Order::where('customer_email', $user->email)
             ->whereNull('user_id')

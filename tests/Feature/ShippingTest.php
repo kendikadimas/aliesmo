@@ -3,9 +3,7 @@
 namespace Tests\Feature;
 
 use App\Services\BiteshipService;
-use App\Services\RajaOngkirService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class ShippingTest extends TestCase
@@ -23,27 +21,22 @@ class ShippingTest extends TestCase
         $response->assertJsonValidationErrors(['q']);
     }
 
-    public function test_search_returns_results_from_static_fallback(): void
+    public function test_search_returns_results_from_biteship(): void
     {
-        // Mock Komerce — gagal agar pakai static fallback
-        $this->mock(RajaOngkirService::class, function ($mock) {
-            $mock->shouldReceive('searchDestinations')
-                ->with('jakarta')
-                ->andReturn([
-                    [
-                        'id'            => 152,
-                        'label'         => 'JAKARTA PUSAT, DKI JAKARTA',
-                        'city_name'     => 'Jakarta Pusat',
-                        'province_name' => 'DKI Jakarta',
-                        'zip_code'      => '10110',
-                    ],
-                ]);
-        });
-
-        // Mock Biteship — return empty agar tidak perlu API key
         $this->mock(BiteshipService::class, function ($mock) {
             $mock->shouldReceive('searchArea')
-                ->andReturn([]);
+                ->andReturn([
+                    [
+                        'area_id'     => 'IDNP6IDNC152IDND1001',
+                        'postal_code' => '10110',
+                        'label'       => 'Jakarta Pusat',
+                        'province'    => 'DKI Jakarta',
+                        'city'        => 'Jakarta Pusat',
+                        'district'    => 'Gambir',
+                        'latitude'    => -6.175,
+                        'longitude'   => 106.827,
+                    ],
+                ]);
         });
 
         $response = $this->getJson('/api/v1/shipping/search?q=jakarta');
@@ -55,51 +48,11 @@ class ShippingTest extends TestCase
             ],
         ]);
         $this->assertNotEmpty($response->json('data'));
-    }
-
-    public function test_search_enriches_results_with_biteship_area_id(): void
-    {
-        $this->mock(RajaOngkirService::class, function ($mock) {
-            $mock->shouldReceive('searchDestinations')
-                ->andReturn([
-                    [
-                        'id'            => 152,
-                        'label'         => 'JAKARTA PUSAT, DKI JAKARTA',
-                        'city_name'     => 'jakarta pusat',
-                        'province_name' => 'DKI Jakarta',
-                        'zip_code'      => '',
-                    ],
-                ]);
-        });
-
-        $this->mock(BiteshipService::class, function ($mock) {
-            $mock->shouldReceive('searchArea')
-                ->andReturn([
-                    [
-                        'area_id'     => 'IDNP6IDNC152IDND1001',
-                        'postal_code' => '10110',
-                        'label'       => 'Jakarta Pusat',
-                        'province'    => 'DKI Jakarta',
-                        'city'        => 'Jakarta Pusat',
-                        'district'    => 'jakarta pusat',
-                    ],
-                ]);
-        });
-
-        $response = $this->getJson('/api/v1/shipping/search?q=jakarta');
-
-        $response->assertStatus(200);
-        $first = $response->json('data.0');
-        $this->assertEquals('IDNP6IDNC152IDND1001', $first['area_id']);
-        $this->assertEquals('10110', $first['postal_code']);
+        $this->assertEquals('IDNP6IDNC152IDND1001', $response->json('data.0.area_id'));
     }
 
     public function test_search_returns_empty_when_no_results(): void
     {
-        $this->mock(RajaOngkirService::class, function ($mock) {
-            $mock->shouldReceive('searchDestinations')->andReturn([]);
-        });
-
         $this->mock(BiteshipService::class, function ($mock) {
             $mock->shouldReceive('searchArea')->andReturn([]);
         });
@@ -114,11 +67,11 @@ class ShippingTest extends TestCase
     // /api/v1/shipping/cost
     // ──────────────────────────────────────────────
 
-    public function test_cost_requires_destination_and_weight(): void
+    public function test_cost_requires_weight_or_items(): void
     {
         $response = $this->postJson('/api/v1/shipping/cost', []);
         $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['destination', 'weight']);
+        $response->assertJsonValidationErrors(['weight']);
     }
 
     public function test_cost_returns_results_from_biteship(): void
@@ -193,7 +146,7 @@ class ShippingTest extends TestCase
         });
 
         $response = $this->postJson('/api/v1/shipping/cost', [
-            'destination' => 9999, // ID tidak ada di cities.json
+            'destination' => 9999,
             'weight'      => 500,
         ]);
 
@@ -228,9 +181,7 @@ class ShippingTest extends TestCase
                 });
         });
 
-        // Request pertama — hit API
         $this->postJson('/api/v1/shipping/cost', ['destination' => 152, 'weight' => 500, 'area_id' => 'IDNP6IDNC152IDND1001']);
-        // Request kedua — harusnya dari cache
         $this->postJson('/api/v1/shipping/cost', ['destination' => 152, 'weight' => 500, 'area_id' => 'IDNP6IDNC152IDND1001']);
 
         $this->assertEquals(1, $callCount, 'API seharusnya hanya dipanggil sekali — request kedua dari cache.');
@@ -247,33 +198,31 @@ class ShippingTest extends TestCase
         $response->assertJsonValidationErrors(['weight']);
     }
 
-    // ──────────────────────────────────────────────
-    // /api/v1/shipping/provinces & cities
-    // ──────────────────────────────────────────────
-
-    public function test_provinces_returns_list(): void
+    public function test_cost_computes_weight_from_items(): void
     {
-        $this->mock(RajaOngkirService::class, function ($mock) {
-            $mock->shouldReceive('getProvinces')->andReturn([
-                ['province_id' => '12', 'province' => 'Jawa Tengah'],
-            ]);
+        $product = \App\Models\Product::factory()->create(['weight' => 400, 'stock' => 10]);
+
+        $this->mock(BiteshipService::class, function ($mock) {
+            $mock->shouldReceive('getAllShippingCostsByAreaId')
+                ->withArgs(function ($areaId, $weight) {
+                    return $weight === 800; // 400g * 2
+                })
+                ->andReturn([
+                    [
+                        'code' => 'jne', 'courier' => 'JNE', 'service' => 'REG',
+                        'description' => 'Reg', 'cost' => 15000, 'etd' => '2-3', 'source' => 'biteship',
+                    ],
+                ]);
         });
 
-        $response = $this->getJson('/api/v1/shipping/provinces');
-        $response->assertStatus(200);
-        $response->assertJsonStructure(['data']);
-    }
+        $response = $this->postJson('/api/v1/shipping/cost', [
+            'area_id' => 'IDNP6IDNC152IDND1001',
+            'items'   => [
+                ['product_id' => $product->id, 'quantity' => 2],
+            ],
+        ]);
 
-    public function test_cities_returns_list_by_province(): void
-    {
-        $this->mock(RajaOngkirService::class, function ($mock) {
-            $mock->shouldReceive('getCities')->with(12)->andReturn([
-                ['city_id' => '570', 'city_name' => 'Pemalang', 'province_id' => '12'],
-            ]);
-        });
-
-        $response = $this->getJson('/api/v1/shipping/cities/12');
         $response->assertStatus(200);
-        $response->assertJsonStructure(['data']);
+        $response->assertJsonPath('source', 'biteship');
     }
 }

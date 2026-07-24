@@ -6,7 +6,6 @@ use App\Filament\Resources\OrderResource\Pages;
 use App\Models\Order;
 use App\Services\OrderService;
 use App\Services\StockService;
-use App\Enums\StockMovementType;
 use App\Notifications\OrderStatusUpdatedNotification;
 use App\Notifications\OrderShippedNotification;
 use Filament\Actions\Action;
@@ -18,7 +17,6 @@ use Illuminate\Support\Facades\URL;
 
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Components\ImageEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -217,21 +215,23 @@ class OrderResource extends Resource
                     ])->columns(2),
                 Section::make('Bukti Pembayaran')
                     ->schema([
-                        ImageEntry::make('payment.proof_image')
+                        // URL lewat admin route (disk private) — bukan path /storage
+                        \Filament\Infolists\Components\ImageEntry::make('payment_proof_preview')
                             ->label('Foto Bukti Bayar')
-                            ->disk('public')
+                            ->getStateUsing(fn (Order $record): ?string =>
+                                $record->payment?->proof_image
+                                    ? route('admin.payment-proof', $record)
+                                    : null
+                            )
                             ->height(300)
                             ->width(300)
-                            ->extraImgAttributes(fn (Order $record): array => [
-                                'class'  => 'cursor-zoom-in rounded-lg object-contain',
-                                'title'  => 'Klik untuk melihat full size',
-                            ])
                             ->url(fn (Order $record): ?string =>
                                 $record->payment?->proof_image
-                                    ? \Illuminate\Support\Facades\Storage::disk('public')->url($record->payment->proof_image)
+                                    ? route('admin.payment-proof', $record)
                                     : null
                             )
                             ->openUrlInNewTab()
+                            ->visible(fn (Order $record): bool => (bool) $record->payment?->proof_image)
                             ->placeholder('Belum diunggah'),
                         TextEntry::make('payment.proof_note')
                             ->label('Catatan')
@@ -367,10 +367,8 @@ class OrderResource extends Resource
                     ])
                     ->action(function (array $data, Order $record) {
                         $newStatus    = OrderStatus::from($data['status']);
-                        $prevStatus   = $record->status;
                         $stockService = app(StockService::class);
 
-                        // Status yang dianggap sudah "terbayar" / stok harus dikurangi
                         $paidStatuses = [
                             OrderStatus::Paid,
                             OrderStatus::Processing,
@@ -378,13 +376,8 @@ class OrderResource extends Resource
                             OrderStatus::Completed,
                         ];
 
-                        // Stok hanya dikurangi jika:
-                        // - Status sebelumnya belum pernah dikurangi (masih pending)
-                        // - Status baru masuk ke kategori paid/processing/shipped/completed
-                        $wasNotDecremented = !in_array($prevStatus, $paidStatuses);
-                        $shouldDecrement   = in_array($newStatus, $paidStatuses);
-
-                        if ($wasNotDecremented && $shouldDecrement) {
+                        // Idempotent via stock_decremented_at
+                        if (in_array($newStatus, $paidStatuses) && !$record->stock_decremented_at) {
                             $record->load('items');
                             $stockService->decrementForOrder($record);
                         }
@@ -464,50 +457,11 @@ class OrderResource extends Resource
                     ->modalDescription('Batalkan order ini dan kembalikan stok produk secara otomatis?')
                     ->modalSubmitActionLabel('Ya, Batalkan')
                     ->action(function (Order $record) {
-                        // Hanya order yang sudah pernah deduct stok yang perlu direstock
-                        // Status pending = belum bayar = stok belum pernah dikurangi
-                        $paidStatuses = [
-                            OrderStatus::Paid,
-                            OrderStatus::Processing,
-                            OrderStatus::Shipped,
-                            OrderStatus::Completed,
-                        ];
-                        $shouldRestock = in_array($record->status, $paidStatuses);
-
-                        DB::transaction(function () use ($record, $shouldRestock) {
-                            if ($shouldRestock) {
-                                $stockService = app(StockService::class);
-                                $record->load('items');
-                                foreach ($record->items as $item) {
-                                    try {
-                                        if ($item->size_id) {
-                                            $stockService->adjustSizeStock(
-                                                $item->size_id,
-                                                $item->quantity,
-                                                StockMovementType::Return,
-                                                "Restock - Order #{$record->order_number} dibatalkan"
-                                            );
-                                        } elseif ($item->variant_id) {
-                                            $stockService->adjustVariantStock(
-                                                $item->variant_id,
-                                                $item->quantity,
-                                                StockMovementType::Return,
-                                                "Restock - Order #{$record->order_number} dibatalkan"
-                                            );
-                                        } else {
-                                            $stockService->adjustStock(
-                                                $item->product_id,
-                                                $item->quantity,
-                                                StockMovementType::Return,
-                                                "Restock - Order #{$record->order_number} dibatalkan"
-                                            );
-                                        }
-                                    } catch (\Exception $e) {
-                                        // Produk/variant/size mungkin sudah dihapus, skip saja
-                                        Log::warning("Restock skip item order #{$record->order_number}: " . $e->getMessage());
-                                    }
-                                }
-                            }
+                        DB::transaction(function () use ($record) {
+                            app(StockService::class)->restockForOrder(
+                                $record,
+                                "Restock - Order #{$record->order_number} dibatalkan"
+                            );
                             $record->update(['status' => OrderStatus::Cancelled]);
                         });
                     })

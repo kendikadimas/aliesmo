@@ -74,6 +74,11 @@ class SocialAuthController extends Controller
 
     private function claimGuestOrders(User $user): int
     {
+        // Google users always verified; guard for safety
+        if (!$user->hasVerifiedEmail()) {
+            return 0;
+        }
+
         return DB::transaction(function () use ($user) {
             $orders = Order::where('customer_email', $user->email)
                 ->whereNull('user_id')

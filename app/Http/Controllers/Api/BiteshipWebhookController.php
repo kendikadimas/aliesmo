@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Enums\OrderStatus;
 use App\Models\Order;
+use App\Services\StockService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -23,20 +24,19 @@ class BiteshipWebhookController extends Controller
         Log::debug('Biteship webhook: incoming request', [
             'ip' => $request->ip(),
             'user_agent' => $request->userAgent(),
-            'headers' => $request->headers->all(),
         ]);
 
-        // Verify webhook secret if configured
+        // Fail-closed: secret wajib — webhook terbuka jika kosong
         $webhookSecret = config('services.biteship.webhook_secret');
-        if ($webhookSecret) {
-            $providedSecret = $request->header('Authorization') ?? $request->input('secret');
-            if ($providedSecret !== $webhookSecret && $providedSecret !== 'Bearer ' . $webhookSecret) {
-                Log::warning('Biteship webhook: invalid secret', [
-                    'ip' => $request->ip(),
-                    'provided' => substr($providedSecret ?? '', 0, 10) . '...',
-                ]);
-                return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
-            }
+        if (empty($webhookSecret)) {
+            Log::error('Biteship webhook: BITESHIP_WEBHOOK_SECRET not configured');
+            return response()->json(['success' => false, 'message' => 'Webhook not configured'], 503);
+        }
+
+        $providedSecret = $request->header('Authorization') ?? $request->input('secret');
+        if ($providedSecret !== $webhookSecret && $providedSecret !== 'Bearer ' . $webhookSecret) {
+            Log::warning('Biteship webhook: invalid secret', ['ip' => $request->ip()]);
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }
 
         $event = $request->input('event');
@@ -133,7 +133,12 @@ class BiteshipWebhookController extends Controller
             'cancelled'         => OrderStatus::Cancelled,
             'rejected'          => OrderStatus::Cancelled,
             'disposed'          => OrderStatus::Cancelled,
+            'courier_not_found' => OrderStatus::Cancelled,
         ];
+
+        // Restock hanya saat final fail — BUKAN return_in_transit (masih di jalan balik)
+        $restockStatuses = ['returned', 'cancelled', 'rejected', 'disposed', 'courier_not_found'];
+
         if (isset($orderStatusMap[$status])) {
             $updateData['status'] = $orderStatusMap[$status];
 
@@ -146,11 +151,30 @@ class BiteshipWebhookController extends Controller
 
         $order->update($updateData);
 
+        // Restock stok saat kiriman final batal/return (idempotent via stock_decremented_at)
+        if (in_array($status, $restockStatuses, true)) {
+            try {
+                app(StockService::class)->restockForOrder(
+                    $order->fresh(),
+                    "Biteship {$status} — order #{$order->order_number}"
+                );
+                Log::info('Biteship webhook: restock attempted', [
+                    'order'  => $order->order_number,
+                    'status' => $status,
+                ]);
+            } catch (\Throwable $e) {
+                Log::error('Biteship webhook: restock failed', [
+                    'order' => $order->order_number,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
         Log::info('Biteship status updated', [
-            'order'      => $order->order_number,
-            'status'     => $status,
-            'waybill_id' => $waybillId,
-            'driver'     => $driverName,
+            'order'        => $order->order_number,
+            'status'       => $status,
+            'waybill_id'   => $waybillId,
+            'driver'       => $driverName,
             'driver_phone' => $driverPhone,
         ]);
 

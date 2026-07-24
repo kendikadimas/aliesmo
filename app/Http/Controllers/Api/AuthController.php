@@ -91,6 +91,11 @@ class AuthController extends Controller
      */
     private function claimGuestOrders(User $user): int
     {
+        // Hanya claim jika email sudah terverifikasi — cegah claim via email orang lain
+        if (!$user->hasVerifiedEmail()) {
+            return 0;
+        }
+
         return DB::transaction(function () use ($user) {
             $orders = Order::where('customer_email', $user->email)
                 ->whereNull('user_id')
@@ -143,6 +148,8 @@ class AuthController extends Controller
                 $user->forceFill(['password' => Hash::make($password)])
                      ->setRememberToken(Str::random(60));
                 $user->save();
+                // Revoke semua Sanctum token — password reset = session hijack kill switch
+                $user->tokens()->delete();
                 event(new PasswordReset($user));
             }
         );

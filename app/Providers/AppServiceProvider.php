@@ -27,8 +27,11 @@ class AppServiceProvider extends ServiceProvider
             fn(): string => '<link rel="stylesheet" href="' . asset('css/admin.css') . '">',
         );
 
-        $this->registerModelDebugLogging();
-        $this->registerLivewireDebugLogging();
+        // Debug model/Livewire logging hanya di local — spam log di prod
+        if (app()->environment('local')) {
+            $this->registerModelDebugLogging();
+            $this->registerLivewireDebugLogging();
+        }
     }
 
     private function registerLivewireDebugLogging(): void

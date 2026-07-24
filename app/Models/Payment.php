@@ -32,6 +32,10 @@ class Payment extends Model
 
     public function getProofImageUrlAttribute(): ?string
     {
-        return $this->proof_image ? asset('storage/' . $this->proof_image) : null;
+        // File di disk private — URL lewat admin route, bukan /storage
+        if (!$this->proof_image || !$this->order_id) {
+            return null;
+        }
+        return route('admin.payment-proof', $this->order_id);
     }
 }
