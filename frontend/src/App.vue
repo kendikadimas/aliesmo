@@ -33,7 +33,7 @@
                     <!-- Left: Hamburger (mobile) + Logo -->
                     <div class="flex items-center gap-3">
                         <button @click="mobileOpen = !mobileOpen" class="lg:hidden p-2 -ml-2 text-charcoal dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors" aria-label="Menu">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                            <Bars3Icon class="w-6 h-6" />
                         </button>
                         <router-link to="/" class="flex items-center">
                             <img src="/aliesmo-horizontal.png" alt="Aliesmo" class="block h-8 w-auto" :class="isDark ? '' : 'brightness-0'" />
@@ -48,7 +48,7 @@
                         <div class="relative" data-cat-menu>
                             <button @click="desktopCatsOpen = !desktopCatsOpen" class="flex items-center gap-1 px-3 py-2 text-sm font-semibold text-charcoal/80 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors uppercase tracking-wide">
                                 Kategori
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="transition-transform duration-150" :class="desktopCatsOpen ? 'rotate-180' : ''"><polyline points="6 9 12 15 18 9"/></svg>
+                                <ChevronDownIcon class="w-3.5 h-3.5 transition-transform duration-150" :class="desktopCatsOpen ? 'rotate-180' : ''" />
                             </button>
                             <Transition name="dropdown">
                                 <div v-if="desktopCatsOpen" class="absolute top-full left-0 mt-1 w-48 bg-white dark:bg-[#1c1c1e] rounded-xl shadow-lg border border-zinc-100 dark:border-[#303032] py-1 z-50">
@@ -73,24 +73,24 @@
                                 </form>
                             </Transition>
                             <button @click="searchOpen = !searchOpen" class="p-2 text-charcoal/70 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors" aria-label="Cari">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <MagnifyingGlassIcon class="w-5 h-5" />
                             </button>
                         </div>
 
                         <!-- Dark Mode Toggle -->
                         <button @click="toggle" class="p-2 text-charcoal/70 dark:text-[#8a8a8e] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors" :aria-label="isDark ? 'Light mode' : 'Dark mode'">
-                            <svg v-if="isDark" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-                            <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                            <SunIcon v-if="isDark" class="w-5 h-5" />
+                            <MoonIcon v-else class="w-5 h-5" />
                         </button>
 
                         <!-- Wishlist -->
                         <button @click="showWishlistToast" class="hidden md:flex p-2 text-charcoal/70 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors" aria-label="Wishlist">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                            <HeartIcon class="w-5 h-5" />
                         </button>
 
                         <!-- Cart -->
                         <router-link to="/cart" class="relative p-2 text-charcoal/70 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors" aria-label="Cart">
-                            <svg :class="['transition-transform', cartBounce ? 'cart-bounce' : '']" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                            <ShoppingBagIcon :class="['w-5 h-5 transition-transform', cartBounce ? 'cart-bounce' : '']" />
                             <span v-if="cartCount" class="absolute -top-0.5 -right-0.5 bg-maroon text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center leading-none">{{ cartCount > 9 ? '9+' : cartCount }}</span>
                         </router-link>
 
@@ -121,7 +121,7 @@
                     <form @submit.prevent="handleSearch" class="relative w-full">
                         <input v-model="searchQuery" type="text" placeholder="Cari kemeja, batik, atau koleksi..." class="w-full pl-5 pr-12 py-2 rounded-full border border-zinc-200 dark:border-[#303032] focus:outline-none focus:border-maroon text-xs bg-zinc-50/20 dark:bg-[#1c1c1e] dark:text-[#f0eeeb] placeholder-zinc-400 dark:placeholder-[#8a8a8e]" />
                         <button type="submit" class="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-charcoal dark:bg-[#f0eeeb] hover:bg-maroon text-white dark:text-[#161618] flex items-center justify-center transition-colors" aria-label="Cari">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <MagnifyingGlassIcon class="w-3 h-3" />
                         </button>
                     </form>
                 </div>
@@ -138,14 +138,14 @@
                 <div class="flex items-center justify-between px-5 py-4 border-b border-zinc-100 dark:border-[#303032]">
                     <img src="/aliesmo-horizontal.png" alt="Aliesmo" class="block h-7 w-auto" :class="isDark ? '' : 'brightness-0'" />
                     <button @click="mobileOpen = false" class="p-2 -mr-1 text-charcoal/60 dark:text-[#8a8a8e] hover:text-charcoal dark:hover:text-[#f0eeeb] transition-colors" aria-label="Tutup">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <XMarkIcon class="w-5 h-5" />
                     </button>
                 </div>
 
                 <!-- Menu List -->
                 <nav class="flex-1 overflow-y-auto px-5 py-4 space-y-1">
                     <router-link @click="mobileOpen = false" to="/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-charcoal/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#1c1c1e] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors uppercase tracking-wide">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        <HomeIcon class="w-[18px] h-[18px] shrink-0" />
                         Beranda
                     </router-link>
 
@@ -153,10 +153,10 @@
                     <div>
                         <button @click="mobileCatsOpen = !mobileCatsOpen" class="flex items-center justify-between w-full gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-charcoal/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#1c1c1e] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors uppercase tracking-wide">
                             <span class="flex items-center gap-3">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                                <Squares2X2Icon class="w-[18px] h-[18px] shrink-0" />
                                 Kategori
                             </span>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200" :class="mobileCatsOpen ? 'rotate-180' : ''"><polyline points="6 9 12 15 18 9"/></svg>
+                            <ChevronDownIcon class="w-4 h-4 transition-transform duration-200" :class="mobileCatsOpen ? 'rotate-180' : ''" />
                         </button>
                         <Transition name="accordion">
                             <div v-if="mobileCatsOpen" class="ml-6 mt-1 space-y-0.5 border-l-2 border-zinc-100 dark:border-[#303032] pl-3">
@@ -177,32 +177,32 @@
                     </div>
 
                     <router-link @click="mobileOpen = false" to="/#shop" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-charcoal/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#1c1c1e] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors uppercase tracking-wide">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                        <ShoppingBagIcon class="w-[18px] h-[18px] shrink-0" />
                         Semua Koleksi
                     </router-link>
                     <router-link @click="mobileOpen = false" to="/blog" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-charcoal/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#1c1c1e] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors uppercase tracking-wide">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                        <BookOpenIcon class="w-[18px] h-[18px] shrink-0" />
                         Blog
                     </router-link>
                     <a href="https://wa.me/628138883345?text=Halo%20Admin%20Aliesmo.%20Saya%20tertarik%20bergabung%20dengan%20Program%20Kerja%20Sama.%20Mohon%20informasinya.%20Terima%20kasih." target="_blank" rel="noopener noreferrer" @click="mobileOpen = false" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-charcoal/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#1c1c1e] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors uppercase tracking-wide">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <UserGroupIcon class="w-[18px] h-[18px] shrink-0" />
                         Affiliate
                     </a>
 
                     <!-- Account Section -->
                     <router-link v-if="isLoggedIn" @click="mobileOpen = false" to="/profile" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-charcoal/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#1c1c1e] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors uppercase tracking-wide">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <UserIconOutline class="w-[18px] h-[18px] shrink-0" />
                         Akun Saya
                     </router-link>
                     <router-link v-if="isLoggedIn" @click="mobileOpen = false" to="/profile?tab=pesanan" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-charcoal/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#1c1c1e] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors uppercase tracking-wide">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                        <ShoppingBagIcon class="w-[18px] h-[18px] shrink-0" />
                         Pesanan Saya
                     </router-link>
 
                     <!-- Dark Mode Toggle -->
                     <button @click="toggle" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-semibold text-charcoal/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#1c1c1e] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors uppercase tracking-wide">
-                        <svg v-if="isDark" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-                        <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                        <SunIcon v-if="isDark" class="w-[18px] h-[18px] shrink-0" />
+                        <MoonIcon v-else class="w-[18px] h-[18px] shrink-0" />
                         {{ isDark ? 'Mode Terang' : 'Mode Gelap' }}
                     </button>
                 </nav>
@@ -242,7 +242,8 @@
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
                             </a>
                             <a :href="get('social_shopee', 'https://shopee.co.id/aliesmo.id')" target="_blank" rel="noopener noreferrer" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 transition-colors" aria-label="Shopee">
-                                <img src="/Shopee_logo.svg" alt="Shopee" class="w-4 h-4" />
+                                <!-- ponytail: logo oranye butuh bg putih supaya kelihatan di footer gelap -->
+                                <img src="/Shopee_logo.svg" alt="Shopee" class="w-5 h-5 object-contain" />
                             </a>
                             <a v-if="get('social_tiktokshop')?.trim()" :href="get('social_tiktokshop')" target="_blank" rel="noopener noreferrer" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 transition-colors" aria-label="TikTok Shop">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/><path d="M22 10h-4v4h-2v-4h-4V8h4V4h2v4h4v2z" opacity=".7"/></svg>
@@ -293,17 +294,13 @@
                     <div class="w-12 h-12 rounded-xl overflow-hidden bg-zinc-100 dark:bg-[#28282a] flex-shrink-0">
                         <img v-if="cartToast.thumbnail" :src="cartToast.thumbnail" :alt="cartToast.name" class="w-full h-full object-cover">
                         <div v-else class="w-full h-full flex items-center justify-center">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-zinc-400">
-                                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>
-                            </svg>
+                            <ShoppingBagIcon class="w-5 h-5 text-zinc-400" />
                         </div>
                     </div>
                     <!-- Info -->
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-1.5 mb-0.5">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500 flex-shrink-0">
-                                <polyline points="20 6 9 17 4 12"/>
-                            </svg>
+                            <CheckIcon class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
                             <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">Ditambahkan ke keranjang</span>
                         </div>
                         <p class="text-sm font-semibold text-charcoal dark:text-[#f0eeeb] truncate">{{ cartToast.name }}</p>
@@ -320,7 +317,7 @@
         <!-- Wishlist Toast (generic) -->
         <Transition name="toast">
             <div v-if="showWishlistToastState" class="fixed bottom-5 right-5 bg-charcoal dark:bg-[#f0eeeb] text-white dark:text-[#161618] text-xs px-4 py-3.5 rounded-xl shadow-2xl z-[98] flex items-center gap-2.5 border border-white/10">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" class="text-maroon" stroke="currentColor" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                <HeartIconSolid class="w-4 h-4 text-maroon shrink-0" />
                 <span>{{ toastMessage }}</span>
             </div>
         </Transition>
@@ -332,8 +329,24 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useCartStore } from './cart'
 import api, { clearToken } from './api'
-import { UserIcon } from '@heroicons/vue/24/solid'
-import { UserIcon as UserIconOutline, ShoppingBagIcon, ArrowRightOnRectangleIcon } from '@heroicons/vue/24/outline'
+import { UserIcon, HeartIcon as HeartIconSolid } from '@heroicons/vue/24/solid'
+import {
+    UserIcon as UserIconOutline,
+    ShoppingBagIcon,
+    ArrowRightOnRectangleIcon,
+    Bars3Icon,
+    ChevronDownIcon,
+    MagnifyingGlassIcon,
+    SunIcon,
+    MoonIcon,
+    HeartIcon,
+    XMarkIcon,
+    HomeIcon,
+    Squares2X2Icon,
+    BookOpenIcon,
+    UserGroupIcon,
+    CheckIcon,
+} from '@heroicons/vue/24/outline'
 import { useSettings } from './useSettings'
 import { useDarkMode } from './useDarkMode'
 
