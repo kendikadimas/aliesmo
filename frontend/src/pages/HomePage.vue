@@ -94,36 +94,41 @@
         </section>
 
         <!-- ===================== 5. BEST SELLER ===================== -->
-        <section v-if="bestSellers.length" class="py-14 lg:py-20 bg-coklat-50/20 dark:bg-[#1c1c1e]/30">
+        <!-- ponytail: amber bg + rank badge = instant visual identity for this section -->
+        <section v-if="bestSellers.length" class="py-14 lg:py-20 bg-amber-50 dark:bg-[#1a1208]">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between mb-8">
-                    <div>
-                        <p class="text-[10px] font-semibold text-maroon-400 uppercase tracking-widest mb-1">Best Seller</p>
-                        <h2 class="text-2xl lg:text-3xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Paling <span class="text-maroon dark:text-[#f0eeeb]">Laris</span></h2>
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">🏆</span>
+                        <div>
+                            <p class="text-[10px] font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-widest mb-0.5">Best Seller</p>
+                            <h2 class="text-2xl lg:text-3xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Paling <span class="text-amber-600 dark:text-amber-400">Laris</span></h2>
+                        </div>
                     </div>
-                    <router-link to="/catalog?sort=best_seller" class="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-maroon dark:text-[#f0eeeb] hover:gap-2.5 transition-all">
+                    <router-link to="/catalog?sort=best_seller" class="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400 hover:gap-2.5 transition-all">
                         Lihat Semua
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                     </router-link>
                 </div>
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5">
-                    <div v-for="product in bestSellers" :key="product.id" class="group/card cursor-pointer bg-white dark:bg-[#1c1c1e] rounded-xl overflow-hidden border border-maroon-50 dark:border-[#303032] hover:border-maroon-200 dark:hover:border-[#404042] transition-all hover:shadow-md active:scale-[0.98]" @click="$router.push(`/products/${product.slug}`)">
-                        <div class="aspect-square bg-maroon-50 overflow-hidden relative">
+                    <div v-for="(product, i) in bestSellers" :key="product.id" class="group/card cursor-pointer bg-white dark:bg-[#1c1c1e] rounded-xl overflow-hidden border-2 border-amber-200 dark:border-amber-900/50 hover:border-amber-400 dark:hover:border-amber-600 transition-all hover:shadow-lg active:scale-[0.98]" @click="$router.push(`/products/${product.slug}`)">
+                        <div class="aspect-square bg-amber-50 dark:bg-[#221a0a] overflow-hidden relative">
                             <img :src="productImage(product, 0)" :alt="product.name" class="absolute inset-0 w-full h-full object-cover" />
-                            <div class="absolute top-1.5 left-1.5 bg-amber-500 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-md">#1 Best Seller</div>
-                            <div v-if="product.stock > 0 && product.stock <= 5" class="absolute top-8 left-1.5 bg-coklat text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-md">Sisa {{ product.stock }}</div>
+                            <!-- ponytail: rank badge keyed by index -->
+                            <div class="absolute top-1.5 left-1.5 w-7 h-7 rounded-full bg-amber-500 text-white text-[11px] font-bold flex items-center justify-center shadow">#{{ i + 1 }}</div>
+                            <div v-if="product.stock > 0 && product.stock <= 5" class="absolute top-1.5 right-1.5 bg-coklat text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-md">Sisa {{ product.stock }}</div>
                             <div v-if="product.stock === 0" class="absolute inset-0 bg-white/80 dark:bg-[#1c1c1e]/80 flex items-center justify-center">
                                 <span class="bg-charcoal dark:bg-[#303032] text-white text-[10px] font-semibold px-2 py-1 rounded-lg">Stok Habis</span>
                             </div>
-                            <button @click.stop="addToCart(product)" :disabled="product.stock === 0" class="absolute bottom-0 left-0 right-0 py-2.5 bg-maroon text-white text-[10px] font-semibold tracking-wide translate-y-full group-hover/card:translate-y-0 transition-transform duration-300 hover:bg-maroon-600 dark:hover:bg-maroon/80 disabled:opacity-0">
+                            <button @click.stop="addToCart(product)" :disabled="product.stock === 0" class="absolute bottom-0 left-0 right-0 py-2.5 bg-amber-600 text-white text-[10px] font-semibold tracking-wide translate-y-full group-hover/card:translate-y-0 transition-transform duration-300 hover:bg-amber-700 disabled:opacity-0">
                                 {{ product.stock === 0 ? 'Stok Habis' : '+ Masuk Keranjang' }}
                             </button>
                         </div>
                         <div class="p-2.5">
-                            <p class="text-[10px] font-medium text-maroon-400 uppercase tracking-wide">{{ product.categories?.map(c => c.name).join(', ') || '' }}</p>
+                            <p class="text-[10px] font-medium text-amber-600 dark:text-amber-400 uppercase tracking-wide">{{ product.categories?.map(c => c.name).join(', ') || '' }}</p>
                             <h3 class="text-xs font-semibold text-charcoal dark:text-[#f0eeeb] mt-0.5 leading-snug line-clamp-2">{{ product.name }}</h3>
                             <div class="flex items-center justify-between mt-1.5">
-                                <p class="text-sm font-bold text-maroon dark:text-[#f0eeeb]">
+                                <p class="text-sm font-bold text-amber-700 dark:text-amber-400">
                                     <span class="text-[10px] font-normal text-charcoal/40 dark:text-[#6a6a6e] mr-0.5" v-if="product.variants?.filter(v => v.is_active).length">mulai </span>Rp{{ formatPrice(lowestPrice(product)) }}
                                 </p>
                                 <span v-if="product.avg_rating" class="flex items-center gap-0.5 text-[10px] font-semibold text-amber-500">★ {{ product.avg_rating }}</span>
@@ -132,7 +137,7 @@
                     </div>
                 </div>
                 <div class="mt-6 text-center sm:hidden">
-                    <router-link to="/catalog?sort=best_seller" class="inline-flex items-center gap-1.5 text-xs font-semibold text-maroon dark:text-[#f0eeeb]">
+                    <router-link to="/catalog?sort=best_seller" class="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400">
                         Lihat Semua Best Seller
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                     </router-link>
@@ -141,37 +146,41 @@
         </section>
 
         <!-- ===================== 6. NEW ARRIVAL ===================== -->
-        <section v-if="newArrivals.length" class="py-14 lg:py-20 overflow-hidden">
+        <!-- ponytail: white bg + portrait cards + horizontal scroll = distinct from both amber Best Seller and grid All Products -->
+        <section v-if="newArrivals.length" class="py-14 lg:py-20 bg-white dark:bg-[#111113] overflow-hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between mb-8">
-                    <div>
-                        <p class="text-[10px] font-semibold text-maroon-400 uppercase tracking-widest mb-1">New Arrival</p>
-                        <h2 class="text-2xl lg:text-3xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Produk <span class="text-maroon dark:text-[#f0eeeb]">Terbaru</span></h2>
-                        <p class="mt-1 text-sm text-charcoal/50 dark:text-[#8a8a8e]">Koleksi terbaru yang baru aja tiba</p>
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">✨</span>
+                        <div>
+                            <p class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-0.5">New Arrival</p>
+                            <h2 class="text-2xl lg:text-3xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Produk <span class="text-emerald-600 dark:text-emerald-400">Terbaru</span></h2>
+                        </div>
                     </div>
-                    <router-link to="/catalog?sort=newest" class="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-maroon dark:text-[#f0eeeb] hover:gap-2.5 transition-all">
+                    <router-link to="/catalog?sort=newest" class="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:gap-2.5 transition-all">
                         Lihat Semua
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                     </router-link>
                 </div>
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5">
-                    <div v-for="product in newArrivals" :key="product.id" class="group/card cursor-pointer bg-white dark:bg-[#1c1c1e] rounded-xl overflow-hidden border border-maroon-50 dark:border-[#303032] hover:border-maroon-200 dark:hover:border-[#404042] transition-all hover:shadow-md active:scale-[0.98]" @click="$router.push(`/products/${product.slug}`)">
-                        <div class="aspect-square bg-maroon-50 overflow-hidden relative">
-                            <img :src="productImage(product, 0)" :alt="product.name" class="absolute inset-0 w-full h-full object-cover" />
-                            <div class="absolute top-1.5 left-1.5 bg-emerald-500 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-md">Baru</div>
-                            <div v-if="product.stock > 0 && product.stock <= 5" class="absolute top-8 left-1.5 bg-coklat text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-md">Sisa {{ product.stock }}</div>
+                <!-- ponytail: portrait cards (3/4) + horizontal scroll on mobile = visually distinct from square-grid sections -->
+                <div class="flex gap-4 overflow-x-auto pb-2 sm:grid sm:grid-cols-3 lg:grid-cols-4 sm:overflow-visible snap-x snap-mandatory">
+                    <div v-for="product in newArrivals" :key="product.id" class="group/card cursor-pointer bg-white dark:bg-[#1c1c1e] rounded-2xl overflow-hidden border border-zinc-100 dark:border-[#252527] hover:border-emerald-200 dark:hover:border-emerald-800 transition-all hover:shadow-xl active:scale-[0.98] shrink-0 w-[62vw] sm:w-auto snap-start" @click="$router.push(`/products/${product.slug}`)">
+                        <div class="aspect-[3/4] bg-zinc-50 dark:bg-[#1a1a1c] overflow-hidden relative">
+                            <img :src="productImage(product, 0)" :alt="product.name" class="absolute inset-0 w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-500" />
+                            <div class="absolute top-2 left-2 bg-emerald-500 text-white text-[9px] font-bold px-2 py-1 rounded-full tracking-wide">NEW</div>
+                            <div v-if="product.stock > 0 && product.stock <= 5" class="absolute top-2 right-2 bg-coklat text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-full">Sisa {{ product.stock }}</div>
                             <div v-if="product.stock === 0" class="absolute inset-0 bg-white/80 dark:bg-[#1c1c1e]/80 flex items-center justify-center">
                                 <span class="bg-charcoal dark:bg-[#303032] text-white text-[10px] font-semibold px-2 py-1 rounded-lg">Stok Habis</span>
                             </div>
-                            <button @click.stop="addToCart(product)" :disabled="product.stock === 0" class="absolute bottom-0 left-0 right-0 py-2.5 bg-maroon text-white text-[10px] font-semibold tracking-wide translate-y-full group-hover/card:translate-y-0 transition-transform duration-300 hover:bg-maroon-600 dark:hover:bg-maroon/80 disabled:opacity-0">
+                            <button @click.stop="addToCart(product)" :disabled="product.stock === 0" class="absolute bottom-0 left-0 right-0 py-2.5 bg-emerald-600 text-white text-[10px] font-semibold tracking-wide translate-y-full group-hover/card:translate-y-0 transition-transform duration-300 hover:bg-emerald-700 disabled:opacity-0">
                                 {{ product.stock === 0 ? 'Stok Habis' : '+ Masuk Keranjang' }}
                             </button>
                         </div>
-                        <div class="p-2.5">
-                            <p class="text-[10px] font-medium text-maroon-400 uppercase tracking-wide">{{ product.categories?.map(c => c.name).join(', ') || '' }}</p>
+                        <div class="p-3">
+                            <p class="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">{{ product.categories?.map(c => c.name).join(', ') || '' }}</p>
                             <h3 class="text-xs font-semibold text-charcoal dark:text-[#f0eeeb] mt-0.5 leading-snug line-clamp-2">{{ product.name }}</h3>
-                            <div class="flex items-center justify-between mt-1.5">
-                                <p class="text-sm font-bold text-maroon dark:text-[#f0eeeb]">
+                            <div class="flex items-center justify-between mt-2">
+                                <p class="text-sm font-bold text-charcoal dark:text-[#f0eeeb]">
                                     <span class="text-[10px] font-normal text-charcoal/40 dark:text-[#6a6a6e] mr-0.5" v-if="product.variants?.filter(v => v.is_active).length">mulai </span>Rp{{ formatPrice(lowestPrice(product)) }}
                                 </p>
                                 <span v-if="product.avg_rating" class="flex items-center gap-0.5 text-[10px] font-semibold text-amber-500">★ {{ product.avg_rating }}</span>
@@ -180,7 +189,7 @@
                     </div>
                 </div>
                 <div class="mt-6 text-center sm:hidden">
-                    <router-link to="/catalog?sort=newest" class="inline-flex items-center gap-1.5 text-xs font-semibold text-maroon dark:text-[#f0eeeb]">
+                    <router-link to="/catalog?sort=newest" class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                         Lihat Semua Produk Baru
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                     </router-link>
@@ -189,12 +198,16 @@
         </section>
 
         <!-- ===================== 7. SEMUA PRODUK ===================== -->
-        <section id="shop" class="py-14 lg:py-20 bg-coklat-50/20 dark:bg-[#1c1c1e]/30">
+        <!-- ponytail: maroon bg accent + catalog grid = distinct from amber Best Seller and white New Arrival -->
+        <section id="shop" class="py-14 lg:py-20 bg-zinc-50 dark:bg-[#0e0e10]">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between mb-8">
-                    <div>
-                        <h2 class="text-2xl lg:text-3xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Semua <span class="text-maroon dark:text-[#f0eeeb]">Produk</span></h2>
-                        <p class="mt-1 text-sm text-charcoal/50 dark:text-[#8a8a8e]">Temukan kemeja favoritmu</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-1 self-stretch rounded-full bg-maroon"></div>
+                        <div>
+                            <p class="text-[10px] font-semibold text-maroon uppercase tracking-widest mb-0.5">Koleksi Lengkap</p>
+                            <h2 class="text-2xl lg:text-3xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight">Semua <span class="text-maroon">Produk</span></h2>
+                        </div>
                     </div>
                 </div>
 
