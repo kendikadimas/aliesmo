@@ -308,8 +308,7 @@
                         <svg class="w-4 h-4 ml-auto opacity-60 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                     </a>
                     <a :href="get('social_shopee', 'https://shopee.co.id/aliesmo.id')" target="_blank" rel="noopener noreferrer" class="group flex items-center gap-3 px-6 py-4 bg-[#ee4d2d] rounded-2xl text-white hover:shadow-xl hover:scale-[1.03] transition-all min-w-[180px]">
-                        <!-- ponytail: bag mark Shopee -->
-                        <svg class="w-6 h-6 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M18.7 7.2h-1.05a5.15 5.15 0 0 0-10.3 0H6.3A2.3 2.3 0 0 0 4 9.5v10.2A2.3 2.3 0 0 0 6.3 22h11.4a2.3 2.3 0 0 0 2.3-2.3V9.5a2.3 2.3 0 0 0-2.3-2.3zM12 3.6a3.55 3.55 0 0 1 3.5 3.1H8.5A3.55 3.55 0 0 1 12 3.6zm0 14.7a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4zm0-4.9a1.7 1.7 0 1 0 0 3.4 1.7 1.7 0 0 0 0-3.4z"/></svg>
+                        <img src="/Shopee_logo.svg" alt="Shopee" class="w-6 h-6 shrink-0" />
                         <span class="text-sm font-semibold">Shopee</span>
                         <svg class="w-4 h-4 ml-auto opacity-60 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                     </a>
