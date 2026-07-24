@@ -22,7 +22,7 @@ export function useDarkMode() {
         if (saved) {
             isDark.value = saved === 'dark'
         } else {
-            isDark.value = false  // default: light mode
+            isDark.value = true  // default: dark mode
         }
         apply(isDark.value)
     }
