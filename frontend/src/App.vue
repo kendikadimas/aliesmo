@@ -127,27 +127,6 @@
                 </div>
             </div>
         </header>
-                    <nav class="flex items-center justify-center gap-8 h-10">
-                        <router-link
-                            to="/"
-                            class="text-xs font-bold tracking-wider text-charcoal/70 dark:text-[#8a8a8e] hover:text-maroon dark:hover:text-[#f0eeeb] hover:border-b-2 hover:border-maroon dark:hover:border-[#f0eeeb] transition-all py-2.5 uppercase"
-                            :class="{ 'border-b-2 border-maroon text-maroon font-bold': $route.path === '/' }"
-                        >
-                            Semua
-                        </router-link>
-                        <router-link
-                            v-for="cat in categories"
-                            :key="cat.slug"
-                            :to="`/catalog/${cat.slug}`"
-                            class="text-xs font-bold tracking-wider text-charcoal/70 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] hover:border-b-2 hover:border-maroon transition-all py-2.5 uppercase"
-                            :class="{ 'border-b-2 border-maroon text-maroon font-bold': $route.params.slug === cat.slug }"
-                        >
-                            {{ cat.name }}
-                        </router-link>
-                    </nav>
-                </div>
-            </div>
-        </header>
 
         <!-- Mobile Navigation Sidebar (half-screen) -->
         <Transition name="sidebar-overlay">
