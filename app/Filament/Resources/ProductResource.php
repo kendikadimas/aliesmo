@@ -5,6 +5,8 @@ use App\Enums\StockMovementType;
 use App\Filament\Resources\ProductResource\Pages;
 use App\Models\Product;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
@@ -309,6 +311,7 @@ class ProductResource extends Resource
                 TextColumn::make('created_at')->dateTime()->sortable()->toggleable(),
             ])
             ->recordActions([
+                EditAction::make(),
                 Action::make('adjustStock')
                     ->label('Sesuaikan Stok')
                     ->icon('heroicon-o-cube')
@@ -331,6 +334,12 @@ class ProductResource extends Resource
                             auth()->user()
                         );
                     }),
+                // SoftDeletes: hapus = soft delete, data order history tetap aman
+                DeleteAction::make()
+                    ->label('Hapus')
+                    ->requiresConfirmation()
+                    ->modalHeading('Hapus Produk')
+                    ->modalDescription('Produk akan diarsipkan (soft delete) dan hilang dari katalog. Riwayat order tetap utuh.'),
             ])
             ->filters([
                 SelectFilter::make('categories')
