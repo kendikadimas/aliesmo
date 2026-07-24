@@ -35,35 +35,16 @@
         <!-- ===================== 2. TENTANG ALIESMO ===================== -->
         <section class="py-14 lg:py-20 overflow-hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="lg:grid lg:grid-cols-2 lg:gap-14 items-center">
-                    <div class="relative mb-8 lg:mb-0">
-                        <div class="aspect-[4/5] rounded-2xl overflow-hidden bg-zinc-100 dark:bg-[#1c1c1e]">
-                            <img
-                                v-if="get('about_image')"
-                                :src="get('about_image')"
-                                alt="Tentang Aliesmo"
-                                class="w-full h-full object-cover"
-                            />
-                            <div v-else class="w-full h-full flex items-center justify-center">
-                                <svg class="w-20 h-20 text-zinc-300 dark:text-[#303032]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                            </div>
-                        </div>
-                        <div class="absolute -bottom-3 -right-3 lg:-bottom-5 lg:-right-5 bg-white dark:bg-[#161618] rounded-2xl shadow-xl border border-zinc-100 dark:border-[#303032] px-5 py-4 lg:px-7 lg:py-5">
-                            <p class="text-2xl lg:text-3xl font-bold text-maroon dark:text-[#f0eeeb]">{{ get('about_year', '2021') }}</p>
-                            <p class="text-xs text-charcoal/50 dark:text-[#8a8a8e] font-medium">Berdiri sejak</p>
-                        </div>
+                <div class="max-w-2xl">
+                    <p class="text-[10px] font-semibold text-maroon-400 uppercase tracking-widest mb-3">Tentang Kami</p>
+                    <h2 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight leading-tight">{{ get('about_title', 'ALIESMO — Kemeja Premium untuk Tampil Lebih Berkelas') }}</h2>
+                    <div class="mt-5 space-y-3 text-sm text-charcoal/70 dark:text-[#8a8a8e] leading-relaxed">
+                        <p>{{ get('about_description', 'ALIESMO adalah brand kemeja pria asli Indonesia yang mengedepankan kualitas bahan premium, jahitan presisi, dan desain klasik yang timeless. Setiap produk kami buat dengan penuh perhatian pada detail, menggunakan bahan-bahan terbaik seperti Oxford, Linen, dan Katun Premium.') }}</p>
                     </div>
-                    <div>
-                        <p class="text-[10px] font-semibold text-maroon-400 uppercase tracking-widest mb-3">Tentang Kami</p>
-                        <h2 class="text-2xl lg:text-4xl font-bold text-charcoal dark:text-[#f0eeeb] tracking-tight leading-tight">{{ get('about_title', 'ALIESMO — Kemeja Premium untuk Tampil Lebih Berkelas') }}</h2>
-                        <div class="mt-5 space-y-3 text-sm text-charcoal/70 dark:text-[#8a8a8e] leading-relaxed">
-                            <p>{{ get('about_description', 'ALIESMO adalah brand kemeja pria asli Indonesia yang mengedepankan kualitas bahan premium, jahitan presisi, dan desain klasik yang timeless. Setiap produk kami buat dengan penuh perhatian pada detail, menggunakan bahan-bahan terbaik seperti Oxford, Linen, dan Katun Premium.') }}</p>
-                        </div>
-                        <router-link to="/catalog" class="mt-6 inline-flex items-center gap-2 text-sm font-bold text-maroon dark:text-[#f0eeeb] hover:gap-3 transition-all">
-                            Lihat Koleksi
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                        </router-link>
-                    </div>
+                    <router-link to="/catalog" class="mt-6 inline-flex items-center gap-2 text-sm font-bold text-maroon dark:text-[#f0eeeb] hover:gap-3 transition-all">
+                        Lihat Koleksi
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </router-link>
                 </div>
             </div>
         </section>
