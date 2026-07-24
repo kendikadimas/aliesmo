@@ -226,7 +226,7 @@
                     <div>
                         <!-- ponytail: footer always dark bg → keep default (white) logo -->
                         <img src="/aliesmo-horizontal.png" alt="Aliesmo" class="block h-9 w-auto" />
-                        <p class="mt-2 text-sm text-white/50 leading-relaxed max-w-xs">Kemeja oxford & linen premium. Nyaman dipakai seharian, cocok untuk kerja maupun santai.</p>
+                        <p class="mt-2 text-sm text-white/50 leading-relaxed max-w-xs">Kemeja berkualitas untuk kerja maupun santai. Nyaman dipakai, tampil rapi setiap hari.</p>
                         <!-- Social media links -->
                         <div class="mt-4 flex items-center gap-3">
                             <a :href="get('social_instagram', 'https://www.instagram.com/aliesmo.id')" target="_blank" rel="noopener noreferrer" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 transition-colors" aria-label="Instagram">

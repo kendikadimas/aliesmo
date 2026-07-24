@@ -226,7 +226,7 @@ class SiteContentSeeder extends Seeder
             [
                 'key'   => 'store_description',
                 'label' => 'Deskripsi Toko',
-                'value' => 'Kemeja oxford & linen premium. Nyaman dipakai seharian, cocok untuk kerja maupun santai.',
+                'value' => 'Kemeja berkualitas untuk kerja maupun santai. Nyaman dipakai, tampil rapi setiap hari.',
                 'type'  => 'text',
                 'group' => 'general',
             ],
