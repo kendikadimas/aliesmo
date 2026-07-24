@@ -23,12 +23,6 @@
                 <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2.5 z-20">
                     <button v-for="(_, i) in banners" :key="i" @click="goToSlide(i)" class="h-2 rounded-full transition-all" :class="activeSlide === i ? 'w-6 bg-white' : 'w-2 bg-white/50 hover:bg-white/70'"></button>
                 </div>
-                <button @click="prevSlide" class="absolute top-1/2 -translate-y-1/2 left-3 z-20 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow hover:bg-white dark:bg-[#1c1c1e] dark:hover:bg-[#242426] transition-all">
-                    <ChevronLeftIcon class="w-4 h-4" />
-                </button>
-                <button @click="nextSlide" class="absolute top-1/2 -translate-y-1/2 right-3 z-20 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow hover:bg-white dark:bg-[#1c1c1e] dark:hover:bg-[#242426] transition-all">
-                    <ChevronRightIcon class="w-4 h-4" />
-                </button>
             </div>
         </section>
 
@@ -272,7 +266,8 @@
                         <svg class="w-4 h-4 ml-auto opacity-60 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                     </a>
                     <a :href="get('social_shopee', 'https://shopee.co.id/aliesmo.id')" target="_blank" rel="noopener noreferrer" class="group flex items-center gap-3 px-6 py-4 bg-[#ee4d2d] rounded-2xl text-white hover:shadow-xl hover:scale-[1.03] transition-all min-w-[180px]">
-                        <svg class="w-6 h-6 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M14.357 2.093c-.584-.292-1.256-.343-1.883-.144-.215.068-.432.152-.65.252-.584.266-1.06.707-1.37 1.264-.215.388-.343.82-.39 1.264-.017.17-.017.34-.017.51v.595c-.584-.465-1.336-.75-2.155-.75C4.71 3.53 2.827 5.413 2.827 7.737c0 2.324 1.883 4.207 4.155 4.207.82 0 1.572-.285 2.155-.75v.595c0 .17 0 .34.017.51.047.444.175.876.39 1.264.31.557.786.998 1.37 1.264.218.1.435.184.65.252.627.199 1.299.148 1.883-.144.584-.292 1.06-.75 1.37-1.308.215-.388.343-.82.39-1.264.017-.17.017-.34.017-.51V7.58c0-.17 0-.34-.017-.51-.047-.444-.175-.876-.39-1.264-.31-.558-.786-1.016-1.37-1.308v-.001zM10.065 10.9c-.82 0-1.48-.66-1.48-1.48 0-.82.66-1.48 1.48-1.48.82 0 1.48.66 1.48 1.48 0 .82-.66 1.48-1.48 1.48zm5.817 3.17c-.17.34-.44.61-.78.78-.34.17-.71.23-1.08.2h-.12v-2.16h1.98v.03c.04.37-.02.74-.19 1.08l.21.07zM15.882 7.58v1.79c-.04.37-.17.71-.39 1.01-.31.42-.76.73-1.28.88-.34.1-.7.15-1.06.15h-.09V9.55h.84c.38 0 .74-.12 1.05-.35.31-.23.53-.55.62-.92.03-.13.05-.27.05-.41V7.58h.26z"/><path d="M21.173 7.737c0-2.324-1.883-4.207-4.155-4.207-.82 0-1.572.285-2.155.75V3.69c0-.17 0-.34-.017-.51-.047-.444-.175-.876-.39-1.264-.31-.557-.786-.998-1.37-1.264-.218-.1-.435-.184-.65-.252-.627-.199-1.299-.148-1.883.144-.584.292-1.06.75-1.37 1.308-.215.388-.343.82-.39 1.264-.017.17-.017.34-.017.51v.595c-.584-.465-1.336-.75-2.155-.75-2.272 0-4.155 1.883-4.155 4.207 0 2.324 1.883 4.207 4.155 4.207.82 0 1.572-.285 2.155-.75v.595c0 .17 0 .34.017.51.047.444.175.876.39 1.264.31.557.786.998 1.37 1.264.218.1.435.184.65.252.627.199 1.299.148 1.883-.144.584-.292 1.06-.75 1.37-1.308.215-.388.343-.82.39-1.264.017-.17.017-.34.017-.51v-.595c.584.465 1.336.75 2.155.75 2.272 0 4.155-1.883 4.155-4.207z" opacity=".5"/></svg>
+                        <!-- ponytail: bag mark Shopee -->
+                        <svg class="w-6 h-6 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M18.7 7.2h-1.05a5.15 5.15 0 0 0-10.3 0H6.3A2.3 2.3 0 0 0 4 9.5v10.2A2.3 2.3 0 0 0 6.3 22h11.4a2.3 2.3 0 0 0 2.3-2.3V9.5a2.3 2.3 0 0 0-2.3-2.3zM12 3.6a3.55 3.55 0 0 1 3.5 3.1H8.5A3.55 3.55 0 0 1 12 3.6zm0 14.7a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4zm0-4.9a1.7 1.7 0 1 0 0 3.4 1.7 1.7 0 0 0 0-3.4z"/></svg>
                         <span class="text-sm font-semibold">Shopee</span>
                         <svg class="w-4 h-4 ml-auto opacity-60 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                     </a>
@@ -383,7 +378,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/24/outline'
+
 import { useRoute, useRouter } from 'vue-router'
 import { watch } from 'vue'
 import { useCartStore } from '../cart'
@@ -491,14 +486,7 @@ function pauseCurrentVideo() {
     }
 }
 
-function prevSlide() {
-    pauseCurrentVideo()
-    activeSlide.value = activeSlide.value === 0 ? Math.max(banners.value.length - 1, 0) : activeSlide.value - 1
-}
-function nextSlide() {
-    pauseCurrentVideo()
-    activeSlide.value = activeSlide.value >= banners.value.length - 1 ? 0 : activeSlide.value + 1
-}
+// ponytail: arrow UI dihapus; slide via dots + autoplay saja
 function goToSlide(i) {
     pauseCurrentVideo()
     activeSlide.value = i

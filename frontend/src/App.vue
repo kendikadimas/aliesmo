@@ -26,132 +26,107 @@
             </div>
         </div>
 
-        <!-- Sticky Header (Main Row + Category Row) -->
+        <!-- Sticky Header -->
         <header class="sticky top-0 z-50 bg-white/95 dark:bg-ink-90/95 backdrop-blur-md border-b border-zinc-200/60 dark:border-ink-80/60 shadow-xs">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <!-- Middle Row: Logo, Search, Navigation Icons -->
-                <div class="flex items-center justify-between h-20 lg:h-24">
-                    <!-- Left: Hamburger & Logo -->
+                <div class="flex items-center justify-between h-16 lg:h-18">
+                    <!-- Left: Hamburger (mobile) + Logo -->
                     <div class="flex items-center gap-3">
                         <button @click="mobileOpen = !mobileOpen" class="lg:hidden p-2 -ml-2 text-charcoal dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors" aria-label="Menu">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
-                                <path d="M4 6h16M4 12h16M4 18h16"/>
-                            </svg>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
                         </button>
                         <router-link to="/" class="flex items-center">
-                            <img src="/aliesmo.png" alt="Aliesmo" class="block w-48 h-auto transition-all" :class="isDark ? '' : 'invert'" />
+                            <img src="/new_aliesmo.png" alt="Aliesmo" class="block w-36 h-auto" :class="isDark ? '' : 'brightness-0'" />
                         </router-link>
                     </div>
 
-                    <!-- Middle: Search Input (Desktop) -->
-                    <form @submit.prevent="handleSearch" class="relative flex-1 max-w-xl mx-8 hidden lg:block">
-                        <input
-                            v-model="searchQuery"
-                            type="text"
-                            placeholder="Cari kemeja, batik, atau koleksi..."
-                            class="w-full pl-5 pr-14 py-2.5 rounded-full border border-zinc-200 dark:border-[#303032] focus:outline-none focus:border-maroon focus:ring-2 focus:ring-maroon/10 text-sm transition-all bg-zinc-50/20 dark:bg-[#1c1c1e] dark:text-[#f0eeeb] placeholder-zinc-400 dark:placeholder-[#8a8a8e]"
-                        />
-                        <button
-                            type="submit"
-                            class="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-charcoal dark:bg-[#f0eeeb] hover:bg-maroon dark:hover:bg-maroon text-white dark:text-[#161618] flex items-center justify-center transition-colors"
-                            aria-label="Cari"
-                        >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                            </svg>
-                        </button>
-                    </form>
+                    <!-- Middle: Page Menu (Desktop) -->
+                    <nav class="hidden lg:flex items-center gap-1">
+                        <router-link to="/" class="px-3 py-2 text-sm font-semibold text-charcoal/80 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors uppercase tracking-wide" :class="{ 'text-maroon': $route.path === '/' }">Beranda</router-link>
 
-                    <!-- Right: Auth, Wishlist, Cart -->
-                    <div class="flex items-center gap-2 lg:gap-4">
-                        <!-- User icon — guest: link to login, logged in: dropdown -->
-                        <div class="hidden md:block relative">
-                            <!-- Guest -->
-                            <router-link v-if="!isLoggedIn" to="/login" class="p-2 flex items-center justify-center text-charcoal/70 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors" aria-label="Masuk">
-                                <UserIcon class="w-[22px] h-[22px]" />
-                            </router-link>
-                            <!-- Logged in: icon + dropdown -->
-                            <div v-else class="relative" data-user-menu>
-                                <button @click="userMenuOpen = !userMenuOpen" class="flex items-center justify-center w-8 h-8 rounded-full bg-maroon hover:bg-maroon/85 dark:hover:bg-maroon/70 transition-colors" :class="userMenuOpen ? 'ring-2 ring-maroon/40 ring-offset-1' : ''" aria-label="Akun saya">
-                                    <UserIcon class="w-[18px] h-[18px] text-white" />
-                                </button>
-                                <!-- Dropdown -->
-                                <Transition name="dropdown">
-                                    <div v-if="userMenuOpen" class="absolute right-0 top-full mt-2 w-44 bg-white dark:bg-[#1c1c1e] border border-zinc-100 dark:border-[#303032] rounded-xl shadow-xl z-50 overflow-hidden py-1">
-                                        <router-link @click="userMenuOpen = false" to="/profile" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-charcoal/80 dark:text-[#f0eeeb]/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#303032] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors">
-                                            <UserIconOutline class="w-[15px] h-[15px] shrink-0" />
-                                            Akun Saya
-                                        </router-link>
-                                        <router-link @click="userMenuOpen = false" to="/profile?tab=pesanan" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-charcoal/80 dark:text-[#f0eeeb]/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#303032] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors">
-                                            <ShoppingBagIcon class="w-[15px] h-[15px] shrink-0" />
-                                            Pesanan Saya
-                                        </router-link>
-                                        <div class="h-px bg-zinc-100 dark:bg-[#28282a] mx-3 my-1"></div>
-                                        <button @click="userMenuOpen = false; handleLogout()" class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-charcoal/80 dark:text-[#f0eeeb]/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#303032] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors cursor-pointer">
-                                            <ArrowRightOnRectangleIcon class="w-[15px] h-[15px] shrink-0" />
-                                            Keluar
-                                        </button>
-                                    </div>
-                                </Transition>
-                            </div>
+                        <!-- Kategori dropdown -->
+                        <div class="relative" data-cat-menu>
+                            <button @click="desktopCatsOpen = !desktopCatsOpen" class="flex items-center gap-1 px-3 py-2 text-sm font-semibold text-charcoal/80 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors uppercase tracking-wide">
+                                Kategori
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="transition-transform duration-150" :class="desktopCatsOpen ? 'rotate-180' : ''"><polyline points="6 9 12 15 18 9"/></svg>
+                            </button>
+                            <Transition name="dropdown">
+                                <div v-if="desktopCatsOpen" class="absolute top-full left-0 mt-1 w-48 bg-white dark:bg-[#1c1c1e] rounded-xl shadow-lg border border-zinc-100 dark:border-[#303032] py-1 z-50">
+                                    <router-link @click="desktopCatsOpen = false" to="/catalog" class="block px-4 py-2 text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] hover:text-maroon dark:hover:text-[#f0eeeb] hover:bg-zinc-50 dark:hover:bg-[#242426] transition-colors uppercase tracking-wider">Semua Kategori</router-link>
+                                    <router-link v-for="cat in categories" :key="cat.slug" @click="desktopCatsOpen = false" :to="`/catalog/${cat.slug}`" class="block px-4 py-2 text-xs font-semibold text-charcoal/60 dark:text-[#8a8a8e] hover:text-maroon dark:hover:text-[#f0eeeb] hover:bg-zinc-50 dark:hover:bg-[#242426] transition-colors uppercase tracking-wider">{{ cat.name }}</router-link>
+                                </div>
+                            </Transition>
+                        </div>
+
+                        <router-link to="/?shop=1" class="px-3 py-2 text-sm font-semibold text-charcoal/80 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors uppercase tracking-wide">Koleksi</router-link>
+                        <router-link to="/blog" class="px-3 py-2 text-sm font-semibold text-charcoal/80 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors uppercase tracking-wide" :class="{ 'text-maroon': $route.path.startsWith('/blog') }">Blog</router-link>
+                        <a href="https://wa.me/628138883345?text=Halo%20Admin%20Aliesmo.%20Saya%20tertarik%20bergabung%20dengan%20Program%20Kerja%20Sama.%20Mohon%20informasinya.%20Terima%20kasih." target="_blank" rel="noopener noreferrer" class="px-3 py-2 text-sm font-semibold text-charcoal/80 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors uppercase tracking-wide">Affiliate</a>
+                    </nav>
+
+                    <!-- Right: Search icon + dark mode + wishlist + cart + user -->
+                    <div class="flex items-center gap-1">
+                        <!-- Search icon (desktop) — expands inline -->
+                        <div class="hidden lg:flex items-center relative" data-search-box>
+                            <Transition name="dropdown">
+                                <form v-if="searchOpen" @submit.prevent="handleSearch(); searchOpen=false" class="absolute right-8 top-1/2 -translate-y-1/2 w-64">
+                                    <input v-model="searchQuery" type="text" autofocus placeholder="Cari produk..." class="w-full pl-4 pr-10 py-1.5 rounded-full border border-zinc-200 dark:border-[#303032] focus:outline-none focus:border-maroon text-sm bg-white dark:bg-[#1c1c1e] dark:text-[#f0eeeb]" @blur="searchOpen=false" />
+                                </form>
+                            </Transition>
+                            <button @click="searchOpen = !searchOpen" class="p-2 text-charcoal/70 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors" aria-label="Cari">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            </button>
                         </div>
 
                         <!-- Dark Mode Toggle -->
                         <button @click="toggle" class="p-2 text-charcoal/70 dark:text-[#8a8a8e] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors" :aria-label="isDark ? 'Light mode' : 'Dark mode'">
-                            <!-- Sun icon (shown in dark mode) -->
-                            <svg v-if="isDark" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-                            </svg>
-                            <!-- Moon icon (shown in light mode) -->
-                            <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                            </svg>
+                            <svg v-if="isDark" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                            <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
                         </button>
 
-                        <!-- Wishlist Heart -->
-                        <button @click="showWishlistToast" class="p-2 text-charcoal/70 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors relative cursor-pointer" aria-label="Wishlist">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                            </svg>
+                        <!-- Wishlist -->
+                        <button @click="showWishlistToast" class="hidden md:flex p-2 text-charcoal/70 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors" aria-label="Wishlist">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                         </button>
 
-                        <!-- Cart Bag -->
+                        <!-- Cart -->
                         <router-link to="/cart" class="relative p-2 text-charcoal/70 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors" aria-label="Cart">
-                            <svg :class="['transition-transform', cartBounce ? 'cart-bounce' : '']" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-                                <line x1="3" y1="6" x2="21" y2="6"/>
-                                <path d="M16 10a4 4 0 0 1-8 0"/>
-                            </svg>
-                            <span v-if="cartCount" class="absolute -top-0.5 -right-0.5 bg-maroon text-[#f0eeeb] dark:bg-[#f0eeeb] dark:text-[#161618] text-[9px] font-bold rounded-full w-5 h-5 flex items-center justify-center leading-none">{{ cartCount > 9 ? '9+' : cartCount }}</span>
+                            <svg :class="['transition-transform', cartBounce ? 'cart-bounce' : '']" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                            <span v-if="cartCount" class="absolute -top-0.5 -right-0.5 bg-maroon text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center leading-none">{{ cartCount > 9 ? '9+' : cartCount }}</span>
                         </router-link>
+
+                        <!-- User -->
+                        <div class="hidden md:block relative" data-user-menu>
+                            <router-link v-if="!isLoggedIn" to="/login" class="p-2 flex items-center justify-center text-charcoal/70 dark:text-[#d0ceca] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors" aria-label="Masuk">
+                                <UserIcon class="w-5 h-5" />
+                            </router-link>
+                            <div v-else>
+                                <button @click="userMenuOpen = !userMenuOpen" class="flex items-center justify-center w-8 h-8 rounded-full bg-maroon hover:bg-maroon/85 transition-colors" aria-label="Akun saya">
+                                    <UserIcon class="w-[18px] h-[18px] text-white" />
+                                </button>
+                                <Transition name="dropdown">
+                                    <div v-if="userMenuOpen" class="absolute right-0 top-full mt-2 w-44 bg-white dark:bg-[#1c1c1e] border border-zinc-100 dark:border-[#303032] rounded-xl shadow-xl z-50 py-1">
+                                        <router-link @click="userMenuOpen = false" to="/profile" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-charcoal/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#303032] hover:text-maroon transition-colors"><UserIconOutline class="w-4 h-4 shrink-0" />Akun Saya</router-link>
+                                        <router-link @click="userMenuOpen = false" to="/profile?tab=pesanan" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-charcoal/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#303032] hover:text-maroon transition-colors"><ShoppingBagIcon class="w-4 h-4 shrink-0" />Pesanan Saya</router-link>
+                                        <div class="h-px bg-zinc-100 dark:bg-[#28282a] mx-3 my-1"></div>
+                                        <button @click="userMenuOpen = false; handleLogout()" class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-charcoal/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#303032] hover:text-maroon transition-colors cursor-pointer"><ArrowRightOnRectangleIcon class="w-4 h-4 shrink-0" />Keluar</button>
+                                    </div>
+                                </Transition>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Mobile Search Input (Visible only on < lg screens) -->
+                <!-- Mobile Search bar -->
                 <div class="pb-3 lg:hidden">
                     <form @submit.prevent="handleSearch" class="relative w-full">
-                        <input
-                            v-model="searchQuery"
-                            type="text"
-                            placeholder="Cari kemeja, batik, atau koleksi..."
-                            class="w-full pl-5 pr-12 py-2 rounded-full border border-zinc-200 dark:border-[#303032] focus:outline-none focus:border-maroon focus:ring-2 focus:ring-maroon/10 text-xs transition-all bg-zinc-50/20 dark:bg-[#1c1c1e] dark:text-[#f0eeeb] placeholder-zinc-400 dark:placeholder-[#8a8a8e]"
-                        />
-                        <button
-                            type="submit"
-                            class="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-charcoal dark:bg-[#f0eeeb] hover:bg-maroon dark:hover:bg-maroon text-white dark:text-[#161618] flex items-center justify-center transition-colors"
-                            aria-label="Cari"
-                        >
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                            </svg>
+                        <input v-model="searchQuery" type="text" placeholder="Cari kemeja, batik, atau koleksi..." class="w-full pl-5 pr-12 py-2 rounded-full border border-zinc-200 dark:border-[#303032] focus:outline-none focus:border-maroon text-xs bg-zinc-50/20 dark:bg-[#1c1c1e] dark:text-[#f0eeeb] placeholder-zinc-400 dark:placeholder-[#8a8a8e]" />
+                        <button type="submit" class="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-charcoal dark:bg-[#f0eeeb] hover:bg-maroon text-white dark:text-[#161618] flex items-center justify-center transition-colors" aria-label="Cari">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                         </button>
                     </form>
                 </div>
             </div>
-
-            <!-- Bottom Row: Category Navigation (Desktop only) -->
-            <div class="border-t border-zinc-100 dark:border-[#303032]/60 hidden lg:block bg-white dark:bg-[#161618]">
-                <div class="max-w-7xl mx-auto px-8">
+        </header>
                     <nav class="flex items-center justify-center gap-8 h-10">
                         <router-link
                             to="/"
@@ -182,7 +157,7 @@
             <aside v-if="mobileOpen" class="lg:hidden fixed top-0 left-0 bottom-0 w-[75vw] max-w-[320px] bg-white dark:bg-[#161618] z-50 shadow-2xl flex flex-col">
                 <!-- Header -->
                 <div class="flex items-center justify-between px-5 py-4 border-b border-zinc-100 dark:border-[#303032]">
-                    <img src="/aliesmo.png" alt="Aliesmo" class="block w-32 h-auto" :class="isDark ? '' : 'invert'" />
+                    <img src="/new_aliesmo.png" alt="Aliesmo" class="block w-32 h-auto" :class="isDark ? '' : 'brightness-0'" />
                     <button @click="mobileOpen = false" class="p-2 -mr-1 text-charcoal/60 dark:text-[#8a8a8e] hover:text-charcoal dark:hover:text-[#f0eeeb] transition-colors" aria-label="Tutup">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                     </button>
@@ -235,8 +210,6 @@
                         Affiliate
                     </a>
 
-                    <div class="h-px bg-zinc-100 dark:bg-[#28282a] my-2"></div>
-
                     <!-- Account Section -->
                     <router-link v-if="isLoggedIn" @click="mobileOpen = false" to="/profile" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-charcoal/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#1c1c1e] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors uppercase tracking-wide">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -246,8 +219,6 @@
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                         Pesanan Saya
                     </router-link>
-
-                    <div class="h-px bg-zinc-100 dark:bg-[#28282a] my-2"></div>
 
                     <!-- Dark Mode Toggle -->
                     <button @click="toggle" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-semibold text-charcoal/80 dark:text-[#d0ceca] hover:bg-zinc-50 dark:hover:bg-[#1c1c1e] hover:text-maroon dark:hover:text-[#f0eeeb] transition-colors uppercase tracking-wide">
@@ -274,7 +245,8 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
                     <div>
-                        <img src="/aliesmo.png" alt="Aliesmo" class="block w-44 h-auto brightness-0 invert" />
+                        <!-- ponytail: footer always dark bg → keep default (white) logo -->
+                        <img src="/new_aliesmo.png" alt="Aliesmo" class="block w-44 h-auto" />
                         <p class="mt-2 text-sm text-white/50 leading-relaxed max-w-xs">Kemeja batik dan casual berkualitas. Nyaman dipakai, bangga dengan budaya Indonesia.</p>
                         <!-- Social media links -->
                         <div class="mt-4 flex items-center gap-3">
@@ -291,7 +263,8 @@
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
                             </a>
                             <a :href="get('social_shopee', 'https://shopee.co.id/aliesmo.id')" target="_blank" rel="noopener noreferrer" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 transition-colors" aria-label="Shopee">
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M14.357 2.093c-.584-.292-1.256-.343-1.883-.144-.215.068-.432.152-.65.252-.584.266-1.06.707-1.37 1.264-.215.388-.343.82-.39 1.264-.017.17-.017.34-.017.51v.595c-.584-.465-1.336-.75-2.155-.75C4.71 3.53 2.827 5.413 2.827 7.737c0 2.324 1.883 4.207 4.155 4.207.82 0 1.572-.285 2.155-.75v.595c0 .17 0 .34.017.51.047.444.175.876.39 1.264.31.557.786.998 1.37 1.264.218.1.435.184.65.252.627.199 1.299.148 1.883-.144.584-.292 1.06-.75 1.37-1.308.215-.388.343-.82.39-1.264.017-.17.017-.34.017-.51V7.58c0-.17 0-.34-.017-.51-.047-.444-.175-.876-.39-1.264-.31-.558-.786-1.016-1.37-1.308v-.001zM10.065 10.9c-.82 0-1.48-.66-1.48-1.48 0-.82.66-1.48 1.48-1.48.82 0 1.48.66 1.48 1.48 0 .82-.66 1.48-1.48 1.48zm5.817 3.17c-.17.34-.44.61-.78.78-.34.17-.71.23-1.08.2h-.12v-2.16h1.98v.03c.04.37-.02.74-.19 1.08l.21.07zM15.882 7.58v1.79c-.04.37-.17.71-.39 1.01-.31.42-.76.73-1.28.88-.34.1-.7.15-1.06.15h-.09V9.55h.84c.38 0 .74-.12 1.05-.35.31-.23.53-.55.62-.92.03-.13.05-.27.05-.41V7.58h.26z"/><path d="M21.173 7.737c0-2.324-1.883-4.207-4.155-4.207-.82 0-1.572.285-2.155.75V3.69c0-.17 0-.34-.017-.51-.047-.444-.175-.876-.39-1.264-.31-.557-.786-.998-1.37-1.264-.218-.1-.435-.184-.65-.252-.627-.199-1.299-.148-1.883.144-.584.292-1.06.75-1.37 1.308-.215.388-.343.82-.39 1.264-.017.17-.017.34-.017.51v.595c-.584-.465-1.336-.75-2.155-.75-2.272 0-4.155 1.883-4.155 4.207 0 2.324 1.883 4.207 4.155 4.207.82 0 1.572-.285 2.155-.75v.595c0 .17 0 .34.017.51.047.444.175.876.39 1.264.31.557.786.998 1.37 1.264.218.1.435.184.65.252.627.199 1.299.148 1.883-.144.584-.292 1.06-.75 1.37-1.308.215-.388.343-.82.39-1.264.017-.17.017-.34.017-.51v-.595c.584.465 1.336.75 2.155.75 2.272 0 4.155-1.883 4.155-4.207z" opacity=".5"/></svg>
+                                <!-- ponytail: bag mark Shopee, cukup untuk icon 16px -->
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.7 7.2h-1.05a5.15 5.15 0 0 0-10.3 0H6.3A2.3 2.3 0 0 0 4 9.5v10.2A2.3 2.3 0 0 0 6.3 22h11.4a2.3 2.3 0 0 0 2.3-2.3V9.5a2.3 2.3 0 0 0-2.3-2.3zM12 3.6a3.55 3.55 0 0 1 3.5 3.1H8.5A3.55 3.55 0 0 1 12 3.6zm0 14.7a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4zm0-4.9a1.7 1.7 0 1 0 0 3.4 1.7 1.7 0 0 0 0-3.4z"/></svg>
                             </a>
                             <a v-if="get('social_tiktokshop')?.trim()" :href="get('social_tiktokshop')" target="_blank" rel="noopener noreferrer" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 transition-colors" aria-label="TikTok Shop">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/><path d="M22 10h-4v4h-2v-4h-4V8h4V4h2v4h4v2z" opacity=".7"/></svg>
@@ -393,6 +366,8 @@ const { fetchSettings, get } = useSettings()
 const { isDark, toggle, init: initDarkMode } = useDarkMode()
 const mobileOpen = ref(false)
 const mobileCatsOpen = ref(false)
+const desktopCatsOpen = ref(false)
+const searchOpen = ref(false)
 const isLoggedIn = ref(false)
 const userMenuOpen = ref(false)
 const categories = ref([])
@@ -436,9 +411,9 @@ const cartBounce = ref(false)
 
 // Close user dropdown on outside click — defined at module scope so onUnmounted can reference it
 const handleClickOutside = (e) => {
-    if (userMenuOpen.value && !e.target.closest('[data-user-menu]')) {
-        userMenuOpen.value = false
-    }
+    if (userMenuOpen.value && !e.target.closest('[data-user-menu]')) userMenuOpen.value = false
+    if (desktopCatsOpen.value && !e.target.closest('[data-cat-menu]')) desktopCatsOpen.value = false
+    // ponytail: searchOpen closes on input blur, not click-outside
 }
 
 onMounted(async () => {
