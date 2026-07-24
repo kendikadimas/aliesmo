@@ -36,7 +36,7 @@
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
                         </button>
                         <router-link to="/" class="flex items-center">
-                            <img src="/new_aliesmo.png" alt="Aliesmo" class="block w-36 h-auto" :class="isDark ? '' : 'brightness-0'" />
+                            <img src="/aliesmo-horizontal.png" alt="Aliesmo" class="block h-8 w-auto" :class="isDark ? '' : 'brightness-0'" />
                         </router-link>
                     </div>
 
@@ -136,7 +136,7 @@
             <aside v-if="mobileOpen" class="lg:hidden fixed top-0 left-0 bottom-0 w-[75vw] max-w-[320px] bg-white dark:bg-[#161618] z-50 shadow-2xl flex flex-col">
                 <!-- Header -->
                 <div class="flex items-center justify-between px-5 py-4 border-b border-zinc-100 dark:border-[#303032]">
-                    <img src="/new_aliesmo.png" alt="Aliesmo" class="block w-32 h-auto" :class="isDark ? '' : 'brightness-0'" />
+                    <img src="/aliesmo-horizontal.png" alt="Aliesmo" class="block h-7 w-auto" :class="isDark ? '' : 'brightness-0'" />
                     <button @click="mobileOpen = false" class="p-2 -mr-1 text-charcoal/60 dark:text-[#8a8a8e] hover:text-charcoal dark:hover:text-[#f0eeeb] transition-colors" aria-label="Tutup">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                     </button>
@@ -225,7 +225,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
                     <div>
                         <!-- ponytail: footer always dark bg → keep default (white) logo -->
-                        <img src="/new_aliesmo.png" alt="Aliesmo" class="block w-44 h-auto" />
+                        <img src="/aliesmo-horizontal.png" alt="Aliesmo" class="block h-9 w-auto" />
                         <p class="mt-2 text-sm text-white/50 leading-relaxed max-w-xs">Kemeja batik dan casual berkualitas. Nyaman dipakai, bangga dengan budaya Indonesia.</p>
                         <!-- Social media links -->
                         <div class="mt-4 flex items-center gap-3">
