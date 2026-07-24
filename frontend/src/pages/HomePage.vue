@@ -406,10 +406,6 @@
                                 allowfullscreen
                             ></iframe>
                         </div>
-                        <div v-if="video.title || video.description" class="mt-4 px-1">
-                            <p v-if="video.title" class="text-base font-semibold text-white">{{ video.title }}</p>
-                            <p v-if="video.description" class="text-sm text-white/50 mt-1 line-clamp-2">{{ video.description }}</p>
-                        </div>
                     </div>
                 </div>
             </div>
