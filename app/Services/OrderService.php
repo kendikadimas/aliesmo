@@ -368,6 +368,18 @@ class OrderService
 
     public function cancel(Order $order, string $reason = ''): void
     {
+        // Biteship dulu (di luar DB tx) — kalau gagal, admin tahu dan order lokal tidak di-cancel
+        if (!empty($order->biteship_order_id)) {
+            $result = $this->biteshipService->cancelOrder(
+                $order->biteship_order_id,
+                $reason !== '' ? $reason : "Dibatalkan order #{$order->order_number}"
+            );
+
+            $order->update([
+                'biteship_status' => $result['status'] ?? 'cancelled',
+            ]);
+        }
+
         DB::transaction(function () use ($order, $reason) {
             // Restock hanya jika stok pernah di-decrement (flag, bukan tebak dari status)
             $this->stockService->restockForOrder(

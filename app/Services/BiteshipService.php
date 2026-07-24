@@ -429,4 +429,63 @@ class BiteshipService
             'price'                => (int) ($data['price'] ?? 0),
         ];
     }
+
+    /**
+     * Batalkan order di Biteship.
+     * Docs: POST /v1/orders/:id/cancel
+     *
+     * @throws \RuntimeException jika API gagal (kecuali sudah cancelled)
+     */
+    public function cancelOrder(string $biteshipOrderId, string $reason = 'Dibatalkan dari admin Aliesmo'): array
+    {
+        if (!$this->apiKey) {
+            throw new \RuntimeException('BITESHIP_API_KEY belum dikonfigurasi.');
+        }
+
+        $payload = [
+            'cancellation_reason_code' => 'others',
+            'cancellation_reason'      => $reason,
+        ];
+
+        Log::info('Biteship cancelOrder request', [
+            'biteship_order_id' => $biteshipOrderId,
+            'reason'            => $reason,
+        ]);
+
+        $response = Http::timeout(15)
+            ->withHeaders([
+                'Authorization' => 'Bearer ' . $this->apiKey,
+                'Content-Type'  => 'application/json',
+            ])
+            ->post("{$this->baseUrl}/v1/orders/{$biteshipOrderId}/cancel", $payload);
+
+        $data = $response->json() ?? [];
+
+        Log::info('Biteship cancelOrder response', [
+            'biteship_order_id' => $biteshipOrderId,
+            'http_status'       => $response->status(),
+            'success'           => $data['success'] ?? null,
+            'status'            => $data['status'] ?? null,
+            'message'           => $data['message'] ?? null,
+            'error'             => $data['error'] ?? null,
+        ]);
+
+        // Sudah cancelled di Biteship → anggap sukses
+        $status = strtolower((string) ($data['status'] ?? ''));
+        if ($status === 'cancelled' || ($data['success'] ?? false)) {
+            return [
+                'success' => true,
+                'status'  => $data['status'] ?? 'cancelled',
+                'message' => $data['message'] ?? 'Order successfully cancelled',
+            ];
+        }
+
+        $errorMsg = $data['error'] ?? $data['message'] ?? 'HTTP ' . $response->status();
+        // Pesan "already cancelled" dari API juga ok
+        if (stripos((string) $errorMsg, 'cancel') !== false && stripos((string) $errorMsg, 'already') !== false) {
+            return ['success' => true, 'status' => 'cancelled', 'message' => $errorMsg];
+        }
+
+        throw new \RuntimeException("Gagal batalkan order Biteship: {$errorMsg}");
+    }
 }

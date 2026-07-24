@@ -454,16 +454,34 @@ class OrderResource extends Resource
                     ->color('danger')
                     ->requiresConfirmation()
                     ->modalHeading('Batalkan Pesanan')
-                    ->modalDescription('Batalkan order ini dan kembalikan stok produk secara otomatis?')
+                    ->modalDescription(fn (Order $record) => $record->biteship_order_id
+                        ? 'Batalkan di Biteship + restock stok? Order Biteship juga akan di-cancel.'
+                        : 'Batalkan order ini dan kembalikan stok produk secara otomatis?')
                     ->modalSubmitActionLabel('Ya, Batalkan')
                     ->action(function (Order $record) {
-                        DB::transaction(function () use ($record) {
-                            app(StockService::class)->restockForOrder(
+                        try {
+                            app(OrderService::class)->cancel(
                                 $record,
-                                "Restock - Order #{$record->order_number} dibatalkan"
+                                "Dibatalkan dari admin panel order #{$record->order_number}"
                             );
-                            $record->update(['status' => OrderStatus::Cancelled]);
-                        });
+                            \Filament\Notifications\Notification::make()
+                                ->title('Order dibatalkan')
+                                ->body($record->biteship_order_id
+                                    ? 'Stok di-restock. Shipment Biteship juga dibatalkan.'
+                                    : 'Stok di-restock.')
+                                ->success()
+                                ->send();
+                        } catch (\Throwable $e) {
+                            Log::error('Cancel order gagal', [
+                                'order' => $record->order_number,
+                                'error' => $e->getMessage(),
+                            ]);
+                            \Filament\Notifications\Notification::make()
+                                ->title('Gagal batalkan order')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
                     })
                     ->hidden(fn (Order $record): bool => in_array($record->status, [
                         OrderStatus::Completed,
