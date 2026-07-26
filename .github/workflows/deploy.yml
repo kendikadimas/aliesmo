@@ -10,14 +10,13 @@ jobs:
   deploy:
     name: Build & Deploy
     runs-on: ubuntu-latest
-    timeout-minutes: 15
 
     steps:
+      # ─── 1. Checkout ───────────────────────────────────────────────
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
+      # ─── 2. Setup Node & build assets ──────────────────────────────
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -33,154 +32,55 @@ jobs:
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
-      # Pola #318 (c8b5271b) yang centang — UAPI, bukan FTP.
-      # Run #318: upload zip OK, Fileman/extract TIDAK ADA (false green).
-      # Fix: monorepo ke public_html + upload per-file (tanpa extract).
-      - name: Deploy via cPanel UAPI (monorepo public_html)
-        env:
-          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
-          CPANEL_USERNAME: ${{ secrets.CPANEL_USERNAME }}
-          CPANEL_API_TOKEN: ${{ secrets.CPANEL_API_TOKEN }}
+      # ─── 3. Setup PHP & install dependencies ───────────────────────
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, openssl, pdo_mysql, tokenizer, xml, ctype, json, fileinfo, curl, bcmath
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+      # ─── 4. Deploy semua file via FTP (incremental, skip heavy dirs) ──
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /public_html/
+          local-dir: ./
+          timeout: 60000
+          exclude: |
+            **/.git/**
+            **/.gitignore
+            **/.gitattributes
+            **/node_modules/**
+            **/frontend/node_modules/**
+            **/.env
+            **/.env.*
+            **/storage/logs/**
+            **/storage/framework/cache/**
+            **/storage/framework/sessions/**
+            **/storage/framework/views/**
+            **/vendor/**
+            **/.github/**
+            **/tests/**
+            **/.agents/**
+            **/*.md
+            **/package.json
+            **/package-lock.json
+            **/vite.config.js
+            **/tailwind.config.js
+            **/postcss.config.js
+
+      # ─── 6. Run artisan migrate, storage:link dan optimize:clear ──────
+      - name: Run artisan migrate and optimize:clear
         run: |
-          set -euo pipefail
-          HOST="${CPANEL_HOST#https://}"
-          HOST="${HOST#http://}"
-          HOST="${HOST%%/*}"
-          HOST="${HOST%%:*}"
-          USER="${CPANEL_USERNAME}"
-          TOKEN="${CPANEL_API_TOKEN}"
-          AUTH="Authorization: cpanel ${USER}:${TOKEN}"
-          BASE="https://${HOST}:2083/execute"
-
-          echo "host=$HOST user=$USER"
-
-          INFO=$(curl -sS --connect-timeout 20 --max-time 45 -H "$AUTH" \
-            "${BASE}/Variables/get_user_information")
-          HOME_DIR=$(php -r '$j=json_decode(stream_get_contents(STDIN),true); echo $j["data"]["home"]??$j["data"]["homedir"]??"";' <<<"$INFO")
-          if [ -z "$HOME_DIR" ]; then HOME_DIR="/home/${USER}"; fi
-          echo "home=$HOME_DIR"
-
-          # monorepo: seluruh app di public_html (pola FTP-Deploy lama yang green)
-          ROOT="${HOME_DIR}/public_html"
-          echo "ROOT=$ROOT (monorepo)"
-
-          mkdir_remote() {
-            curl -sS --connect-timeout 12 --max-time 25 -H "$AUTH" --get \
-              --data-urlencode "path=$1" \
-              --data-urlencode "permissions=0755" \
-              "${BASE}/Fileman/mkdir" >/dev/null 2>&1 || true
-          }
-
-          upload() {
-            local local_path="$1"
-            local rdir="$2"
-            local base
-            base=$(basename "$local_path")
-            if [ ! -f "$local_path" ]; then
-              echo "skip missing $local_path"
-              return 0
-            fi
-            mkdir_remote "$rdir"
-            echo -n "PUT $local_path -> $rdir/ "
-            RES=$(curl -sS --connect-timeout 20 --max-time 90 \
-              -H "$AUTH" \
-              -F "dir=${rdir}" \
-              -F "file-1=@${local_path};filename=${base}" \
-              "${BASE}/Fileman/upload_files" || echo '{"status":0}')
-            if echo "$RES" | grep -qE '"status"[[:space:]]*:[[:space:]]*1'; then
-              echo OK
-              return 0
-            fi
-            # some panels return status 1 nested
-            if echo "$RES" | grep -qiE 'upload.*success|"succeeded"|file-1'; then
-              if ! echo "$RES" | grep -qE '"status"[[:space:]]*:[[:space:]]*0'; then
-                echo OK
-                return 0
-              fi
-            fi
-            echo FAIL
-            echo "$RES" | head -c 350
-            echo
-            return 1
-          }
-
-          FAIL=0
-
-          # Laravel app paths (monorepo = same tree under public_html)
-          upload "routes/web.php" "${ROOT}/routes" || FAIL=1
-          upload "routes/api.php" "${ROOT}/routes" || FAIL=1
-          upload "resources/views/maintenance.blade.php" "${ROOT}/resources/views" || FAIL=1
-          upload "resources/views/shipping-label.blade.php" "${ROOT}/resources/views" || FAIL=1
-          upload "app/Http/Controllers/ShippingLabelController.php" "${ROOT}/app/Http/Controllers" || FAIL=1
-          upload "app/Http/Middleware/SecurityHeaders.php" "${ROOT}/app/Http/Middleware" || FAIL=1
-          upload "app/Filament/Resources/OrderResource.php" "${ROOT}/app/Filament/Resources" || FAIL=1
-          upload "app/Filament/Widgets/OrdersWidget.php" "${ROOT}/app/Filament/Widgets" || FAIL=1
-          upload "app/Filament/Widgets/ProductsWidget.php" "${ROOT}/app/Filament/Widgets" || FAIL=1
-          upload "app/Filament/Widgets/ReviewsWidget.php" "${ROOT}/app/Filament/Widgets" || FAIL=1
-          upload "app/Filament/Widgets/UsersWidget.php" "${ROOT}/app/Filament/Widgets" || FAIL=1
-          upload "config/cors.php" "${ROOT}/config" || FAIL=1
-
-          # public/* under monorepo
-          upload "public/index.php" "${ROOT}/public" || FAIL=1
-          upload "public/.htaccess" "${ROOT}/public" || FAIL=1
-          upload "public/deploy-runner.php" "${ROOT}/public" || FAIL=1
-          upload "public/js/JsBarcode.all.min.js" "${ROOT}/public/js" || FAIL=1
-          upload "public/jnt-express-logo.svg" "${ROOT}/public" || FAIL=1
-          upload "public/New_Logo_JNE.png" "${ROOT}/public" || FAIL=1
-          upload "public/POSIND_2023.svg" "${ROOT}/public" || FAIL=1
-          upload "public/build/manifest.json" "${ROOT}/public/build" || FAIL=1
-          for f in public/build/assets/*; do
-            [ -f "$f" ] || continue
-            upload "$f" "${ROOT}/public/build/assets" || FAIL=1
-          done
-
-          # also drop docroot copies if site serves from public_html root
-          upload "public/index.php" "${ROOT}" || true
-          upload "public/deploy-runner.php" "${ROOT}" || true
-          upload "public/js/JsBarcode.all.min.js" "${ROOT}/js" || true
-          upload "public/jnt-express-logo.svg" "${ROOT}" || true
-
-          # drop route cache so new web.php is used
-          for f in bootstrap/cache/routes-v7.php bootstrap/cache/config.php; do
-            curl -sS --connect-timeout 12 --max-time 30 -H "$AUTH" --get \
-              --data-urlencode "op=unlink" \
-              --data-urlencode "sourcefiles=${ROOT}/${f}" \
-              "${BASE}/Fileman/fileop" >/dev/null 2>&1 || true
-          done
-
-          if [ "$FAIL" -ne 0 ]; then
-            echo "Some uploads failed"
-            exit 1
-          fi
-          echo "UAPI monorepo deploy finished OK"
-
-      - name: Migrate (best effort)
-        env:
-          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
-        run: |
-          set +e
-          RESP=$(curl -sS -w "\nHTTP:%{http_code}" \
-            -X POST \
-            -H "X-Deploy-Token: ${DEPLOY_TOKEN}" \
-            --connect-timeout 15 --max-time 90 \
-            "https://aliesmo.id/deploy-runner.php" || true)
-          echo "$RESP" | tail -c 400
-          if echo "$RESP" | grep -q '"success":true'; then
-            echo "migrate OK"
-          else
-            echo "::warning::migrate via HTTP blocked/failed"
-          fi
-          exit 0
-
-      - name: Verify maintenance live
-        run: |
-          sleep 4
-          curl -sS -H "Cache-Control: no-cache" --connect-timeout 10 --max-time 20 \
-            -o /tmp/home.html "https://aliesmo.id/?_=$(date +%s)" || true
-          if grep -qiE 'pemeliharaan|Maintenance|sedang dalam' /tmp/home.html; then
-            echo VERIFY OK
-            exit 0
-          fi
-          echo VERIFY FAIL
-          head -c 500 /tmp/home.html || true
-          exit 1
+          echo "Running migrate and optimize:clear via deploy script..."
+          curl -s -X POST \
+            -H "X-Deploy-Token: ${{ secrets.DEPLOY_TOKEN }}" \
+            "https://aliesmo.id/deploy-runner.php" || true
+          echo "Done."
