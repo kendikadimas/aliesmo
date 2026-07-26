@@ -51,7 +51,8 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: /public_html/
           local-dir: ./
-          timeout: 60000
+          timeout: 120000
+          dangerous-clean-slate: false
           exclude: |
             **/.git/**
             **/.gitignore
@@ -74,6 +75,8 @@ jobs:
             **/vite.config.js
             **/tailwind.config.js
             **/postcss.config.js
+            **/J&T_Express_logo.svg
+            **/J&T*
 
       # ─── 6. Run artisan migrate, storage:link dan optimize:clear ──────
       - name: Run artisan migrate and optimize:clear

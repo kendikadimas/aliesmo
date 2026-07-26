@@ -24,7 +24,7 @@ class ShippingLabelController extends Controller
                 || str_contains($courierKey, 'jet') => [
                     'J&T',
                     'jnt',
-                    'J&T_Express_logo.svg',
+                    'jnt-express-logo.svg',
                 ],
             str_contains($courierKey, 'pos') => [
                 'POS',
