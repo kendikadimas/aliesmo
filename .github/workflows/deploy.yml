@@ -72,26 +72,34 @@ jobs:
       # ─── 5. Upload PHP files yang berubah via deploy-runner.php ──────
       - name: Upload changed PHP files to server
         run: |
-          # Ambil file PHP yang berubah dibanding origin/main sebelum push ini
-          # fetch-depth: 0 tidak diset, jadi pakai git diff dengan ORIG_HEAD atau fallback ke semua
-          CHANGED=$(git diff --name-only HEAD^ HEAD -- '*.php' '*.blade.php' 2>/dev/null || true)
-
-          if [ -z "$CHANGED" ]; then
-            echo "No PHP files changed, skipping."
-            exit 0
+          # Ambil semua PHP files yang berubah sejak tag deploy terakhir, atau semua kalau belum ada tag
+          LAST_TAG=$(git tag --sort=-creatordate | grep '^deployed-' | head -1)
+          if [ -z "$LAST_TAG" ]; then
+            # Belum ada tag deploy — diff semua PHP vs 1 commit sebelum ini
+            CHANGED=$(git diff --name-only HEAD^ HEAD -- '*.php' '*.blade.php' 2>/dev/null || true)
+          else
+            CHANGED=$(git diff --name-only "$LAST_TAG" HEAD -- '*.php' '*.blade.php' 2>/dev/null || true)
           fi
 
-          echo "Changed files: $CHANGED"
-          echo "$CHANGED" | tr '\n' '\0' | xargs -0 zip -q changed_files.zip
+          if [ -z "$CHANGED" ]; then
+            echo "No PHP files changed since last deploy, skipping."
+          else
+            echo "Changed files: $CHANGED"
+            echo "$CHANGED" | tr '\n' '\0' | xargs -0 zip -q changed_files.zip
 
-          HTTP=$(curl -s -o response.json -w "%{http_code}" \
-            --max-time 60 \
-            -H "X-Deploy-Token: ${{ secrets.DEPLOY_TOKEN }}" \
-            -F "deploy_zip=@changed_files.zip" \
-            "https://${{ secrets.CPANEL_DOMAIN }}/deploy-runner.php")
+            HTTP=$(curl -s -o response.json -w "%{http_code}" \
+              --max-time 60 \
+              -H "X-Deploy-Token: ${{ secrets.DEPLOY_TOKEN }}" \
+              -F "deploy_zip=@changed_files.zip" \
+              "https://${{ secrets.CPANEL_DOMAIN }}/deploy-runner.php")
 
-          echo "HTTP: $HTTP"
-          cat response.json || true
+            echo "HTTP: $HTTP"
+            cat response.json || true
+          fi
+
+          # Tag commit ini sebagai deployed
+          git tag "deployed-$(date +%Y%m%d-%H%M%S)"
+          git push origin --tags 2>/dev/null || true
 
       # ─── 6. Clear Laravel cache via cPanel UAPI ───────────────────
       - name: Clear Laravel route dan config cache
