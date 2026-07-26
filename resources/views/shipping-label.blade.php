@@ -212,7 +212,7 @@
                             @endif
                         </div>
                         <div class="brand-box">
-                            <img src="https://aliesmo.id/aliesmo-horizontal.png" alt="Aliesmo"
+                            <img src="{{ asset('aliesmo-horizontal.png') }}" alt="Aliesmo"
                                  onerror="this.style.display='none'">
                             <div class="brand-domain">aliesmo.id</div>
                         </div>

@@ -5,6 +5,7 @@ namespace App\Providers;
 use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -22,6 +23,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // paksa HTTPS di produksi supaya asset() generate URL yang benar
+        if (app()->environment('production')) {
+            URL::forceScheme('https');
+        }
+
         FilamentView::registerRenderHook(
             PanelsRenderHook::HEAD_START,
             fn(): string => '<link rel="stylesheet" href="' . asset('css/admin.css') . '">',
