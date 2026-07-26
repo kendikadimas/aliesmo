@@ -10,133 +10,146 @@ jobs:
   deploy:
     name: Deploy critical files
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 6
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Skip npm build — maintenance is Blade, not SPA. Re-add when storefront reopens.
-      - name: Deploy via cPanel UAPI (POST save_file_content)
+      - name: Probe + deploy (curl, fail-fast)
         env:
           CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
           CPANEL_USERNAME: ${{ secrets.CPANEL_USERNAME }}
           CPANEL_API_TOKEN: ${{ secrets.CPANEL_API_TOKEN }}
         run: |
           set -euo pipefail
-          python3 <<'PY'
-          import json, os, sys, urllib.parse, urllib.request, ssl
-          from pathlib import Path
+          HOST="${CPANEL_HOST#https://}"
+          HOST="${HOST#http://}"
+          HOST="${HOST%%/*}"
+          HOST="${HOST%%:*}"
+          USER="${CPANEL_USERNAME}"
+          TOKEN="${CPANEL_API_TOKEN}"
+          AUTH="Authorization: cpanel ${USER}:${TOKEN}"
+          BASE="https://${HOST}:2083/execute"
 
-          host = os.environ["CPANEL_HOST"].replace("https://", "").replace("http://", "").split("/")[0].split(":")[0]
-          user = os.environ["CPANEL_USERNAME"]
-          token = os.environ["CPANEL_API_TOKEN"]
-          auth = f"cpanel {user}:{token}"
-          base = f"https://{host}:2083/execute"
-          ctx = ssl.create_default_context()
+          echo "=== probe TCP 2083 ==="
+          timeout 10 bash -c "echo >/dev/tcp/${HOST}/2083" && echo "port open" || echo "port closed/timeout"
 
-          def uapi_get(path, params=None, timeout=20):
-              url = f"{base}/{path}"
-              if params:
-                  url += "?" + urllib.parse.urlencode(params)
-              req = urllib.request.Request(url, headers={"Authorization": auth})
-              with urllib.request.urlopen(req, timeout=timeout, context=ctx) as r:
-                  return json.loads(r.read().decode())
+          echo "=== probe UAPI get_user_information (15s) ==="
+          INFO=$(curl -sS --connect-timeout 8 --max-time 15 -H "$AUTH" \
+            "${BASE}/Variables/get_user_information" || echo '{"status":0,"errors":["curl failed"]}')
+          echo "$INFO" | head -c 400
+          echo
+          HOME_DIR=$(echo "$INFO" | php -r '$j=json_decode(stream_get_contents(STDIN),true); echo $j["data"]["home"]??$j["data"]["homedir"]??"";')
+          if [ -z "$HOME_DIR" ]; then
+            echo "FAIL: no home from UAPI"
+            exit 1
+          fi
+          echo "home=$HOME_DIR"
 
-          def uapi_post(path, fields, timeout=45):
-              # POST application/x-www-form-urlencoded — content in body, not URL
-              data = urllib.parse.urlencode(fields).encode("utf-8")
-              req = urllib.request.Request(
-                  f"{base}/{path}",
-                  data=data,
-                  headers={
-                      "Authorization": auth,
-                      "Content-Type": "application/x-www-form-urlencoded",
-                  },
-                  method="POST",
-              )
-              with urllib.request.urlopen(req, timeout=timeout, context=ctx) as r:
-                  return json.loads(r.read().decode())
+          echo "=== list home dirs (15s) ==="
+          LIST=$(curl -sS --connect-timeout 8 --max-time 15 -H "$AUTH" --get \
+            --data-urlencode "dir=${HOME_DIR}" \
+            "${BASE}/Fileman/list_files" || echo '{}')
+          APP_NAME=$(echo "$LIST" | php -r '
+            $j=json_decode(stream_get_contents(STDIN),true);
+            $c=[];
+            foreach (($j["data"] ?? []) as $e) {
+              if (($e["type"] ?? "") !== "dir") continue;
+              $n = $e["file"] ?? "";
+              if (stripos($n, "aliesmo") === 0) $c[] = $n;
+            }
+            if (in_array("aliesmo", $c, true)) { echo "aliesmo"; exit; }
+            sort($c); echo $c[0] ?? "";
+          ')
+          if [ -z "$APP_NAME" ]; then
+            echo "FAIL: no aliesmo* dir"
+            echo "$LIST" | head -c 500
+            exit 1
+          fi
+          APP_DIR="${HOME_DIR}/${APP_NAME}"
+          PUB_DIR="${HOME_DIR}/public_html"
+          echo "APP_DIR=$APP_DIR"
 
-          print(f"host={host} user={user}", flush=True)
-          info = uapi_get("Variables/get_user_information", timeout=20)
-          home = (info.get("data") or {}).get("home") or (info.get("data") or {}).get("homedir") or f"/home/{user}"
-          print(f"home={home}", flush=True)
+          save() {
+            local local_path="$1"
+            local rdir="$2"
+            local fname="$3"
+            if [ ! -f "$local_path" ]; then
+              echo "skip $local_path"
+              return 0
+            fi
+            curl -sS --connect-timeout 8 --max-time 12 -H "$AUTH" -X POST \
+              --data-urlencode "path=${rdir}" \
+              --data-urlencode "permissions=0755" \
+              "${BASE}/Fileman/mkdir" >/dev/null 2>&1 || true
+            echo -n "SAVE $local_path "
+            # content via --data-urlencode from file: use php to POST
+            RES=$(php -r '
+              $host = getenv("HOST");
+              $auth = getenv("AUTH");
+              $base = getenv("BASE");
+              $rdir = $argv[1];
+              $fname = $argv[2];
+              $local = $argv[3];
+              $content = file_get_contents($local);
+              $body = http_build_query([
+                "dir" => $rdir,
+                "file" => $fname,
+                "content" => $content,
+                "fallback" => 1,
+              ]);
+              $ch = curl_init($base . "/Fileman/save_file_content");
+              curl_setopt_array($ch, [
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => $body,
+                CURLOPT_HTTPHEADER => [$auth, "Content-Type: application/x-www-form-urlencoded"],
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_CONNECTTIMEOUT => 8,
+                CURLOPT_TIMEOUT => 25,
+              ]);
+              $out = curl_exec($ch);
+              $err = curl_error($ch);
+              $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+              if ($out === false) { fwrite(STDERR, "curl err: $err\n"); echo "{\"status\":0}"; exit(0); }
+              echo $out;
+            ' "$rdir" "$fname" "$local_path" 2>&1) || true
+            if echo "$RES" | grep -qE '"status"[[:space:]]*:[[:space:]]*1'; then
+              echo OK
+              return 0
+            fi
+            echo FAIL
+            echo "$RES" | head -c 250
+            echo
+            return 1
+          }
 
-          listing = uapi_get("Fileman/list_files", {"dir": home}, timeout=20)
-          names = [
-              e.get("file")
-              for e in (listing.get("data") or [])
-              if e.get("type") == "dir" and (e.get("file") or "").lower().startswith("aliesmo")
-          ]
-          app_name = "aliesmo" if "aliesmo" in names else (sorted(names)[0] if names else None)
-          if not app_name:
-              print("FAIL no aliesmo* dir", json.dumps(listing)[:400], flush=True)
-              sys.exit(1)
+          export HOST AUTH BASE
+          # inject for php getenv
+          export HOST="$HOST" BASE="$BASE" AUTH="$AUTH"
 
-          app_dir = f"{home}/{app_name}"
-          pub_dir = f"{home}/public_html"
-          print(f"APP_DIR={app_dir}", flush=True)
+          FAIL=0
+          save "routes/web.php" "${APP_DIR}/routes" "web.php" || FAIL=1
+          save "resources/views/maintenance.blade.php" "${APP_DIR}/resources/views" "maintenance.blade.php" || FAIL=1
+          save "resources/views/shipping-label.blade.php" "${APP_DIR}/resources/views" "shipping-label.blade.php" || FAIL=1
+          save "app/Http/Controllers/ShippingLabelController.php" "${APP_DIR}/app/Http/Controllers" "ShippingLabelController.php" || FAIL=1
+          save "public/deploy-runner.php" "${PUB_DIR}" "deploy-runner.php" || FAIL=1
 
-          # Minimum for maintenance live + label. Binaries/assets later.
-          files = [
-              ("routes/web.php", f"{app_dir}/routes", "web.php"),
-              ("resources/views/maintenance.blade.php", f"{app_dir}/resources/views", "maintenance.blade.php"),
-              ("resources/views/shipping-label.blade.php", f"{app_dir}/resources/views", "shipping-label.blade.php"),
-              ("app/Http/Controllers/ShippingLabelController.php", f"{app_dir}/app/Http/Controllers", "ShippingLabelController.php"),
-              ("public/deploy-runner.php", pub_dir, "deploy-runner.php"),
-          ]
-
-          fail = 0
-          for local, rdir, fname in files:
-              p = Path(local)
-              if not p.is_file():
-                  print(f"skip {local}", flush=True)
-                  continue
-              content = p.read_text(encoding="utf-8")
-              try:
-                  uapi_post("Fileman/mkdir", {"path": rdir, "permissions": "0755"}, timeout=15)
-              except Exception:
-                  pass
-              print(f"SAVE {local} ({len(content)} chars) ", end="", flush=True)
-              try:
-                  res = uapi_post(
-                      "Fileman/save_file_content",
-                      {"dir": rdir, "file": fname, "content": content, "fallback": "1"},
-                      timeout=40,
-                  )
-                  if res.get("status") == 1:
-                      print("OK", flush=True)
-                  else:
-                      # alternate: filepath
-                      res2 = uapi_post(
-                          "Fileman/save_file_content",
-                          {"filepath": f"{rdir}/{fname}", "content": content},
-                          timeout=40,
-                      )
-                      if res2.get("status") == 1:
-                          print("OK(filepath)", flush=True)
-                      else:
-                          print("FAIL", json.dumps(res)[:180], json.dumps(res2)[:180], flush=True)
-                          fail = 1
-              except Exception as e:
-                  print(f"FAIL {e}", flush=True)
-                  fail = 1
-
-          if fail:
-              sys.exit(1)
-          print("All OK", flush=True)
-          PY
+          if [ "$FAIL" -ne 0 ]; then
+            echo "Some saves failed"
+            exit 1
+          fi
+          echo "All OK"
 
       - name: Verify maintenance live
         run: |
           set -e
           sleep 3
-          curl -sS --connect-timeout 15 --max-time 30 -o /tmp/home.html "https://aliesmo.id/" || true
+          curl -sS --connect-timeout 10 --max-time 20 -o /tmp/home.html "https://aliesmo.id/" || true
           if grep -qiE 'pemeliharaan|Maintenance|sedang dalam' /tmp/home.html; then
-            echo "VERIFY OK: maintenance page live"
+            echo "VERIFY OK"
             exit 0
           fi
           echo "VERIFY FAIL"
-          head -c 600 /tmp/home.html || true
+          head -c 500 /tmp/home.html || true
           exit 1
