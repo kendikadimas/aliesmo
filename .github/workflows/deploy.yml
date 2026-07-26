@@ -87,7 +87,7 @@ jobs:
             echo "Changed files: $CHANGED"
             echo "$CHANGED" | tr '\n' '\0' | xargs -0 zip -q changed_files.zip
 
-            HTTP=$(curl -s -o response.json -w "%{http_code}" \
+            HTTP=$(curl -sk -o response.json -w "%{http_code}" \
               --max-time 60 \
               -H "X-Deploy-Token: ${{ secrets.DEPLOY_TOKEN }}" \
               -F "deploy_zip=@changed_files.zip" \
