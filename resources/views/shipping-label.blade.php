@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Label @if(count($labels) === 1)- {{ $labels[0]['order']->order_number }}@else ({{ count($labels) }})@endif</title>
+    <title>Label - {{ count($labels) === 1 ? $labels[0]['order']->order_number : '('.count($labels).')' }}</title>
     {{-- self-host: CSP blocks cdn.jsdelivr.net --}}
     <script src="{{ asset('js/JsBarcode.all.min.js') }}"></script>
     <style>
@@ -223,14 +223,14 @@
                 page-break-after: auto;
                 break-after: auto;
             }
-            /* thermal A6 105×148 */
-            @page { size: 105mm 148mm; margin: 0; }
+            /* thermal A6 105×148 — @page via raw echo (Blade/Livewire mangling) */
         }
+        {!! '@page { size: 105mm 148mm; margin: 0; }' !!}
     </style>
 </head>
 <body>
     <div class="print-controls">
-        <button type="button" onclick="window.print()">Cetak Label@if(count($labels) > 1) ({{ count($labels) }})@endif</button>
+        <button type="button" onclick="window.print()">Cetak Label{{ count($labels) > 1 ? ' ('.count($labels).')' : '' }}</button>
         <button type="button" class="btn-secondary" onclick="window.close()">Tutup</button>
     </div>
 
@@ -243,7 +243,7 @@
             <li>Paper size: <strong>A6</strong> · Margins: <strong>None</strong> · Scale: <strong>100%</strong>.</li>
             <li>Aktifkan <strong>Background graphics</strong> agar logo &amp; barcode jelas.</li>
         </ol>
-        <p class="note">Label ini fixed A6. Browser tidak bisa auto-pilih printer; set sekali, Chrome biasanya mengingat. Jangan “Fit to page”.@if(count($labels) > 1) Bulk: 1 order = 1 lembar (page break).@endif</p>
+        <p class="note">Label ini fixed A6. Browser tidak bisa auto-pilih printer; set sekali, Chrome biasanya mengingat. Jangan “Fit to page”.{{ count($labels) > 1 ? ' Bulk: 1 order = 1 lembar (page break).' : '' }}</p>
     </details>
 
     @foreach($labels as $i => $L)
