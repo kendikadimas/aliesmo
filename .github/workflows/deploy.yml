@@ -77,8 +77,8 @@ jobs:
 
           echo "Changed files: ${CHANGED:-none}"
 
-          # Selalu upload bootstrap cache — tidak bisa di-regenerate di shared hosting
-          ALWAYS="bootstrap/cache/services.php bootstrap/cache/packages.php"
+          # Selalu upload bootstrap/app.php — file kritis yang sering gagal via File Manager
+          ALWAYS="bootstrap/app.php bootstrap/cache/services.php bootstrap/cache/packages.php"
 
           for FILE in $ALWAYS $CHANGED; do
             [ -f "$FILE" ] || continue
