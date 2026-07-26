@@ -10,133 +10,95 @@ jobs:
   deploy:
     name: Deploy critical files
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 8
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Probe + deploy (curl, fail-fast)
+      # UAPI list/info OK; save_file_content times out (0 bytes).
+      # Full FTP tree walk hangs. Single-file curl -T only.
+      - name: Deploy via FTP single-file PUT
         env:
-          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
-          CPANEL_USERNAME: ${{ secrets.CPANEL_USERNAME }}
-          CPANEL_API_TOKEN: ${{ secrets.CPANEL_API_TOKEN }}
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
           set -euo pipefail
-          HOST="${CPANEL_HOST#https://}"
-          HOST="${HOST#http://}"
+          HOST="${FTP_SERVER#ftp://}"
+          HOST="${HOST#ftps://}"
           HOST="${HOST%%/*}"
-          HOST="${HOST%%:*}"
-          USER="${CPANEL_USERNAME}"
-          TOKEN="${CPANEL_API_TOKEN}"
-          AUTH="Authorization: cpanel ${USER}:${TOKEN}"
-          BASE="https://${HOST}:2083/execute"
+          USER="${FTP_USERNAME}"
+          PASS="${FTP_PASSWORD}"
 
-          echo "=== probe TCP 2083 ==="
-          timeout 10 bash -c "echo >/dev/tcp/${HOST}/2083" && echo "port open" || echo "port closed/timeout"
+          echo "host=$HOST user=$USER"
 
-          echo "=== probe UAPI get_user_information (15s) ==="
-          INFO=$(curl -sS --connect-timeout 8 --max-time 15 -H "$AUTH" \
-            "${BASE}/Variables/get_user_information" || echo '{"status":0,"errors":["curl failed"]}')
-          echo "$INFO" | head -c 400
-          echo
-          HOME_DIR=$(echo "$INFO" | php -r '$j=json_decode(stream_get_contents(STDIN),true); echo $j["data"]["home"]??$j["data"]["homedir"]??"";')
-          if [ -z "$HOME_DIR" ]; then
-            echo "FAIL: no home from UAPI"
-            exit 1
+          # Detect app dir under home (aliesmo or aliesmo1)
+          APP=$(curl -sS --connect-timeout 12 --max-time 25 \
+            --user "${USER}:${PASS}" \
+            "ftp://${HOST}/" \
+            --list-only 2>/dev/null | tr -d '\r' | grep -E '^aliesmo' | head -1 || true)
+          if [ -z "$APP" ]; then
+            # try common names
+            for cand in aliesmo aliesmo1; do
+              code=$(curl -sS -o /dev/null -w "%{http_code}" --connect-timeout 10 --max-time 20 \
+                --user "${USER}:${PASS}" --head "ftp://${HOST}/${cand}/" || echo 000)
+              echo "probe $cand -> $code"
+              if [ "$code" = "226" ] || [ "$code" = "350" ] || [ "$code" = "200" ] || [ "$code" = "213" ]; then
+                APP=$cand
+                break
+              fi
+            done
           fi
-          echo "home=$HOME_DIR"
-
-          echo "=== list home dirs (15s) ==="
-          LIST=$(curl -sS --connect-timeout 8 --max-time 15 -H "$AUTH" --get \
-            --data-urlencode "dir=${HOME_DIR}" \
-            "${BASE}/Fileman/list_files" || echo '{}')
-          APP_NAME=$(echo "$LIST" | php -r '
-            $j=json_decode(stream_get_contents(STDIN),true);
-            $c=[];
-            foreach (($j["data"] ?? []) as $e) {
-              if (($e["type"] ?? "") !== "dir") continue;
-              $n = $e["file"] ?? "";
-              if (stripos($n, "aliesmo") === 0) $c[] = $n;
-            }
-            if (in_array("aliesmo", $c, true)) { echo "aliesmo"; exit; }
-            sort($c); echo $c[0] ?? "";
-          ')
-          if [ -z "$APP_NAME" ]; then
-            echo "FAIL: no aliesmo* dir"
-            echo "$LIST" | head -c 500
-            exit 1
+          # FTP LIST often returns 226 after listing; empty http_code — try upload probe
+          if [ -z "$APP" ]; then
+            for cand in aliesmo aliesmo1; do
+              echo "probe-list $cand"
+              if curl -sS --connect-timeout 10 --max-time 20 \
+                --user "${USER}:${PASS}" "ftp://${HOST}/${cand}/" --list-only 2>/dev/null | head -3; then
+                APP=$cand
+                break
+              fi
+            done
           fi
-          APP_DIR="${HOME_DIR}/${APP_NAME}"
-          PUB_DIR="${HOME_DIR}/public_html"
-          echo "APP_DIR=$APP_DIR"
+          if [ -z "$APP" ]; then
+            echo "WARN: default APP=aliesmo1 (UAPI last known)"
+            APP=aliesmo1
+          fi
+          echo "APP=$APP"
 
-          save() {
-            local local_path="$1"
-            local rdir="$2"
-            local fname="$3"
-            if [ ! -f "$local_path" ]; then
-              echo "skip $local_path"
+          put() {
+            local src="$1"
+            local remote="$2"
+            if [ ! -f "$src" ]; then
+              echo "skip $src"
               return 0
             fi
-            curl -sS --connect-timeout 8 --max-time 12 -H "$AUTH" -X POST \
-              --data-urlencode "path=${rdir}" \
-              --data-urlencode "permissions=0755" \
-              "${BASE}/Fileman/mkdir" >/dev/null 2>&1 || true
-            echo -n "SAVE $local_path "
-            # content via --data-urlencode from file: use php to POST
-            RES=$(php -r '
-              $host = getenv("HOST");
-              $auth = getenv("AUTH");
-              $base = getenv("BASE");
-              $rdir = $argv[1];
-              $fname = $argv[2];
-              $local = $argv[3];
-              $content = file_get_contents($local);
-              $body = http_build_query([
-                "dir" => $rdir,
-                "file" => $fname,
-                "content" => $content,
-                "fallback" => 1,
-              ]);
-              $ch = curl_init($base . "/Fileman/save_file_content");
-              curl_setopt_array($ch, [
-                CURLOPT_POST => true,
-                CURLOPT_POSTFIELDS => $body,
-                CURLOPT_HTTPHEADER => [$auth, "Content-Type: application/x-www-form-urlencoded"],
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_CONNECTTIMEOUT => 8,
-                CURLOPT_TIMEOUT => 25,
-              ]);
-              $out = curl_exec($ch);
-              $err = curl_error($ch);
-              $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-              if ($out === false) { fwrite(STDERR, "curl err: $err\n"); echo "{\"status\":0}"; exit(0); }
-              echo $out;
-            ' "$rdir" "$fname" "$local_path" 2>&1) || true
-            if echo "$RES" | grep -qE '"status"[[:space:]]*:[[:space:]]*1'; then
+            echo -n "PUT $src -> $remote "
+            # --ftp-create-dirs for nested paths
+            if curl -sS --connect-timeout 12 --max-time 40 \
+              --user "${USER}:${PASS}" \
+              --ftp-create-dirs \
+              -T "$src" \
+              "ftp://${HOST}/${remote}"; then
               echo OK
               return 0
             fi
             echo FAIL
-            echo "$RES" | head -c 250
-            echo
             return 1
           }
 
-          export HOST AUTH BASE
-          # inject for php getenv
-          export HOST="$HOST" BASE="$BASE" AUTH="$AUTH"
-
           FAIL=0
-          save "routes/web.php" "${APP_DIR}/routes" "web.php" || FAIL=1
-          save "resources/views/maintenance.blade.php" "${APP_DIR}/resources/views" "maintenance.blade.php" || FAIL=1
-          save "resources/views/shipping-label.blade.php" "${APP_DIR}/resources/views" "shipping-label.blade.php" || FAIL=1
-          save "app/Http/Controllers/ShippingLabelController.php" "${APP_DIR}/app/Http/Controllers" "ShippingLabelController.php" || FAIL=1
-          save "public/deploy-runner.php" "${PUB_DIR}" "deploy-runner.php" || FAIL=1
+          put "routes/web.php" "${APP}/routes/web.php" || FAIL=1
+          put "resources/views/maintenance.blade.php" "${APP}/resources/views/maintenance.blade.php" || FAIL=1
+          put "resources/views/shipping-label.blade.php" "${APP}/resources/views/shipping-label.blade.php" || FAIL=1
+          put "app/Http/Controllers/ShippingLabelController.php" "${APP}/app/Http/Controllers/ShippingLabelController.php" || FAIL=1
+          put "public/deploy-runner.php" "public_html/deploy-runner.php" || FAIL=1
+          put "public/js/JsBarcode.all.min.js" "public_html/js/JsBarcode.all.min.js" || FAIL=1
+          put "public/jnt-express-logo.svg" "public_html/jnt-express-logo.svg" || FAIL=1
 
           if [ "$FAIL" -ne 0 ]; then
-            echo "Some saves failed"
+            echo "Some puts failed"
             exit 1
           fi
           echo "All OK"
