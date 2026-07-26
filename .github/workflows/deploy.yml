@@ -104,58 +104,26 @@ jobs:
             --data-urlencode "content=$CURRENT_SHA" \
             "$BASE/execute/Fileman/save_file_content" > /dev/null || true
 
-      # ─── 6. Neutralize empty routes-v7.php (causes site-wide 404) ───
-      # Fileman has no unlink in UAPI. Drop a one-shot fixer under public/, hit it, remove it.
-      - name: Fix empty routes cache on server
+      # ─── 6. Neutralize empty/broken routes-v7.php ───
+      # Empty return [] → site-wide 404. Fileman can't unlink; overwrite with
+      # self-deleting stub. First request unlinks the file; next request loads real routes.
+      - name: Self-delete broken routes cache
         run: |
           BASE="https://${{ secrets.CPANEL_HOST }}:2083"
           AUTH="Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_API_TOKEN }}"
           HOME_DIR="/home/${{ secrets.CPANEL_USERNAME }}"
-          PUB="$HOME_DIR/public_html/public"
-          FIXER='<?php
-          $targets = [
-            __DIR__ . "/../bootstrap/cache/routes-v7.php",
-            __DIR__ . "/bootstrap/cache/routes-v7.php",
-          ];
-          foreach ($targets as $p) {
-            if (is_file($p)) {
-              $raw = @file_get_contents($p);
-              if (is_string($raw) && preg_match("/return\\s*\\[\\s*\\]\\s*;/", $raw)) {
-                @unlink($p);
-                echo "unlinked:$p\n";
-              } else {
-                echo "kept:$p\n";
-              }
-            } else {
-              echo "missing:$p\n";
-            }
-          }
-          '
+          STUB=$'<?php @unlink(__FILE__);\n'
 
-          echo "Upload _fix_routes.php..."
-          curl -sk --max-time 60 -H "$AUTH" \
-            --data-urlencode "dir=$PUB" \
-            --data-urlencode "file=_fix_routes.php" \
-            --data-urlencode "content=$FIXER" \
-            "$BASE/execute/Fileman/save_file_content" || true
+          echo "Overwrite routes-v7.php with self-delete stub..."
+          RESULT=$(curl -sk --max-time 30 -H "$AUTH" \
+            --data-urlencode "dir=$HOME_DIR/public_html/bootstrap/cache" \
+            --data-urlencode "file=routes-v7.php" \
+            --data-urlencode "content=$STUB" \
+            "$BASE/execute/Fileman/save_file_content" || echo '{"errors":["curl failed"]}')
+          echo "$RESULT"
 
-          # also try app-root public_html if docroot is monorepo root
-          curl -sk --max-time 60 -H "$AUTH" \
-            --data-urlencode "dir=$HOME_DIR/public_html" \
-            --data-urlencode "file=_fix_routes.php" \
-            --data-urlencode "content=$FIXER" \
-            "$BASE/execute/Fileman/save_file_content" || true
-
-          echo "Hit fixer..."
-          curl -sk --max-time 20 "https://${{ secrets.CPANEL_HOST }}/_fix_routes.php" || true
-          curl -sk --max-time 20 "https://aliesmo.id/_fix_routes.php" || true
-
-          echo "Remove fixer..."
-          # overwrite with empty stub so it cannot be re-used
-          for DIR in "$PUB" "$HOME_DIR/public_html"; do
-            curl -sk --max-time 30 -H "$AUTH" \
-              --data-urlencode "dir=$DIR" \
-              --data-urlencode "file=_fix_routes.php" \
-              --data-urlencode "content=<?php http_response_code(404); exit;" \
-              "$BASE/execute/Fileman/save_file_content" || true
-          done
+          echo "Warm request 1 (triggers unlink)..."
+          curl -sk --max-time 20 -o /dev/null -w "HTTP %{http_code}\n" "https://aliesmo.id/" || true
+          echo "Warm request 2 (should load real routes)..."
+          curl -sk --max-time 20 -o /dev/null -w "HTTP %{http_code}\n" "https://aliesmo.id/" || true
+          curl -sk --max-time 20 -o /dev/null -w "HTTP /up %{http_code}\n" "https://aliesmo.id/up" || true
