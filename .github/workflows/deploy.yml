@@ -33,9 +33,9 @@ jobs:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
       # ─── 3. Commit build artifacts ke repo ────────────────────────────
+      # Vite output langsung ke public/build — tidak perlu copy
       - name: Commit public/build ke repo
         run: |
-          cp -r frontend/dist/. public/build/
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add public/build
