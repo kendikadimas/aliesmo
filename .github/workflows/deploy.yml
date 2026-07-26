@@ -57,9 +57,8 @@ jobs:
         run: |
           BASE="https://${{ secrets.CPANEL_HOST }}:2083"
           AUTH="Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_API_TOKEN }}"
-          HOME="/home/${{ secrets.CPANEL_USERNAME }}"
 
-          # Hapus cache files langsung — sama dengan optimize:clear
+          # Hapus cache files — path relatif dari home dir
           for FILE in \
             "public_html/bootstrap/cache/routes-v7.php" \
             "public_html/bootstrap/cache/config.php" \
@@ -67,6 +66,7 @@ jobs:
             "public_html/bootstrap/cache/services.php"; do
             echo "Deleting $FILE..."
             curl -s --max-time 15 -H "$AUTH" \
-              "$BASE/execute/Fileman/delete?files-0=$HOME/$FILE" || true
+              -X POST -d "files-0=$FILE" \
+              "$BASE/execute/Fileman/delete" || true
           done
           echo "Cache cleared."
