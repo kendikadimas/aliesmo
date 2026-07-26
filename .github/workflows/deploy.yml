@@ -90,12 +90,14 @@ jobs:
               [ -f "$FILE" ] || continue
               DIR="$HOME_DIR/public_html/$(dirname $FILE)"
               FILENAME=$(basename $FILE)
-              echo "Uploading $FILE..."
+              CONTENT=$(cat "$FILE")
+              echo "Saving $FILE..."
               curl -sk --max-time 30 \
                 -H "$AUTH" \
-                -F "dir=$DIR" \
-                -F "file-1=@$FILE;filename=$FILENAME" \
-                "$BASE/execute/Fileman/upload_files" || echo "Warning: $FILE failed"
+                --data-urlencode "dir=$DIR" \
+                --data-urlencode "file=$FILENAME" \
+                --data-urlencode "content=$CONTENT" \
+                "$BASE/execute/Fileman/save_file_content" || echo "Warning: $FILE failed"
             done
           fi
 
