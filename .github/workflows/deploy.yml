@@ -108,14 +108,13 @@ jobs:
           AUTH="Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_API_TOKEN }}"
           HOME_DIR="/home/${{ secrets.CPANEL_USERNAME }}"
 
-          # Overwrite cache files dengan array kosong — tidak butuh artisan
-          for FILE in routes-v7.php config.php packages.php services.php; do
-            echo "Clearing bootstrap/cache/$FILE..."
-            curl -sk --max-time 15 \
-              -H "$AUTH" \
-              --data-urlencode "dir=$HOME_DIR/public_html/bootstrap/cache" \
-              --data-urlencode "file=$FILE" \
-              --data-urlencode "content=<?php return [];" \
-              "$BASE/execute/Fileman/save_file_content" || true
-          done
+          # Hanya clear routes cache — config/packages/services tidak di-clear
+          # karena shared hosting tidak bisa regenerate via artisan
+          echo "Clearing bootstrap/cache/routes-v7.php..."
+          curl -sk --max-time 15 \
+            -H "$AUTH" \
+            --data-urlencode "dir=$HOME_DIR/public_html/bootstrap/cache" \
+            --data-urlencode "file=routes-v7.php" \
+            --data-urlencode "content=<?php return [];" \
+            "$BASE/execute/Fileman/save_file_content" || true
           echo "Cache cleared."
