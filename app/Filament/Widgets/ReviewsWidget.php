@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Widgets;
 
+use App\Filament\Resources\ReviewResource;
 use App\Models\Review;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -26,7 +27,7 @@ class ReviewsWidget extends BaseWidget
                 ->description($totalReviews . ' total review')
                 ->descriptionIcon($pendingReviews > 0 ? 'heroicon-m-star' : 'heroicon-m-check-circle')
                 ->color($pendingReviews > 0 ? 'warning' : 'success')
-                ->url(route('filament.admin.resources.reviews.index'))
+                ->url(ReviewResource::getUrl('index'))
                 ->extraAttributes(['class' => 'stat-widget-reviews']),
             Stat::make('Rating Rata-rata', $avgRating ? number_format($avgRating, 1) . ' / 5' : 'N/A')
                 ->description('Dari review approved')

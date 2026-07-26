@@ -2,6 +2,7 @@
 namespace App\Filament\Widgets;
 
 use App\Enums\UserRole;
+use App\Filament\Resources\UserResource;
 use App\Models\User;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -29,26 +30,26 @@ class UsersWidget extends BaseWidget
             ->whereYear('created_at', now()->year)
             ->count();
 
-        $totalAdmins = User::where('role', UserRole::Admin)->count();
+        $usersUrl = UserResource::getUrl('index');
 
         return [
             Stat::make('Total Customer', $totalCustomers)
                 ->description('Semua pelanggan terdaftar')
                 ->descriptionIcon('heroicon-m-user-group')
                 ->color('primary')
-                ->url(route('filament.admin.resources.users.index'))
+                ->url($usersUrl)
                 ->extraAttributes(['class' => 'stat-widget-users']),
             Stat::make('Baru Minggu Ini', $newThisWeek)
                 ->description('Customer baru minggu ini')
                 ->descriptionIcon('heroicon-m-user-plus')
                 ->color('success')
-                ->url(route('filament.admin.resources.users.index'))
+                ->url($usersUrl)
                 ->extraAttributes(['class' => 'stat-widget-week']),
             Stat::make('Baru Bulan Ini', $newThisMonth)
                 ->description('Customer baru bulan ini')
                 ->descriptionIcon('heroicon-m-calendar')
                 ->color('info')
-                ->url(route('filament.admin.resources.users.index'))
+                ->url($usersUrl)
                 ->extraAttributes(['class' => 'stat-widget-month']),
         ];
     }

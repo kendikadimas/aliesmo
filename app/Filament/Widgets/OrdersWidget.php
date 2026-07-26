@@ -2,6 +2,7 @@
 namespace App\Filament\Widgets;
 
 use App\Enums\OrderStatus;
+use App\Filament\Resources\OrderResource;
 use App\Models\Order;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -27,18 +28,20 @@ class OrdersWidget extends BaseWidget
             OrderStatus::Completed,
         ])->sum('total');
 
+        $ordersUrl = OrderResource::getUrl('index');
+
         return [
             Stat::make('Total Pesanan', $totalOrders)
                 ->description($pendingCount . ' pesanan pending')
                 ->descriptionIcon($pendingCount > 0 ? 'heroicon-m-clock' : 'heroicon-m-check-circle')
                 ->color($pendingCount > 0 ? 'warning' : 'success')
-                ->url(route('filament.admin.resources.orders.index'))
+                ->url($ordersUrl)
                 ->extraAttributes(['class' => 'stat-widget-orders']),
             Stat::make('Total Revenue', 'Rp ' . number_format($totalRevenue, 0, ',', '.'))
                 ->description('Dari order paid, processing, shipped & completed')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color('success')
-                ->url(route('filament.admin.resources.orders.index'))
+                ->url($ordersUrl)
                 ->extraAttributes(['class' => 'stat-widget-revenue']),
         ];
     }

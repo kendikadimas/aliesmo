@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Widgets;
 
+use App\Filament\Resources\ProductResource;
 use App\Models\Product;
 use App\Models\Category;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
@@ -21,19 +22,20 @@ class ProductsWidget extends BaseWidget
         $totalProducts = Product::where('is_active', true)->count();
         $lowStockCount = Product::where('is_active', true)->where('stock', '<=', 5)->count();
         $totalCategories = Category::count();
+        $productsUrl = ProductResource::getUrl('index');
 
         return [
             Stat::make('Produk Aktif', $totalProducts)
                 ->description($totalCategories . ' kategori tersedia')
                 ->descriptionIcon('heroicon-m-shopping-bag')
                 ->color('info')
-                ->url(route('filament.admin.resources.products.index'))
+                ->url($productsUrl)
                 ->extraAttributes(['class' => 'stat-widget-products']),
             Stat::make('Stok Rendah', $lowStockCount)
                 ->description('Produk dengan stok ≤ 5')
                 ->descriptionIcon($lowStockCount > 0 ? 'heroicon-m-exclamation-triangle' : 'heroicon-m-check-circle')
                 ->color($lowStockCount > 0 ? 'warning' : 'success')
-                ->url(route('filament.admin.resources.products.index'))
+                ->url($productsUrl)
                 ->extraAttributes(['class' => 'stat-widget-stock']),
         ];
     }
