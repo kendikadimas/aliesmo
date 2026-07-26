@@ -38,7 +38,7 @@ jobs:
         run: |
           RESPONSE=$(curl -s --max-time 60 \
             -H "Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_API_TOKEN }}" \
-            "https://${{ secrets.CPANEL_HOST }}:2083/execute/VersionControl/update?repository=/home/${{ secrets.CPANEL_USERNAME }}/public_html")
+            "https://${{ secrets.CPANEL_HOST }}:2083/execute/VersionControl/update?repository_root=/home/${{ secrets.CPANEL_USERNAME }}/public_html")
           echo "$RESPONSE"
           # gagal jika errors array tidak kosong
           echo "$RESPONSE" | grep -q '"errors":\[\]' || (echo "cPanel git pull gagal" && exit 1)
