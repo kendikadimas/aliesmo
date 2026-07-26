@@ -32,55 +32,18 @@ jobs:
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
-      # ─── 3. Setup PHP & install dependencies ───────────────────────
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'
-          extensions: mbstring, openssl, pdo_mysql, tokenizer, xml, ctype, json, fileinfo, curl, bcmath
-          coverage: none
+      # ─── 3. Trigger cPanel Git Version Control pull ────────────────
+      # Server pull dari GitHub langsung — bypass FTP/firewall
+      - name: Trigger cPanel git pull
+        run: |
+          RESPONSE=$(curl -s --max-time 60 \
+            -H "Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_API_TOKEN }}" \
+            "https://${{ secrets.CPANEL_HOST }}:2083/execute/VersionControl/update?repository=/home/${{ secrets.CPANEL_USERNAME }}/public_html")
+          echo "$RESPONSE"
+          # gagal jika errors array tidak kosong
+          echo "$RESPONSE" | grep -q '"errors":\[\]' || (echo "cPanel git pull gagal" && exit 1)
 
-      - name: Install Composer dependencies
-        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
-
-      # ─── 4. Deploy semua file via FTP (incremental, skip heavy dirs) ──
-      - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /public_html/
-          local-dir: ./
-          timeout: 60000
-          exclude: |
-            **/.git/**
-            **/.gitignore
-            **/.gitattributes
-            **/node_modules/**
-            **/frontend/node_modules/**
-            **/.env
-            **/.env.*
-            **/storage/logs/**
-            **/storage/framework/cache/**
-            **/storage/framework/sessions/**
-            **/storage/framework/views/**
-            **/vendor/**
-            **/.github/**
-            **/tests/**
-            **/.agents/**
-            **/*.md
-            **/package.json
-            **/package-lock.json
-            **/vite.config.js
-            **/tailwind.config.js
-            **/postcss.config.js
-            **/public/js/JsBarcode.all.min.js
-            **/public/jnt-express-logo.svg
-            **/public/New_Logo_JNE.png
-            **/public/POSIND_2023.svg
-
-      # ─── 6. Run artisan migrate, storage:link dan optimize:clear ──────
+      # ─── 4. Run artisan migrate dan optimize:clear ─────────────────
       - name: Run artisan migrate and optimize:clear
         run: |
           echo "Running migrate and optimize:clear via deploy script..."
