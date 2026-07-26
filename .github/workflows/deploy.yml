@@ -68,7 +68,38 @@ jobs:
             -d "branch=main" \
             "$BASE/execute/VersionControlDeployments/create"
 
-      # ─── 4. Clear Laravel cache via cPanel UAPI ───────────────────
+      # ─── 5. Upload PHP files yang berubah via deploy-runner.php ──────
+      - name: Upload changed PHP files to server
+        run: |
+          # Kumpulkan semua PHP files yang berubah (bukan public/build)
+          CHANGED=$(git diff --name-only HEAD~2 HEAD -- '*.php' '*.blade.php' 2>/dev/null \
+            || git diff --name-only HEAD~1 HEAD -- '*.php' '*.blade.php')
+
+          if [ -z "$CHANGED" ]; then
+            echo "No PHP files changed, skipping."
+            exit 0
+          fi
+
+          echo "Changed files: $CHANGED"
+
+          # Buat zip hanya berisi file yang berubah
+          echo "$CHANGED" | tr '\n' '\0' | xargs -0 zip -q changed_files.zip
+
+          # Kirim ke deploy-runner.php
+          HTTP=$(curl -s -o response.json -w "%{http_code}" \
+            --max-time 60 \
+            -H "X-Deploy-Token: ${{ secrets.DEPLOY_TOKEN }}" \
+            -F "deploy_zip=@changed_files.zip" \
+            "https://${{ secrets.CPANEL_DOMAIN }}/deploy-runner.php")
+
+          echo "HTTP: $HTTP"
+          cat response.json
+
+          if [ "$HTTP" != "200" ]; then
+            echo "Warning: deploy-runner returned $HTTP"
+          fi
+
+      # ─── 6. Clear Laravel cache via cPanel UAPI ───────────────────
       - name: Clear Laravel route dan config cache
         run: |
           BASE="https://${{ secrets.CPANEL_HOST }}:2083"
