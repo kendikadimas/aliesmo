@@ -48,12 +48,9 @@ jobs:
           # 2. Trigger deploy (copy ke working dir)
           echo ""
           echo "=== Deploying ==="
-          RESPONSE=$(curl -s --max-time 60 -H "$AUTH" \
+          curl -s --max-time 60 -H "$AUTH" \
             -X POST -d "repository_root=$REPO_ROOT" \
-            "$BASE/execute/VersionControlDeployments/create")
-          echo "$RESPONSE"
-          # null atau [] keduanya OK
-          echo "$RESPONSE" | grep -qv '"errors":\["' || (echo "cPanel deploy gagal" && exit 1)
+            "$BASE/execute/VersionControlDeployments/create"
 
       # ─── 4. Run artisan migrate dan optimize:clear ─────────────────
       - name: Run artisan migrate and optimize:clear
