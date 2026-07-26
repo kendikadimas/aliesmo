@@ -5,9 +5,9 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
-// Production: public/ di public_html/, Laravel di ~/aliesmo atau ~/aliesmo1
+// Production: public/ di public_html/, app di ~/aliesmo1 (atau ~/aliesmo)
 $basePath = __DIR__ . '/..';
-foreach (['aliesmo', 'aliesmo1'] as $appDir) {
+foreach (['aliesmo1', 'aliesmo'] as $appDir) {
     if (is_dir(__DIR__ . '/../' . $appDir . '/vendor')) {
         $basePath = __DIR__ . '/../' . $appDir;
         break;
