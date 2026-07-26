@@ -1,25 +1,27 @@
 <?php
 /**
- * Deploy runner — extract zip + clear bootstrap cache.
- * Tidak load Laravel supaya tidak timeout.
+ * Deploy runner — extract zip. Tidak load Laravel (hindari timeout).
  * curl -X POST -H "X-Deploy-Token: ..." -F "deploy_zip=@files.zip" https://aliesmo.id/deploy-runner.php
  */
 
 $token = '';
-foreach (file(__DIR__ . '/../.env') as $line) {
-    if (str_starts_with(trim($line), 'DEPLOY_TOKEN=')) {
-        $token = trim(explode('=', $line, 2)[1], " \t\"'");
-        break;
+$envPath = __DIR__ . '/../.env';
+if (is_file($envPath)) {
+    foreach (file($envPath) as $line) {
+        if (str_starts_with(trim($line), 'DEPLOY_TOKEN=')) {
+            $token = trim(explode('=', $line, 2)[1], " \t\"'");
+            break;
+        }
     }
 }
 
-$provided = $_SERVER['HTTP_X_DEPLOY_TOKEN'] ?? '';
+$provided = $_SERVER['HTTP_X_DEPLOY_TOKEN'] ?? ($_GET['token'] ?? '');
 if ($token === '' || $provided === '' || !hash_equals($token, $provided)) {
     http_response_code(403);
     die('403 Forbidden');
 }
 
-@set_time_limit(120);
+@set_time_limit(180);
 $root    = realpath(__DIR__ . '/..') ?: (__DIR__ . '/..');
 $results = [];
 
@@ -30,17 +32,31 @@ if (!empty($_FILES['deploy_zip']['tmp_name']) && is_uploaded_file($_FILES['deplo
     $zip   = new ZipArchive();
     $ok    = $zip->open($zipPath) === true;
     $count = $ok ? $zip->numFiles : 0;
-    if ($ok) { $zip->extractTo($root); $zip->close(); }
+    if ($ok) {
+        $zip->extractTo($root);
+        $zip->close();
+    }
     @unlink($zipPath);
     $results['extract'] = $ok ? "ok ({$count} files)" : 'failed';
+} else {
+    $results['extract'] = 'no zip';
 }
 
-// Hapus bootstrap cache secara langsung — tidak perlu artisan
+// Hanya buang route cache kosong/rusak — JANGAN hapus packages.php / services.php
 $cacheDir = $root . '/bootstrap/cache';
 $cleared  = [];
-foreach (glob($cacheDir . '/*.php') ?: [] as $f) {
-    $cleared[] = basename($f);
-    @unlink($f);
+$routesCache = $cacheDir . '/routes-v7.php';
+if (is_file($routesCache)) {
+    @unlink($routesCache);
+    $cleared[] = 'routes-v7.php';
+}
+// config cache optional; packages/services must stay
+foreach (['config.php', 'events.php', 'routes.php'] as $extra) {
+    $p = $cacheDir . '/' . $extra;
+    if (is_file($p)) {
+        @unlink($p);
+        $cleared[] = $extra;
+    }
 }
 $results['cache_cleared'] = $cleared ?: 'nothing to clear';
 
