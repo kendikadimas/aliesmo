@@ -2,7 +2,6 @@
 namespace App\Filament\Widgets;
 
 use App\Enums\OrderStatus;
-use App\Filament\Resources\OrderResource;
 use App\Models\Order;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -28,13 +27,9 @@ class OrdersWidget extends BaseWidget
             OrderStatus::Completed,
         ])->sum('total');
 
-        try {
-            $ordersUrl = OrderResource::getUrl('index');
-        } catch (\Exception $e) {
-            $ordersUrl = '/admin/orders';
-        }
+        // ponytail: hardcode URL — route name filament.* tidak selalu registered di request Livewire
+        $ordersUrl = '/admin/orders';
 
-        // ponytail: blank line forces re-deploy to server
         return [
             Stat::make('Total Pesanan', $totalOrders)
                 ->description($pendingCount . ' pesanan pending')
