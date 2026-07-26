@@ -1,5 +1,5 @@
 ---
 deployment:
   tasks:
-    - /usr/local/bin/php /home/aliesmoi/public_html/artisan migrate --force
+    - export GIT_DIR=/home/aliesmoi/public_html/.git && export GIT_WORK_TREE=/home/aliesmoi/public_html && /usr/bin/git checkout -f main
     - /usr/local/bin/php /home/aliesmoi/public_html/artisan optimize:clear
