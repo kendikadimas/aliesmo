@@ -23,8 +23,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // paksa HTTPS di produksi supaya asset() generate URL yang benar
-        if (app()->environment('production')) {
+        // paksa HTTPS kalau request masuk lewat HTTPS (reverse proxy / cPanel)
+        if (request()->isSecure() || request()->server('HTTP_X_FORWARDED_PROTO') === 'https') {
             URL::forceScheme('https');
         }
 
