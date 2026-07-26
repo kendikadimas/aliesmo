@@ -32,12 +32,9 @@ jobs:
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
-      # Prod layout (DEPLOY.md + public/index.php):
-      #   ~/public_html/  = public/*
-      #   ~/aliesmo/      = Laravel app (app, routes, resources, ...)
-      # FTP from Actions is broken; HTTPS deploy-runner hits bot wall.
-      # Use cPanel UAPI (CPANEL_API_TOKEN) — same panel channel, not FTP/public HTTP.
-      - name: Pack app.zip + public.zip
+      # FTP broken. HTTPS bot wall. cPanel UAPI Fileman has no extract().
+      # Upload each file via Fileman/upload_files into correct dirs.
+      - name: Stage files to deploy
         run: |
           set -e
           BEFORE="${{ github.event.before }}"
@@ -52,7 +49,6 @@ jobs:
             git diff --name-only --diff-filter=ACMR HEAD~1 HEAD >> /tmp/all.txt || true
           fi
 
-          # catch-up since #299
           printf '%s\n' \
             public/deploy-runner.php \
             public/index.php \
@@ -83,51 +79,16 @@ jobs:
             | grep -vE 'J&T' \
             | sort -u > /tmp/clean.txt
 
-          : > /tmp/app_files.txt
-          : > /tmp/public_files.txt
+          : > /tmp/final.txt
           while IFS= read -r f; do
-            [ -f "$f" ] || continue
-            case "$f" in
-              public/*) echo "$f" >> /tmp/public_files.txt ;;
-              app/*|bootstrap/*|config/*|database/*|resources/*|routes/*|artisan|.htaccess)
-                echo "$f" >> /tmp/app_files.txt ;;
-            esac
+            [ -f "$f" ] && echo "$f" >> /tmp/final.txt
           done < /tmp/clean.txt
 
-          rm -rf /tmp/stage-app /tmp/stage-pub
-          mkdir -p /tmp/stage-app /tmp/stage-pub
+          echo "=== files ==="
+          cat /tmp/final.txt
+          echo "count=$(wc -l < /tmp/final.txt)"
 
-          # Laravel app → paths relative to ~/aliesmo
-          while IFS= read -r f; do
-            mkdir -p "/tmp/stage-app/$(dirname "$f")"
-            cp -a "$f" "/tmp/stage-app/$f"
-          done < /tmp/app_files.txt
-
-          # public/* → strip public/ so extract lands in public_html root
-          while IFS= read -r f; do
-            rel="${f#public/}"
-            mkdir -p "/tmp/stage-pub/$(dirname "$rel")"
-            cp -a "$f" "/tmp/stage-pub/$rel"
-          done < /tmp/public_files.txt
-
-          echo "=== app ==="; find /tmp/stage-app -type f | sed 's|^/tmp/stage-app/||' || true
-          echo "=== public ==="; find /tmp/stage-pub -type f | sed 's|^/tmp/stage-pub/||' || true
-
-          rm -f app-deploy.zip public-deploy.zip
-          if [ -n "$(find /tmp/stage-app -type f 2>/dev/null)" ]; then
-            (cd /tmp/stage-app && zip -r "$GITHUB_WORKSPACE/app-deploy.zip" .)
-          else
-            # empty zip still ok
-            zip -r app-deploy.zip /tmp/stage-app >/dev/null 2>&1 || echo | zip app-deploy.zip -
-          fi
-          if [ -n "$(find /tmp/stage-pub -type f 2>/dev/null)" ]; then
-            (cd /tmp/stage-pub && zip -r "$GITHUB_WORKSPACE/public-deploy.zip" .)
-          else
-            echo | zip public-deploy.zip -
-          fi
-          ls -lh app-deploy.zip public-deploy.zip
-
-      - name: Deploy via cPanel UAPI
+      - name: Deploy files via cPanel UAPI
         env:
           CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
           CPANEL_USERNAME: ${{ secrets.CPANEL_USERNAME }}
@@ -146,132 +107,134 @@ jobs:
 
           echo "host=$HOST user=$USER"
 
-          call() {
-            local path="$1"; shift
-            curl -sS --connect-timeout 25 --max-time 180 -H "$AUTH" "$@" "${BASE}/${path}"
+          uapi() {
+            curl -sS --connect-timeout 30 --max-time 120 -H "$AUTH" "$@"
           }
 
-          # resolve home
-          INFO=$(call Variables/get_user_information || true)
+          INFO=$(uapi "${BASE}/Variables/get_user_information" || true)
           HOME_DIR=$(php -r '$j=json_decode(file_get_contents("php://stdin"),true); echo $j["data"]["home"]??$j["data"]["homedir"]??"";' <<<"$INFO")
-          if [ -z "$HOME_DIR" ]; then HOME_DIR="/home/${USER}"; fi
+          [ -n "$HOME_DIR" ] || HOME_DIR="/home/${USER}"
           echo "home=$HOME_DIR"
 
-          APP_DIR="${HOME_DIR}/aliesmo"
+          LIST=$(uapi --get --data-urlencode "dir=${HOME_DIR}" "${BASE}/Fileman/list_files" || true)
+          echo "home entries: $(echo "$LIST" | php -r '
+            $j=json_decode(stream_get_contents(STDIN),true);
+            foreach(($j["data"]??[]) as $e){ if(($e["type"]??"")=="dir") echo ($e["file"]??"")." "; }
+          ')"
+
+          # prefer aliesmo, else aliesmo1 / first aliesmo*
+          APP_DIR=$(HOME_DIR="$HOME_DIR" php -r '
+            $j=json_decode(stream_get_contents(STDIN),true);
+            $home=getenv("HOME_DIR");
+            $names=[];
+            foreach(($j["data"]??[]) as $e){
+              if(($e["type"]??"")!=="dir") continue;
+              $n=$e["file"]??"";
+              if($n==="aliesmo" || preg_match("/^aliesmo/i",$n)) $names[]=$n;
+            }
+            if(in_array("aliesmo",$names,true)) { echo $home."/aliesmo"; exit; }
+            if($names){ sort($names); echo $home."/".$names[0]; exit; }
+            echo "";
+          ' <<<"$LIST")
+
           PUB_DIR="${HOME_DIR}/public_html"
-          # fallback monorepo if aliesmo missing — detect via list
-          LIST=$(call Fileman/list_files --get --data-urlencode "dir=${HOME_DIR}" || true)
-          echo "home listing keys: $(echo "$LIST" | head -c 300)"
-
-          if ! echo "$LIST" | grep -q 'aliesmo'; then
-            echo "WARN: no aliesmo/ in home — using public_html monorepo fallback"
+          if [ -z "$APP_DIR" ]; then
+            # monorepo under public_html?
             APP_DIR="${HOME_DIR}/public_html"
-            # public files still go to public_html/public if monorepo
-            MONOREPO=1
-          else
-            MONOREPO=0
+            echo "WARN: no aliesmo* dir — APP_DIR=$APP_DIR (monorepo guess)"
           fi
-          echo "APP_DIR=$APP_DIR PUB_DIR=$PUB_DIR monorepo=$MONOREPO"
+          echo "APP_DIR=$APP_DIR"
+          echo "PUB_DIR=$PUB_DIR"
 
-          upload_zip() {
-            local file="$1" dir="$2"
-            echo "upload $file -> $dir"
+          # ensure parent dirs exist (mkdir_p via Fileman)
+          ensure_dir() {
+            local dir="$1"
+            uapi --get \
+              --data-urlencode "path=${dir}" \
+              --data-urlencode "permissions=0755" \
+              --data-urlencode "permissions_add=1" \
+              "${BASE}/Fileman/mkdir" >/dev/null 2>&1 || true
+          }
+
+          upload_one() {
+            local local_path="$1"
+            local remote_dir="$2"
+            local base
+            base=$(basename "$local_path")
+            ensure_dir "$remote_dir"
             local enc
-            enc=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1], safe=''))" "$dir")
+            enc=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1], safe=''))" "$remote_dir")
             local res
-            res=$(curl -sS --connect-timeout 25 --max-time 180 \
+            res=$(curl -sS --connect-timeout 30 --max-time 90 \
               -H "$AUTH" \
-              -F "file-1=@${file}" \
-              "${BASE}/Fileman/upload_files?dir=${enc}")
-            echo "$res" | head -c 800
-            echo
-            if echo "$res" | grep -qiE '"status"[[:space:]]*:[[:space:]]*0|"errors"[[:space:]]*:[[:space:]]*\['; then
-              if echo "$res" | grep -qiE '"errors"[[:space:]]*:[[:space:]]*null|"status"[[:space:]]*:[[:space:]]*1'; then
+              -F "dir=${remote_dir}" \
+              -F "file-1=@${local_path};filename=${base}" \
+              "${BASE}/Fileman/upload_files")
+            # success: status 1 or uploads array
+            if echo "$res" | grep -qE '"status"[[:space:]]*:[[:space:]]*1'; then
+              echo "OK  $local_path -> $remote_dir/"
+              return 0
+            fi
+            if echo "$res" | grep -qiE '408|timeout|Request Timeout'; then
+              echo "RETRY $local_path (timeout)"
+              sleep 3
+              res=$(curl -sS --connect-timeout 30 --max-time 120 \
+                -H "$AUTH" \
+                -F "dir=${remote_dir}" \
+                -F "file-1=@${local_path};filename=${base}" \
+                "${BASE}/Fileman/upload_files")
+              if echo "$res" | grep -qE '"status"[[:space:]]*:[[:space:]]*1'; then
+                echo "OK  $local_path -> $remote_dir/ (retry)"
                 return 0
               fi
-              # hard fail only if explicit errors array non-null and status 0
-              if echo "$res" | grep -qE '"status"[[:space:]]*:[[:space:]]*0'; then
-                echo "UPLOAD FAILED"
-                return 1
-              fi
             fi
-            return 0
-          }
-
-          extract_zip() {
-            local zippath="$1" destdir="$2"
-            echo "extract $zippath -> $destdir"
-            local res
-            res=$(curl -sS --connect-timeout 25 --max-time 180 \
-              -H "$AUTH" \
-              --get \
-              --data-urlencode "sourcefiles=${zippath}" \
-              --data-urlencode "destfiles=${destdir}" \
-              "${BASE}/Fileman/extract")
-            echo "$res" | head -c 800
+            echo "FAIL $local_path"
+            echo "$res" | head -c 500
             echo
-            if echo "$res" | grep -qiE 'unknown|invalid module|not found'; then
-              res=$(curl -sS --connect-timeout 25 --max-time 180 \
-                -H "$AUTH" \
-                --get \
-                --data-urlencode "sourcefiles=${zippath}" \
-                --data-urlencode "destfiles=${destdir}" \
-                "${BASE}/Fileman/extract_files" || true)
-              echo "extract_files: $(echo "$res" | head -c 800)"
-            fi
+            return 1
           }
 
-          unlink_file() {
-            local path="$1"
-            curl -sS --connect-timeout 15 --max-time 60 \
-              -H "$AUTH" \
-              --get \
-              --data-urlencode "op=unlink" \
-              --data-urlencode "sourcefiles=${path}" \
-              "${BASE}/Fileman/fileop" >/dev/null || true
-          }
+          FAIL=0
+          while IFS= read -r f; do
+            [ -f "$f" ] || continue
+            case "$f" in
+              public/*)
+                rel="${f#public/}"
+                rdir="${PUB_DIR}/$(dirname "$rel")"
+                rdir="${rdir%/}"
+                [ "$(basename "$rel")" = "$rel" ] && rdir="$PUB_DIR"
+                # dirname of file at root of public
+                if [ "$(dirname "$rel")" = "." ]; then rdir="$PUB_DIR"; fi
+                upload_one "$f" "$rdir" || FAIL=1
+                ;;
+              *)
+                rdir="${APP_DIR}/$(dirname "$f")"
+                if [ "$(dirname "$f")" = "." ]; then rdir="$APP_DIR"; fi
+                upload_one "$f" "$rdir" || FAIL=1
+                ;;
+            esac
+            sleep 0.4
+          done < /tmp/final.txt
 
-          # --- app ---
-          if [ -s app-deploy.zip ] && [ "$(stat -c%s app-deploy.zip)" -gt 100 ]; then
-            upload_zip app-deploy.zip "$APP_DIR"
-            extract_zip "${APP_DIR}/app-deploy.zip" "$APP_DIR"
-            unlink_file "${APP_DIR}/app-deploy.zip"
-          else
-            echo "skip empty app zip"
+          if [ "$FAIL" -ne 0 ]; then
+            echo "Some uploads failed"
+            exit 1
           fi
+          echo "All uploads OK"
 
-          # --- public ---
-          if [ -s public-deploy.zip ] && [ "$(stat -c%s public-deploy.zip)" -gt 100 ]; then
-            if [ "$MONOREPO" = "1" ]; then
-              # monorepo: public files live under public_html/public/
-              upload_zip public-deploy.zip "${PUB_DIR}/public"
-              extract_zip "${PUB_DIR}/public/public-deploy.zip" "${PUB_DIR}/public"
-              unlink_file "${PUB_DIR}/public/public-deploy.zip"
-            else
-              upload_zip public-deploy.zip "$PUB_DIR"
-              extract_zip "${PUB_DIR}/public-deploy.zip" "$PUB_DIR"
-              unlink_file "${PUB_DIR}/public-deploy.zip"
-            fi
-          else
-            echo "skip empty public zip"
-          fi
-
-          echo "UAPI deploy finished"
-
-      - name: Migrate (best effort)
-        env:
-          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+      - name: Verify maintenance page live
         run: |
-          set +e
-          RESP=$(curl -sS -w "\nHTTP:%{http_code}" \
-            -X POST \
-            -H "X-Deploy-Token: ${DEPLOY_TOKEN}" \
-            --connect-timeout 15 --max-time 90 \
-            "https://aliesmo.id/deploy-runner.php" || true)
-          echo "$RESP" | tail -c 400
-          if echo "$RESP" | grep -q '"success":true'; then
-            echo "migrate OK"
-          else
-            echo "::warning::migrate via HTTP blocked/failed — run php artisan migrate --force in cPanel Terminal if needed"
+          set -e
+          sleep 2
+          BODY=$(curl -sS --connect-timeout 15 --max-time 30 "https://aliesmo.id/" || true)
+          if echo "$BODY" | grep -qiE 'pemeliharaan|Maintenance|sedang dalam'; then
+            echo "VERIFY OK: maintenance page is live"
+            exit 0
           fi
-          exit 0
+          if echo "$BODY" | grep -qi 'One moment, please'; then
+            echo "VERIFY: bot challenge on GET / — check manually"
+            exit 0
+          fi
+          echo "VERIFY FAIL: home is not maintenance"
+          echo "$BODY" | head -c 400
+          exit 1
