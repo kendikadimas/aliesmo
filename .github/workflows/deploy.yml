@@ -86,7 +86,7 @@ jobs:
             FILENAME=$(basename $FILE)
             CONTENT=$(cat "$FILE")
             echo "Saving $FILE..."
-            RESULT=$(curl -sk --max-time 30 \
+            RESULT=$(curl -sk --max-time 60 \
               -H "$AUTH" \
               --data-urlencode "dir=$DIR" \
               --data-urlencode "file=$FILENAME" \
