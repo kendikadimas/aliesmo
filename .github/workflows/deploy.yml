@@ -32,7 +32,17 @@ jobs:
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
-      # ─── 3. Trigger cPanel Git Version Control deploy ──────────────
+      # ─── 3. Commit build artifacts ke repo ────────────────────────────
+      - name: Commit public/build ke repo
+        run: |
+          cp -r frontend/dist/. public/build/
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add public/build
+          git diff --cached --quiet || git commit -m "deploy: build artifacts [skip ci]"
+          git push origin main
+
+      # ─── 4. Trigger cPanel Git Version Control deploy ──────────────
       # Server pull + deploy dari GitHub langsung — bypass FTP/firewall
       - name: Trigger cPanel git deploy
         run: |
@@ -45,11 +55,15 @@ jobs:
           curl -s --max-time 60 -H "$AUTH" \
             "$BASE/execute/VersionControl/update?repository_root=$REPO_ROOT"
 
-          # 2. Trigger deploy (copy ke working dir)
+          # 2. Trigger deploy — paksa dengan mengirim HEAD commit identifier
           echo ""
           echo "=== Deploying ==="
-          curl -s --max-time 60 -H "$AUTH" \
-            -X POST -d "repository_root=$REPO_ROOT" \
+          HEAD_COMMIT="${{ github.sha }}"
+          curl -s --max-time 120 -H "$AUTH" \
+            -X POST \
+            -d "repository_root=$REPO_ROOT" \
+            -d "source_repository=origin" \
+            -d "branch=main" \
             "$BASE/execute/VersionControlDeployments/create"
 
       # ─── 4. Clear Laravel cache via cPanel UAPI ───────────────────
