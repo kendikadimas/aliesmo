@@ -49,9 +49,14 @@ class SecurityHeaders
         // Tambahkan Vite dev server sources hanya di environment local
         // Pakai wildcard subdomain tidak bisa untuk IP, jadi allow semua port 517x
         $isLocal = app()->environment('local');
-        $scriptDevSources = $isLocal ? ' http://127.0.0.1:5173 http://127.0.0.1:5174' : '';
-        $connectDevSources = $isLocal ? ' http://127.0.0.1:5173 ws://127.0.0.1:5173 http://127.0.0.1:5174 ws://127.0.0.1:5174 http://localhost:8000' : '';
-        $styleDevSources = $isLocal ? ' http://127.0.0.1:5173 http://127.0.0.1:5174' : '';
+        // Vite HMR: izinkan 127.0.0.1 + localhost (host mismatch sering di local)
+        $viteHttp = ' http://127.0.0.1:5173 http://localhost:5173 http://127.0.0.1:5174 http://localhost:5174';
+        $viteWs = ' ws://127.0.0.1:5173 ws://localhost:5173 ws://127.0.0.1:5174 ws://localhost:5174';
+        $localApi = ' http://127.0.0.1:8000 http://localhost:8000';
+        $scriptDevSources = $isLocal ? $viteHttp : '';
+        $styleDevSources = $isLocal ? $viteHttp : '';
+        $imgDevSources = $isLocal ? $viteHttp : '';
+        $connectDevSources = $isLocal ? $viteHttp.$viteWs.$localApi : '';
         $scriptEvalSource = $request->is('admin*') ? " 'unsafe-eval'" : '';
 
         $response->headers->set(
@@ -60,7 +65,7 @@ class SecurityHeaders
             "script-src 'self' 'unsafe-inline'{$scriptEvalSource}{$scriptDevSources} https://www.youtube.com; " .
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com{$styleDevSources}; " .
             "font-src 'self' data: https://fonts.gstatic.com; " .
-            "img-src 'self' data: blob: https:; " .
+            "img-src 'self' data: blob: https:{$imgDevSources}; " .
             "frame-src https://www.youtube.com; " .
             "worker-src 'self' blob:; " .
             "connect-src 'self' https://www.youtube.com https://nominatim.openstreetmap.org{$connectDevSources};"

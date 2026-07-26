@@ -19,10 +19,17 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [
-        env('FRONTEND_URL', 'http://localhost:3000'),
-        env('APP_URL', 'http://localhost'),
-    ],
+    'allowed_origins' => array_values(array_unique(array_filter([
+        env('FRONTEND_URL'),
+        env('APP_URL'),
+        // local defaults — 127.0.0.1 ≠ localhost di browser
+        'http://localhost:8000',
+        'http://127.0.0.1:8000',
+        'http://localhost:5173',
+        'http://127.0.0.1:5173',
+        'http://localhost',
+        'http://127.0.0.1',
+    ]))),
 
     'allowed_origins_patterns' => [],
 
