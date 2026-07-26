@@ -2,173 +2,85 @@ name: Deploy to cPanel
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   deploy:
+    name: Build & Deploy
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+
     steps:
-      - uses: actions/checkout@v4
+      # ─── 1. Checkout ───────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # aliesmo1 STOR is a no-op (RETR size 0). public_html STOR works.
-      # Put files under public_html/_d/ + deploy-copy.php, then hit it via HTTP.
-      - name: Stage files in public_html
+      # ─── 2. Setup Node & build assets ──────────────────────────────
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci --include=dev --include=prod
+        working-directory: frontend
+
+      - name: Build assets
+        run: npm run build
+        working-directory: frontend
         env:
-          FTP_SERVER: ${{ secrets.FTP_SERVER }}
-          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+
+      # ─── 3. Setup PHP & install dependencies ───────────────────────
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, openssl, pdo_mysql, tokenizer, xml, ctype, json, fileinfo, curl, bcmath
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+      # ─── 4. Deploy monorepo ke /public_html/ (pola yang dulu green) ──
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /public_html/
+          local-dir: ./
+          timeout: 60000
+          exclude: |
+            **/.git/**
+            **/.gitignore
+            **/.gitattributes
+            **/node_modules/**
+            **/frontend/node_modules/**
+            **/.env
+            **/.env.*
+            **/storage/logs/**
+            **/storage/framework/cache/**
+            **/storage/framework/sessions/**
+            **/storage/framework/views/**
+            **/vendor/**
+            **/.github/**
+            **/tests/**
+            **/.agents/**
+            **/*.md
+            **/package.json
+            **/package-lock.json
+            **/vite.config.js
+            **/tailwind.config.js
+            **/postcss.config.js
+
+      # ─── 5. migrate / optimize via deploy-runner (best-effort) ──────
+      - name: Run artisan migrate and optimize:clear
         run: |
-          set -euo pipefail
-          HOST="${FTP_SERVER#ftp://}"
-          HOST="${HOST#ftps://}"
-          HOST="${HOST%%/*}"
-          AUTH=(--user "${FTP_USERNAME}:${FTP_PASSWORD}" --ftp-skip-pasv-ip)
-
-          put() {
-            local src="$1" remote="$2"
-            [ -f "$src" ] || { echo "skip $src"; return 0; }
-            echo -n "PUT $remote "
-            OUT=$(curl -sS -v --connect-timeout 10 --max-time 30 \
-              "${AUTH[@]}" -T "$src" "ftp://${HOST}/${remote}" 2>&1) || true
-            if echo "$OUT" | grep -qE 'completely uploaded|226|Transfer complete'; then
-              echo OK; return 0
-            fi
-            echo FAIL; echo "$OUT" | tail -6; return 1
-          }
-
-          curl -sS --connect-timeout 8 --max-time 12 "${AUTH[@]}" \
-            -Q "MKD public_html/_d" "ftp://${HOST}/" >/dev/null 2>&1 || true
-
-          FAIL=0
-          put "routes/web.php" "public_html/_d/web.php" || FAIL=1
-          put "resources/views/maintenance.blade.php" "public_html/_d/maintenance.blade.php" || FAIL=1
-          put "resources/views/shipping-label.blade.php" "public_html/_d/shipping-label.blade.php" || FAIL=1
-          put "app/Http/Controllers/ShippingLabelController.php" "public_html/_d/ShippingLabelController.php" || FAIL=1
-          put "public/index.php" "public_html/index.php" || FAIL=1
-          put "public/js/JsBarcode.all.min.js" "public_html/js/JsBarcode.all.min.js" || FAIL=1
-          put "public/jnt-express-logo.svg" "public_html/jnt-express-logo.svg" || FAIL=1
-
-          # token
-          printf '%s' "$DEPLOY_TOKEN" > /tmp/.deploy-token
-          put /tmp/.deploy-token "public_html/.deploy-token" || FAIL=1
-
-          # copier script
-          cat > /tmp/deploy-copy.php <<'PHP'
-          <?php
-          header('Content-Type: text/plain; charset=utf-8');
-          $token = $_SERVER['HTTP_X_DEPLOY_TOKEN'] ?? ($_GET['token'] ?? '');
-          $expected = '';
-          $tf = __DIR__ . '/.deploy-token';
-          if (is_file($tf)) {
-              $expected = trim((string) file_get_contents($tf));
-          }
-          if ($expected === '' || !hash_equals($expected, (string) $token)) {
-              http_response_code(403);
-              echo "forbidden\n";
-              exit;
-          }
-          $home = dirname(__DIR__);
-          $app = is_dir($home . '/aliesmo1/vendor') ? $home . '/aliesmo1' : $home . '/aliesmo';
-          $stage = __DIR__ . '/_d';
-          $map = [
-              'web.php' => $app . '/routes/web.php',
-              'maintenance.blade.php' => $app . '/resources/views/maintenance.blade.php',
-              'shipping-label.blade.php' => $app . '/resources/views/shipping-label.blade.php',
-              'ShippingLabelController.php' => $app . '/app/Http/Controllers/ShippingLabelController.php',
-          ];
-          $ok = 0;
-          foreach ($map as $name => $dest) {
-              $src = $stage . '/' . $name;
-              if (!is_file($src)) {
-                  echo "missing $name\n";
-                  continue;
-              }
-              if (!is_dir(dirname($dest))) {
-                  @mkdir(dirname($dest), 0755, true);
-              }
-              if (@copy($src, $dest)) {
-                  echo "ok $name\n";
-                  $ok++;
-              } else {
-                  echo "fail $name\n";
-              }
-          }
-          foreach (['routes-v7.php', 'config.php'] as $c) {
-              $p = $app . '/bootstrap/cache/' . $c;
-              if (is_file($p)) {
-                  @unlink($p);
-                  echo "unlink $c\n";
-              }
-          }
-          echo "app=$app\n";
-          echo "done $ok\n";
-          PHP
-          sed -i 's/^          //' /tmp/deploy-copy.php
-          put /tmp/deploy-copy.php "public_html/deploy-copy.php" || FAIL=1
-
-          echo "=== RETR staged web.php ==="
-          curl -sS --connect-timeout 10 --max-time 20 "${AUTH[@]}" \
-            "ftp://${HOST}/public_html/_d/web.php" -o /tmp/staged-web.php || true
-          SZ=$(wc -c </tmp/staged-web.php 2>/dev/null || echo 0)
-          echo "size=$SZ"
-          if [ "${SZ:-0}" -lt 100 ]; then
-            echo "staged web.php empty"
-            FAIL=1
-          elif grep -q "maintenance" /tmp/staged-web.php; then
-            echo "staged OK"
-          else
-            echo "staged missing maintenance string"
-            FAIL=1
-          fi
-
-          [ "$FAIL" -eq 0 ] || exit 1
-          echo All stage OK
-
-      - name: HTTP copy into Laravel app
-        env:
-          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
-        run: |
-          set -euo pipefail
-          RES=$(curl -sS --connect-timeout 12 --max-time 40 \
-            -H "X-Deploy-Token: ${DEPLOY_TOKEN}" \
-            -H "User-Agent: Mozilla/5.0 (compatible; AliesmoDeploy/1.0)" \
-            -H "Accept: text/plain,*/*" \
-            "https://aliesmo.id/deploy-copy.php?token=${DEPLOY_TOKEN}" || echo "curl-fail")
-          echo "$RES" | head -c 1200
-          echo
-          if echo "$RES" | grep -q 'One moment'; then
-            echo "bot wall — try with cookie jar follow"
-            RES2=$(curl -sS -L --connect-timeout 12 --max-time 40 \
-              -c /tmp/cj -b /tmp/cj \
-              -H "X-Deploy-Token: ${DEPLOY_TOKEN}" \
-              -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" \
-              "https://aliesmo.id/deploy-copy.php?token=${DEPLOY_TOKEN}" || echo "curl-fail")
-            echo "$RES2" | head -c 1200
-            echo
-            RES="$RES2"
-          fi
-          if echo "$RES" | grep -q 'done '; then
-            echo COPIER OK
-            exit 0
-          fi
-          echo COPIER FAIL
-          exit 1
-
-      - name: Verify maintenance live
-        run: |
-          sleep 4
-          for i in 1 2 3 4 5; do
-            curl -sS -H "Cache-Control: no-cache" --connect-timeout 10 --max-time 20 \
-              -o /tmp/home.html "https://aliesmo.id/?_=$(date +%s)$i" || true
-            if grep -qiE 'pemeliharaan|Maintenance|sedang dalam' /tmp/home.html; then
-              echo VERIFY OK
-              exit 0
-            fi
-            sleep 2
-          done
-          echo VERIFY FAIL
-          head -c 500 /tmp/home.html || true
-          exit 1
+          echo "Running migrate and optimize:clear via deploy script..."
+          curl -s -X POST \
+            -H "X-Deploy-Token: ${{ secrets.DEPLOY_TOKEN }}" \
+            "https://aliesmo.id/deploy-runner.php" || true
+          echo "Done."

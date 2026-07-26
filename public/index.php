@@ -5,13 +5,16 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
-// Production: public/ di public_html/, app di ~/aliesmo1 (atau ~/aliesmo)
-$basePath = __DIR__ . '/..';
-foreach (['aliesmo1', 'aliesmo'] as $appDir) {
-    if (is_dir(__DIR__ . '/../' . $appDir . '/vendor')) {
-        $basePath = __DIR__ . '/../' . $appDir;
-        break;
-    }
+// Monorepo di public_html: public/index.php → parent = app root (punya vendor)
+// Split layout: public_html/index.php → sibling aliesmo / aliesmo1
+if (is_file(__DIR__ . '/../vendor/autoload.php')) {
+    $basePath = __DIR__ . '/..';
+} elseif (is_dir(__DIR__ . '/../aliesmo1/vendor')) {
+    $basePath = __DIR__ . '/../aliesmo1';
+} elseif (is_dir(__DIR__ . '/../aliesmo/vendor')) {
+    $basePath = __DIR__ . '/../aliesmo';
+} else {
+    $basePath = __DIR__ . '/..';
 }
 
 // Determine if the application is in maintenance mode...
