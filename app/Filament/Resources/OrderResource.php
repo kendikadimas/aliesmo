@@ -9,7 +9,10 @@ use App\Services\StockService;
 use App\Notifications\OrderStatusUpdatedNotification;
 use App\Notifications\OrderShippedNotification;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
+use Illuminate\Database\Eloquent\Collection;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Illuminate\Support\Facades\Log;
@@ -498,6 +501,42 @@ class OrderResource extends Resource
                     ->requiresConfirmation()
                     ->modalHeading('Hapus Pesanan')
                     ->modalDescription('Pesanan diarsipkan (soft delete) dan hilang dari daftar. Data tetap di database. Batalkan dulu di Biteship jika shipment masih aktif.'),
+
+                Action::make('printLabel')
+                    ->label('Cetak Label')
+                    ->icon('heroicon-o-printer')
+                    ->url(fn (Order $record): string => route('orders.label', $record))
+                    ->openUrlInNewTab()
+                    ->visible(fn (Order $record): bool => filled($record->biteship_waybill_id) || filled($record->tracking_number)),
+            ])
+            ->bulkActions([
+                BulkActionGroup::make([
+                    BulkAction::make('printLabels')
+                        ->label('Cetak Label')
+                        ->icon('heroicon-o-printer')
+                        ->color('primary')
+                        ->deselectRecordsAfterCompletion()
+                        ->action(function (Collection $records, $livewire) {
+                            $ids = $records
+                                ->filter(fn (Order $o) => filled($o->biteship_waybill_id) || filled($o->tracking_number))
+                                ->take(50)
+                                ->pluck('id')
+                                ->implode(',');
+
+                            if ($ids === '') {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Tidak ada label')
+                                    ->body('Pilih order yang sudah punya resi (max 50).')
+                                    ->warning()
+                                    ->send();
+
+                                return;
+                            }
+
+                            $url = route('orders.labels.bulk', ['ids' => $ids]);
+                            $livewire->js('window.open('.json_encode($url).', "_blank")');
+                        }),
+                ]),
             ])
             ->filters([
                 SelectFilter::make('status')

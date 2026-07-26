@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Label - {{ $order->order_number }}</title>
+    <title>Label @if(count($labels) === 1)- {{ $labels[0]['order']->order_number }}@else ({{ count($labels) }})@endif</title>
     {{-- self-host: CSP blocks cdn.jsdelivr.net --}}
     <script src="{{ asset('js/JsBarcode.all.min.js') }}"></script>
     <style>
@@ -23,12 +23,42 @@
             background: #111; color: #fff;
         }
         .print-controls .btn-secondary { background: #6b7280; }
+        .print-guide {
+            max-width: 420px;
+            margin: 0 auto 16px;
+            padding: 12px 14px;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 12px;
+            line-height: 1.45;
+            color: #222;
+        }
+        .print-guide summary {
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+            list-style: none;
+        }
+        .print-guide summary::-webkit-details-marker { display: none; }
+        .print-guide summary::before { content: '+ '; color: #666; }
+        .print-guide[open] summary::before { content: '− '; }
+        .print-guide ol { margin: 10px 0 0 18px; padding: 0; }
+        .print-guide li { margin-bottom: 5px; }
+        .print-guide .note {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e5e5e5;
+            color: #555;
+            font-size: 11px;
+        }
 
-        /* standar resi thermal 100×150 mm (4×6") */
+        /* thermal A6 = 105×148 mm */
         .sheet {
-            width: 100mm;
-            min-height: 150mm;
-            margin: 0 auto;
+            width: 105mm;
+            min-height: 148mm;
+            margin: 0 auto 16px;
             background: #fff;
             border: 2px solid #000;
         }
@@ -53,14 +83,14 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 3mm;
-            min-height: 16mm;
+            gap: 2mm;
+            min-height: 18mm;
         }
-        .courier-box { flex: 0 0 34%; text-align: left; }
+        .courier-box { flex: 0 0 28%; text-align: left; }
         .courier-logo-img {
             display: block;
-            max-height: 13mm;
-            max-width: 32mm;
+            max-height: 8mm;
+            max-width: 22mm;
             width: auto;
             height: auto;
             object-fit: contain;
@@ -84,18 +114,23 @@
             color: #333;
             text-transform: uppercase;
         }
-        .brand-box { flex: 1; text-align: center; }
+        .brand-box { flex: 1; text-align: right; }
         .brand-box img {
-            height: 28px;
+            height: 12mm;
             width: auto;
-            max-width: 100%;
-            display: inline-block;
+            max-width: 55mm;
+            display: block;
+            margin-left: auto;
             object-fit: contain;
+            /* logo file = putih di hitam; invert biar hitam di label putih */
+            filter: invert(1);
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
         .brand-domain {
-            font-size: 8pt;
+            font-size: 7.5pt;
             font-weight: 700;
-            margin-top: 1mm;
+            margin-top: 0.8mm;
         }
 
         .cell-waybill {
@@ -173,29 +208,67 @@
 
         @media print {
             body { background: #fff; padding: 0; }
-            .print-controls { display: none !important; }
+            .print-controls,
+            .print-guide { display: none !important; }
             .sheet {
-                width: 100mm;
-                min-height: 150mm;
+                width: 105mm;
+                min-height: 148mm;
                 border: 2px solid #000;
                 margin: 0;
                 box-shadow: none;
+                page-break-after: always;
+                break-after: page;
             }
-            /* thermal 100×150; printer A4 tetap cetak label di kiri-atas */
-            @page { size: 100mm 150mm; margin: 0; }
-        }
-        @media print and (min-width: 140mm) {
-            @page { size: A4; margin: 8mm; }
-            .sheet { margin: 0 auto; }
+            .sheet:last-child {
+                page-break-after: auto;
+                break-after: auto;
+            }
+            /* thermal A6 105×148 */
+            @page { size: 105mm 148mm; margin: 0; }
         }
     </style>
 </head>
 <body>
     <div class="print-controls">
-        <button type="button" onclick="window.print()">Cetak Label</button>
+        <button type="button" onclick="window.print()">Cetak Label@if(count($labels) > 1) ({{ count($labels) }})@endif</button>
         <button type="button" class="btn-secondary" onclick="window.close()">Tutup</button>
     </div>
 
+    <details class="print-guide">
+        <summary>Panduan cetak thermal A6 (Xprinter dll.)</summary>
+        <ol>
+            <li>Install driver resmi printer thermal (Xprinter / merek lain).</li>
+            <li>Buat / pilih ukuran kertas <strong>A6 (105 × 148 mm)</strong> di driver printer.</li>
+            <li>Klik <strong>Cetak Label</strong>, pilih printer thermal di dialog.</li>
+            <li>Paper size: <strong>A6</strong> · Margins: <strong>None</strong> · Scale: <strong>100%</strong>.</li>
+            <li>Aktifkan <strong>Background graphics</strong> agar logo &amp; barcode jelas.</li>
+        </ol>
+        <p class="note">Label ini fixed A6. Browser tidak bisa auto-pilih printer; set sekali, Chrome biasanya mengingat. Jangan “Fit to page”.@if(count($labels) > 1) Bulk: 1 order = 1 lembar (page break).@endif</p>
+    </details>
+
+    @foreach($labels as $i => $L)
+    @php
+        $order = $L['order'];
+        $waybillId = $L['waybillId'];
+        $courierShort = $L['courierShort'];
+        $courierClass = $L['courierClass'];
+        $courierLogoUrl = $L['courierLogoUrl'];
+        $serviceType = $L['serviceType'];
+        $serviceLabel = $L['serviceLabel'];
+        $postalCode = $L['postalCode'];
+        $totalWeightKg = $L['totalWeightKg'];
+        $totalQty = $L['totalQty'];
+        $itemsLines = $L['itemsLines'];
+        $note = $L['note'];
+        $reference = $L['reference'];
+        $originName = $L['originName'];
+        $originPhone = $L['originPhone'];
+        $originAddress = $L['originAddress'];
+        $recipientName = $L['recipientName'];
+        $recipientPhone = $L['recipientPhone'];
+        $recipientAddress = $L['recipientAddress'];
+        $idx = $i + 1;
+    @endphp
     <div class="sheet">
         <table class="lbl">
             <tr>
@@ -212,8 +285,7 @@
                             @endif
                         </div>
                         <div class="brand-box">
-                            <img src="{{ asset('aliesmo-horizontal.png') }}" alt="Aliesmo"
-                                 onerror="this.style.display='none'">
+                            <img src="{{ asset('aliesmo-horizontal.png') }}" alt="Aliesmo">
                             <div class="brand-domain">aliesmo.id</div>
                         </div>
                     </div>
@@ -223,7 +295,7 @@
             <tr>
                 <td colspan="2" class="cell-waybill">
                     <div class="barcode-wrap">
-                        <svg id="barcode-waybill"></svg>
+                        <svg id="barcode-waybill-{{ $idx }}"></svg>
                     </div>
                     <div class="waybill-caption">Nomor Resi - {{ $waybillId }}</div>
                 </td>
@@ -245,7 +317,7 @@
                 <td class="cell-ref">
                     <div class="field-label">Reference Number</div>
                     <div class="barcode-wrap">
-                        <svg id="barcode-ref"></svg>
+                        <svg id="barcode-ref-{{ $idx }}"></svg>
                     </div>
                     <div class="ref-text">{{ $reference }}</div>
                 </td>
@@ -258,9 +330,9 @@
             <tr>
                 <td class="cell-addr">
                     <div class="addr-title">Alamat Penerima:</div>
-                    <div class="addr-body">{{ $order->customer_name }}
-{{ $order->customer_phone }}
-{{ $order->shipping_address }}</div>
+                    <div class="addr-body">{{ $recipientName }}
+{{ $recipientPhone }}
+{{ $recipientAddress }}</div>
                 </td>
                 <td class="cell-addr">
                     <div class="addr-title">Alamat Pengirim:</div>
@@ -295,6 +367,7 @@
             </tr>
         </table>
     </div>
+    @endforeach
 
     <script>
         (function () {
@@ -315,8 +388,16 @@
                 } catch (e) {}
             }
 
-            draw('barcode-waybill', @json($waybillId), { width: 2, height: 56 });
-            draw('barcode-ref', @json($reference), { width: 1.4, height: 38 });
+            var labels = @json(collect($labels)->map(fn ($L) => [
+                'waybillId' => $L['waybillId'],
+                'reference' => $L['reference'],
+            ])->values());
+
+            labels.forEach(function (L, i) {
+                var n = i + 1;
+                draw('barcode-waybill-' + n, L.waybillId, { width: 2, height: 56 });
+                draw('barcode-ref-' + n, L.reference, { width: 1.4, height: 38 });
+            });
         })();
     </script>
 </body>

@@ -18,6 +18,8 @@ Route::get('/auth/callback', function () {
 
 // Admin-only: label + bukti bayar (disk private)
 Route::middleware([FilamentAuthenticate::class])->group(function () {
+    Route::get('/admin/orders/labels', [ShippingLabelController::class, 'bulk'])
+        ->name('orders.labels.bulk');
     Route::get('/admin/orders/{order}/label', [ShippingLabelController::class, 'show'])
         ->name('orders.label');
     Route::get('/admin/orders/{order}/payment-proof', [PaymentProofController::class, 'show'])

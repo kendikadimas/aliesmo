@@ -3,13 +3,59 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use Illuminate\Http\Request;
 
 class ShippingLabelController extends Controller
 {
+    private const BULK_MAX = 50;
+
     public function show(Order $order)
     {
         $order->load('items.product', 'items.variant', 'items.size');
 
+        return view('shipping-label', [
+            'labels' => [$this->buildLabelData($order)],
+        ]);
+    }
+
+    public function bulk(Request $request)
+    {
+        $raw = (string) $request->query('ids', '');
+        $ids = collect(preg_split('/[,\s]+/', $raw) ?: [])
+            ->filter(fn ($id) => ctype_digit((string) $id))
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->take(self::BULK_MAX)
+            ->values();
+
+        if ($ids->isEmpty()) {
+            abort(404, 'Tidak ada order dipilih.');
+        }
+
+        $orders = Order::query()
+            ->with(['items.product', 'items.variant', 'items.size'])
+            ->whereIn('id', $ids)
+            ->where(function ($q) {
+                $q->whereNotNull('biteship_waybill_id')
+                    ->orWhereNotNull('tracking_number');
+            })
+            ->get()
+            ->sortBy(fn (Order $o) => $ids->search($o->id))
+            ->values();
+
+        if ($orders->isEmpty()) {
+            abort(404, 'Tidak ada order dengan resi di antara yang dipilih.');
+        }
+
+        $labels = $orders->map(fn (Order $o) => $this->buildLabelData($o))->all();
+
+        return view('shipping-label', [
+            'labels' => $labels,
+        ]);
+    }
+
+    private function buildLabelData(Order $order): array
+    {
         $waybillId = $order->biteship_waybill_id
             ?? $order->tracking_number
             ?? '-';
@@ -17,7 +63,6 @@ class ShippingLabelController extends Controller
         $courierRaw = (string) ($order->courier ?? '');
         $courierKey = strtolower($courierRaw);
 
-        // detect kurir → short name + logo file di /public
         [$courierShort, $courierClass, $courierLogo] = match (true) {
             str_contains($courierKey, 'j&t')
                 || str_contains($courierKey, 'jnt')
@@ -104,11 +149,7 @@ class ShippingLabelController extends Controller
         $reference = $order->order_number
             ?: ($order->biteship_order_id ?: '-');
 
-        $originName = 'Aliesmo';
-        $originPhone = config('services.biteship.origin_phone', '08138883345');
-        $originAddress = config('services.biteship.origin_address', 'Ulujami, Pemalang, Jawa Tengah');
-
-        return view('shipping-label', [
+        return [
             'order' => $order,
             'waybillId' => $waybillId,
             'courierShort' => $courierShort,
@@ -122,9 +163,48 @@ class ShippingLabelController extends Controller
             'itemsLines' => $itemsLines,
             'note' => $note,
             'reference' => $reference,
-            'originName' => $originName,
-            'originPhone' => $originPhone,
-            'originAddress' => $originAddress,
-        ]);
+            'originName' => 'Aliesmo',
+            'originPhone' => config('services.biteship.origin_phone', '08138883345'),
+            'originAddress' => config('services.biteship.origin_address', 'Ulujami, Pemalang, Jawa Tengah'),
+            'recipientName' => $this->maskName((string) $order->customer_name),
+            'recipientPhone' => $this->maskPhone((string) $order->customer_phone),
+            'recipientAddress' => (string) ($order->shipping_address ?: '-'),
+        ];
+    }
+
+    /** Dimas Kendika → D**** K****** */
+    private function maskName(string $name): string
+    {
+        $name = trim($name);
+        if ($name === '') {
+            return '-';
+        }
+
+        return collect(preg_split('/\s+/u', $name) ?: [])
+            ->filter()
+            ->map(function (string $part) {
+                $len = mb_strlen($part);
+                if ($len <= 1) {
+                    return '*';
+                }
+
+                return mb_substr($part, 0, 1).str_repeat('*', $len - 1);
+            })
+            ->implode(' ');
+    }
+
+    /** 087864562253 → 08********** */
+    private function maskPhone(string $phone): string
+    {
+        $digits = preg_replace('/\D+/', '', $phone) ?: '';
+        $len = strlen($digits);
+        if ($len === 0) {
+            return '-';
+        }
+        if ($len <= 2) {
+            return str_repeat('*', $len);
+        }
+
+        return substr($digits, 0, 2).str_repeat('*', $len - 2);
     }
 }
