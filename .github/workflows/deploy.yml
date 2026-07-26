@@ -42,16 +42,18 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
-      # ─── 4. Deploy semua file via FTP (incremental, skip heavy dirs) ──
+      # ─── 4. Deploy via FTP (retry: cPanel often drops control socket after long scan) ──
       - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        id: ftp
+        continue-on-error: true
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: /public_html/
           local-dir: ./
-          timeout: 120000
+          timeout: 600000
           dangerous-clean-slate: false
           exclude: |
             **/.git/**
@@ -59,6 +61,7 @@ jobs:
             **/.gitattributes
             **/node_modules/**
             **/frontend/node_modules/**
+            **/frontend/src/**
             **/.env
             **/.env.*
             **/storage/logs/**
@@ -72,6 +75,47 @@ jobs:
             **/*.md
             **/package.json
             **/package-lock.json
+            **/composer.json
+            **/composer.lock
+            **/vite.config.js
+            **/tailwind.config.js
+            **/postcss.config.js
+            **/J&T_Express_logo.svg
+            **/J&T*
+
+      - name: Deploy via FTP (retry)
+        if: steps.ftp.outcome == 'failure'
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /public_html/
+          local-dir: ./
+          timeout: 600000
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git/**
+            **/.gitignore
+            **/.gitattributes
+            **/node_modules/**
+            **/frontend/node_modules/**
+            **/frontend/src/**
+            **/.env
+            **/.env.*
+            **/storage/logs/**
+            **/storage/framework/cache/**
+            **/storage/framework/sessions/**
+            **/storage/framework/views/**
+            **/vendor/**
+            **/.github/**
+            **/tests/**
+            **/.agents/**
+            **/*.md
+            **/package.json
+            **/package-lock.json
+            **/composer.json
+            **/composer.lock
             **/vite.config.js
             **/tailwind.config.js
             **/postcss.config.js
