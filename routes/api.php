@@ -18,46 +18,50 @@ use App\Http\Controllers\Api\SiteSettingController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
+    // local: longgar buat dev/test; prod tetap ketat
+    $isLocal = app()->environment('local');
+    $t = fn (int $prod, int $local = 120) => 'throttle:'.($isLocal ? $local : $prod).',1';
+
     // Public
-    Route::get('banners', [BannerController::class, 'index'])->middleware('throttle:60,1');
-    Route::get('testimonials', [TestimonialController::class, 'index'])->middleware('throttle:60,1');
-    Route::get('homepage-videos', [HomepageVideoController::class, 'index'])->middleware('throttle:60,1');
-    Route::get('settings', [SiteSettingController::class, 'index'])->middleware('throttle:60,1');
-    Route::get('settings/group/{group}', [SiteSettingController::class, 'group'])->middleware('throttle:60,1');
-    Route::get('products', [ProductController::class, 'index'])->middleware('throttle:60,1');
-    Route::get('products/{slug}', [ProductController::class, 'show'])->middleware('throttle:60,1');
-    Route::get('categories', [CategoryController::class, 'index'])->middleware('throttle:60,1');
+    Route::get('banners', [BannerController::class, 'index'])->middleware($t(60));
+    Route::get('testimonials', [TestimonialController::class, 'index'])->middleware($t(60));
+    Route::get('homepage-videos', [HomepageVideoController::class, 'index'])->middleware($t(60));
+    Route::get('settings', [SiteSettingController::class, 'index'])->middleware($t(60));
+    Route::get('settings/group/{group}', [SiteSettingController::class, 'group'])->middleware($t(60));
+    Route::get('products', [ProductController::class, 'index'])->middleware($t(60));
+    Route::get('products/{slug}', [ProductController::class, 'show'])->middleware($t(60));
+    Route::get('categories', [CategoryController::class, 'index'])->middleware($t(60));
 
     // Articles
-    Route::get('articles', [ArticleController::class, 'index'])->middleware('throttle:60,1')->name('api.articles.index');
-    Route::get('articles/{slug}', [ArticleController::class, 'show'])->middleware('throttle:60,1')->name('api.articles.show');
+    Route::get('articles', [ArticleController::class, 'index'])->middleware($t(60))->name('api.articles.index');
+    Route::get('articles/{slug}', [ArticleController::class, 'show'])->middleware($t(60))->name('api.articles.show');
 
-    // Orders - guest checkout
-    Route::post('orders', [OrderController::class, 'store'])->middleware('throttle:10,1');
-    Route::get('orders/{orderNumber}/status', [OrderController::class, 'status'])->middleware('throttle:30,1');
-    Route::post('orders/track', [OrderController::class, 'track'])->middleware('throttle:5,1');
-    Route::get('orders/token/{token}', [OrderController::class, 'trackByToken'])->middleware('throttle:10,1');
-    
+    // Orders - guest checkout (prod: 10 order/menit per IP)
+    Route::post('orders', [OrderController::class, 'store'])->middleware($t(10));
+    Route::get('orders/{orderNumber}/status', [OrderController::class, 'status'])->middleware($t(30));
+    Route::post('orders/track', [OrderController::class, 'track'])->middleware($t(5));
+    Route::get('orders/token/{token}', [OrderController::class, 'trackByToken'])->middleware($t(10));
+
     // Upload bukti pembayaran — bisa diakses guest dengan lookup_token
-    Route::post('orders/{orderNumber}/payment-proof', [OrderController::class, 'uploadProof'])->middleware('throttle:10,1');
+    Route::post('orders/{orderNumber}/payment-proof', [OrderController::class, 'uploadProof'])->middleware($t(10));
 
     // Coupon validation (public - needed at checkout)
-    Route::post('coupons/validate', [CouponController::class, 'validate'])->middleware('throttle:10,1');
+    Route::post('coupons/validate', [CouponController::class, 'validate'])->middleware($t(10));
 
     // Reviews (public read)
-    Route::get('products/{slug}/videos', [ProductVideoController::class, 'index'])->middleware('throttle:60,1');
-    Route::get('products/{slug}/reviews', [ReviewController::class, 'index'])->middleware('throttle:30,1');
+    Route::get('products/{slug}/videos', [ProductVideoController::class, 'index'])->middleware($t(60));
+    Route::get('products/{slug}/reviews', [ReviewController::class, 'index'])->middleware($t(30));
 
-    // Shipping (Biteship only)
-    Route::post('shipping/cost', [ShippingController::class, 'cost'])->middleware('throttle:20,1');
-    Route::get('shipping/couriers', [ShippingController::class, 'couriers'])->middleware('throttle:30,1');
-    Route::get('shipping/search', [ShippingController::class, 'search'])->middleware('throttle:30,1');
+    // Shipping (Biteship only) — cost sering dipanggil berulang saat pilih alamat
+    Route::post('shipping/cost', [ShippingController::class, 'cost'])->middleware($t(20, 180));
+    Route::get('shipping/couriers', [ShippingController::class, 'couriers'])->middleware($t(30));
+    Route::get('shipping/search', [ShippingController::class, 'search'])->middleware($t(30));
 
-    // Auth - dengan rate limiting ketat untuk prevent brute force
-    Route::post('auth/register', [AuthController::class, 'register'])->middleware('throttle:5,1');   // 5 req/menit
-    Route::post('auth/login', [AuthController::class, 'login'])->middleware('throttle:5,1');         // 5 req/menit
-    Route::post('auth/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:3,1'); // 3 req/menit
-    Route::post('auth/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:5,1');
+    // Auth - rate limit ketat di prod (brute force)
+    Route::post('auth/register', [AuthController::class, 'register'])->middleware($t(5, 30));
+    Route::post('auth/login', [AuthController::class, 'login'])->middleware($t(5, 30));
+    Route::post('auth/forgot-password', [AuthController::class, 'forgotPassword'])->middleware($t(3, 20));
+    Route::post('auth/reset-password', [AuthController::class, 'resetPassword'])->middleware($t(5, 30));
 
     // Authenticated
     Route::middleware('auth:sanctum')->group(function () {
