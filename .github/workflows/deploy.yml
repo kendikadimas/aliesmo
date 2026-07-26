@@ -8,11 +8,11 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
-      - name: FTP PUT critical files
+      - name: FTP PUT + RETR verify
         env:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
@@ -25,13 +25,16 @@ jobs:
           USER="${FTP_USERNAME}"
           PASS="${FTP_PASSWORD}"
           APP=aliesmo1
+          AUTH=(--user "${USER}:${PASS}")
 
           put() {
             local src="$1" remote="$2"
             [ -f "$src" ] || { echo "skip $src"; return 0; }
             echo -n "PUT $remote "
-            OUT=$(curl -sS -v --connect-timeout 10 --max-time 18 \
-              --user "${USER}:${PASS}" \
+            # Longer wait for 226 after data; also try --ftp-skip-pasv-ip
+            OUT=$(curl -sS -v --connect-timeout 10 --max-time 45 \
+              --ftp-skip-pasv-ip \
+              "${AUTH[@]}" \
               -T "$src" \
               "ftp://${HOST}/${remote}" 2>&1) || true
             if echo "$OUT" | grep -qE 'completely uploaded|226|Transfer complete'; then
@@ -39,7 +42,7 @@ jobs:
               return 0
             fi
             echo FAIL
-            echo "$OUT" | tail -8
+            echo "$OUT" | tail -10
             return 1
           }
 
@@ -53,12 +56,39 @@ jobs:
           put "public/js/JsBarcode.all.min.js" "public_html/js/JsBarcode.all.min.js" || FAIL=1
           put "public/jnt-express-logo.svg" "public_html/jnt-express-logo.svg" || FAIL=1
 
-          for f in bootstrap/cache/routes-v7.php bootstrap/cache/config.php; do
-            echo "DELE ${APP}/${f}"
-            curl -sS --connect-timeout 8 --max-time 12 \
-              --user "${USER}:${PASS}" \
-              -Q "DELE ${APP}/${f}" \
-              "ftp://${HOST}/" >/dev/null 2>&1 || true
+          echo "=== RETR verify remote content ==="
+          curl -sS --connect-timeout 10 --max-time 25 \
+            --ftp-skip-pasv-ip \
+            "${AUTH[@]}" \
+            "ftp://${HOST}/${APP}/routes/web.php" -o /tmp/remote-web.php || true
+          echo "remote web.php size: $(wc -c </tmp/remote-web.php 2>/dev/null || echo 0)"
+          head -c 400 /tmp/remote-web.php || true
+          echo
+          if grep -q "view('maintenance')" /tmp/remote-web.php 2>/dev/null; then
+            echo "RETR OK: maintenance in remote web.php"
+          else
+            echo "RETR FAIL: remote web.php missing maintenance"
+            FAIL=1
+          fi
+
+          curl -sS --connect-timeout 10 --max-time 25 \
+            --ftp-skip-pasv-ip \
+            "${AUTH[@]}" \
+            "ftp://${HOST}/public_html/index.php" -o /tmp/remote-index.php || true
+          echo "remote index.php size: $(wc -c </tmp/remote-index.php 2>/dev/null || echo 0)"
+          if grep -q "aliesmo1" /tmp/remote-index.php 2>/dev/null; then
+            echo "RETR OK: aliesmo1 in remote index.php"
+          else
+            echo "RETR WARN: aliesmo1 not in remote index.php"
+            head -c 300 /tmp/remote-index.php || true
+            echo
+          fi
+
+          # Clear caches via empty overwrite of routes cache (DELE often flaky)
+          echo "=== clear bootstrap cache ==="
+          : > /tmp/empty.php
+          for f in bootstrap/cache/routes-v7.php bootstrap/cache/config.php bootstrap/cache/services.php; do
+            put /tmp/empty.php "${APP}/${f}" || true
           done
 
           [ "$FAIL" -eq 0 ] || exit 1
@@ -67,12 +97,15 @@ jobs:
       - name: Verify maintenance live
         run: |
           sleep 5
-          curl -sS -H "Cache-Control: no-cache" --connect-timeout 10 --max-time 20 \
-            -o /tmp/home.html "https://aliesmo.id/?_=$(date +%s)" || true
-          if grep -qiE 'pemeliharaan|Maintenance|sedang dalam' /tmp/home.html; then
-            echo VERIFY OK
-            exit 0
-          fi
+          for i in 1 2 3; do
+            curl -sS -H "Cache-Control: no-cache" --connect-timeout 10 --max-time 20 \
+              -o /tmp/home.html "https://aliesmo.id/?_=$(date +%s)$i" || true
+            if grep -qiE 'pemeliharaan|Maintenance|sedang dalam' /tmp/home.html; then
+              echo VERIFY OK
+              exit 0
+            fi
+            sleep 3
+          done
           echo VERIFY FAIL
           head -c 600 /tmp/home.html || true
           exit 1
