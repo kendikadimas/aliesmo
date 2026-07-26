@@ -12,7 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: FTP PUT + RETR verify
+      # public_html STOR sticks (RETR OK). aliesmo1 STOR reports OK but RETR empty.
+      # Stage under public_html/_d/ then RNFR/RNTO into aliesmo1.
+      - name: FTP stage in public_html then rename into app
         env:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
@@ -24,88 +26,178 @@ jobs:
           HOST="${HOST%%/*}"
           USER="${FTP_USERNAME}"
           PASS="${FTP_PASSWORD}"
+          AUTH=(--user "${USER}:${PASS}" --ftp-skip-pasv-ip)
           APP=aliesmo1
-          AUTH=(--user "${USER}:${PASS}")
 
-          put() {
+          put_pub() {
             local src="$1" remote="$2"
             [ -f "$src" ] || { echo "skip $src"; return 0; }
             echo -n "PUT $remote "
-            # Longer wait for 226 after data; also try --ftp-skip-pasv-ip
-            OUT=$(curl -sS -v --connect-timeout 10 --max-time 45 \
-              --ftp-skip-pasv-ip \
-              "${AUTH[@]}" \
-              -T "$src" \
-              "ftp://${HOST}/${remote}" 2>&1) || true
+            OUT=$(curl -sS -v --connect-timeout 10 --max-time 40 \
+              "${AUTH[@]}" -T "$src" "ftp://${HOST}/${remote}" 2>&1) || true
             if echo "$OUT" | grep -qE 'completely uploaded|226|Transfer complete'; then
-              echo OK
-              return 0
+              echo OK; return 0
+            fi
+            echo FAIL; echo "$OUT" | tail -8; return 1
+          }
+
+          # ensure stage dir (ignore errors)
+          curl -sS --connect-timeout 8 --max-time 15 "${AUTH[@]}" \
+            -Q "MKD public_html/_d" "ftp://${HOST}/" >/dev/null 2>&1 || true
+
+          FAIL=0
+          put_pub "routes/web.php" "public_html/_d/web.php" || FAIL=1
+          put_pub "resources/views/maintenance.blade.php" "public_html/_d/maintenance.blade.php" || FAIL=1
+          put_pub "resources/views/shipping-label.blade.php" "public_html/_d/shipping-label.blade.php" || FAIL=1
+          put_pub "app/Http/Controllers/ShippingLabelController.php" "public_html/_d/ShippingLabelController.php" || FAIL=1
+          put_pub "public/index.php" "public_html/index.php" || FAIL=1
+          put_pub "public/deploy-runner.php" "public_html/deploy-runner.php" || FAIL=1
+          put_pub "public/js/JsBarcode.all.min.js" "public_html/js/JsBarcode.all.min.js" || FAIL=1
+          put_pub "public/jnt-express-logo.svg" "public_html/jnt-express-logo.svg" || FAIL=1
+
+          echo "=== RETR staged web.php ==="
+          curl -sS --connect-timeout 10 --max-time 25 "${AUTH[@]}" \
+            "ftp://${HOST}/public_html/_d/web.php" -o /tmp/staged-web.php || true
+          echo "size=$(wc -c </tmp/staged-web.php 2>/dev/null || echo 0)"
+          head -c 200 /tmp/staged-web.php; echo
+          grep -q "view('maintenance')" /tmp/staged-web.php || { echo "staged web.php bad"; FAIL=1; }
+
+          # Tiny mover: copy staged files into Laravel app (runs on server via include from index)
+          # Prefer FTP rename first.
+          move() {
+            local from="$1" to="$2"
+            echo -n "RNTO $to "
+            OUT=$(curl -sS -v --connect-timeout 10 --max-time 20 \
+              "${AUTH[@]}" \
+              -Q "RNFR ${from}" \
+              -Q "RNTO ${to}" \
+              "ftp://${HOST}/" 2>&1) || true
+            if echo "$OUT" | grep -qE '250|RNTO'; then
+              echo OK; return 0
             fi
             echo FAIL
-            echo "$OUT" | tail -10
+            echo "$OUT" | grep -E '^<|> |error|Error|550|350' | tail -15
             return 1
           }
 
-          FAIL=0
-          put "routes/web.php" "${APP}/routes/web.php" || FAIL=1
-          put "resources/views/maintenance.blade.php" "${APP}/resources/views/maintenance.blade.php" || FAIL=1
-          put "resources/views/shipping-label.blade.php" "${APP}/resources/views/shipping-label.blade.php" || FAIL=1
-          put "app/Http/Controllers/ShippingLabelController.php" "${APP}/app/Http/Controllers/ShippingLabelController.php" || FAIL=1
-          put "public/index.php" "public_html/index.php" || FAIL=1
-          put "public/deploy-runner.php" "public_html/deploy-runner.php" || FAIL=1
-          put "public/js/JsBarcode.all.min.js" "public_html/js/JsBarcode.all.min.js" || FAIL=1
-          put "public/jnt-express-logo.svg" "public_html/jnt-express-logo.svg" || FAIL=1
+          move "public_html/_d/web.php" "${APP}/routes/web.php" || FAIL=1
+          # re-stage views (RNFR consumes source)
+          put_pub "resources/views/maintenance.blade.php" "public_html/_d/maintenance.blade.php" || true
+          move "public_html/_d/maintenance.blade.php" "${APP}/resources/views/maintenance.blade.php" || FAIL=1
+          put_pub "resources/views/shipping-label.blade.php" "public_html/_d/shipping-label.blade.php" || true
+          move "public_html/_d/shipping-label.blade.php" "${APP}/resources/views/shipping-label.blade.php" || FAIL=1
+          put_pub "app/Http/Controllers/ShippingLabelController.php" "public_html/_d/ShippingLabelController.php" || true
+          move "public_html/_d/ShippingLabelController.php" "${APP}/app/Http/Controllers/ShippingLabelController.php" || FAIL=1
 
-          echo "=== RETR verify remote content ==="
-          curl -sS --connect-timeout 10 --max-time 25 \
-            --ftp-skip-pasv-ip \
-            "${AUTH[@]}" \
-            "ftp://${HOST}/${APP}/routes/web.php" -o /tmp/remote-web.php || true
-          echo "remote web.php size: $(wc -c </tmp/remote-web.php 2>/dev/null || echo 0)"
-          head -c 400 /tmp/remote-web.php || true
-          echo
-          if grep -q "view('maintenance')" /tmp/remote-web.php 2>/dev/null; then
-            echo "RETR OK: maintenance in remote web.php"
-          else
-            echo "RETR FAIL: remote web.php missing maintenance"
-            FAIL=1
-          fi
+          # re-put web if move consumed and failed partially
+          put_pub "routes/web.php" "public_html/_d/web.php" || true
 
-          curl -sS --connect-timeout 10 --max-time 25 \
-            --ftp-skip-pasv-ip \
-            "${AUTH[@]}" \
-            "ftp://${HOST}/public_html/index.php" -o /tmp/remote-index.php || true
-          echo "remote index.php size: $(wc -c </tmp/remote-index.php 2>/dev/null || echo 0)"
-          if grep -q "aliesmo1" /tmp/remote-index.php 2>/dev/null; then
-            echo "RETR OK: aliesmo1 in remote index.php"
-          else
-            echo "RETR WARN: aliesmo1 not in remote index.php"
-            head -c 300 /tmp/remote-index.php || true
+          echo "=== install server-side copier ==="
+          cat > /tmp/deploy-copy.php <<'PHP'
+          <?php
+          // one-shot: copy staged files into app and delete caches
+          header('Content-Type: text/plain; charset=utf-8');
+          $token = $_SERVER['HTTP_X_DEPLOY_TOKEN'] ?? ($_GET['token'] ?? '');
+          $expected = getenv('DEPLOY_TOKEN') ?: '';
+          // token file next to this script
+          $tokenFile = __DIR__ . '/.deploy-token';
+          if (is_file($tokenFile)) {
+              $expected = trim((string) file_get_contents($tokenFile));
+          }
+          if ($expected === '' || !hash_equals($expected, (string) $token)) {
+              http_response_code(403);
+              echo "forbidden\n";
+              exit;
+          }
+          $home = dirname(__DIR__);
+          $app = is_dir($home . '/aliesmo1/vendor') ? $home . '/aliesmo1' : $home . '/aliesmo';
+          $stage = __DIR__ . '/_d';
+          $map = [
+              'web.php' => $app . '/routes/web.php',
+              'maintenance.blade.php' => $app . '/resources/views/maintenance.blade.php',
+              'shipping-label.blade.php' => $app . '/resources/views/shipping-label.blade.php',
+              'ShippingLabelController.php' => $app . '/app/Http/Controllers/ShippingLabelController.php',
+          ];
+          $ok = 0;
+          foreach ($map as $name => $dest) {
+              $src = $stage . '/' . $name;
+              if (!is_file($src)) {
+                  echo "missing $name\n";
+                  continue;
+              }
+              if (!is_dir(dirname($dest))) {
+                  @mkdir(dirname($dest), 0755, true);
+              }
+              if (@copy($src, $dest)) {
+                  echo "ok $name -> $dest\n";
+                  $ok++;
+              } else {
+                  echo "fail $name\n";
+              }
+          }
+          foreach (['routes-v7.php', 'config.php'] as $c) {
+              $p = $app . '/bootstrap/cache/' . $c;
+              if (is_file($p)) {
+                  @unlink($p);
+                  echo "unlink $c\n";
+              }
+          }
+          echo "done $ok\n";
+          PHP
+          # strip leading spaces from heredoc indent
+          sed -i 's/^          //' /tmp/deploy-copy.php
+          put_pub /tmp/deploy-copy.php "public_html/deploy-copy.php" || FAIL=1
+
+          # token file for copier (from secret)
+          echo -n "${{ secrets.DEPLOY_TOKEN }}" > /tmp/deploy-token.txt
+          put_pub /tmp/deploy-token.txt "public_html/.deploy-token" || true
+
+          # re-stage all for copier
+          put_pub "routes/web.php" "public_html/_d/web.php" || FAIL=1
+          put_pub "resources/views/maintenance.blade.php" "public_html/_d/maintenance.blade.php" || FAIL=1
+          put_pub "resources/views/shipping-label.blade.php" "public_html/_d/shipping-label.blade.php" || FAIL=1
+          put_pub "app/Http/Controllers/ShippingLabelController.php" "public_html/_d/ShippingLabelController.php" || FAIL=1
+
+          [ "$FAIL" -eq 0 ] || echo "WARN some FTP steps failed, still trying HTTP copier"
+
+      - name: Run server-side copier
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        run: |
+          set -euo pipefail
+          # Imunify may bot-wall; try several approaches
+          for url in \
+            "https://aliesmo.id/deploy-copy.php" \
+            "http://aliesmo.id/deploy-copy.php"
+          do
+            echo "POST $url"
+            RES=$(curl -sS --connect-timeout 10 --max-time 30 \
+              -H "X-Deploy-Token: ${DEPLOY_TOKEN}" \
+              -H "User-Agent: AliesmoDeploy/1.0" \
+              -H "Accept: text/plain" \
+              "$url?token=${DEPLOY_TOKEN}" || echo "curl-fail")
+            echo "$RES" | head -c 800
             echo
-          fi
-
-          # Clear caches via empty overwrite of routes cache (DELE often flaky)
-          echo "=== clear bootstrap cache ==="
-          : > /tmp/empty.php
-          for f in bootstrap/cache/routes-v7.php bootstrap/cache/config.php bootstrap/cache/services.php; do
-            put /tmp/empty.php "${APP}/${f}" || true
+            if echo "$RES" | grep -q 'done '; then
+              echo COPIER OK
+              exit 0
+            fi
           done
-
-          [ "$FAIL" -eq 0 ] || exit 1
-          echo All OK
+          echo COPIER FAIL - may be bot wall; check rename path only
+          exit 0
 
       - name: Verify maintenance live
         run: |
-          sleep 5
-          for i in 1 2 3; do
+          sleep 4
+          for i in 1 2 3 4 5; do
             curl -sS -H "Cache-Control: no-cache" --connect-timeout 10 --max-time 20 \
               -o /tmp/home.html "https://aliesmo.id/?_=$(date +%s)$i" || true
             if grep -qiE 'pemeliharaan|Maintenance|sedang dalam' /tmp/home.html; then
               echo VERIFY OK
               exit 0
             fi
-            sleep 3
+            sleep 2
           done
           echo VERIFY FAIL
-          head -c 600 /tmp/home.html || true
+          head -c 500 /tmp/home.html || true
           exit 1
