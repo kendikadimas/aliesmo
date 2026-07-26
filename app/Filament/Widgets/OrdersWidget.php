@@ -28,7 +28,11 @@ class OrdersWidget extends BaseWidget
             OrderStatus::Completed,
         ])->sum('total');
 
-        $ordersUrl = OrderResource::getUrl('index');
+        try {
+            $ordersUrl = OrderResource::getUrl('index');
+        } catch (\Exception $e) {
+            $ordersUrl = '/admin/orders';
+        }
 
         return [
             Stat::make('Total Pesanan', $totalOrders)
