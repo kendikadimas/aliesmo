@@ -5,14 +5,14 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
-// Detect environment — production (cPanel) vs local dev
-// Production: public/ di public_html/, Laravel di ~/aliesmo/
-// Local: public/ dan Laravel di folder yang sama
-$isProduction = is_dir(__DIR__ . '/../aliesmo/vendor');
-
-$basePath = $isProduction
-    ? __DIR__ . '/../aliesmo'
-    : __DIR__ . '/..';
+// Production: public/ di public_html/, Laravel di ~/aliesmo atau ~/aliesmo1
+$basePath = __DIR__ . '/..';
+foreach (['aliesmo', 'aliesmo1'] as $appDir) {
+    if (is_dir(__DIR__ . '/../' . $appDir . '/vendor')) {
+        $basePath = __DIR__ . '/../' . $appDir;
+        break;
+    }
+}
 
 // Determine if the application is in maintenance mode...
 if (file_exists($maintenance = $basePath . '/storage/framework/maintenance.php')) {
