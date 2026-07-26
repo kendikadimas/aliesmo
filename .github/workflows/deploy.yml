@@ -11,11 +11,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ─── 1. Checkout ───────────────────────────────────────────────
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ─── 2. Setup Node & build assets ──────────────────────────────
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -31,48 +29,44 @@ jobs:
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
-      # ─── 3. Setup PHP & install dependencies ───────────────────────
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'
-          extensions: mbstring, openssl, pdo_mysql, tokenizer, xml, ctype, json, fileinfo, curl, bcmath
-          coverage: none
+      # vendor tidak di-FTP (sudah di server). Skip composer di CI = lebih cepat.
+      # Jika butuh composer di server: jalankan manual / via deploy-runner.
 
-      - name: Install Composer dependencies
-        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
-
-      # ─── 4. Deploy via FTP (retry: cPanel often drops control socket after long scan) ──
+      # ─── FTP: cPanel sering ECONNRESET setelah scan lama ───
+      # Exclude bulk yang jarang berubah biar scan <1 menit.
       - name: Deploy via FTP
-        id: ftp
+        id: ftp1
         continue-on-error: true
-        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: /public_html/
           local-dir: ./
-          timeout: 600000
-          dangerous-clean-slate: false
+          timeout: 300000
+          log-level: standard
           exclude: |
             **/.git/**
+            **/.github/**
+            **/.agents/**
+            **/.env
+            **/.env.*
             **/.gitignore
             **/.gitattributes
             **/node_modules/**
-            **/frontend/node_modules/**
-            **/frontend/src/**
-            **/.env
-            **/.env.*
-            **/storage/logs/**
-            **/storage/framework/cache/**
-            **/storage/framework/sessions/**
-            **/storage/framework/views/**
+            **/frontend/**
             **/vendor/**
-            **/.github/**
             **/tests/**
-            **/.agents/**
+            **/storage/logs/**
+            **/storage/framework/**
+            **/storage/app/**
+            **/public/js/filament/**
+            **/public/css/filament/**
+            **/public/fonts/**
+            **/database/factories/**
             **/*.md
+            **/*.sql
             **/package.json
             **/package-lock.json
             **/composer.json
@@ -80,38 +74,52 @@ jobs:
             **/vite.config.js
             **/tailwind.config.js
             **/postcss.config.js
-            **/J&T_Express_logo.svg
+            **/phpunit.xml
+            **/phpunit.xml.*
+            **/test.txt
+            **/run-migration.php
+            **/setup.sql
+            **/README-DEPLOY.txt
             **/J&T*
 
-      - name: Deploy via FTP (retry)
-        if: steps.ftp.outcome == 'failure'
-        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+      - name: Wait before FTP retry
+        if: steps.ftp1.outcome == 'failure'
+        run: sleep 60
+
+      - name: Deploy via FTP (retry 2)
+        id: ftp2
+        if: steps.ftp1.outcome == 'failure'
+        continue-on-error: true
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: /public_html/
           local-dir: ./
-          timeout: 600000
-          dangerous-clean-slate: false
+          timeout: 300000
+          log-level: standard
           exclude: |
             **/.git/**
+            **/.github/**
+            **/.agents/**
+            **/.env
+            **/.env.*
             **/.gitignore
             **/.gitattributes
             **/node_modules/**
-            **/frontend/node_modules/**
-            **/frontend/src/**
-            **/.env
-            **/.env.*
-            **/storage/logs/**
-            **/storage/framework/cache/**
-            **/storage/framework/sessions/**
-            **/storage/framework/views/**
+            **/frontend/**
             **/vendor/**
-            **/.github/**
             **/tests/**
-            **/.agents/**
+            **/storage/logs/**
+            **/storage/framework/**
+            **/storage/app/**
+            **/public/js/filament/**
+            **/public/css/filament/**
+            **/public/fonts/**
+            **/database/factories/**
             **/*.md
+            **/*.sql
             **/package.json
             **/package-lock.json
             **/composer.json
@@ -119,10 +127,72 @@ jobs:
             **/vite.config.js
             **/tailwind.config.js
             **/postcss.config.js
-            **/J&T_Express_logo.svg
+            **/phpunit.xml
+            **/phpunit.xml.*
+            **/test.txt
+            **/run-migration.php
+            **/setup.sql
+            **/README-DEPLOY.txt
             **/J&T*
 
-      # ─── 6. Run artisan migrate, storage:link dan optimize:clear ──────
+      - name: Wait before FTP retry 3
+        if: steps.ftp1.outcome == 'failure' && steps.ftp2.outcome == 'failure'
+        run: sleep 90
+
+      - name: Deploy via FTP (retry 3)
+        id: ftp3
+        if: steps.ftp1.outcome == 'failure' && steps.ftp2.outcome == 'failure'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /public_html/
+          local-dir: ./
+          timeout: 300000
+          log-level: standard
+          exclude: |
+            **/.git/**
+            **/.github/**
+            **/.agents/**
+            **/.env
+            **/.env.*
+            **/.gitignore
+            **/.gitattributes
+            **/node_modules/**
+            **/frontend/**
+            **/vendor/**
+            **/tests/**
+            **/storage/logs/**
+            **/storage/framework/**
+            **/storage/app/**
+            **/public/js/filament/**
+            **/public/css/filament/**
+            **/public/fonts/**
+            **/database/factories/**
+            **/*.md
+            **/*.sql
+            **/package.json
+            **/package-lock.json
+            **/composer.json
+            **/composer.lock
+            **/vite.config.js
+            **/tailwind.config.js
+            **/postcss.config.js
+            **/phpunit.xml
+            **/phpunit.xml.*
+            **/test.txt
+            **/run-migration.php
+            **/setup.sql
+            **/README-DEPLOY.txt
+            **/J&T*
+
+      - name: Fail if all FTP attempts failed
+        if: always() && steps.ftp1.outcome == 'failure' && (steps.ftp2.outcome == 'failure' || steps.ftp2.outcome == 'skipped') && (steps.ftp3.outcome == 'failure' || steps.ftp3.outcome == 'skipped')
+        run: |
+          echo "All FTP deploy attempts failed (cPanel control socket)."
+          exit 1
+
       - name: Run artisan migrate and optimize:clear
         run: |
           echo "Running migrate and optimize:clear via deploy script..."
