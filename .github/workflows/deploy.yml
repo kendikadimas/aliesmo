@@ -10,15 +10,15 @@ jobs:
   deploy:
     name: Deploy critical files
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 5
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # UAPI list/info OK; save_file_content times out (0 bytes).
-      # Full FTP tree walk hangs. Single-file curl -T only.
-      - name: Deploy via FTP single-file PUT
+      # Plain FTP LIST hung. No dir listing — hardcode aliesmo1 (UAPI last known).
+      # One file first; if OK, rest of batch.
+      - name: FTP PUT web.php only (hardcoded path)
         env:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
@@ -30,88 +30,52 @@ jobs:
           HOST="${HOST%%/*}"
           USER="${FTP_USERNAME}"
           PASS="${FTP_PASSWORD}"
+          SRC="routes/web.php"
+          # last known app dir from UAPI list
+          REMOTE="aliesmo1/routes/web.php"
 
-          echo "host=$HOST user=$USER"
+          echo "host=$HOST"
+          echo "target=ftp://${HOST}/${REMOTE}"
+          ls -la "$SRC"
 
-          # Detect app dir under home (aliesmo or aliesmo1)
-          APP=$(curl -sS --connect-timeout 12 --max-time 25 \
+          # verbose, short timeouts — no LIST, no --ftp-create-dirs (dirs exist)
+          curl -v --connect-timeout 10 --max-time 35 \
             --user "${USER}:${PASS}" \
-            "ftp://${HOST}/" \
-            --list-only 2>/dev/null | tr -d '\r' | grep -E '^aliesmo' | head -1 || true)
-          if [ -z "$APP" ]; then
-            # try common names
-            for cand in aliesmo aliesmo1; do
-              code=$(curl -sS -o /dev/null -w "%{http_code}" --connect-timeout 10 --max-time 20 \
-                --user "${USER}:${PASS}" --head "ftp://${HOST}/${cand}/" || echo 000)
-              echo "probe $cand -> $code"
-              if [ "$code" = "226" ] || [ "$code" = "350" ] || [ "$code" = "200" ] || [ "$code" = "213" ]; then
-                APP=$cand
-                break
-              fi
-            done
-          fi
-          # FTP LIST often returns 226 after listing; empty http_code — try upload probe
-          if [ -z "$APP" ]; then
-            for cand in aliesmo aliesmo1; do
-              echo "probe-list $cand"
-              if curl -sS --connect-timeout 10 --max-time 20 \
-                --user "${USER}:${PASS}" "ftp://${HOST}/${cand}/" --list-only 2>/dev/null | head -3; then
-                APP=$cand
-                break
-              fi
-            done
-          fi
-          if [ -z "$APP" ]; then
-            echo "WARN: default APP=aliesmo1 (UAPI last known)"
-            APP=aliesmo1
-          fi
-          echo "APP=$APP"
+            -T "$SRC" \
+            "ftp://${HOST}/${REMOTE}" 2>&1 | tail -40
 
+          echo "=== batch rest ==="
           put() {
-            local src="$1"
-            local remote="$2"
-            if [ ! -f "$src" ]; then
-              echo "skip $src"
-              return 0
-            fi
-            echo -n "PUT $src -> $remote "
-            # --ftp-create-dirs for nested paths
-            if curl -sS --connect-timeout 12 --max-time 40 \
+            local src="$1" remote="$2"
+            echo -n "PUT $remote "
+            if curl -sS --connect-timeout 10 --max-time 30 \
               --user "${USER}:${PASS}" \
-              --ftp-create-dirs \
               -T "$src" \
               "ftp://${HOST}/${remote}"; then
               echo OK
-              return 0
+            else
+              echo FAIL
+              return 1
             fi
-            echo FAIL
-            return 1
           }
-
           FAIL=0
-          put "routes/web.php" "${APP}/routes/web.php" || FAIL=1
-          put "resources/views/maintenance.blade.php" "${APP}/resources/views/maintenance.blade.php" || FAIL=1
-          put "resources/views/shipping-label.blade.php" "${APP}/resources/views/shipping-label.blade.php" || FAIL=1
-          put "app/Http/Controllers/ShippingLabelController.php" "${APP}/app/Http/Controllers/ShippingLabelController.php" || FAIL=1
+          put "resources/views/maintenance.blade.php" "aliesmo1/resources/views/maintenance.blade.php" || FAIL=1
+          put "resources/views/shipping-label.blade.php" "aliesmo1/resources/views/shipping-label.blade.php" || FAIL=1
+          put "app/Http/Controllers/ShippingLabelController.php" "aliesmo1/app/Http/Controllers/ShippingLabelController.php" || FAIL=1
           put "public/deploy-runner.php" "public_html/deploy-runner.php" || FAIL=1
           put "public/js/JsBarcode.all.min.js" "public_html/js/JsBarcode.all.min.js" || FAIL=1
           put "public/jnt-express-logo.svg" "public_html/jnt-express-logo.svg" || FAIL=1
-
-          if [ "$FAIL" -ne 0 ]; then
-            echo "Some puts failed"
-            exit 1
-          fi
-          echo "All OK"
+          [ "$FAIL" -eq 0 ] || exit 1
+          echo All OK
 
       - name: Verify maintenance live
         run: |
-          set -e
           sleep 3
           curl -sS --connect-timeout 10 --max-time 20 -o /tmp/home.html "https://aliesmo.id/" || true
           if grep -qiE 'pemeliharaan|Maintenance|sedang dalam' /tmp/home.html; then
-            echo "VERIFY OK"
+            echo VERIFY OK
             exit 0
           fi
-          echo "VERIFY FAIL"
-          head -c 500 /tmp/home.html || true
+          echo VERIFY FAIL
+          head -c 400 /tmp/home.html || true
           exit 1
