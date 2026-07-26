@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -31,8 +32,10 @@ jobs:
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
-      # FTP mid-transfer dies on this host. Prefer HTTPS zip → PHP extract.
-      # Bootstrap only the ~2KB runner via curl FTP (short timeout, both path layouts).
+      # cPanel FTP is broken from GitHub runners (scan hang / mid-transfer reset).
+      # Deploy = zip over HTTPS → public/deploy-runner.php extract + migrate.
+      # ONE-TIME: if HTTPS fails with "extract did not run", upload
+      #   public/deploy-runner.php via cPanel File Manager, then re-run workflow.
       - name: Pack deploy.zip
         run: |
           set -e
@@ -87,75 +90,36 @@ jobs:
           zip -r deploy.zip -@ < /tmp/final.txt
           ls -lh deploy.zip
 
-      - name: Bootstrap deploy-runner.php (curl FTP, 45s max)
-        env:
-          FTP_SERVER: ${{ secrets.FTP_SERVER }}
-          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-        run: |
-          set +e
-          # URL-encode is not applied; passwords with special chars may need care in secrets
-          HOST="${FTP_SERVER}"
-          # strip scheme if present
-          HOST="${HOST#ftp://}"
-          HOST="${HOST#ftps://}"
-
-          AUTH="${FTP_USERNAME}:${FTP_PASSWORD}"
-          FILE="public/deploy-runner.php"
-
-          try_put() {
-            local dest="$1"
-            echo "FTP PUT -> $dest"
-            curl --silent --show-error --fail \
-              --connect-timeout 20 \
-              --max-time 45 \
-              --ftp-pasv \
-              --retry 2 \
-              --retry-delay 5 \
-              -u "$AUTH" \
-              -T "$FILE" \
-              "ftp://${HOST}${dest}"
-            return $?
-          }
-
-          # layout A: full repo under public_html (historical workflow)
-          try_put "/public_html/public/deploy-runner.php"
-          RC1=$?
-          # layout B: document root = public/
-          try_put "/public_html/deploy-runner.php"
-          RC2=$?
-
-          if [ $RC1 -ne 0 ] && [ $RC2 -ne 0 ]; then
-            echo "::warning::FTP bootstrap failed (cPanel FTP flaky). If HTTPS step fails, upload public/deploy-runner.php once via cPanel File Manager."
-          else
-            echo "FTP bootstrap OK"
-          fi
-          # never fail the job here — HTTPS is the real deploy
-          exit 0
-
       - name: Upload zip over HTTPS + extract + migrate
         run: |
           set -e
-          echo "POST deploy.zip -> deploy-runner.php"
+          echo "POST deploy.zip -> https://aliesmo.id/deploy-runner.php"
           RESP=$(curl -sS -w "\nHTTP:%{http_code}" \
             -X POST \
             -H "X-Deploy-Token: ${{ secrets.DEPLOY_TOKEN }}" \
             -F "deploy_zip=@deploy.zip" \
-            --max-time 300 \
+            --connect-timeout 20 \
+            --max-time 180 \
             "https://aliesmo.id/deploy-runner.php")
           echo "$RESP"
 
           if ! echo "$RESP" | grep -q 'HTTP:200'; then
-            echo "HTTP not 200 — deploy-runner missing/old/token wrong"
+            echo ""
+            echo "FAIL: deploy-runner not reachable / wrong token / PHP error."
+            echo "Upload local file public/deploy-runner.php via cPanel File Manager to:"
+            echo "  public_html/public/deploy-runner.php  (or public_html/deploy-runner.php if docroot=public)"
+            echo "Then re-run this workflow (Actions → Deploy to cPanel → Run workflow)."
             exit 1
           fi
           if ! echo "$RESP" | grep -q '"success":true'; then
-            echo "deploy-runner returned failure"
+            echo "FAIL: deploy-runner returned error body above"
             exit 1
           fi
-          # old runner has no extract key / extract skipped — not a real deploy
           if ! echo "$RESP" | grep -qE '"extract":"ok'; then
-            echo "extract did not run. Upload public/deploy-runner.php via cPanel File Manager once, then re-run this workflow."
+            echo ""
+            echo "FAIL: old deploy-runner (no zip extract). One-time manual step:"
+            echo "  cPanel → File Manager → replace deploy-runner.php with repo public/deploy-runner.php"
+            echo "Then re-run this workflow."
             exit 1
           fi
           echo "Deploy OK"
