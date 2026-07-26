@@ -75,6 +75,10 @@ jobs:
             **/vite.config.js
             **/tailwind.config.js
             **/postcss.config.js
+            **/public/js/JsBarcode.all.min.js
+            **/public/jnt-express-logo.svg
+            **/public/New_Logo_JNE.png
+            **/public/POSIND_2023.svg
 
       # ─── 6. Run artisan migrate, storage:link dan optimize:clear ──────
       - name: Run artisan migrate and optimize:clear
