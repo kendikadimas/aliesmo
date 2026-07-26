@@ -41,20 +41,20 @@ jobs:
           git diff --cached --quiet || git commit -m "deploy: build artifacts [skip ci]"
           git push origin main
 
-      # cPanel Fileman UAPI diblok bot-protection dari GitHub IP.
-      # Deploy via public/deploy-runner.php (zip + DEPLOY_TOKEN).
-      - name: Zip & upload via deploy-runner
+      # Fileman UAPI + deploy-runner sering diblok bot-protection dari GitHub IP.
+      # FTP secrets sudah ada — path paling andal untuk PHP/blade.
+      - name: FTP upload critical + changed files
         env:
-          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
           set -euo pipefail
-          if [ -z "${DEPLOY_TOKEN:-}" ]; then
-            echo "DEPLOY_TOKEN secret missing"
+          if [ -z "${FTP_SERVER:-}" ] || [ -z "${FTP_USERNAME:-}" ] || [ -z "${FTP_PASSWORD:-}" ]; then
+            echo "FTP secrets missing"
             exit 1
           fi
 
-          LAST_SHA_FILE=".last-deploy-sha.local"
-          # force critical files every run (Git VC deployable:0)
           FORCE=(
             bootstrap/app.php
             public/index.php
@@ -67,33 +67,89 @@ jobs:
             app/Providers/Filament/AdminPanelProvider.php
           )
 
-          # also any php/blade changed in last 15 commits (catch backlog)
-          mapfile -t RECENT < <(git log --name-only --pretty=format: -n 15 -- '*.php' '*.blade.php' | awk 'NF && !seen[$0]++')
+          mapfile -t RECENT < <(git log --name-only --pretty=format: -n 20 -- '*.php' '*.blade.php' 'public/build/*' | awk 'NF && !seen[$0]++')
 
           FILES=()
           for f in "${FORCE[@]}" "${RECENT[@]}"; do
             [ -f "$f" ] || continue
             case "$f" in
-              vendor/*|node_modules/*|storage/*|bootstrap/cache/*) continue ;;
+              vendor/*|node_modules/*|storage/*|bootstrap/cache/*|.env*) continue ;;
             esac
             FILES+=("$f")
           done
-
-          # unique
           mapfile -t FILES < <(printf '%s\n' "${FILES[@]}" | awk 'NF && !seen[$0]++')
 
-          echo "Packing ${#FILES[@]} files..."
+          echo "Uploading ${#FILES[@]} files via FTP to $FTP_SERVER ..."
           printf '%s\n' "${FILES[@]}"
-          rm -f deploy-payload.zip
-          zip -q deploy-payload.zip "${FILES[@]}"
-          ls -la deploy-payload.zip
 
-          RESP=$(curl -sk --max-time 180 \
-            -H "X-Deploy-Token: $DEPLOY_TOKEN" \
-            -F "deploy_zip=@deploy-payload.zip" \
-            "https://aliesmo.id/deploy-runner.php")
-          echo "$RESP"
-          echo "$RESP" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d.get('success') is True, d"
+          # monorepo di public_html: remote path = repo-relative path
+          # try FTPS first, then plain FTP
+          upload_all() {
+            local PROTO="$1"
+            local FAIL=0
+            for f in "${FILES[@]}"; do
+              REMOTE_DIR=$(dirname "$f")
+              echo "→ $PROTO $f"
+              if ! curl -sS --max-time 120 --ftp-create-dirs \
+                ${PROTO:+} \
+                --user "$FTP_USERNAME:$FTP_PASSWORD" \
+                -T "$f" \
+                "$PROTO://$FTP_SERVER/$f"; then
+                echo "FAIL $f"
+                FAIL=1
+              fi
+            done
+            return $FAIL
+          }
 
+          # Prefer explicit FTPS (common on cPanel); fall back to FTP
+          if ! curl -sS --max-time 30 --user "$FTP_USERNAME:$FTP_PASSWORD" \
+              "ftp://$FTP_SERVER/" -o /dev/null --ssl-reqd 2>/dev/null; then
+            echo "Trying FTP without forced SSL..."
+          fi
+
+          FAIL=0
+          for f in "${FILES[@]}"; do
+            echo "→ $f"
+            OK=0
+            for URL in \
+              "ftp://$FTP_SERVER/$f" \
+              "ftps://$FTP_SERVER/$f"
+            do
+              if curl -sS --max-time 120 --ftp-create-dirs --ssl-reqd --insecure \
+                  --user "$FTP_USERNAME:$FTP_PASSWORD" \
+                  -T "$f" "$URL" 2>/tmp/ftp.err; then
+                OK=1
+                break
+              fi
+              if curl -sS --max-time 120 --ftp-create-dirs \
+                  --user "$FTP_USERNAME:$FTP_PASSWORD" \
+                  -T "$f" "ftp://$FTP_SERVER/$f" 2>/tmp/ftp.err; then
+                OK=1
+                break
+              fi
+            done
+            if [ "$OK" -ne 1 ]; then
+              echo "FAIL $f"
+              cat /tmp/ftp.err || true
+              FAIL=1
+            fi
+          done
+
+          if [ "$FAIL" -ne 0 ]; then
+            echo "FTP upload had failures"
+            exit 1
+          fi
+          echo "FTP upload OK"
+
+      - name: Warm site + drop empty routes cache via deploy-runner
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        run: |
+          # optional: clear routes cache only (no zip) — ignore failure
+          if [ -n "${DEPLOY_TOKEN:-}" ]; then
+            curl -sk --max-time 30 -H "X-Deploy-Token: $DEPLOY_TOKEN" \
+              "https://aliesmo.id/deploy-runner.php" || true
+          fi
           curl -sk --max-time 20 -o /dev/null -w "HOME %{http_code}\n" "https://aliesmo.id/" || true
           curl -sk --max-time 20 -o /dev/null -w "UP %{http_code}\n" "https://aliesmo.id/up" || true
