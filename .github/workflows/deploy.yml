@@ -29,174 +29,66 @@ jobs:
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
-      # vendor tidak di-FTP (sudah di server). Skip composer di CI = lebih cepat.
-      # Jika butuh composer di server: jalankan manual / via deploy-runner.
-
-      # ─── FTP: cPanel sering ECONNRESET setelah scan lama ───
-      # Exclude bulk yang jarang berubah biar scan <1 menit.
-      - name: Deploy via FTP
-        id: ftp1
-        continue-on-error: true
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /public_html/
-          local-dir: ./
-          timeout: 300000
-          log-level: standard
-          exclude: |
-            **/.git/**
-            **/.github/**
-            **/.agents/**
-            **/.env
-            **/.env.*
-            **/.gitignore
-            **/.gitattributes
-            **/node_modules/**
-            **/frontend/**
-            **/vendor/**
-            **/tests/**
-            **/storage/logs/**
-            **/storage/framework/**
-            **/storage/app/**
-            **/public/js/filament/**
-            **/public/css/filament/**
-            **/public/fonts/**
-            **/database/factories/**
-            **/*.md
-            **/*.sql
-            **/package.json
-            **/package-lock.json
-            **/composer.json
-            **/composer.lock
-            **/vite.config.js
-            **/tailwind.config.js
-            **/postcss.config.js
-            **/phpunit.xml
-            **/phpunit.xml.*
-            **/test.txt
-            **/run-migration.php
-            **/setup.sql
-            **/README-DEPLOY.txt
-            **/J&T*
-
-      - name: Wait before FTP retry
-        if: steps.ftp1.outcome == 'failure'
-        run: sleep 60
-
-      - name: Deploy via FTP (retry 2)
-        id: ftp2
-        if: steps.ftp1.outcome == 'failure'
-        continue-on-error: true
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /public_html/
-          local-dir: ./
-          timeout: 300000
-          log-level: standard
-          exclude: |
-            **/.git/**
-            **/.github/**
-            **/.agents/**
-            **/.env
-            **/.env.*
-            **/.gitignore
-            **/.gitattributes
-            **/node_modules/**
-            **/frontend/**
-            **/vendor/**
-            **/tests/**
-            **/storage/logs/**
-            **/storage/framework/**
-            **/storage/app/**
-            **/public/js/filament/**
-            **/public/css/filament/**
-            **/public/fonts/**
-            **/database/factories/**
-            **/*.md
-            **/*.sql
-            **/package.json
-            **/package-lock.json
-            **/composer.json
-            **/composer.lock
-            **/vite.config.js
-            **/tailwind.config.js
-            **/postcss.config.js
-            **/phpunit.xml
-            **/phpunit.xml.*
-            **/test.txt
-            **/run-migration.php
-            **/setup.sql
-            **/README-DEPLOY.txt
-            **/J&T*
-
-      - name: Wait before FTP retry 3
-        if: steps.ftp1.outcome == 'failure' && steps.ftp2.outcome == 'failure'
-        run: sleep 90
-
-      - name: Deploy via FTP (retry 3)
-        id: ftp3
-        if: steps.ftp1.outcome == 'failure' && steps.ftp2.outcome == 'failure'
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /public_html/
-          local-dir: ./
-          timeout: 300000
-          log-level: standard
-          exclude: |
-            **/.git/**
-            **/.github/**
-            **/.agents/**
-            **/.env
-            **/.env.*
-            **/.gitignore
-            **/.gitattributes
-            **/node_modules/**
-            **/frontend/**
-            **/vendor/**
-            **/tests/**
-            **/storage/logs/**
-            **/storage/framework/**
-            **/storage/app/**
-            **/public/js/filament/**
-            **/public/css/filament/**
-            **/public/fonts/**
-            **/database/factories/**
-            **/*.md
-            **/*.sql
-            **/package.json
-            **/package-lock.json
-            **/composer.json
-            **/composer.lock
-            **/vite.config.js
-            **/tailwind.config.js
-            **/postcss.config.js
-            **/phpunit.xml
-            **/phpunit.xml.*
-            **/test.txt
-            **/run-migration.php
-            **/setup.sql
-            **/README-DEPLOY.txt
-            **/J&T*
-
-      - name: Fail if all FTP attempts failed
-        if: always() && steps.ftp1.outcome == 'failure' && (steps.ftp2.outcome == 'failure' || steps.ftp2.outcome == 'skipped') && (steps.ftp3.outcome == 'failure' || steps.ftp3.outcome == 'skipped')
+      # Full-tree FTP-Deploy-Action scan = cPanel ECONNRESET after ~5 min.
+      # Upload 2 files only (lftp put) then extract via PHP.
+      - name: Pack deploy.zip
         run: |
-          echo "All FTP deploy attempts failed (cPanel control socket)."
-          exit 1
+          set -e
+          rm -f deploy.zip
+          zip -r deploy.zip \
+            app \
+            bootstrap \
+            config \
+            database \
+            public \
+            resources \
+            routes \
+            artisan \
+            .htaccess \
+            -x "bootstrap/cache/*.php" \
+            -x "public/hot" \
+            -x "public/storage/**" \
+            -x "public/js/filament/**" \
+            -x "public/css/filament/**" \
+            -x "public/fonts/**" \
+            -x "database/factories/**" \
+            -x "**/.DS_Store"
+          ls -lh deploy.zip
 
-      - name: Run artisan migrate and optimize:clear
+      - name: Install lftp
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+
+      - name: Upload zip + deploy-runner via lftp
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
-          echo "Running migrate and optimize:clear via deploy script..."
-          curl -s -X POST \
+          set -e
+          lftp -c "
+            set net:timeout 120;
+            set net:max-retries 5;
+            set net:reconnect-interval-base 15;
+            set ftp:passive-mode true;
+            set ftp:ssl-allow no;
+            set cmd:fail-exit true;
+            open -u \"${FTP_USERNAME}\",\"${FTP_PASSWORD}\" ${FTP_SERVER};
+            cd /public_html;
+            put -O public public/deploy-runner.php;
+            put -O . deploy.zip;
+            bye
+          "
+          echo "FTP put OK"
+
+      - name: Extract zip + migrate
+        run: |
+          set -e
+          echo "Extract + migrate via deploy-runner..."
+          RESP=$(curl -sS -w "\nHTTP:%{http_code}" -X POST \
             -H "X-Deploy-Token: ${{ secrets.DEPLOY_TOKEN }}" \
-            "https://aliesmo.id/deploy-runner.php" || true
+            --max-time 300 \
+            "https://aliesmo.id/deploy-runner.php")
+          echo "$RESP"
+          echo "$RESP" | grep -q 'HTTP:200' || { echo "HTTP not 200"; exit 1; }
+          echo "$RESP" | grep -q '"success":true' || { echo "success not true"; exit 1; }
           echo "Done."
