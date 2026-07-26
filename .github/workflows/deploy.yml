@@ -36,7 +36,6 @@ jobs:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
       # ─── 3. Commit build artifacts ke repo ────────────────────────────
-      # Vite output langsung ke public/build — tidak perlu copy
       - name: Commit public/build ke repo
         run: |
           git config user.name "GitHub Actions"
@@ -45,80 +44,78 @@ jobs:
           git diff --cached --quiet || git commit -m "deploy: build artifacts [skip ci]"
           git push origin main
 
-      # ─── 4. Trigger cPanel Git Version Control deploy ──────────────
-      # Server pull + deploy dari GitHub langsung — bypass FTP/firewall
-      - name: Trigger cPanel git deploy
+      # ─── 4. Fetch via cPanel Git Version Control ──────────────────
+      - name: Fetch via cPanel Git VC
         run: |
           BASE="https://${{ secrets.CPANEL_HOST }}:2083"
           AUTH="Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_API_TOKEN }}"
           REPO_ROOT="/home/${{ secrets.CPANEL_USERNAME }}/public_html"
-
-          # 1. Fetch latest dari GitHub ke server
-          echo "=== Fetching from GitHub ==="
           curl -s --max-time 60 -H "$AUTH" \
             "$BASE/execute/VersionControl/update?repository_root=$REPO_ROOT"
 
-          # 2. Trigger deploy — paksa dengan mengirim HEAD commit identifier
-          echo ""
-          echo "=== Deploying ==="
-          HEAD_COMMIT="${{ github.sha }}"
-          curl -s --max-time 120 -H "$AUTH" \
-            -X POST \
-            -d "repository_root=$REPO_ROOT" \
-            -d "source_repository=origin" \
-            -d "branch=main" \
-            "$BASE/execute/VersionControlDeployments/create"
-
-      # ─── 5. Upload PHP files yang berubah via cPanel Fileman API ────────
+      # ─── 5. Upload changed PHP files via Fileman/save_file_content ──
       - name: Upload changed PHP files to server
         run: |
           BASE="https://${{ secrets.CPANEL_HOST }}:2083"
           AUTH="Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_API_TOKEN }}"
           HOME_DIR="/home/${{ secrets.CPANEL_USERNAME }}"
 
-          LAST_TAG=$(git tag --sort=-creatordate | grep '^deployed-' | head -1)
-          if [ -z "$LAST_TAG" ]; then
+          # Ambil SHA terakhir yang berhasil di-deploy dari file tracking
+          LAST_SHA=""
+          LAST_SHA_RESPONSE=$(curl -sk --max-time 10 -H "$AUTH" \
+            "$BASE/execute/Fileman/get_file_content?dir=%2F${HOME_DIR#/}%2Fpublic_html&file=.last-deploy-sha" 2>/dev/null || true)
+          LAST_SHA=$(echo "$LAST_SHA_RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('data',{}).get('content','').strip())" 2>/dev/null || true)
+
+          if [ -z "$LAST_SHA" ]; then
+            # Fallback: diff HEAD^ jika tidak ada SHA tersimpan
             CHANGED=$(git diff --name-only HEAD^ HEAD -- '*.php' '*.blade.php' 2>/dev/null || true)
+            echo "No last deploy SHA found, using HEAD^ diff"
           else
-            CHANGED=$(git diff --name-only "$LAST_TAG" HEAD -- '*.php' '*.blade.php' 2>/dev/null || true)
+            CHANGED=$(git diff --name-only "$LAST_SHA" HEAD -- '*.php' '*.blade.php' 2>/dev/null || true)
+            echo "Diffing from $LAST_SHA to HEAD"
           fi
 
-          if [ -z "$CHANGED" ]; then
-            echo "No PHP files changed, skipping."
-          else
-            for FILE in $CHANGED; do
-              [ -f "$FILE" ] || continue
-              DIR="$HOME_DIR/public_html/$(dirname $FILE)"
-              FILENAME=$(basename $FILE)
-              CONTENT=$(cat "$FILE")
-              echo "Saving $FILE..."
-              curl -sk --max-time 30 \
-                -H "$AUTH" \
-                --data-urlencode "dir=$DIR" \
-                --data-urlencode "file=$FILENAME" \
-                --data-urlencode "content=$CONTENT" \
-                "$BASE/execute/Fileman/save_file_content" || echo "Warning: $FILE failed"
-            done
-          fi
+          echo "Changed files: ${CHANGED:-none}"
 
-          git tag "deployed-$(date +%Y%m%d-%H%M%S)"
-          git push origin --tags 2>/dev/null || true
+          for FILE in $CHANGED; do
+            [ -f "$FILE" ] || continue
+            DIR="$HOME_DIR/public_html/$(dirname $FILE)"
+            FILENAME=$(basename $FILE)
+            CONTENT=$(cat "$FILE")
+            echo "Saving $FILE..."
+            RESULT=$(curl -sk --max-time 30 \
+              -H "$AUTH" \
+              --data-urlencode "dir=$DIR" \
+              --data-urlencode "file=$FILENAME" \
+              --data-urlencode "content=$CONTENT" \
+              "$BASE/execute/Fileman/save_file_content" 2>/dev/null || echo '{"errors":["curl failed"]}')
+            echo "$RESULT"
+          done
 
-      # ─── 6. Clear Laravel cache via cPanel UAPI ───────────────────
-      - name: Clear Laravel route dan config cache
+          # Simpan SHA saat ini sebagai last deploy
+          CURRENT_SHA=$(git rev-parse HEAD)
+          curl -sk --max-time 15 \
+            -H "$AUTH" \
+            --data-urlencode "dir=$HOME_DIR/public_html" \
+            --data-urlencode "file=.last-deploy-sha" \
+            --data-urlencode "content=$CURRENT_SHA" \
+            "$BASE/execute/Fileman/save_file_content" > /dev/null || true
+
+      # ─── 6. Clear Laravel bootstrap cache ─────────────────────────
+      - name: Clear Laravel bootstrap cache
         run: |
           BASE="https://${{ secrets.CPANEL_HOST }}:2083"
           AUTH="Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_API_TOKEN }}"
+          HOME_DIR="/home/${{ secrets.CPANEL_USERNAME }}"
 
-          # Hapus cache files — path relatif dari home dir
-          for FILE in \
-            "public_html/bootstrap/cache/routes-v7.php" \
-            "public_html/bootstrap/cache/config.php" \
-            "public_html/bootstrap/cache/packages.php" \
-            "public_html/bootstrap/cache/services.php"; do
-            echo "Deleting $FILE..."
-            curl -s --max-time 15 -H "$AUTH" \
-              -X POST -d "files-0=$FILE" \
-              "$BASE/execute/Fileman/delete" || true
+          # Overwrite cache files dengan array kosong — tidak butuh artisan
+          for FILE in routes-v7.php config.php packages.php services.php; do
+            echo "Clearing bootstrap/cache/$FILE..."
+            curl -sk --max-time 15 \
+              -H "$AUTH" \
+              --data-urlencode "dir=$HOME_DIR/public_html/bootstrap/cache" \
+              --data-urlencode "file=$FILE" \
+              --data-urlencode "content=<?php return [];" \
+              "$BASE/execute/Fileman/save_file_content" || true
           done
           echo "Cache cleared."
