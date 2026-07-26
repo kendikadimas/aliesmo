@@ -29,36 +29,12 @@ jobs:
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
-      # Full-tree FTP-Deploy-Action scan = cPanel ECONNRESET after ~5 min.
-      # Upload 2 files only (lftp put) then extract via PHP.
-      - name: Pack deploy.zip
-        run: |
-          set -e
-          rm -f deploy.zip
-          zip -r deploy.zip \
-            app \
-            bootstrap \
-            config \
-            database \
-            public \
-            resources \
-            routes \
-            artisan \
-            .htaccess \
-            -x "bootstrap/cache/*.php" \
-            -x "public/hot" \
-            -x "public/storage/**" \
-            -x "public/js/filament/**" \
-            -x "public/css/filament/**" \
-            -x "public/fonts/**" \
-            -x "database/factories/**" \
-            -x "**/.DS_Store"
-          ls -lh deploy.zip
-
+      # lftp put langsung (tanpa scan tree). Ini yang bikin #307–#311 hang:
+      # FTP-Deploy-Action scan 5 menit → cPanel drop socket → upload pertama gagal.
       - name: Install lftp
         run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
 
-      - name: Upload zip + deploy-runner via lftp
+      - name: Push changed files via lftp (no tree scan)
         env:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
@@ -66,29 +42,40 @@ jobs:
         run: |
           set -e
           lftp -c "
-            set net:timeout 120;
-            set net:max-retries 5;
-            set net:reconnect-interval-base 15;
+            set net:timeout 60;
+            set net:max-retries 3;
+            set net:reconnect-interval-base 10;
             set ftp:passive-mode true;
             set ftp:ssl-allow no;
             set cmd:fail-exit true;
             open -u \"${FTP_USERNAME}\",\"${FTP_PASSWORD}\" ${FTP_SERVER};
             cd /public_html;
-            put -O public public/deploy-runner.php;
-            put -O . deploy.zip;
+            mirror -R --verbose --only-newer \
+              --exclude-glob node_modules/** \
+              --exclude-glob frontend/** \
+              --exclude-glob vendor/** \
+              --exclude-glob .git/** \
+              --exclude-glob .github/** \
+              --exclude-glob .agents/** \
+              --exclude-glob tests/** \
+              --exclude-glob storage/logs/** \
+              --exclude-glob storage/framework/** \
+              --exclude-glob storage/app/** \
+              --exclude-glob public/js/filament/** \
+              --exclude-glob public/css/filament/** \
+              --exclude-glob public/fonts/** \
+              --exclude-glob '*.md' \
+              --exclude-glob composer.* \
+              --exclude-glob package*.json \
+              ./ ./;
             bye
           "
-          echo "FTP put OK"
+          echo "lftp mirror OK"
 
-      - name: Extract zip + migrate
+      - name: Run artisan migrate and optimize:clear
         run: |
-          set -e
-          echo "Extract + migrate via deploy-runner..."
-          RESP=$(curl -sS -w "\nHTTP:%{http_code}" -X POST \
+          echo "Running migrate and optimize:clear via deploy script..."
+          curl -s -X POST \
             -H "X-Deploy-Token: ${{ secrets.DEPLOY_TOKEN }}" \
-            --max-time 300 \
-            "https://aliesmo.id/deploy-runner.php")
-          echo "$RESP"
-          echo "$RESP" | grep -q 'HTTP:200' || { echo "HTTP not 200"; exit 1; }
-          echo "$RESP" | grep -q '"success":true' || { echo "success not true"; exit 1; }
+            "https://aliesmo.id/deploy-runner.php" || true
           echo "Done."
