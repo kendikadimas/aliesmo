@@ -56,7 +56,7 @@ jobs:
       - name: Run artisan migrate and optimize:clear
         run: |
           echo "Running migrate and optimize:clear via deploy script..."
-          curl -s -X POST \
+          curl -sS -X POST \
             -H "X-Deploy-Token: ${{ secrets.DEPLOY_TOKEN }}" \
-            "https://aliesmo.id/deploy-runner.php" || true
+            "https://aliesmo.id/deploy-runner.php"
           echo "Done."
