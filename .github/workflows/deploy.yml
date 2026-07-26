@@ -32,16 +32,28 @@ jobs:
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
-      # ─── 3. Trigger cPanel Git Version Control pull ────────────────
-      # Server pull dari GitHub langsung — bypass FTP/firewall
-      - name: Trigger cPanel git pull
+      # ─── 3. Trigger cPanel Git Version Control deploy ──────────────
+      # Server pull + deploy dari GitHub langsung — bypass FTP/firewall
+      - name: Trigger cPanel git deploy
         run: |
-          RESPONSE=$(curl -s --max-time 60 \
-            -H "Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_API_TOKEN }}" \
-            "https://${{ secrets.CPANEL_HOST }}:2083/execute/VersionControl/update?repository_root=/home/${{ secrets.CPANEL_USERNAME }}/public_html")
+          BASE="https://${{ secrets.CPANEL_HOST }}:2083"
+          AUTH="Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_API_TOKEN }}"
+          REPO_ROOT="/home/${{ secrets.CPANEL_USERNAME }}/public_html"
+
+          # 1. Fetch latest dari GitHub ke server
+          echo "=== Fetching from GitHub ==="
+          curl -s --max-time 60 -H "$AUTH" \
+            "$BASE/execute/VersionControl/update?repository_root=$REPO_ROOT"
+
+          # 2. Trigger deploy (copy ke working dir)
+          echo ""
+          echo "=== Deploying ==="
+          RESPONSE=$(curl -s --max-time 60 -H "$AUTH" \
+            -X POST -d "repository_root=$REPO_ROOT" \
+            "$BASE/execute/VersionControlDeployments/create")
           echo "$RESPONSE"
-          # gagal jika errors array tidak kosong
-          echo "$RESPONSE" | grep -q '"errors":\[\]' || (echo "cPanel git pull gagal" && exit 1)
+          # null atau [] keduanya OK
+          echo "$RESPONSE" | grep -qv '"errors":\["' || (echo "cPanel deploy gagal" && exit 1)
 
       # ─── 4. Run artisan migrate dan optimize:clear ─────────────────
       - name: Run artisan migrate and optimize:clear
