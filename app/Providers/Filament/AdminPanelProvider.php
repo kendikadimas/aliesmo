@@ -46,6 +46,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->topNavigation(false)
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
+            ->resources([
+                // ponytail: explicit — discover kadang skip OrderResource di shared hosting
+                \App\Filament\Resources\OrderResource::class,
+            ])
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
                 Dashboard::class,
