@@ -167,7 +167,8 @@ class OrderResource extends Resource
                             ->color('primary')
                             ->url(fn (Order $record): string => route('orders.label', $record))
                             ->openUrlInNewTab()
-                            ->visible(false), // TODO: label custom belum selesai — print dari dashboard Biteship
+                            // tampil setelah ada resi Biteship / tracking
+                            ->visible(fn (Order $record): bool => filled($record->biteship_waybill_id) || filled($record->tracking_number)),
                         Action::make('biteshipDashboard')
                             ->label('Buka di Biteship')
                             ->icon('heroicon-o-arrow-top-right-on-square')
