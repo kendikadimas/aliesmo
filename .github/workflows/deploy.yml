@@ -10,15 +10,15 @@ jobs:
   deploy:
     name: Deploy critical files
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 10
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Pure-FTPd accepts STOR + data, then never sends 226 (passive hang).
-      # Treat curl "completely uploaded" as success; short max-time.
-      - name: FTP PUT critical files
+      # Pure-FTPd: data upload OK, 226 never arrives → treat "completely uploaded" as success.
+      # index.php hardcodes ../aliesmo — UAPI saw aliesmo1. Put to BOTH.
+      - name: FTP PUT to aliesmo + aliesmo1
         env:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
@@ -30,7 +30,6 @@ jobs:
           HOST="${HOST%%/*}"
           USER="${FTP_USERNAME}"
           PASS="${FTP_PASSWORD}"
-          APP=aliesmo1
 
           put() {
             local src="$1" remote="$2"
@@ -43,24 +42,27 @@ jobs:
               --user "${USER}:${PASS}" \
               -T "$src" \
               "ftp://${HOST}/${remote}" 2>&1) || true
-            if echo "$OUT" | grep -q 'We are completely uploaded and fine'; then
-              echo OK
-              return 0
-            fi
-            if echo "$OUT" | grep -qE '226|Transfer complete'; then
+            if echo "$OUT" | grep -qE 'completely uploaded|226|Transfer complete'; then
               echo OK
               return 0
             fi
             echo FAIL
-            echo "$OUT" | tail -15
+            echo "$OUT" | tail -12
             return 1
           }
 
           FAIL=0
-          put "routes/web.php" "${APP}/routes/web.php" || FAIL=1
-          put "resources/views/maintenance.blade.php" "${APP}/resources/views/maintenance.blade.php" || FAIL=1
-          put "resources/views/shipping-label.blade.php" "${APP}/resources/views/shipping-label.blade.php" || FAIL=1
-          put "app/Http/Controllers/ShippingLabelController.php" "${APP}/app/Http/Controllers/ShippingLabelController.php" || FAIL=1
+          for APP in aliesmo aliesmo1; do
+            echo "=== app $APP ==="
+            put "routes/web.php" "${APP}/routes/web.php" || FAIL=1
+            put "resources/views/maintenance.blade.php" "${APP}/resources/views/maintenance.blade.php" || FAIL=1
+            put "resources/views/shipping-label.blade.php" "${APP}/resources/views/shipping-label.blade.php" || FAIL=1
+            put "app/Http/Controllers/ShippingLabelController.php" "${APP}/app/Http/Controllers/ShippingLabelController.php" || FAIL=1
+            put "public/index.php" "${APP}/public/index.php" || true
+          done
+
+          echo "=== public_html ==="
+          put "public/index.php" "public_html/index.php" || FAIL=1
           put "public/deploy-runner.php" "public_html/deploy-runner.php" || FAIL=1
           put "public/js/JsBarcode.all.min.js" "public_html/js/JsBarcode.all.min.js" || FAIL=1
           put "public/jnt-express-logo.svg" "public_html/jnt-express-logo.svg" || FAIL=1
@@ -68,14 +70,39 @@ jobs:
           [ "$FAIL" -eq 0 ] || exit 1
           echo All OK
 
+      - name: Clear Laravel caches via artisan (if SSH-less: touch)
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          set -euo pipefail
+          HOST="${FTP_SERVER#ftp://}"
+          HOST="${HOST#ftps://}"
+          HOST="${HOST%%/*}"
+          USER="${FTP_USERNAME}"
+          PASS="${FTP_PASSWORD}"
+          # Drop route cache files so new web.php is used
+          for APP in aliesmo aliesmo1; do
+            for f in bootstrap/cache/routes-v7.php bootstrap/cache/config.php bootstrap/cache/packages.php; do
+              echo -n "DEL ${APP}/${f} "
+              OUT=$(curl -sS -v --connect-timeout 8 --max-time 12 \
+                --user "${USER}:${PASS}" \
+                -Q "DELE ${APP}/${f}" \
+                "ftp://${HOST}/" 2>&1) || true
+              if echo "$OUT" | grep -qE '250|550'; then echo done; else echo skip; fi
+            done
+          done
+
       - name: Verify maintenance live
         run: |
-          sleep 5
-          curl -sS --connect-timeout 10 --max-time 20 -o /tmp/home.html "https://aliesmo.id/" || true
+          sleep 4
+          curl -sS -H "Cache-Control: no-cache" --connect-timeout 10 --max-time 20 \
+            -o /tmp/home.html "https://aliesmo.id/?_=$(date +%s)" || true
           if grep -qiE 'pemeliharaan|Maintenance|sedang dalam' /tmp/home.html; then
             echo VERIFY OK
             exit 0
           fi
           echo VERIFY FAIL
-          head -c 500 /tmp/home.html || true
+          head -c 600 /tmp/home.html || true
           exit 1
