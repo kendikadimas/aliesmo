@@ -8,32 +8,16 @@ on:
 
 jobs:
   deploy:
-    name: Build & Deploy
+    name: Deploy critical files
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 8
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: npm ci --include=dev --include=prod
-        working-directory: frontend
-
-      - name: Build assets
-        run: npm run build
-        working-directory: frontend
-        env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
-
-      # FTP hang, HTTPS bot wall, UAPI extract missing, multipart upload hang.
-      # Text files: Fileman/save_file_content (fast). Binary: upload_files.
-      - name: Deploy via cPanel UAPI save_file_content
+      # Skip npm build — maintenance is Blade, not SPA. Re-add when storefront reopens.
+      - name: Deploy via cPanel UAPI (POST save_file_content)
         env:
           CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
           CPANEL_USERNAME: ${{ secrets.CPANEL_USERNAME }}
@@ -51,182 +35,97 @@ jobs:
           base = f"https://{host}:2083/execute"
           ctx = ssl.create_default_context()
 
-          def call(module_func, params=None, timeout=30):
-              url = f"{base}/{module_func}"
+          def uapi_get(path, params=None, timeout=20):
+              url = f"{base}/{path}"
               if params:
-                  url += "?" + urllib.parse.urlencode(params, doseq=True)
+                  url += "?" + urllib.parse.urlencode(params)
               req = urllib.request.Request(url, headers={"Authorization": auth})
               with urllib.request.urlopen(req, timeout=timeout, context=ctx) as r:
                   return json.loads(r.read().decode())
 
-          def post_multipart(module_func, fields, files, timeout=60):
-              """fields: dict, files: list of (field, filename, bytes, content_type)"""
-              import uuid
-              boundary = uuid.uuid4().hex
-              body = bytearray()
-              for k, v in fields.items():
-                  body.extend(f"--{boundary}\r\n".encode())
-                  body.extend(f'Content-Disposition: form-data; name="{k}"\r\n\r\n'.encode())
-                  body.extend(str(v).encode())
-                  body.extend(b"\r\n")
-              for name, filename, data, ctype in files:
-                  body.extend(f"--{boundary}\r\n".encode())
-                  body.extend(
-                      f'Content-Disposition: form-data; name="{name}"; filename="{filename}"\r\n'.encode()
-                  )
-                  body.extend(f"Content-Type: {ctype}\r\n\r\n".encode())
-                  body.extend(data)
-                  body.extend(b"\r\n")
-              body.extend(f"--{boundary}--\r\n".encode())
-              url = f"{base}/{module_func}"
+          def uapi_post(path, fields, timeout=45):
+              # POST application/x-www-form-urlencoded — content in body, not URL
+              data = urllib.parse.urlencode(fields).encode("utf-8")
               req = urllib.request.Request(
-                  url,
-                  data=bytes(body),
+                  f"{base}/{path}",
+                  data=data,
                   headers={
                       "Authorization": auth,
-                      "Content-Type": f"multipart/form-data; boundary={boundary}",
+                      "Content-Type": "application/x-www-form-urlencoded",
                   },
                   method="POST",
               )
               with urllib.request.urlopen(req, timeout=timeout, context=ctx) as r:
                   return json.loads(r.read().decode())
 
-          print(f"host={host} user={user}")
-          info = call("Variables/get_user_information", timeout=25)
+          print(f"host={host} user={user}", flush=True)
+          info = uapi_get("Variables/get_user_information", timeout=20)
           home = (info.get("data") or {}).get("home") or (info.get("data") or {}).get("homedir") or f"/home/{user}"
-          print(f"home={home}")
+          print(f"home={home}", flush=True)
 
-          listing = call("Fileman/list_files", {"dir": home}, timeout=25)
-          names = []
-          for e in listing.get("data") or []:
-              if e.get("type") == "dir":
-                  n = e.get("file") or ""
-                  if n == "aliesmo" or n.lower().startswith("aliesmo"):
-                      names.append(n)
-          if "aliesmo" in names:
-              app_name = "aliesmo"
-          elif names:
-              names.sort()
-              app_name = names[0]
-          else:
-              print("FAIL: no aliesmo* dir", json.dumps(listing)[:500])
+          listing = uapi_get("Fileman/list_files", {"dir": home}, timeout=20)
+          names = [
+              e.get("file")
+              for e in (listing.get("data") or [])
+              if e.get("type") == "dir" and (e.get("file") or "").lower().startswith("aliesmo")
+          ]
+          app_name = "aliesmo" if "aliesmo" in names else (sorted(names)[0] if names else None)
+          if not app_name:
+              print("FAIL no aliesmo* dir", json.dumps(listing)[:400], flush=True)
               sys.exit(1)
 
           app_dir = f"{home}/{app_name}"
           pub_dir = f"{home}/public_html"
-          print(f"APP_DIR={app_dir}")
-          print(f"PUB_DIR={pub_dir}")
+          print(f"APP_DIR={app_dir}", flush=True)
 
-          # (local, remote_dir, remote_filename)
-          text_files = [
+          # Minimum for maintenance live + label. Binaries/assets later.
+          files = [
               ("routes/web.php", f"{app_dir}/routes", "web.php"),
-              ("routes/api.php", f"{app_dir}/routes", "api.php"),
               ("resources/views/maintenance.blade.php", f"{app_dir}/resources/views", "maintenance.blade.php"),
               ("resources/views/shipping-label.blade.php", f"{app_dir}/resources/views", "shipping-label.blade.php"),
               ("app/Http/Controllers/ShippingLabelController.php", f"{app_dir}/app/Http/Controllers", "ShippingLabelController.php"),
-              ("app/Http/Middleware/SecurityHeaders.php", f"{app_dir}/app/Http/Middleware", "SecurityHeaders.php"),
-              ("app/Filament/Resources/OrderResource.php", f"{app_dir}/app/Filament/Resources", "OrderResource.php"),
-              ("app/Filament/Widgets/OrdersWidget.php", f"{app_dir}/app/Filament/Widgets", "OrdersWidget.php"),
-              ("app/Filament/Widgets/ProductsWidget.php", f"{app_dir}/app/Filament/Widgets", "ProductsWidget.php"),
-              ("app/Filament/Widgets/ReviewsWidget.php", f"{app_dir}/app/Filament/Widgets", "ReviewsWidget.php"),
-              ("app/Filament/Widgets/UsersWidget.php", f"{app_dir}/app/Filament/Widgets", "UsersWidget.php"),
-              ("config/cors.php", f"{app_dir}/config", "cors.php"),
               ("public/deploy-runner.php", pub_dir, "deploy-runner.php"),
           ]
 
-          binary_files = [
-              ("public/js/JsBarcode.all.min.js", f"{pub_dir}/js", "JsBarcode.all.min.js"),
-              ("public/jnt-express-logo.svg", pub_dir, "jnt-express-logo.svg"),
-              ("public/New_Logo_JNE.png", pub_dir, "New_Logo_JNE.png"),
-              ("public/POSIND_2023.svg", pub_dir, "POSIND_2023.svg"),
-          ]
-          man = Path("public/build/manifest.json")
-          if man.is_file():
-              text_files.append((str(man), f"{pub_dir}/build", "manifest.json"))
-          assets = Path("public/build/assets")
-          if assets.is_dir():
-              for p in assets.iterdir():
-                  if p.is_file():
-                      binary_files.append((str(p), f"{pub_dir}/build/assets", p.name))
-
           fail = 0
-
-          def mkdir(path):
-              try:
-                  call("Fileman/mkdir", {"path": path, "permissions": "0755"}, timeout=15)
-              except Exception:
-                  pass
-
-          for local, rdir, fname in text_files:
+          for local, rdir, fname in files:
               p = Path(local)
               if not p.is_file():
-                  print(f"skip missing {local}")
+                  print(f"skip {local}", flush=True)
                   continue
               content = p.read_text(encoding="utf-8")
-              mkdir(rdir)
-              print(f"SAVE {local} -> {rdir}/{fname} ", end="", flush=True)
               try:
-                  # cPanel save_file_content
-                  res = call(
+                  uapi_post("Fileman/mkdir", {"path": rdir, "permissions": "0755"}, timeout=15)
+              except Exception:
+                  pass
+              print(f"SAVE {local} ({len(content)} chars) ", end="", flush=True)
+              try:
+                  res = uapi_post(
                       "Fileman/save_file_content",
-                      {
-                          "dir": rdir,
-                          "file": fname,
-                          "content": content,
-                          "fallback": 1,
-                      },
+                      {"dir": rdir, "file": fname, "content": content, "fallback": "1"},
                       timeout=40,
                   )
-                  ok = res.get("status") == 1 or (res.get("errors") in (None, [], ""))
-                  if ok and res.get("status") != 0:
-                      print("OK")
+                  if res.get("status") == 1:
+                      print("OK", flush=True)
                   else:
-                      # try filepath form
-                      res2 = call(
+                      # alternate: filepath
+                      res2 = uapi_post(
                           "Fileman/save_file_content",
-                          {
-                              "filepath": f"{rdir}/{fname}",
-                              "content": content,
-                          },
+                          {"filepath": f"{rdir}/{fname}", "content": content},
                           timeout=40,
                       )
                       if res2.get("status") == 1:
-                          print("OK(filepath)")
+                          print("OK(filepath)", flush=True)
                       else:
-                          print("FAIL", json.dumps(res)[:200], json.dumps(res2)[:200])
+                          print("FAIL", json.dumps(res)[:180], json.dumps(res2)[:180], flush=True)
                           fail = 1
               except Exception as e:
-                  print(f"FAIL {e}")
-                  fail = 1
-
-          for local, rdir, fname in binary_files:
-              p = Path(local)
-              if not p.is_file():
-                  print(f"skip missing {local}")
-                  continue
-              mkdir(rdir)
-              data = p.read_bytes()
-              print(f"PUT  {local} ({len(data)}b) -> {rdir}/ ", end="", flush=True)
-              try:
-                  res = post_multipart(
-                      "Fileman/upload_files",
-                      {"dir": rdir},
-                      [("file-1", fname, data, "application/octet-stream")],
-                      timeout=45,
-                  )
-                  if res.get("status") == 1:
-                      print("OK")
-                  else:
-                      print("FAIL", json.dumps(res)[:250])
-                      fail = 1
-              except Exception as e:
-                  print(f"FAIL {e}")
+                  print(f"FAIL {e}", flush=True)
                   fail = 1
 
           if fail:
-              print("Some deploys failed")
               sys.exit(1)
-          print("All deploys OK")
+          print("All OK", flush=True)
           PY
 
       - name: Verify maintenance live
@@ -238,6 +137,6 @@ jobs:
             echo "VERIFY OK: maintenance page live"
             exit 0
           fi
-          echo "VERIFY FAIL — not maintenance yet"
+          echo "VERIFY FAIL"
           head -c 600 /tmp/home.html || true
           exit 1
