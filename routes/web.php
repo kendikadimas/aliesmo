@@ -13,7 +13,7 @@ Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleC
     ->name('auth.google.callback');
 
 Route::get('/auth/callback', function () {
-    return view('maintenance');
+    return view('welcome');
 })->name('auth.callback');
 
 // Admin-only: label + bukti bayar (disk private)
@@ -27,7 +27,7 @@ Route::middleware([FilamentAuthenticate::class])->group(function () {
 // SPA catch-all — semua route non-API dan non-admin di-handle Vue Router
 // Urutan penting: Filament /admin dan /api sudah di-register sebelum ini
 // ponytail: maintenance storefront only; admin/api tetap. Off: ganti view('maintenance') → view('welcome')
-Route::get('/', fn () => view('maintenance'));
+Route::get('/', fn () => view('welcome'));
 Route::get('/{any}', function () {
-    return view('maintenance');
+    return view('welcome');
 })->where('any', '^(?!api|admin|storage|build|assets|auth).*$');
