@@ -168,7 +168,8 @@ class OrderResource extends Resource
                             ->label('Cetak Label')
                             ->icon('heroicon-o-printer')
                             ->color('primary')
-                            ->url(fn (Order $record): string => route('orders.label', $record))
+                            // hardcode path: named route sering hilang di prod (route cache / web.php belum upload)
+                            ->url(fn (Order $record): string => url('/admin/orders/'.$record->getKey().'/label'))
                             ->openUrlInNewTab()
                             // tampil setelah ada resi Biteship / tracking
                             ->visible(fn (Order $record): bool => filled($record->biteship_waybill_id) || filled($record->tracking_number)),
@@ -505,7 +506,7 @@ class OrderResource extends Resource
                 Action::make('printLabel')
                     ->label('Cetak Label')
                     ->icon('heroicon-o-printer')
-                    ->url(fn (Order $record): string => route('orders.label', $record))
+                    ->url(fn (Order $record): string => url('/admin/orders/'.$record->getKey().'/label'))
                     ->openUrlInNewTab()
                     ->visible(fn (Order $record): bool => filled($record->biteship_waybill_id) || filled($record->tracking_number)),
             ])
@@ -533,7 +534,7 @@ class OrderResource extends Resource
                                 return;
                             }
 
-                            $url = route('orders.labels.bulk', ['ids' => $ids]);
+                            $url = url('/admin/orders/labels?ids='.$ids);
                             $livewire->js('window.open('.json_encode($url).', "_blank")');
                         }),
                 ]),
