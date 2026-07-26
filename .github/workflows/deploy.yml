@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -29,18 +31,80 @@ jobs:
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
-      # lftp put langsung (tanpa scan tree). Ini yang bikin #307–#311 hang:
-      # FTP-Deploy-Action scan 5 menit → cPanel drop socket → upload pertama gagal.
+      # Hanya file berubah di push ini (+ build assets). Full mirror/scan = 5–10 menit + hang.
+      - name: List files to upload
+        id: files
+        run: |
+          set -e
+          BEFORE="${{ github.event.before }}"
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            BEFORE="$(git rev-parse HEAD~1 2>/dev/null || true)"
+          fi
+
+          mkdir -p /tmp/deploy-list
+          : > /tmp/deploy-files.txt
+
+          if [ -n "$BEFORE" ] && git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            git diff --name-only --diff-filter=ACMR "$BEFORE" "$GITHUB_SHA" >> /tmp/deploy-files.txt || true
+          else
+            # fallback: last commit only
+            git diff --name-only --diff-filter=ACMR HEAD~1 HEAD >> /tmp/deploy-files.txt || true
+          fi
+
+          # always ship built SPA + deploy runner
+          find public/build -type f 2>/dev/null >> /tmp/deploy-files.txt || true
+          echo "public/deploy-runner.php" >> /tmp/deploy-files.txt
+
+          # filter junk / never-FTP
+          grep -vE '^(frontend/|node_modules/|vendor/|\.git|\.github/|\.agents/|tests/|storage/)' /tmp/deploy-files.txt \
+            | grep -vE '(^|/)\.env' \
+            | grep -vE 'public/js/filament/|public/css/filament/|public/fonts/' \
+            | grep -vE '\.md$|composer\.(json|lock)$|package(-lock)?\.json$|phpunit|vite\.config|tailwind\.config|postcss\.config' \
+            | grep -vE 'J&T' \
+            | sort -u > /tmp/deploy-clean.txt
+
+          # drop missing paths
+          : > /tmp/deploy-final.txt
+          while IFS= read -r f; do
+            [ -f "$f" ] && echo "$f" >> /tmp/deploy-final.txt
+          done < /tmp/deploy-clean.txt
+
+          echo "=== files to upload ==="
+          cat /tmp/deploy-final.txt
+          COUNT=$(wc -l < /tmp/deploy-final.txt | tr -d ' ')
+          echo "count=$COUNT"
+          if [ "$COUNT" -eq 0 ]; then
+            echo "No files to upload"
+          fi
+
       - name: Install lftp
         run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
 
-      - name: Push changed files via lftp (no tree scan)
+      - name: Upload changed files only
         env:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
           set -e
+          if [ ! -s /tmp/deploy-final.txt ]; then
+            echo "Nothing to upload"
+            exit 0
+          fi
+
+          # stage with same relative paths for lftp mirror of tiny folder
+          STAGING=/tmp/ftp-staging
+          rm -rf "$STAGING"
+          mkdir -p "$STAGING"
+          while IFS= read -r f; do
+            mkdir -p "$STAGING/$(dirname "$f")"
+            cp -a "$f" "$STAGING/$f"
+          done < /tmp/deploy-final.txt
+
+          echo "Staging size:"
+          du -sh "$STAGING"
+          find "$STAGING" -type f | wc -l
+
           lftp -c "
             set net:timeout 60;
             set net:max-retries 3;
@@ -50,27 +114,10 @@ jobs:
             set cmd:fail-exit true;
             open -u \"${FTP_USERNAME}\",\"${FTP_PASSWORD}\" ${FTP_SERVER};
             cd /public_html;
-            mirror -R --verbose --only-newer \
-              --exclude-glob node_modules/** \
-              --exclude-glob frontend/** \
-              --exclude-glob vendor/** \
-              --exclude-glob .git/** \
-              --exclude-glob .github/** \
-              --exclude-glob .agents/** \
-              --exclude-glob tests/** \
-              --exclude-glob storage/logs/** \
-              --exclude-glob storage/framework/** \
-              --exclude-glob storage/app/** \
-              --exclude-glob public/js/filament/** \
-              --exclude-glob public/css/filament/** \
-              --exclude-glob public/fonts/** \
-              --exclude-glob '*.md' \
-              --exclude-glob composer.* \
-              --exclude-glob package*.json \
-              ./ ./;
+            mirror -R --verbose --parallel=3 $STAGING/ ./;
             bye
           "
-          echo "lftp mirror OK"
+          echo "Upload OK"
 
       - name: Run artisan migrate and optimize:clear
         run: |
