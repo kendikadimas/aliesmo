@@ -32,11 +32,12 @@ jobs:
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
-      # cPanel FTP is broken from GitHub runners (scan hang / mid-transfer reset).
-      # Deploy = zip over HTTPS → public/deploy-runner.php extract + migrate.
-      # ONE-TIME: if HTTPS fails with "extract did not run", upload
-      #   public/deploy-runner.php via cPanel File Manager, then re-run workflow.
-      - name: Pack deploy.zip
+      # Prod layout (DEPLOY.md + public/index.php):
+      #   ~/public_html/  = public/*
+      #   ~/aliesmo/      = Laravel app (app, routes, resources, ...)
+      # FTP from Actions is broken; HTTPS deploy-runner hits bot wall.
+      # Use cPanel UAPI (CPANEL_API_TOKEN) — same panel channel, not FTP/public HTTP.
+      - name: Pack app.zip + public.zip
         run: |
           set -e
           BEFORE="${{ github.event.before }}"
@@ -44,16 +45,18 @@ jobs:
             BEFORE="$(git rev-parse HEAD~1 2>/dev/null || true)"
           fi
 
-          : > /tmp/paths.txt
+          : > /tmp/all.txt
           if [ -n "$BEFORE" ] && git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
-            git diff --name-only --diff-filter=ACMR "$BEFORE" "$GITHUB_SHA" >> /tmp/paths.txt || true
+            git diff --name-only --diff-filter=ACMR "$BEFORE" "$GITHUB_SHA" >> /tmp/all.txt || true
           else
-            git diff --name-only --diff-filter=ACMR HEAD~1 HEAD >> /tmp/paths.txt || true
+            git diff --name-only --diff-filter=ACMR HEAD~1 HEAD >> /tmp/all.txt || true
           fi
 
-          find public/build -type f 2>/dev/null >> /tmp/paths.txt || true
+          # catch-up since #299
           printf '%s\n' \
             public/deploy-runner.php \
+            public/index.php \
+            public/.htaccess \
             resources/views/maintenance.blade.php \
             resources/views/shipping-label.blade.php \
             routes/web.php \
@@ -70,56 +73,205 @@ jobs:
             public/jnt-express-logo.svg \
             public/New_Logo_JNE.png \
             public/POSIND_2023.svg \
-            >> /tmp/paths.txt
+            >> /tmp/all.txt
+          find public/build -type f 2>/dev/null >> /tmp/all.txt || true
 
-          grep -vE '^(frontend/|node_modules/|vendor/|\.git|\.github/|\.agents/|tests/|storage/)' /tmp/paths.txt \
+          grep -vE '^(frontend/|node_modules/|vendor/|\.git|\.github/|\.agents/|tests/|storage/)' /tmp/all.txt \
             | grep -vE '(^|/)\.env' \
             | grep -vE 'public/js/filament/|public/css/filament/|public/fonts/' \
             | grep -vE '\.md$|composer\.(json|lock)$|package(-lock)?\.json$|phpunit|vite\.config|tailwind\.config|postcss\.config' \
             | grep -vE 'J&T' \
             | sort -u > /tmp/clean.txt
 
-          : > /tmp/final.txt
+          : > /tmp/app_files.txt
+          : > /tmp/public_files.txt
           while IFS= read -r f; do
-            [ -f "$f" ] && echo "$f" >> /tmp/final.txt
+            [ -f "$f" ] || continue
+            case "$f" in
+              public/*) echo "$f" >> /tmp/public_files.txt ;;
+              app/*|bootstrap/*|config/*|database/*|resources/*|routes/*|artisan|.htaccess)
+                echo "$f" >> /tmp/app_files.txt ;;
+            esac
           done < /tmp/clean.txt
 
-          echo "=== pack ==="
-          cat /tmp/final.txt
-          rm -f deploy.zip
-          zip -r deploy.zip -@ < /tmp/final.txt
-          ls -lh deploy.zip
+          rm -rf /tmp/stage-app /tmp/stage-pub
+          mkdir -p /tmp/stage-app /tmp/stage-pub
 
-      - name: Upload zip over HTTPS + extract + migrate
+          # Laravel app → paths relative to ~/aliesmo
+          while IFS= read -r f; do
+            mkdir -p "/tmp/stage-app/$(dirname "$f")"
+            cp -a "$f" "/tmp/stage-app/$f"
+          done < /tmp/app_files.txt
+
+          # public/* → strip public/ so extract lands in public_html root
+          while IFS= read -r f; do
+            rel="${f#public/}"
+            mkdir -p "/tmp/stage-pub/$(dirname "$rel")"
+            cp -a "$f" "/tmp/stage-pub/$rel"
+          done < /tmp/public_files.txt
+
+          echo "=== app ==="; find /tmp/stage-app -type f | sed 's|^/tmp/stage-app/||' || true
+          echo "=== public ==="; find /tmp/stage-pub -type f | sed 's|^/tmp/stage-pub/||' || true
+
+          rm -f app-deploy.zip public-deploy.zip
+          if [ -n "$(find /tmp/stage-app -type f 2>/dev/null)" ]; then
+            (cd /tmp/stage-app && zip -r "$GITHUB_WORKSPACE/app-deploy.zip" .)
+          else
+            # empty zip still ok
+            zip -r app-deploy.zip /tmp/stage-app >/dev/null 2>&1 || echo | zip app-deploy.zip -
+          fi
+          if [ -n "$(find /tmp/stage-pub -type f 2>/dev/null)" ]; then
+            (cd /tmp/stage-pub && zip -r "$GITHUB_WORKSPACE/public-deploy.zip" .)
+          else
+            echo | zip public-deploy.zip -
+          fi
+          ls -lh app-deploy.zip public-deploy.zip
+
+      - name: Deploy via cPanel UAPI
+        env:
+          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
+          CPANEL_USERNAME: ${{ secrets.CPANEL_USERNAME }}
+          CPANEL_API_TOKEN: ${{ secrets.CPANEL_API_TOKEN }}
         run: |
-          set -e
-          echo "POST deploy.zip -> https://aliesmo.id/deploy-runner.php"
+          set -euo pipefail
+          HOST="${CPANEL_HOST}"
+          HOST="${HOST#https://}"
+          HOST="${HOST#http://}"
+          HOST="${HOST%%/*}"
+          HOST="${HOST%%:*}"
+          USER="${CPANEL_USERNAME}"
+          TOKEN="${CPANEL_API_TOKEN}"
+          AUTH="Authorization: cpanel ${USER}:${TOKEN}"
+          BASE="https://${HOST}:2083/execute"
+
+          echo "host=$HOST user=$USER"
+
+          call() {
+            local path="$1"; shift
+            curl -sS --connect-timeout 25 --max-time 180 -H "$AUTH" "$@" "${BASE}/${path}"
+          }
+
+          # resolve home
+          INFO=$(call Variables/get_user_information || true)
+          HOME_DIR=$(php -r '$j=json_decode(file_get_contents("php://stdin"),true); echo $j["data"]["home"]??$j["data"]["homedir"]??"";' <<<"$INFO")
+          if [ -z "$HOME_DIR" ]; then HOME_DIR="/home/${USER}"; fi
+          echo "home=$HOME_DIR"
+
+          APP_DIR="${HOME_DIR}/aliesmo"
+          PUB_DIR="${HOME_DIR}/public_html"
+          # fallback monorepo if aliesmo missing — detect via list
+          LIST=$(call Fileman/list_files --get --data-urlencode "dir=${HOME_DIR}" || true)
+          echo "home listing keys: $(echo "$LIST" | head -c 300)"
+
+          if ! echo "$LIST" | grep -q 'aliesmo'; then
+            echo "WARN: no aliesmo/ in home — using public_html monorepo fallback"
+            APP_DIR="${HOME_DIR}/public_html"
+            # public files still go to public_html/public if monorepo
+            MONOREPO=1
+          else
+            MONOREPO=0
+          fi
+          echo "APP_DIR=$APP_DIR PUB_DIR=$PUB_DIR monorepo=$MONOREPO"
+
+          upload_zip() {
+            local file="$1" dir="$2"
+            echo "upload $file -> $dir"
+            local enc
+            enc=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1], safe=''))" "$dir")
+            local res
+            res=$(curl -sS --connect-timeout 25 --max-time 180 \
+              -H "$AUTH" \
+              -F "file-1=@${file}" \
+              "${BASE}/Fileman/upload_files?dir=${enc}")
+            echo "$res" | head -c 800
+            echo
+            if echo "$res" | grep -qiE '"status"[[:space:]]*:[[:space:]]*0|"errors"[[:space:]]*:[[:space:]]*\['; then
+              if echo "$res" | grep -qiE '"errors"[[:space:]]*:[[:space:]]*null|"status"[[:space:]]*:[[:space:]]*1'; then
+                return 0
+              fi
+              # hard fail only if explicit errors array non-null and status 0
+              if echo "$res" | grep -qE '"status"[[:space:]]*:[[:space:]]*0'; then
+                echo "UPLOAD FAILED"
+                return 1
+              fi
+            fi
+            return 0
+          }
+
+          extract_zip() {
+            local zippath="$1" destdir="$2"
+            echo "extract $zippath -> $destdir"
+            local res
+            res=$(curl -sS --connect-timeout 25 --max-time 180 \
+              -H "$AUTH" \
+              --get \
+              --data-urlencode "sourcefiles=${zippath}" \
+              --data-urlencode "destfiles=${destdir}" \
+              "${BASE}/Fileman/extract")
+            echo "$res" | head -c 800
+            echo
+            if echo "$res" | grep -qiE 'unknown|invalid module|not found'; then
+              res=$(curl -sS --connect-timeout 25 --max-time 180 \
+                -H "$AUTH" \
+                --get \
+                --data-urlencode "sourcefiles=${zippath}" \
+                --data-urlencode "destfiles=${destdir}" \
+                "${BASE}/Fileman/extract_files" || true)
+              echo "extract_files: $(echo "$res" | head -c 800)"
+            fi
+          }
+
+          unlink_file() {
+            local path="$1"
+            curl -sS --connect-timeout 15 --max-time 60 \
+              -H "$AUTH" \
+              --get \
+              --data-urlencode "op=unlink" \
+              --data-urlencode "sourcefiles=${path}" \
+              "${BASE}/Fileman/fileop" >/dev/null || true
+          }
+
+          # --- app ---
+          if [ -s app-deploy.zip ] && [ "$(stat -c%s app-deploy.zip)" -gt 100 ]; then
+            upload_zip app-deploy.zip "$APP_DIR"
+            extract_zip "${APP_DIR}/app-deploy.zip" "$APP_DIR"
+            unlink_file "${APP_DIR}/app-deploy.zip"
+          else
+            echo "skip empty app zip"
+          fi
+
+          # --- public ---
+          if [ -s public-deploy.zip ] && [ "$(stat -c%s public-deploy.zip)" -gt 100 ]; then
+            if [ "$MONOREPO" = "1" ]; then
+              # monorepo: public files live under public_html/public/
+              upload_zip public-deploy.zip "${PUB_DIR}/public"
+              extract_zip "${PUB_DIR}/public/public-deploy.zip" "${PUB_DIR}/public"
+              unlink_file "${PUB_DIR}/public/public-deploy.zip"
+            else
+              upload_zip public-deploy.zip "$PUB_DIR"
+              extract_zip "${PUB_DIR}/public-deploy.zip" "$PUB_DIR"
+              unlink_file "${PUB_DIR}/public-deploy.zip"
+            fi
+          else
+            echo "skip empty public zip"
+          fi
+
+          echo "UAPI deploy finished"
+
+      - name: Migrate (best effort)
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        run: |
+          set +e
           RESP=$(curl -sS -w "\nHTTP:%{http_code}" \
             -X POST \
-            -H "X-Deploy-Token: ${{ secrets.DEPLOY_TOKEN }}" \
-            -F "deploy_zip=@deploy.zip" \
-            --connect-timeout 20 \
-            --max-time 180 \
-            "https://aliesmo.id/deploy-runner.php")
-          echo "$RESP"
-
-          if ! echo "$RESP" | grep -q 'HTTP:200'; then
-            echo ""
-            echo "FAIL: deploy-runner not reachable / wrong token / PHP error."
-            echo "Upload local file public/deploy-runner.php via cPanel File Manager to:"
-            echo "  public_html/public/deploy-runner.php  (or public_html/deploy-runner.php if docroot=public)"
-            echo "Then re-run this workflow (Actions → Deploy to cPanel → Run workflow)."
-            exit 1
+            -H "X-Deploy-Token: ${DEPLOY_TOKEN}" \
+            --connect-timeout 15 --max-time 90 \
+            "https://aliesmo.id/deploy-runner.php" || true)
+          echo "$RESP" | tail -c 400
+          if echo "$RESP" | grep -q '"success":true'; then
+            echo "migrate OK"
+          else
+            echo "::warning::migrate via HTTP blocked/failed — run php artisan migrate --force in cPanel Terminal if needed"
           fi
-          if ! echo "$RESP" | grep -q '"success":true'; then
-            echo "FAIL: deploy-runner returned error body above"
-            exit 1
-          fi
-          if ! echo "$RESP" | grep -qE '"extract":"ok'; then
-            echo ""
-            echo "FAIL: old deploy-runner (no zip extract). One-time manual step:"
-            echo "  cPanel → File Manager → replace deploy-runner.php with repo public/deploy-runner.php"
-            echo "Then re-run this workflow."
-            exit 1
-          fi
-          echo "Deploy OK"
+          exit 0
