@@ -57,10 +57,18 @@
             min-height: 18mm;
         }
         .courier-box {
-            flex: 0 0 28%;
+            flex: 0 0 30%;
             text-align: left;
         }
-        .courier-logo {
+        .courier-logo-img {
+            display: block;
+            max-height: 14mm;
+            max-width: 28mm;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+        .courier-logo-fallback {
             display: inline-block;
             font-size: 16pt;
             font-weight: 900;
@@ -70,9 +78,9 @@
             padding: 2mm 2.5mm;
             text-transform: uppercase;
         }
-        .courier-logo.jne { color: #003399; border-color: #c8102e; }
-        .courier-logo.jnt { color: #e31837; border-color: #e31837; }
-        .courier-logo.pos { color: #ff6600; border-color: #003399; }
+        .courier-logo-fallback.jne { color: #003399; border-color: #c8102e; }
+        .courier-logo-fallback.jnt { color: #e31837; border-color: #e31837; }
+        .courier-logo-fallback.pos { color: #ff6600; border-color: #003399; }
         .courier-sub {
             font-size: 6.5pt;
             margin-top: 1.2mm;
@@ -192,7 +200,11 @@
                 <td colspan="2" class="cell-header">
                     <div class="header-inner">
                         <div class="courier-box">
-                            <div class="courier-logo {{ $courierClass }}">{{ $courierShort }}</div>
+                            @if($courierLogoUrl)
+                                <img src="{{ $courierLogoUrl }}" alt="{{ $courierShort }}" class="courier-logo-img">
+                            @else
+                                <div class="courier-logo-fallback {{ $courierClass }}">{{ $courierShort }}</div>
+                            @endif
                             @if($serviceType)
                                 <div class="courier-sub">{{ $serviceType }}</div>
                             @endif

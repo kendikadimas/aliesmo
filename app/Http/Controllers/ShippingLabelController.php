@@ -17,13 +17,29 @@ class ShippingLabelController extends Controller
         $courierRaw = (string) ($order->courier ?? '');
         $courierKey = strtolower($courierRaw);
 
-        // short label + class untuk badge header (mirip logo kurir di sample)
-        [$courierShort, $courierClass] = match (true) {
-            str_contains($courierKey, 'j&t') || str_contains($courierKey, 'jnt') => ['J&T', 'jnt'],
-            str_contains($courierKey, 'pos') => ['POS', 'pos'],
-            str_contains($courierKey, 'jne') || $courierKey === 'jne' => ['JNE', 'jne'],
-            default => [strtoupper($courierRaw ?: '-'), ''],
+        // detect kurir → short name + logo file di /public
+        [$courierShort, $courierClass, $courierLogo] = match (true) {
+            str_contains($courierKey, 'j&t')
+                || str_contains($courierKey, 'jnt')
+                || str_contains($courierKey, 'jet') => [
+                    'J&T',
+                    'jnt',
+                    'J&T_Express_logo.svg',
+                ],
+            str_contains($courierKey, 'pos') => [
+                'POS',
+                'pos',
+                'POSIND_2023.svg',
+            ],
+            str_contains($courierKey, 'jne') || $courierKey === 'jne' => [
+                'JNE',
+                'jne',
+                'New_Logo_JNE.png',
+            ],
+            default => [strtoupper($courierRaw ?: '-'), '', null],
         };
+
+        $courierLogoUrl = $courierLogo ? asset($courierLogo) : null;
 
         $serviceCode = $order->courier_service
             ?: match ($courierClass) {
@@ -97,6 +113,7 @@ class ShippingLabelController extends Controller
             'waybillId' => $waybillId,
             'courierShort' => $courierShort,
             'courierClass' => $courierClass,
+            'courierLogoUrl' => $courierLogoUrl,
             'serviceType' => $serviceLabel,
             'serviceLabel' => $serviceLabel,
             'postalCode' => $postalCode,
