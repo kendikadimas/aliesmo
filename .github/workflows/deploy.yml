@@ -31,8 +31,7 @@ jobs:
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
-      # FTP hang + HTTPS bot wall. UAPI extract() missing. Upload small files only via UAPI.
-      - name: Deploy via cPanel UAPI (small files)
+      - name: Deploy via cPanel UAPI
         env:
           CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
           CPANEL_USERNAME: ${{ secrets.CPANEL_USERNAME }}
@@ -49,28 +48,27 @@ jobs:
           BASE="https://${HOST}:2083/execute"
           echo "host=$HOST user=$USER"
 
-          uapi() { curl -sS --connect-timeout 20 --max-time 45 -H "$AUTH" "$@"; }
-
-          INFO=$(uapi "${BASE}/Variables/get_user_information")
+          INFO=$(curl -sS --connect-timeout 20 --max-time 45 -H "$AUTH" "${BASE}/Variables/get_user_information")
           HOME_DIR=$(php -r '$j=json_decode(stream_get_contents(STDIN),true); echo $j["data"]["home"]??$j["data"]["homedir"]??"";' <<<"$INFO")
-          [ -n "$HOME_DIR" ] || HOME_DIR="/home/${USER}"
+          if [ -z "$HOME_DIR" ]; then HOME_DIR="/home/${USER}"; fi
           echo "home=$HOME_DIR"
 
-          LIST=$(uapi --get --data-urlencode "dir=${HOME_DIR}" --max-time 30 "${BASE}/Fileman/list_files" || true)
+          LIST=$(curl -sS --connect-timeout 20 --max-time 45 -H "$AUTH" --get --data-urlencode "dir=${HOME_DIR}" "${BASE}/Fileman/list_files" || true)
           APP_NAME=$(php -r '
             $j=json_decode(stream_get_contents(STDIN),true);
             $c=[];
-            foreach(($j["data"]??[]) as $e){
-              if(($e["type"]??"")!=="dir") continue;
-              $n=$e["file"]??"";
-              if($n==="aliesmo" || preg_match("/^aliesmo/i",$n)) $c[]=$n;
+            foreach (($j["data"] ?? []) as $e) {
+              if (($e["type"] ?? "") !== "dir") continue;
+              $n = $e["file"] ?? "";
+              if ($n === "aliesmo" || preg_match("/^aliesmo/i", $n)) $c[] = $n;
             }
-            if(in_array("aliesmo",$c,true)){echo "aliesmo";exit;}
-            sort($c); echo $c[0]??"";
+            if (in_array("aliesmo", $c, true)) { echo "aliesmo"; exit; }
+            sort($c);
+            echo $c[0] ?? "";
           ' <<<"$LIST")
           if [ -z "$APP_NAME" ]; then
-            echo "FAIL: no aliesmo* directory under home"
-            echo "$LIST" | head -c 600
+            echo "FAIL: no aliesmo* directory"
+            echo "$LIST" | head -c 800
             exit 1
           fi
           APP_DIR="${HOME_DIR}/${APP_NAME}"
@@ -78,82 +76,58 @@ jobs:
           echo "APP_DIR=$APP_DIR"
           echo "PUB_DIR=$PUB_DIR"
 
-          # map: local_path|remote_absolute_dir
-          # public/* -> public_html (strip public/)
-          # else -> APP_DIR
-          MAP=$(cat <<'EOF'
-routes/web.php|APP
-routes/api.php|APP
-resources/views/maintenance.blade.php|APP
-resources/views/shipping-label.blade.php|APP
-app/Http/Controllers/ShippingLabelController.php|APP
-app/Http/Middleware/SecurityHeaders.php|APP
-app/Filament/Resources/OrderResource.php|APP
-app/Filament/Widgets/OrdersWidget.php|APP
-app/Filament/Widgets/ProductsWidget.php|APP
-app/Filament/Widgets/ReviewsWidget.php|APP
-app/Filament/Widgets/UsersWidget.php|APP
-config/cors.php|APP
-public/deploy-runner.php|PUB
-public/js/JsBarcode.all.min.js|PUB
-public/jnt-express-logo.svg|PUB
-public/New_Logo_JNE.png|PUB
-public/POSIND_2023.svg|PUB
-EOF
-)
-          # built SPA assets (only hashed css/js + manifest — skip huge logos)
-          if [ -f public/build/manifest.json ]; then
-            MAP="${MAP}"$'\n'"public/build/manifest.json|PUB"
-          fi
-          for f in public/build/assets/*; do
-            [ -f "$f" ] || continue
-            MAP="${MAP}"$'\n'"${f}|PUB"
-          done
-
-          FAIL=0
-          while IFS='|' read -r local_path kind; do
-            [ -z "$local_path" ] && continue
-            [ -f "$local_path" ] || { echo "skip missing $local_path"; continue; }
-
-            if [ "$kind" = "PUB" ]; then
-              rel="${local_path#public/}"
-              parent=$(dirname "$rel")
-              if [ "$parent" = "." ]; then
-                rdir="$PUB_DIR"
-              else
-                rdir="${PUB_DIR}/${parent}"
-              fi
-            else
-              parent=$(dirname "$local_path")
-              if [ "$parent" = "." ]; then
-                rdir="$APP_DIR"
-              else
-                rdir="${APP_DIR}/${parent}"
-              fi
-            fi
-
+          upload() {
+            local local_path="$1"
+            local rdir="$2"
+            local base
             base=$(basename "$local_path")
-            # mkdir parents (ignore errors if exists)
-            uapi --get \
+            if [ ! -f "$local_path" ]; then
+              echo "skip missing $local_path"
+              return 0
+            fi
+            curl -sS --connect-timeout 15 --max-time 20 -H "$AUTH" --get \
               --data-urlencode "path=${rdir}" \
               --data-urlencode "permissions=0755" \
               "${BASE}/Fileman/mkdir" >/dev/null 2>&1 || true
-
-            echo -n "PUT $local_path -> $rdir/ ... "
+            echo -n "PUT $local_path -> $rdir/ "
             RES=$(curl -sS --connect-timeout 20 --max-time 60 \
               -H "$AUTH" \
               -F "dir=${rdir}" \
               -F "file-1=@${local_path};filename=${base}" \
-              "${BASE}/Fileman/upload_files" || echo '{"status":0,"errors":["curl failed"]}')
+              "${BASE}/Fileman/upload_files" || echo '{"status":0}')
             if echo "$RES" | grep -qE '"status"[[:space:]]*:[[:space:]]*1'; then
-              echo "OK"
-            else
-              echo "FAIL"
-              echo "$RES" | head -c 400
-              echo
-              FAIL=1
+              echo OK
+              return 0
             fi
-          done <<<"$MAP"
+            echo FAIL
+            echo "$RES" | head -c 300
+            echo
+            return 1
+          }
+
+          FAIL=0
+          upload "routes/web.php" "${APP_DIR}/routes" || FAIL=1
+          upload "routes/api.php" "${APP_DIR}/routes" || FAIL=1
+          upload "resources/views/maintenance.blade.php" "${APP_DIR}/resources/views" || FAIL=1
+          upload "resources/views/shipping-label.blade.php" "${APP_DIR}/resources/views" || FAIL=1
+          upload "app/Http/Controllers/ShippingLabelController.php" "${APP_DIR}/app/Http/Controllers" || FAIL=1
+          upload "app/Http/Middleware/SecurityHeaders.php" "${APP_DIR}/app/Http/Middleware" || FAIL=1
+          upload "app/Filament/Resources/OrderResource.php" "${APP_DIR}/app/Filament/Resources" || FAIL=1
+          upload "app/Filament/Widgets/OrdersWidget.php" "${APP_DIR}/app/Filament/Widgets" || FAIL=1
+          upload "app/Filament/Widgets/ProductsWidget.php" "${APP_DIR}/app/Filament/Widgets" || FAIL=1
+          upload "app/Filament/Widgets/ReviewsWidget.php" "${APP_DIR}/app/Filament/Widgets" || FAIL=1
+          upload "app/Filament/Widgets/UsersWidget.php" "${APP_DIR}/app/Filament/Widgets" || FAIL=1
+          upload "config/cors.php" "${APP_DIR}/config" || FAIL=1
+          upload "public/deploy-runner.php" "${PUB_DIR}" || FAIL=1
+          upload "public/js/JsBarcode.all.min.js" "${PUB_DIR}/js" || FAIL=1
+          upload "public/jnt-express-logo.svg" "${PUB_DIR}" || FAIL=1
+          upload "public/New_Logo_JNE.png" "${PUB_DIR}" || FAIL=1
+          upload "public/POSIND_2023.svg" "${PUB_DIR}" || FAIL=1
+          upload "public/build/manifest.json" "${PUB_DIR}/build" || FAIL=1
+          for f in public/build/assets/*; do
+            [ -f "$f" ] || continue
+            upload "$f" "${PUB_DIR}/build/assets" || FAIL=1
+          done
 
           if [ "$FAIL" -ne 0 ]; then
             echo "Some uploads failed"
@@ -165,12 +139,11 @@ EOF
         run: |
           set -e
           sleep 2
-          CODE=$(curl -sS -o /tmp/home.html -w "%{http_code}" --connect-timeout 15 --max-time 30 "https://aliesmo.id/" || echo 000)
-          echo "HTTP $CODE"
+          curl -sS --connect-timeout 15 --max-time 30 -o /tmp/home.html "https://aliesmo.id/" || true
           if grep -qiE 'pemeliharaan|Maintenance|sedang dalam' /tmp/home.html; then
-            echo "VERIFY OK — maintenance page live"
+            echo "VERIFY OK: maintenance page live"
             exit 0
           fi
-          echo "VERIFY FAIL — body head:"
+          echo "VERIFY FAIL"
           head -c 500 /tmp/home.html
           exit 1
