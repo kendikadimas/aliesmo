@@ -69,35 +69,36 @@ jobs:
             -d "branch=main" \
             "$BASE/execute/VersionControlDeployments/create"
 
-      # ─── 5. Upload PHP files yang berubah via deploy-runner.php ──────
+      # ─── 5. Upload PHP files yang berubah via cPanel Fileman API ────────
       - name: Upload changed PHP files to server
         run: |
-          # Ambil semua PHP files yang berubah sejak tag deploy terakhir, atau semua kalau belum ada tag
+          BASE="https://${{ secrets.CPANEL_HOST }}:2083"
+          AUTH="Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_API_TOKEN }}"
+          HOME_DIR="/home/${{ secrets.CPANEL_USERNAME }}"
+
           LAST_TAG=$(git tag --sort=-creatordate | grep '^deployed-' | head -1)
           if [ -z "$LAST_TAG" ]; then
-            # Belum ada tag deploy — diff semua PHP vs 1 commit sebelum ini
             CHANGED=$(git diff --name-only HEAD^ HEAD -- '*.php' '*.blade.php' 2>/dev/null || true)
           else
             CHANGED=$(git diff --name-only "$LAST_TAG" HEAD -- '*.php' '*.blade.php' 2>/dev/null || true)
           fi
 
           if [ -z "$CHANGED" ]; then
-            echo "No PHP files changed since last deploy, skipping."
+            echo "No PHP files changed, skipping."
           else
-            echo "Changed files: $CHANGED"
-            echo "$CHANGED" | tr '\n' '\0' | xargs -0 zip -q changed_files.zip
-
-            HTTP=$(curl -sk -o response.json -w "%{http_code}" \
-              --max-time 60 \
-              -H "X-Deploy-Token: ${{ secrets.DEPLOY_TOKEN }}" \
-              -F "deploy_zip=@changed_files.zip" \
-              "https://${{ secrets.CPANEL_DOMAIN }}/deploy-runner.php")
-
-            echo "HTTP: $HTTP"
-            cat response.json || true
+            for FILE in $CHANGED; do
+              [ -f "$FILE" ] || continue
+              DIR="$HOME_DIR/public_html/$(dirname $FILE)"
+              FILENAME=$(basename $FILE)
+              echo "Uploading $FILE..."
+              curl -sk --max-time 30 \
+                -H "$AUTH" \
+                -F "dir=$DIR" \
+                -F "file-1=@$FILE;filename=$FILENAME" \
+                "$BASE/execute/Fileman/upload_files" || echo "Warning: $FILE failed"
+            done
           fi
 
-          # Tag commit ini sebagai deployed
           git tag "deployed-$(date +%Y%m%d-%H%M%S)"
           git push origin --tags 2>/dev/null || true
 
