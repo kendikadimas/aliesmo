@@ -10,15 +10,15 @@ jobs:
   deploy:
     name: Deploy critical files
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Plain FTP LIST hung. No dir listing — hardcode aliesmo1 (UAPI last known).
-      # One file first; if OK, rest of batch.
-      - name: FTP PUT web.php only (hardcoded path)
+      # Pure-FTPd accepts STOR + data, then never sends 226 (passive hang).
+      # Treat curl "completely uploaded" as success; short max-time.
+      - name: FTP PUT critical files
         env:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
@@ -30,52 +30,52 @@ jobs:
           HOST="${HOST%%/*}"
           USER="${FTP_USERNAME}"
           PASS="${FTP_PASSWORD}"
-          SRC="routes/web.php"
-          # last known app dir from UAPI list
-          REMOTE="aliesmo1/routes/web.php"
+          APP=aliesmo1
 
-          echo "host=$HOST"
-          echo "target=ftp://${HOST}/${REMOTE}"
-          ls -la "$SRC"
-
-          # verbose, short timeouts — no LIST, no --ftp-create-dirs (dirs exist)
-          curl -v --connect-timeout 10 --max-time 35 \
-            --user "${USER}:${PASS}" \
-            -T "$SRC" \
-            "ftp://${HOST}/${REMOTE}" 2>&1 | tail -40
-
-          echo "=== batch rest ==="
           put() {
             local src="$1" remote="$2"
+            if [ ! -f "$src" ]; then
+              echo "skip $src"
+              return 0
+            fi
             echo -n "PUT $remote "
-            if curl -sS --connect-timeout 10 --max-time 30 \
+            OUT=$(curl -sS -v --connect-timeout 10 --max-time 18 \
               --user "${USER}:${PASS}" \
               -T "$src" \
-              "ftp://${HOST}/${remote}"; then
+              "ftp://${HOST}/${remote}" 2>&1) || true
+            if echo "$OUT" | grep -q 'We are completely uploaded and fine'; then
               echo OK
-            else
-              echo FAIL
-              return 1
+              return 0
             fi
+            if echo "$OUT" | grep -qE '226|Transfer complete'; then
+              echo OK
+              return 0
+            fi
+            echo FAIL
+            echo "$OUT" | tail -15
+            return 1
           }
+
           FAIL=0
-          put "resources/views/maintenance.blade.php" "aliesmo1/resources/views/maintenance.blade.php" || FAIL=1
-          put "resources/views/shipping-label.blade.php" "aliesmo1/resources/views/shipping-label.blade.php" || FAIL=1
-          put "app/Http/Controllers/ShippingLabelController.php" "aliesmo1/app/Http/Controllers/ShippingLabelController.php" || FAIL=1
+          put "routes/web.php" "${APP}/routes/web.php" || FAIL=1
+          put "resources/views/maintenance.blade.php" "${APP}/resources/views/maintenance.blade.php" || FAIL=1
+          put "resources/views/shipping-label.blade.php" "${APP}/resources/views/shipping-label.blade.php" || FAIL=1
+          put "app/Http/Controllers/ShippingLabelController.php" "${APP}/app/Http/Controllers/ShippingLabelController.php" || FAIL=1
           put "public/deploy-runner.php" "public_html/deploy-runner.php" || FAIL=1
           put "public/js/JsBarcode.all.min.js" "public_html/js/JsBarcode.all.min.js" || FAIL=1
           put "public/jnt-express-logo.svg" "public_html/jnt-express-logo.svg" || FAIL=1
+
           [ "$FAIL" -eq 0 ] || exit 1
           echo All OK
 
       - name: Verify maintenance live
         run: |
-          sleep 3
+          sleep 5
           curl -sS --connect-timeout 10 --max-time 20 -o /tmp/home.html "https://aliesmo.id/" || true
           if grep -qiE 'pemeliharaan|Maintenance|sedang dalam' /tmp/home.html; then
             echo VERIFY OK
             exit 0
           fi
           echo VERIFY FAIL
-          head -c 400 /tmp/home.html || true
+          head -c 500 /tmp/home.html || true
           exit 1
