@@ -77,8 +77,8 @@ jobs:
 
           echo "Changed files: ${CHANGED:-none}"
 
-          # Selalu upload bootstrap/app.php — file kritis yang sering gagal via File Manager
-          ALWAYS="bootstrap/app.php bootstrap/cache/services.php bootstrap/cache/packages.php"
+          # Selalu upload bootstrap/app.php + public/index.php (self-heal routes cache)
+          ALWAYS="bootstrap/app.php public/index.php bootstrap/cache/services.php bootstrap/cache/packages.php"
 
           for FILE in $ALWAYS $CHANGED; do
             [ -f "$FILE" ] || continue
@@ -104,18 +104,6 @@ jobs:
             --data-urlencode "content=$CURRENT_SHA" \
             "$BASE/execute/Fileman/save_file_content" > /dev/null || true
 
-      # ─── 6. Drop route cache file (never write empty return []) ───
-      # Empty routes-v7.php makes Laravel think routes are cached → site-wide 404
-      - name: Delete routes cache file
-        run: |
-          BASE="https://${{ secrets.CPANEL_HOST }}:2083"
-          AUTH="Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_API_TOKEN }}"
-          HOME_DIR="/home/${{ secrets.CPANEL_USERNAME }}"
-          SRC="$HOME_DIR/public_html/bootstrap/cache/routes-v7.php"
-
-          echo "Unlink $SRC (if present)..."
-          curl -sk --max-time 15 -H "$AUTH" \
-            --data-urlencode "op=unlink" \
-            --data-urlencode "sourcefiles=$SRC" \
-            "$BASE/execute/Fileman/fileop" || true
-          echo "Done."
+      # ─── 6. Never write empty routes-v7.php (causes site-wide 404) ───
+      # Fileman has no reliable delete API here; public/index.php self-heals
+      # empty cache. Leave packages.php / services.php alone.

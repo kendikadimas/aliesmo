@@ -17,6 +17,16 @@ if (is_file(__DIR__ . '/../vendor/autoload.php')) {
     $basePath = __DIR__ . '/..';
 }
 
+// Self-heal: empty routes-v7.php = Laravel "cached" with zero routes → site-wide 404
+// (deploy used to write <?php return []; — never do that again)
+$routesCache = $basePath . '/bootstrap/cache/routes-v7.php';
+if (is_file($routesCache)) {
+    $raw = @file_get_contents($routesCache);
+    if (is_string($raw) && preg_match('/return\s*\[\s*\]\s*;/', $raw)) {
+        @unlink($routesCache);
+    }
+}
+
 // Determine if the application is in maintenance mode...
 if (file_exists($maintenance = $basePath . '/storage/framework/maintenance.php')) {
     require $maintenance;
