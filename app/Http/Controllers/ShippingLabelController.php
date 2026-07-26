@@ -14,24 +14,39 @@ class ShippingLabelController extends Controller
             ?? $order->tracking_number
             ?? '-';
 
-        $courierType = $order->courier ?: '-';
-        $serviceType = $order->courier_service
-            ?: match (strtolower((string) $order->courier)) {
-                'jne' => 'Reguler',
-                'jnt', 'j&t express', 'jnt express' => 'EZ',
-                'pos', 'pos indonesia' => 'Reguler',
-                default => 'Reguler',
+        $courierRaw = (string) ($order->courier ?? '');
+        $courierKey = strtolower($courierRaw);
+
+        // short label + class untuk badge header (mirip logo kurir di sample)
+        [$courierShort, $courierClass] = match (true) {
+            str_contains($courierKey, 'j&t') || str_contains($courierKey, 'jnt') => ['J&T', 'jnt'],
+            str_contains($courierKey, 'pos') => ['POS', 'pos'],
+            str_contains($courierKey, 'jne') || $courierKey === 'jne' => ['JNE', 'jne'],
+            default => [strtoupper($courierRaw ?: '-'), ''],
+        };
+
+        $serviceCode = $order->courier_service
+            ?: match ($courierClass) {
+                'jnt' => 'ez',
+                'pos' => 'reguler',
+                default => 'reg',
             };
 
+        $serviceLabel = match (strtolower((string) $serviceCode)) {
+            'reg', 'reguler', 'regular' => 'Reguler',
+            'ez' => 'EZ',
+            'yes' => 'YES',
+            'oke' => 'OKE',
+            'sps' => 'SPS',
+            default => strtoupper((string) $serviceCode) ?: 'Reguler',
+        };
+
         $postalCode = '';
-        if ($order->shipping_area_id) {
-            // area_id Biteship berakhir ...IDZ{kodepos}
-            if (preg_match('/IDZ(\d+)/', $order->shipping_area_id, $m)) {
-                $postalCode = $m[1];
-            } else {
-                $parts = explode('IDZ', $order->shipping_area_id);
-                $postalCode = end($parts) ?: '';
-            }
+        if ($order->shipping_area_id && preg_match('/IDZ(\d+)/', $order->shipping_area_id, $m)) {
+            $postalCode = $m[1];
+        } elseif ($order->shipping_area_id) {
+            $parts = explode('IDZ', $order->shipping_area_id);
+            $postalCode = (string) (end($parts) ?: '');
         }
 
         $totalWeightG = $order->items->sum(function ($item) {
@@ -45,6 +60,7 @@ class ShippingLabelController extends Controller
         if ($totalWeightG <= 0) {
             $totalWeightG = 300;
         }
+
         $totalWeightKg = $totalWeightG / 1000;
         $totalQty = max(1, (int) $order->items->sum('quantity'));
 
@@ -67,29 +83,31 @@ class ShippingLabelController extends Controller
 
         $note = $order->payment_method === 'cod'
             ? 'COD — tagih Rp. '.number_format((float) $order->total, 0, ',', '.')
-            : 'Harap cek isi paket sebelum diterima.';
+            : 'Harap cek isi paket saat diterima.';
 
         $reference = $order->order_number
             ?: ($order->biteship_order_id ?: '-');
 
-        $originName = config('app.name', 'Aliesmo');
+        $originName = 'Aliesmo';
         $originPhone = config('services.biteship.origin_phone', '08138883345');
         $originAddress = config('services.biteship.origin_address', 'Ulujami, Pemalang, Jawa Tengah');
 
-        return view('shipping-label', compact(
-            'order',
-            'waybillId',
-            'courierType',
-            'serviceType',
-            'postalCode',
-            'totalWeightKg',
-            'totalQty',
-            'itemsLines',
-            'note',
-            'reference',
-            'originName',
-            'originPhone',
-            'originAddress',
-        ));
+        return view('shipping-label', [
+            'order' => $order,
+            'waybillId' => $waybillId,
+            'courierShort' => $courierShort,
+            'courierClass' => $courierClass,
+            'serviceType' => $serviceLabel,
+            'serviceLabel' => $serviceLabel,
+            'postalCode' => $postalCode,
+            'totalWeightKg' => $totalWeightKg,
+            'totalQty' => $totalQty,
+            'itemsLines' => $itemsLines,
+            'note' => $note,
+            'reference' => $reference,
+            'originName' => $originName,
+            'originPhone' => $originPhone,
+            'originAddress' => $originAddress,
+        ]);
     }
 }
