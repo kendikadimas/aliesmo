@@ -65,6 +65,18 @@ jobs:
             composer.json \
             composer.lock
 
+      # Upload runner terbaru via FTP dulu — bootstrap kalau versi lama tidak ada JSON response
+      - name: Bootstrap deploy-runner via FTP
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+        run: |
+          curl -sS --max-time 30 \
+            -T public/deploy-runner.php \
+            --user "${FTP_USER}:${FTP_PASS}" \
+            "ftp://${FTP_HOST}/public_html/deploy-runner.php" || echo "FTP bootstrap warning (non-fatal)"
+
       # Kirim zip ke deploy-runner.php di server — tidak pakai FTP, tidak pakai Fileman UAPI
       - name: Deploy via deploy-runner
         env:
