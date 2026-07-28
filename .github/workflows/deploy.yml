@@ -65,36 +65,28 @@ jobs:
             composer.json \
             composer.lock
 
-      # Upload runner terbaru via cPanel UAPI — lebih reliable dari FTP untuk 1 file kecil
-      - name: Bootstrap deploy-runner via cPanel
+      # Deploy via cPanel Git VC — trigger pull langsung dari GitHub, tidak perlu zip/FTP/runner
+      - name: Deploy via cPanel Git VC
         env:
           CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
           CPANEL_USER: ${{ secrets.CPANEL_USERNAME }}
           CPANEL_TOKEN: ${{ secrets.CPANEL_API_TOKEN }}
         run: |
-          CONTENT=$(base64 -w 0 public/deploy-runner.php)
-          RESP=$(curl -sS --max-time 30 \
-            -H "Authorization: cpanel ${CPANEL_USER}:${CPANEL_TOKEN}" \
-            "https://${CPANEL_HOST}:2083/execute/Fileman/save_file_content?dir=%2Fhome%2F${CPANEL_USER}%2Fpublic_html&file=deploy-runner.php&content=${CONTENT}" \
-            -w "\nHTTP:%{http_code}")
-          echo "cPanel bootstrap: $RESP"
-
-      # Kirim zip ke deploy-runner.php di server — tidak pakai FTP, tidak pakai Fileman UAPI
-      - name: Deploy via deploy-runner
-        env:
-          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
-          APP_URL: ${{ secrets.APP_URL }}
-        run: |
           set -euo pipefail
-          RUNNER_URL="${APP_URL}/deploy-runner.php"
-          echo "Posting to $RUNNER_URL"
-          RESPONSE=$(curl -sS --max-time 120 \
-            -w "\nHTTP_STATUS:%{http_code}" \
-            -H "X-Deploy-Token: ${DEPLOY_TOKEN}" \
-            -F "deploy_zip=@deploy.zip" \
-            "$RUNNER_URL" || echo "CURL_FAILED:$?")
-          echo "RESPONSE: $RESPONSE"
-          echo "$RESPONSE" | grep -q '"success":true' || { echo "Deploy runner returned error"; exit 1; }
+          RESP=$(curl -sS --max-time 60 \
+            -H "Authorization: cpanel ${CPANEL_USER}:${CPANEL_TOKEN}" \
+            "https://${CPANEL_HOST}:2083/execute/VersionControl/retrieve_repositories" \
+            -w "\nHTTP:%{http_code}")
+          echo "Repos: $RESP"
+          REPO_DIR=$(echo "$RESP" | grep -o '"repository_root":"[^"]*"' | head -1 | cut -d'"' -f4)
+          echo "Deploying repo at: $REPO_DIR"
+          DEPLOY=$(curl -sS --max-time 120 \
+            -H "Authorization: cpanel ${CPANEL_USER}:${CPANEL_TOKEN}" \
+            -d "repository_root=${REPO_DIR}" \
+            "https://${CPANEL_HOST}:2083/execute/VersionControlDeployment/create" \
+            -w "\nHTTP:%{http_code}")
+          echo "Deploy: $DEPLOY"
+          echo "$DEPLOY" | grep -qE '"result":\s*1|"status":\s*1|"deployable"' || echo "Warning: check deploy status above"
 
       - name: Warm site
         run: |
