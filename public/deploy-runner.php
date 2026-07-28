@@ -42,23 +42,25 @@ if (!empty($_FILES['deploy_zip']['tmp_name']) && is_uploaded_file($_FILES['deplo
     $results['extract'] = 'no zip';
 }
 
-// Hanya buang route cache kosong/rusak — JANGAN hapus packages.php / services.php
+// Hanya buang route/config cache — JANGAN hapus packages.php / services.php
 $cacheDir = $root . '/bootstrap/cache';
 $cleared  = [];
-$routesCache = $cacheDir . '/routes-v7.php';
-if (is_file($routesCache)) {
-    @unlink($routesCache);
-    $cleared[] = 'routes-v7.php';
-}
-// config cache optional; packages/services must stay
-foreach (['config.php', 'events.php', 'routes.php'] as $extra) {
-    $p = $cacheDir . '/' . $extra;
-    if (is_file($p)) {
-        @unlink($p);
-        $cleared[] = $extra;
-    }
+foreach (['routes-v7.php', 'config.php', 'events.php', 'routes.php'] as $f) {
+    $p = $cacheDir . '/' . $f;
+    if (is_file($p)) { @unlink($p); $cleared[] = $f; }
 }
 $results['cache_cleared'] = $cleared ?: 'nothing to clear';
+
+// Buang compiled blade views supaya template baru langsung aktif
+$viewsDir = $root . '/storage/framework/views';
+$viewsCleared = 0;
+if (is_dir($viewsDir)) {
+    foreach (glob($viewsDir . '/*.php') ?: [] as $f) {
+        @unlink($f);
+        $viewsCleared++;
+    }
+}
+$results['views_cleared'] = $viewsCleared;
 
 header('Content-Type: application/json');
 echo json_encode(['success' => true, 'ts' => date('Y-m-d H:i:s'), 'results' => $results]);

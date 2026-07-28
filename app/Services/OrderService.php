@@ -78,7 +78,7 @@ class OrderService
                         }
                     }
 
-                    $itemPrice   = $variant->price;
+                    $itemPrice   = ($size->price ?? null) ?? $variant->price;
                     $variantName = $variant->name;
                 } else {
                     // Tidak ada varian — pakai stok produk langsung

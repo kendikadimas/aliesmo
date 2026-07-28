@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Label - {{ count($labels) === 1 ? $labels[0]['order']->order_number : '('.count($labels).')' }}</title>
-    {{-- self-host: CSP blocks cdn.jsdelivr.net --}}
-    <script src="{{ asset('js/JsBarcode.all.min.js') }}"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -267,7 +265,8 @@
         $recipientName = $L['recipientName'];
         $recipientPhone = $L['recipientPhone'];
         $recipientAddress = $L['recipientAddress'];
-        $idx = $i + 1;
+        $barcodeWaybillSvg = $L['barcodeWaybillSvg'] ?? '';
+        $barcodeRefSvg = $L['barcodeRefSvg'] ?? '';
     @endphp
     <div class="sheet">
         <table class="lbl">
@@ -276,7 +275,8 @@
                     <div class="header-inner">
                         <div class="courier-box">
                             @if($courierLogoUrl)
-                                <img src="{{ $courierLogoUrl }}" alt="{{ $courierShort }}" class="courier-logo-img">
+                                <img src="{{ $courierLogoUrl }}" alt="{{ $courierShort }}" class="courier-logo-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block'">
+                                <div class="courier-logo-fallback {{ $courierClass }}" style="display:none">{{ $courierShort }}</div>
                             @else
                                 <div class="courier-logo-fallback {{ $courierClass }}">{{ $courierShort }}</div>
                             @endif
@@ -295,7 +295,7 @@
             <tr>
                 <td colspan="2" class="cell-waybill">
                     <div class="barcode-wrap">
-                        <svg id="barcode-waybill-{{ $idx }}"></svg>
+                        {!! $barcodeWaybillSvg !!}
                     </div>
                     <div class="waybill-caption">Nomor Resi - {{ $waybillId }}</div>
                 </td>
@@ -317,7 +317,7 @@
                 <td class="cell-ref">
                     <div class="field-label">Reference Number</div>
                     <div class="barcode-wrap">
-                        <svg id="barcode-ref-{{ $idx }}"></svg>
+                        {!! $barcodeRefSvg !!}
                     </div>
                     <div class="ref-text">{{ $reference }}</div>
                 </td>
@@ -368,37 +368,5 @@
         </table>
     </div>
     @endforeach
-
-    <script>
-        (function () {
-            if (typeof JsBarcode !== 'function') return;
-
-            function draw(id, value, opts) {
-                if (!value || value === '-') return;
-                var el = document.getElementById(id);
-                if (!el) return;
-                try {
-                    JsBarcode(el, String(value), Object.assign({
-                        format: 'CODE128',
-                        displayValue: false,
-                        margin: 0,
-                        background: '#ffffff',
-                        lineColor: '#000000'
-                    }, opts));
-                } catch (e) {}
-            }
-
-            var labels = @json(collect($labels)->map(fn ($L) => [
-                'waybillId' => $L['waybillId'],
-                'reference' => $L['reference'],
-            ])->values());
-
-            labels.forEach(function (L, i) {
-                var n = i + 1;
-                draw('barcode-waybill-' + n, L.waybillId, { width: 2, height: 56 });
-                draw('barcode-ref-' + n, L.reference, { width: 1.4, height: 38 });
-            });
-        })();
-    </script>
 </body>
 </html>

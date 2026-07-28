@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\SocialAuthController;
 use App\Http\Controllers\PaymentProofController;
+use App\Http\Controllers\ProductVariantImportController;
 use App\Http\Controllers\ShippingLabelController;
 use Filament\Http\Middleware\Authenticate as FilamentAuthenticate;
 use Illuminate\Support\Facades\Route;
@@ -16,7 +17,7 @@ Route::get('/auth/callback', function () {
     return view('welcome');
 })->name('auth.callback');
 
-// Admin-only: label + bukti bayar (disk private)
+// Admin-only: label + bukti bayar (disk private) + import varian
 Route::middleware([FilamentAuthenticate::class])->group(function () {
     Route::get('/admin/orders/labels', [ShippingLabelController::class, 'bulk'])
         ->name('orders.labels.bulk');
@@ -24,6 +25,8 @@ Route::middleware([FilamentAuthenticate::class])->group(function () {
         ->name('orders.label');
     Route::get('/admin/orders/{order}/payment-proof', [PaymentProofController::class, 'show'])
         ->name('admin.payment-proof');
+    Route::post('/admin/products/{product}/import-variants', [ProductVariantImportController::class, 'store'])
+        ->name('products.variants.import');
 });
 
 // SPA catch-all — semua route non-API dan non-admin di-handle Vue Router

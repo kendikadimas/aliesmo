@@ -11,7 +11,7 @@ class ProductVariantSize extends Model
     use HasFactory;
 
     protected $fillable = [
-        'variant_id', 'name', 'stock', 'sku',
+        'variant_id', 'name', 'stock', 'sku', 'price',
         'weight', 'is_active', 'sort_order',
     ];
 
@@ -22,6 +22,7 @@ class ProductVariantSize extends Model
             'weight'     => 'integer',
             'is_active'  => 'boolean',
             'sort_order' => 'integer',
+            'price'      => 'decimal:2',
         ];
     }
 

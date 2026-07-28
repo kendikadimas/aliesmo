@@ -42,53 +42,47 @@ jobs:
           git diff --cached --quiet || git commit -m "deploy: build artifacts [skip ci]"
           git push origin main
 
-      # Fileman UAPI blocked by bot-protection from GitHub IP.
-      # FTP: only critical files, short timeout, fail fast.
-      - name: FTP upload label + routes (critical)
+      # Zip hanya file app yang dibutuhkan prod — bukan vendor/node_modules/frontend source
+      - name: Buat zip deploy
+        run: |
+          zip -r deploy.zip \
+            app/ \
+            bootstrap/ \
+            config/ \
+            database/ \
+            resources/ \
+            routes/ \
+            public/index.php \
+            public/deploy-runner.php \
+            public/build/ \
+            public/jnt-express-logo.svg \
+            public/aliesmo-horizontal.png \
+            public/New_Logo_JNE.png \
+            public/POSIND_2023.svg \
+            .htaccess \
+            .cpanel.yml \
+            artisan \
+            composer.json \
+            composer.lock
+
+      # Kirim zip ke deploy-runner.php di server — tidak pakai FTP, tidak pakai Fileman UAPI
+      - name: Deploy via deploy-runner
         env:
-          FTP_SERVER: ${{ secrets.FTP_SERVER }}
-          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+          APP_URL: ${{ secrets.APP_URL }}
         run: |
           set -euo pipefail
-          FILES=(
-            routes/web.php
-            app/Http/Controllers/ShippingLabelController.php
-            resources/views/shipping-label.blade.php
-            app/Filament/Resources/OrderResource.php
-            public/index.php
-            public/deploy-runner.php
-            bootstrap/app.php
-          )
-
-          echo "FTP host=$FTP_SERVER user=$FTP_USERNAME"
-          FAIL=0
-          for f in "${FILES[@]}"; do
-            [ -f "$f" ] || { echo "missing $f"; FAIL=1; continue; }
-            echo "PUT $f"
-            # cPanel often wants path under public_html; try both with/without public_html prefix
-            OK=0
-            for REMOTE in \
-              "ftp://$FTP_SERVER/public_html/$f" \
-              "ftp://$FTP_SERVER/$f"
-            do
-              if curl -sS --connect-timeout 15 --max-time 45 --ftp-create-dirs \
-                  --user "$FTP_USERNAME:$FTP_PASSWORD" \
-                  -T "$f" "$REMOTE" 2>/tmp/ftp.err; then
-                echo "  OK $REMOTE"
-                OK=1
-                break
-              fi
-            done
-            if [ "$OK" -ne 1 ]; then
-              echo "  FAIL $f"
-              cat /tmp/ftp.err || true
-              FAIL=1
-            fi
-          done
-          [ "$FAIL" -eq 0 ]
+          RUNNER_URL="${APP_URL}/deploy-runner.php"
+          echo "Posting to $RUNNER_URL"
+          RESPONSE=$(curl -sS --max-time 120 \
+            -H "X-Deploy-Token: ${DEPLOY_TOKEN}" \
+            -F "deploy_zip=@deploy.zip" \
+            "$RUNNER_URL")
+          echo "$RESPONSE"
+          # Gagal kalau response bukan success:true
+          echo "$RESPONSE" | grep -q '"success":true' || { echo "Deploy runner returned error"; exit 1; }
 
       - name: Warm site
         run: |
-          curl -sk --max-time 15 -o /dev/null -w "HOME %{http_code}\n" "https://aliesmo.id/" || true
-          curl -sk --max-time 15 -o /dev/null -w "UP %{http_code}\n" "https://aliesmo.id/up" || true
+          curl -sk --max-time 15 -o /dev/null -w "HOME %{http_code}\n" "${{ secrets.APP_URL }}/" || true
+          curl -sk --max-time 15 -o /dev/null -w "UP   %{http_code}\n" "${{ secrets.APP_URL }}/up" || true
