@@ -78,9 +78,8 @@ jobs:
             -w "\nHTTP_STATUS:%{http_code}" \
             -H "X-Deploy-Token: ${DEPLOY_TOKEN}" \
             -F "deploy_zip=@deploy.zip" \
-            "$RUNNER_URL")
-          echo "$RESPONSE"
-          # Gagal kalau response bukan success:true
+            "$RUNNER_URL" || echo "CURL_FAILED:$?")
+          echo "RESPONSE: $RESPONSE"
           echo "$RESPONSE" | grep -q '"success":true' || { echo "Deploy runner returned error"; exit 1; }
 
       - name: Warm site
