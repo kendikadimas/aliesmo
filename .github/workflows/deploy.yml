@@ -65,17 +65,19 @@ jobs:
             composer.json \
             composer.lock
 
-      # Upload runner terbaru via FTP dulu — bootstrap kalau versi lama tidak ada JSON response
-      - name: Bootstrap deploy-runner via FTP
+      # Upload runner terbaru via cPanel UAPI — lebih reliable dari FTP untuk 1 file kecil
+      - name: Bootstrap deploy-runner via cPanel
         env:
-          FTP_HOST: ${{ secrets.FTP_SERVER }}
-          FTP_USER: ${{ secrets.FTP_USERNAME }}
-          FTP_PASS: ${{ secrets.FTP_PASSWORD }}
+          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
+          CPANEL_USER: ${{ secrets.CPANEL_USERNAME }}
+          CPANEL_TOKEN: ${{ secrets.CPANEL_API_TOKEN }}
         run: |
-          curl -sS --max-time 30 \
-            -T public/deploy-runner.php \
-            --user "${FTP_USER}:${FTP_PASS}" \
-            "ftp://${FTP_HOST}/public_html/deploy-runner.php" || echo "FTP bootstrap warning (non-fatal)"
+          CONTENT=$(base64 -w 0 public/deploy-runner.php)
+          RESP=$(curl -sS --max-time 30 \
+            -H "Authorization: cpanel ${CPANEL_USER}:${CPANEL_TOKEN}" \
+            "https://${CPANEL_HOST}:2083/execute/Fileman/save_file_content?dir=%2Fhome%2F${CPANEL_USER}%2Fpublic_html&file=deploy-runner.php&content=${CONTENT}" \
+            -w "\nHTTP:%{http_code}")
+          echo "cPanel bootstrap: $RESP"
 
       # Kirim zip ke deploy-runner.php di server — tidak pakai FTP, tidak pakai Fileman UAPI
       - name: Deploy via deploy-runner
