@@ -614,17 +614,18 @@ async function fetchData() {
     currentPage.value = 1
     try {
         const [bannersRes, settingsRes, categoriesRes, productsRes, videosRes, bestSellersRes, newArrivalsRes, articlesRes, testimonialsRes] = await Promise.all([
-            api.get('/banners'),
+            api.get('/banners').catch(() => ({ data: { data: [] } })),
             fetchSettings(),
-            api.get('/categories'),
+            api.get('/categories').catch(() => ({ data: { data: [] } })),
             api.get('/products', { params: { per_page: 12, page: 1 } }),
-            api.get('/homepage-videos'),
+            api.get('/homepage-videos').catch(() => ({ data: { data: [] } })),
             api.get('/products', { params: { per_page: 4, sort: 'best_seller' } }).catch(() => ({ data: { data: [] } })),
             api.get('/products', { params: { per_page: 4, sort: 'newest' } }).catch(() => ({ data: { data: [] } })),
             api.get('/articles', { params: { per_page: 3 } }).catch(() => ({ data: { data: [] } })),
             api.get('/testimonials').catch(() => ({ data: { data: [] } })),
         ])
-        banners.value = (bannersRes.data.data || bannersRes.data).filter(b => b.is_active !== false)
+        const rawBanners = bannersRes.data.data || bannersRes.data
+        banners.value = Array.isArray(rawBanners) ? rawBanners.filter(b => b.is_active !== false) : []
         categoriesList.value = categoriesRes.data.data || categoriesRes.data
         const meta = productsRes.data.meta || productsRes.data.pagination || null
         products.value = productsRes.data.data || productsRes.data
