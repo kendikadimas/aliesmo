@@ -18,7 +18,8 @@ if (is_file($envPath)) {
 $provided = $_SERVER['HTTP_X_DEPLOY_TOKEN'] ?? ($_GET['token'] ?? '');
 if ($token === '' || $provided === '' || !hash_equals($token, $provided)) {
     http_response_code(403);
-    die('403 Forbidden');
+    echo json_encode(['success' => false, 'error' => '403 Forbidden']);
+    exit;
 }
 
 @set_time_limit(180);
