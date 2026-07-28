@@ -65,7 +65,7 @@ jobs:
             composer.json \
             composer.lock
 
-      # Deploy via cPanel Git VC — trigger pull langsung dari GitHub, tidak perlu zip/FTP/runner
+      # ponytail: hardcode repo_root karena kita tahu path-nya — skip retrieve_repositories
       - name: Deploy via cPanel Git VC
         env:
           CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
@@ -73,20 +73,14 @@ jobs:
           CPANEL_TOKEN: ${{ secrets.CPANEL_API_TOKEN }}
         run: |
           set -euo pipefail
-          RESP=$(curl -sS --max-time 60 \
-            -H "Authorization: cpanel ${CPANEL_USER}:${CPANEL_TOKEN}" \
-            "https://${CPANEL_HOST}:2083/execute/VersionControl/retrieve_repositories" \
-            -w "\nHTTP:%{http_code}")
-          echo "Repos: $RESP"
-          REPO_DIR=$(echo "$RESP" | grep -o '"repository_root":"[^"]*"' | head -1 | cut -d'"' -f4)
-          echo "Deploying repo at: $REPO_DIR"
+          REPO_ROOT="/home/${CPANEL_USER}/public_html"
+          echo "Triggering deploy for: $REPO_ROOT"
           DEPLOY=$(curl -sS --max-time 120 \
             -H "Authorization: cpanel ${CPANEL_USER}:${CPANEL_TOKEN}" \
-            -d "repository_root=${REPO_DIR}" \
-            "https://${CPANEL_HOST}:2083/execute/VersionControlDeployment/create" \
+            -G --data-urlencode "repository_root=${REPO_ROOT}" \
+            "https://${CPANEL_HOST}:2083/execute/VersionControlDeployment/deploy" \
             -w "\nHTTP:%{http_code}")
-          echo "Deploy: $DEPLOY"
-          echo "$DEPLOY" | grep -qE '"result":\s*1|"status":\s*1|"deployable"' || echo "Warning: check deploy status above"
+          echo "Deploy response: $DEPLOY"
 
       - name: Warm site
         run: |
