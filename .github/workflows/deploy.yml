@@ -75,6 +75,7 @@ jobs:
           RUNNER_URL="${APP_URL}/deploy-runner.php"
           echo "Posting to $RUNNER_URL"
           RESPONSE=$(curl -sS --max-time 120 \
+            -w "\nHTTP_STATUS:%{http_code}" \
             -H "X-Deploy-Token: ${DEPLOY_TOKEN}" \
             -F "deploy_zip=@deploy.zip" \
             "$RUNNER_URL")
