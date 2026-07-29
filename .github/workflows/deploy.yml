@@ -42,7 +42,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: public/build/
-          server-dir: /public_html/build/
+          server-dir: public_html/build/
           dangerous-clean-slate: true
 
       # ponytail: hardcode repo_root karena kita tahu path-nya — skip retrieve_repositories
