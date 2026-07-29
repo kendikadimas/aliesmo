@@ -1,0 +1,6 @@
+<IfModule LiteSpeed>
+    CacheLookup off
+</IfModule>
+<FilesMatch "\.(json|js|css)$">
+    Header set Cache-Control "no-store"
+</FilesMatch>
