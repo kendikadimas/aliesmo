@@ -34,16 +34,13 @@ jobs:
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
-      # Upload build assets langsung via FTP — skip commit ke repo agar tidak loop
-      - name: Upload public/build via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: public/build/
-          server-dir: public_html/build/
-          dangerous-clean-slate: true
+      - name: Commit public/build ke repo
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add public/build
+          git diff --cached --quiet || git commit -m "deploy: build artifacts [skip ci]"
+          git push origin main
 
       # ponytail: hardcode repo_root karena kita tahu path-nya — skip retrieve_repositories
       - name: Deploy via cPanel Git VC
