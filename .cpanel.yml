@@ -1,7 +1,7 @@
 ---
 deployment:
   tasks:
-    - export GIT_DIR=/home/aliesmoi/public_html/.git && export GIT_WORK_TREE=/home/aliesmoi/public_html && /usr/bin/git fetch origin && /usr/bin/git reset --hard origin/main
+    - export GIT_DIR=/home/aliesmoi/public_html/.git && export GIT_WORK_TREE=/home/aliesmoi/public_html && /usr/bin/git fetch origin && /usr/bin/git reset --hard origin/main && /usr/bin/git checkout origin/main -- public/build/
     - /usr/local/bin/php /home/aliesmoi/public_html/artisan migrate --force
     - /usr/local/bin/php /home/aliesmoi/public_html/artisan optimize:clear
     - /usr/local/bin/php /home/aliesmoi/public_html/artisan view:clear
