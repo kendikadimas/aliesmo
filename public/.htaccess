@@ -37,3 +37,9 @@
     php_value memory_limit 256M
     php_value max_execution_time 120
 </IfModule>
+
+# Disable LiteSpeed/proxy cache for Vite manifest so deploys are reflected immediately
+<Files "manifest.json">
+    Header set Cache-Control "no-store, no-cache, must-revalidate"
+    Header set Pragma "no-cache"
+</Files>
