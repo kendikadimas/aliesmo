@@ -17,6 +17,9 @@ class Product extends Model
         'price', 'original_price', 'stock', 'weight', 'is_active', 'thumbnail'
     ];
 
+    // ponytail: default string kosong supaya kolom NOT NULL tidak error saat description tidak diisi
+    protected $attributes = ['description' => ''];
+
     protected function casts(): array
     {
         return [
