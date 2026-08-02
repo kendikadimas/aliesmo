@@ -202,16 +202,14 @@ class ProductResource extends Resource
                                     ->rows(10)
                                     ->required()
                                     ->extraInputAttributes([
-                                        // preserve tab saat paste dari Excel — Livewire/Alpine strip tab di x-model
+                                        // encode tab ke __TAB__ supaya Livewire tidak strip, decode di PHP
                                         'x-on:paste' => '
                                             $event.preventDefault();
-                                            const text = $event.clipboardData.getData("text/plain");
+                                            const text = $event.clipboardData.getData("text/plain").replaceAll("\t", "__TAB__");
                                             const el = $event.target;
                                             const start = el.selectionStart;
                                             const end = el.selectionEnd;
-                                            const before = el.value.substring(0, start);
-                                            const after = el.value.substring(end);
-                                            el.value = before + text + after;
+                                            el.value = el.value.substring(0, start) + text + el.value.substring(end);
                                             el.selectionStart = el.selectionEnd = start + text.length;
                                             el.dispatchEvent(new Event("input"));
                                         ',
@@ -244,7 +242,7 @@ class ProductResource extends Resource
                                     return;
                                 }
 
-                                $rawTsv = $data['tsv_data'] ?? '';
+                                $rawTsv = str_replace('__TAB__', "\t", $data['tsv_data'] ?? '');
                                 $lines  = preg_split('/\r?\n/', $rawTsv);
                                 $variantMap = [];
                                 // ponytail: user-defined column mapping (1-indexed), 0 = kolom tidak ada
