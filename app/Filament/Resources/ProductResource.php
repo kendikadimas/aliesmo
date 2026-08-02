@@ -200,7 +200,13 @@ class ProductResource extends Resource
                                     ->rows(4)
                                     ->required()
                                     ->extraAttributes([
-                                        'x-on:csv-loaded.window' => '$wire.set(\'mountedActions.0.data.csv_data\', $event.detail.text)',
+                                        'x-on:csv-loaded.window' => '
+                                            $el.value = $event.detail.text;
+                                            $el.dispatchEvent(new Event("input", {bubbles:true}));
+                                            $wire.$set("mountedActions.0.data.csv_data", $event.detail.text).catch(()=>{
+                                                $wire.set("mountedActions.0.data.csv_data", $event.detail.text);
+                                            });
+                                        ',
                                     ]),
                                 \Filament\Forms\Components\Placeholder::make('file_picker_html')
                                     ->label('')
@@ -215,12 +221,19 @@ class ProductResource extends Resource
                                                         const btn = document.getElementById(\'csv-btn-text\');
                                                         const info = document.getElementById(\'csv-file-info\');
                                                         const lbl = document.getElementById(\'csv-picker-label\');
-                                                        btn.textContent=\'Membaca...\'; lbl.style.opacity=\'0.6\';
+                                                        const bar = document.getElementById(\'csv-progress-bar\');
+                                                        btn.textContent=\'Membaca...\';
+                                                        lbl.style.opacity=\'0.7\';
+                                                        bar.style.display=\'block\';
+                                                        bar.querySelector(\'div\').style.width=\'30%\';
                                                         const r = new FileReader();
+                                                        r.onprogress = e => { if(e.lengthComputable) bar.querySelector(\'div\').style.width=(e.loaded/e.total*80)+\'%\'; };
                                                         r.onload = ev => {
+                                                            bar.querySelector(\'div\').style.width=\'100%\';
                                                             const text = ev.target.result;
                                                             const lines = text.split(/\r?\n/).filter(l=>l.trim());
                                                             window.dispatchEvent(new CustomEvent(\'csv-loaded\', {detail:{text}}));
+                                                            setTimeout(()=>{ bar.style.display=\'none\'; bar.querySelector(\'div\').style.width=\'0%\'; }, 500);
                                                             btn.textContent=\'Ganti File\'; lbl.style.opacity=\'1\'; lbl.style.background=\'#16a34a\';
                                                             info.innerHTML=\'<strong>\'+f.name+\'</strong> &mdash; \'+(lines.length-1)+\' baris data siap diimport\';
                                                             info.style.display=\'block\';
@@ -229,6 +242,9 @@ class ProductResource extends Resource
                                                     "
                                                 />
                                             </label>
+                                            <div id="csv-progress-bar" style="display:none;margin-top:8px;height:6px;background:#e5e7eb;border-radius:4px;overflow:hidden;">
+                                                <div style="height:100%;width:0%;background:#16a34a;border-radius:4px;transition:width 0.2s ease;"></div>
+                                            </div>
                                             <div id="csv-file-info" style="display:none;margin-top:8px;font-size:13px;color:#16a34a;"></div>
                                         </div>
                                     ')),
