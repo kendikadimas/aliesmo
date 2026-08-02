@@ -191,18 +191,19 @@ class ProductResource extends Resource
                     ->description('Tambahkan varian warna produk. Setiap warna bisa punya ukuran (S, M, L, XL) dengan stok masing-masing. Jika produk tidak punya varian, kosongkan bagian ini.')
                     ->headerActions([
                         \Filament\Actions\Action::make('import_tsv')
-                            ->label('Import dari Excel')
+                            ->label('Import dari CSV')
                             ->icon('heroicon-o-table-cells')
                             ->color('gray')
                             ->form([
-                                \Filament\Forms\Components\FileUpload::make('excel_file')
-                                    ->label('File Excel (.xlsx / .xls / .csv)')
-                                    ->acceptedFileTypes(['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel', 'text/csv', 'application/octet-stream'])
+                                \Filament\Forms\Components\FileUpload::make('csv_file')
+                                    ->label('File CSV')
+                                    ->helperText('Di Excel: File → Save As → CSV UTF-8 (Comma delimited). Lalu upload di sini.')
+                                    ->acceptedFileTypes(['text/csv', 'text/plain', 'application/csv', 'application/octet-stream'])
                                     ->disk('local')
                                     ->directory('import-tmp')
                                     ->required(),
                                 \Filament\Schemas\Components\Section::make('Mapping Kolom')
-                                    ->description('Nomor kolom di Excel (dimulai dari 1). Set 0 jika kolom tidak ada.')
+                                    ->description('Nomor kolom di CSV (dimulai dari 1). Set 0 jika kolom tidak ada.')
                                     ->schema([
                                         \Filament\Forms\Components\TextInput::make('col_sku')->label('Kolom SKU')->numeric()->default(1)->minValue(1)->required(),
                                         \Filament\Forms\Components\TextInput::make('col_warna')->label('Kolom Warna')->numeric()->default(2)->minValue(1)->required(),
@@ -216,7 +217,6 @@ class ProductResource extends Resource
                             ])
                             ->action(function (array $data, $livewire) {
                                 $product = $livewire->getRecord();
-                                // ponytail: di halaman Create, simpan produk dulu dari form state
                                 if (!$product) {
                                     $livewire->create();
                                     $product = $livewire->getRecord();
@@ -229,12 +229,13 @@ class ProductResource extends Resource
                                     return;
                                 }
 
-                                // baca file Excel pakai PhpSpreadsheet
-                                $path = \Illuminate\Support\Facades\Storage::disk('local')->path($data['excel_file']);
-                                $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($path);
-                                $rows = $spreadsheet->getActiveSheet()->toArray(null, true, true, false);
+                                $path = \Illuminate\Support\Facades\Storage::disk('local')->path($data['csv_file']);
+                                $handle = fopen($path, 'r');
+                                if (!$handle) {
+                                    \Filament\Notifications\Notification::make()->title('File tidak bisa dibuka.')->danger()->send();
+                                    return;
+                                }
 
-                                $variantMap = [];
                                 $colMap = [
                                     'sku'    => (int)($data['col_sku']    ?? 1) - 1,
                                     'warna'  => (int)($data['col_warna']  ?? 2) - 1,
@@ -243,9 +244,9 @@ class ProductResource extends Resource
                                     'stok'   => (int)($data['col_stok']   ?? 5) - 1,
                                 ];
 
+                                $variantMap = [];
                                 $firstRow = true;
-                                foreach ($rows as $cols) {
-                                    $cols = array_values($cols);
+                                while (($cols = fgetcsv($handle)) !== false) {
                                     // auto-skip kolom NO di awal
                                     if (count($cols) >= 5 && is_numeric($cols[0]) && !is_numeric($cols[1])) {
                                         array_shift($cols);
@@ -253,23 +254,19 @@ class ProductResource extends Resource
                                     // skip baris header
                                     if ($firstRow) {
                                         $firstRow = false;
-                                        $stokVal = $cols[$colMap['stok']] ?? '';
-                                        if (!is_numeric($stokVal)) continue;
+                                        if (!is_numeric($cols[$colMap['stok']] ?? '')) continue;
                                     }
                                     $stok = $cols[$colMap['stok']] ?? '';
                                     if (!is_numeric($stok)) continue;
-                                    $sku    = trim((string)($cols[$colMap['sku']]   ?? ''));
-                                    $warna  = trim((string)($cols[$colMap['warna']] ?? ''));
-                                    $lengan = $colMap['lengan'] >= 0 ? trim((string)($cols[$colMap['lengan']] ?? '')) : '';
-                                    $ukuran = trim((string)($cols[$colMap['ukuran']] ?? ''));
+                                    $sku    = trim($cols[$colMap['sku']]    ?? '');
+                                    $warna  = trim($cols[$colMap['warna']]  ?? '');
+                                    $lengan = $colMap['lengan'] >= 0 ? trim($cols[$colMap['lengan']] ?? '') : '';
+                                    $ukuran = trim($cols[$colMap['ukuran']] ?? '');
                                     $variantKey = $lengan !== '' ? "$warna - $lengan" : $warna;
                                     $variantMap[$variantKey][] = compact('sku', 'ukuran', 'stok');
                                 }
-
-                                // hapus file temp setelah dibaca
-                                \Illuminate\Support\Facades\Storage::disk('local')->delete($data['excel_file']);
-
-                                if (empty($variantMap)) {
+                                fclose($handle);
+                                \Illuminate\Support\Facades\Storage::disk('local')->delete($data['csv_file']);
                                     \Filament\Notifications\Notification::make()
                                         ->title('Tidak ada data valid yang bisa diparse.')
                                         ->warning()->send();
