@@ -419,7 +419,7 @@ class OrderController extends Controller
         }
 
         $order = Order::where('order_number', strtoupper($orderNumber))
-            ->with(['items.product', 'payment'])
+            ->with(['items.product', 'items.variant', 'payment'])
             ->first();
 
         if (!$order) {
@@ -471,11 +471,11 @@ class OrderController extends Controller
             'items'            => $order->items->map(fn($i) => [
                 'product_name'  => $i->product_name,
                 'product_slug'  => $i->product?->slug,
-                'product_image' => $i->product?->thumbnail
-                    ? (str_starts_with($i->product->thumbnail, 'http')
-                        ? $i->product->thumbnail
-                        : asset('storage/' . $i->product->thumbnail))
-                    : null,
+                'product_image' => (function($i) {
+                    $img = $i->variant?->image ?? $i->product?->thumbnail;
+                    if (!$img) return null;
+                    return str_starts_with($img, 'http') ? $img : asset('storage/' . $img);
+                })($i),
                 'variant_name'  => $i->variant_name,
                 'quantity'      => $i->quantity,
                 'price'         => (float) $i->price,
@@ -533,7 +533,7 @@ class OrderController extends Controller
     {
         $order = auth()->user()->orders()
             ->where('order_number', strtoupper($orderNumber))
-            ->with(['items.product', 'payment'])
+            ->with(['items.product', 'items.variant', 'payment'])
             ->firstOrFail();
 
         return response()->json([
