@@ -204,10 +204,15 @@ class ProductResource extends Resource
                             ])
                             ->action(function (array $data, $livewire) {
                                 $product = $livewire->getRecord();
+                                // ponytail: di halaman Create, simpan produk dulu dari form state
+                                if (!$product) {
+                                    $livewire->create();
+                                    $product = $livewire->getRecord();
+                                }
                                 if (!$product) {
                                     \Filament\Notifications\Notification::make()
-                                        ->title('Produk belum disimpan.')
-                                        ->body('Klik "Buat Produk" dulu untuk menyimpan produk, lalu import varian dari halaman edit.')
+                                        ->title('Produk gagal disimpan.')
+                                        ->body('Pastikan field wajib (Nama, Slug, SKU) sudah diisi sebelum import.')
                                         ->warning()->persistent()->send();
                                     return;
                                 }
