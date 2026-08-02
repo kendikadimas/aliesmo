@@ -181,6 +181,9 @@ class OrderService
 
             $order->items()->createMany($orderItems);
 
+            // kurangi stok saat order dibuat — hindari oversell saat banyak yang bayar bersamaan
+            $this->stockService->decrementForOrder($order);
+
             return $order;
         });
     }
@@ -202,17 +205,6 @@ class OrderService
             ]);
 
             Log::debug('markAsPaid: status updated to Paid', ['order' => $order->order_number]);
-
-            try {
-                $this->stockService->decrementForOrder($order);
-                Log::debug('markAsPaid: stock decremented', ['order' => $order->order_number]);
-            } catch (\Throwable $e) {
-                Log::error('markAsPaid: stock decrement failed', [
-                    'order' => $order->order_number,
-                    'error' => $e->getMessage(),
-                ]);
-                throw $e;
-            }
 
             Log::info('markAsPaid: order confirmed', ['order' => $order->order_number]);
 
