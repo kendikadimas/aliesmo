@@ -195,52 +195,53 @@ class ProductResource extends Resource
                             ->icon('heroicon-o-table-cells')
                             ->color('gray')
                             ->form([
-                                \Filament\Forms\Components\Textarea::make('csv_data')
-                                    ->label('Data CSV')
-                                    ->rows(4)
-                                    ->required(),
                                 \Filament\Forms\Components\Placeholder::make('file_picker_html')
-                                    ->label('')
+                                    ->label('File CSV')
                                     ->content(new \Illuminate\Support\HtmlString('
-                                        <div>
-                                            <label id="csv-picker-label" style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:#6b7280;color:#fff;border-radius:6px;font-size:14px;">
+                                        <div x-data="{
+                                            loading: false,
+                                            done: false,
+                                            filename: \'\',
+                                            rowcount: 0,
+                                            progress: 0,
+                                            pickFile() {
+                                                this.$refs.input.click();
+                                            },
+                                            readFile(e) {
+                                                const f = e.target.files[0]; if (!f) return;
+                                                this.loading = true; this.done = false; this.progress = 10;
+                                                const r = new FileReader();
+                                                r.onprogress = ev => { if(ev.lengthComputable) this.progress = Math.round(ev.loaded/ev.total*80)+10; };
+                                                r.onload = ev => {
+                                                    this.progress = 100;
+                                                    const text = ev.target.result;
+                                                    this.rowcount = text.split(/\r?\n/).filter(l=>l.trim()).length - 1;
+                                                    this.filename = f.name;
+                                                    $wire.set(\'mountedActions.0.data.csv_data\', text);
+                                                    this.loading = false; this.done = true;
+                                                };
+                                                r.readAsText(f);
+                                            }
+                                        }">
+                                            <input type="file" x-ref="input" accept=".csv,.txt" style="display:none" @change="readFile($event)" />
+                                            <button type="button" @click="pickFile()"
+                                                :style="done ? \'background:#16a34a\' : \'background:#6b7280\'"
+                                                style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:6px 14px;color:#fff;border:none;border-radius:6px;font-size:14px;">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                                                <span id="csv-btn-text">Pilih File CSV</span>
-                                                <input type="file" accept=".csv,.txt" style="display:none"
-                                                    onchange="
-                                                        const f = this.files[0]; if (!f) return;
-                                                        const btn = document.getElementById(\'csv-btn-text\');
-                                                        const info = document.getElementById(\'csv-file-info\');
-                                                        const lbl = document.getElementById(\'csv-picker-label\');
-                                                        const bar = document.getElementById(\'csv-progress-bar\');
-                                                        btn.textContent=\'Membaca...\'; lbl.style.opacity=\'0.7\';
-                                                        bar.style.display=\'block\'; bar.querySelector(\'div\').style.width=\'30%\';
-                                                        const r = new FileReader();
-                                                        r.onprogress = e => { if(e.lengthComputable) bar.querySelector(\'div\').style.width=(e.loaded/e.total*80)+\'%\'; };
-                                                        r.onload = ev => {
-                                                            const text = ev.target.result;
-                                                            const lines = text.split(/\r?\n/).filter(l=>l.trim());
-                                                            bar.querySelector(\'div\').style.width=\'100%\';
-                                                            const wireEl = document.querySelector(\'[wire\\:id]\');
-                                                            if (wireEl) {
-                                                                const comp = window.Livewire.find(wireEl.getAttribute(\'wire:id\'));
-                                                                if (comp) comp.set(\'mountedActions.0.data.csv_data\', text);
-                                                            }
-                                                            setTimeout(()=>{ bar.style.display=\'none\'; bar.querySelector(\'div\').style.width=\'0%\'; }, 400);
-                                                            btn.textContent=\'Ganti File\'; lbl.style.opacity=\'1\'; lbl.style.background=\'#16a34a\';
-                                                            info.innerHTML=\'<strong>\'+f.name+\'</strong> &mdash; \'+(lines.length-1)+\' baris data siap diimport\';
-                                                            info.style.display=\'block\';
-                                                        };
-                                                        r.readAsText(f);
-                                                    "
-                                                />
-                                            </label>
-                                            <div id="csv-progress-bar" style="display:none;margin-top:8px;height:6px;background:#e5e7eb;border-radius:4px;overflow:hidden;">
-                                                <div style="height:100%;width:0%;background:#16a34a;border-radius:4px;transition:width 0.2s ease;"></div>
+                                                <span x-text="loading ? \'Membaca...\' : (done ? \'Ganti File\' : \'Pilih File CSV\')"></span>
+                                            </button>
+                                            <div x-show="loading || done" style="margin-top:8px;">
+                                                <div x-show="loading" style="height:6px;background:#e5e7eb;border-radius:4px;overflow:hidden;">
+                                                    <div :style="\'width:\'+progress+\'%\'" style="height:100%;background:#16a34a;border-radius:4px;transition:width 0.2s ease;"></div>
+                                                </div>
+                                                <div x-show="done" style="font-size:13px;color:#16a34a;">
+                                                    <strong x-text="filename"></strong> &mdash; <span x-text="rowcount"></span> baris data siap diimport
+                                                </div>
                                             </div>
-                                            <div id="csv-file-info" style="display:none;margin-top:8px;font-size:13px;color:#16a34a;"></div>
                                         </div>
                                     ')),
+                                \Filament\Forms\Components\Hidden::make('csv_data')
+                                    ->required(),
                                 \Filament\Schemas\Components\Section::make('Mapping Kolom')
                                     ->description('Nomor kolom di CSV (dimulai dari 1). Set 0 jika kolom tidak ada.')
                                     ->schema([
