@@ -241,21 +241,6 @@ class ProductResource extends Resource
                                     'stok'   => (int)($data['col_stok']   ?? 5) - 1,
                                 ];
 
-                                // DEBUG: tampilkan info raw input
-                                $totalLines   = count($lines);
-                                $nonEmptyLines = count(array_filter($lines, fn($l) => trim($l) !== ''));
-                                $firstRaw     = trim($lines[0] ?? '');
-                                $hasTabs      = str_contains($rawTsv, "\t");
-                                \Filament\Notifications\Notification::make()
-                                    ->title('[DEBUG] Raw input')
-                                    ->body(
-                                        "Total baris: $totalLines | Non-empty: $nonEmptyLines\n" .
-                                        "Ada tab: " . ($hasTabs ? 'Ya' : 'Tidak') . "\n" .
-                                        "colMap: sku={$colMap['sku']} warna={$colMap['warna']} lengan={$colMap['lengan']} ukuran={$colMap['ukuran']} stok={$colMap['stok']}\n" .
-                                        "Baris 1: " . mb_substr($firstRaw, 0, 120)
-                                    )
-                                    ->info()->persistent()->send();
-
                                 $firstLine = true;
                                 $skippedLines = [];
 
@@ -285,15 +270,15 @@ class ProductResource extends Resource
                                     $variantMap[$variantKey][] = compact('sku', 'ukuran', 'stok');
                                 }
 
-                                // DEBUG: tampilkan hasil parsing
-                                \Filament\Notifications\Notification::make()
-                                    ->title('[DEBUG] Hasil parse')
-                                    ->body(
-                                        "Varian ditemukan: " . count($variantMap) . "\n" .
-                                        "Varian keys: " . implode(', ', array_keys($variantMap)) . "\n" .
-                                        "Dilewati: " . implode(' | ', array_slice($skippedLines, 0, 5))
-                                    )
-                                    ->info()->persistent()->send();
+                                dd([
+                                    'raw_length'   => strlen($rawTsv),
+                                    'has_tabs'     => str_contains($rawTsv, "\t"),
+                                    'total_lines'  => count($lines),
+                                    'colMap'       => $colMap,
+                                    'first_line'   => mb_substr(trim($lines[0] ?? ''), 0, 200),
+                                    'skipped'      => $skippedLines,
+                                    'variantMap'   => $variantMap,
+                                ]);
 
                                 if (empty($variantMap)) {
                                     \Filament\Notifications\Notification::make()
