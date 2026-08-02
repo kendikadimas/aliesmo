@@ -198,16 +198,7 @@ class ProductResource extends Resource
                                 \Filament\Forms\Components\Textarea::make('csv_data')
                                     ->label('Data CSV')
                                     ->rows(4)
-                                    ->required()
-                                    ->extraAttributes([
-                                        'x-on:csv-loaded.window' => '
-                                            $el.value = $event.detail.text;
-                                            $el.dispatchEvent(new Event("input", {bubbles:true}));
-                                            $wire.$set("mountedActions.0.data.csv_data", $event.detail.text).catch(()=>{
-                                                $wire.set("mountedActions.0.data.csv_data", $event.detail.text);
-                                            });
-                                        ',
-                                    ]),
+                                    ->required(),
                                 \Filament\Forms\Components\Placeholder::make('file_picker_html')
                                     ->label('')
                                     ->content(new \Illuminate\Support\HtmlString('
@@ -222,18 +213,20 @@ class ProductResource extends Resource
                                                         const info = document.getElementById(\'csv-file-info\');
                                                         const lbl = document.getElementById(\'csv-picker-label\');
                                                         const bar = document.getElementById(\'csv-progress-bar\');
-                                                        btn.textContent=\'Membaca...\';
-                                                        lbl.style.opacity=\'0.7\';
-                                                        bar.style.display=\'block\';
-                                                        bar.querySelector(\'div\').style.width=\'30%\';
+                                                        btn.textContent=\'Membaca...\'; lbl.style.opacity=\'0.7\';
+                                                        bar.style.display=\'block\'; bar.querySelector(\'div\').style.width=\'30%\';
                                                         const r = new FileReader();
                                                         r.onprogress = e => { if(e.lengthComputable) bar.querySelector(\'div\').style.width=(e.loaded/e.total*80)+\'%\'; };
                                                         r.onload = ev => {
-                                                            bar.querySelector(\'div\').style.width=\'100%\';
                                                             const text = ev.target.result;
                                                             const lines = text.split(/\r?\n/).filter(l=>l.trim());
-                                                            window.dispatchEvent(new CustomEvent(\'csv-loaded\', {detail:{text}}));
-                                                            setTimeout(()=>{ bar.style.display=\'none\'; bar.querySelector(\'div\').style.width=\'0%\'; }, 500);
+                                                            bar.querySelector(\'div\').style.width=\'100%\';
+                                                            const wireEl = document.querySelector(\'[wire\\:id]\');
+                                                            if (wireEl) {
+                                                                const comp = window.Livewire.find(wireEl.getAttribute(\'wire:id\'));
+                                                                if (comp) comp.set(\'mountedActions.0.data.csv_data\', text);
+                                                            }
+                                                            setTimeout(()=>{ bar.style.display=\'none\'; bar.querySelector(\'div\').style.width=\'0%\'; }, 400);
                                                             btn.textContent=\'Ganti File\'; lbl.style.opacity=\'1\'; lbl.style.background=\'#16a34a\';
                                                             info.innerHTML=\'<strong>\'+f.name+\'</strong> &mdash; \'+(lines.length-1)+\' baris data siap diimport\';
                                                             info.style.display=\'block\';
