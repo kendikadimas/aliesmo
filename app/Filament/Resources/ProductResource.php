@@ -197,8 +197,8 @@ class ProductResource extends Resource
                             ->form([
                                 Textarea::make('tsv_data')
                                     ->label('Data Varian (copy-paste dari Excel)')
-                                    ->helperText('Format: SKU TAB WARNA TAB LENGAN TAB UKURAN TAB STOK. Tab atau koma. Header otomatis dilewati.')
-                                    ->placeholder("SGR-LP-ARM-M\tArmy Green\tPanjang\tM\t4\nSGR-LD-ARM-L\tArmy Green\tPendek\tL\t18")
+                                    ->helperText('Format: SKU, WARNA, LENGAN, UKURAN, STOK (tab atau koma). Header opsional — kolom dideteksi otomatis dari nama header.')
+                                    ->placeholder("SKU\tWarna\tLengan\tUkuran\tStok\nSGR-LP-ARM-M\tArmy Green\tPanjang\tM\t4")
                                     ->rows(12)
                                     ->required(),
                             ])
@@ -219,6 +219,9 @@ class ProductResource extends Resource
 
                                 $lines      = preg_split('/\r?\n/', $data['tsv_data'] ?? '');
                                 $variantMap = [];
+                                // ponytail: deteksi header by keyword match, fallback ke posisi default
+                                $colMap = ['sku' => 0, 'warna' => 1, 'lengan' => 2, 'ukuran' => 3, 'stok' => 4];
+                                $firstLine = true;
 
                                 foreach ($lines as $line) {
                                     $line = trim($line);
@@ -230,8 +233,24 @@ class ProductResource extends Resource
                                         array_shift($cols);
                                     }
                                     if (count($cols) < 5) continue;
-                                    [$sku, $warna, $lengan, $ukuran, $stok] = $cols;
-                                    if (!is_numeric($stok)) continue; // skip header
+                                    // deteksi header row dari baris pertama
+                                    if ($firstLine) {
+                                        $firstLine = false;
+                                        $lower = array_map('strtolower', $cols);
+                                        $keywords = ['sku' => ['sku','kode'], 'warna' => ['warna','color','colours','warna/motif'], 'lengan' => ['lengan','sleeve','type'], 'ukuran' => ['ukuran','size','nama','name'], 'stok' => ['stok','stock','qty','quantity']];
+                                        $detected = [];
+                                        foreach ($keywords as $field => $hints) {
+                                            foreach ($lower as $i => $val) {
+                                                if (in_array($val, $hints) || str_contains($val, $field)) {
+                                                    $detected[$field] = $i; break;
+                                                }
+                                            }
+                                        }
+                                        if (count($detected) >= 3) { $colMap = array_merge($colMap, $detected); continue; } // skip header row
+                                    }
+                                    if (count($cols) <= max($colMap)) continue;
+                                    [$sku, $warna, $lengan, $ukuran, $stok] = [$cols[$colMap['sku']] ?? '', $cols[$colMap['warna']] ?? '', $cols[$colMap['lengan']] ?? '', $cols[$colMap['ukuran']] ?? '', $cols[$colMap['stok']] ?? ''];
+                                    if (!is_numeric($stok)) continue;
                                     $variantMap[$warna . ' - ' . $lengan][] = compact('sku', 'ukuran', 'stok');
                                 }
 
