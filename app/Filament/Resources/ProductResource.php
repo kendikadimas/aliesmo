@@ -220,7 +220,7 @@ class ProductResource extends Resource
                                                             const text = e.target.result;
                                                             const lines = text.split(/\r?\n/).filter(l => l.trim() !== \'\');
                                                             const ta = document.querySelector(\'textarea\');
-                                                            if (ta) { ta.value = text; ta.dispatchEvent(new Event(\'input\')); }
+                                                            if (ta) { Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,\'value\').set.call(ta,text); ta.dispatchEvent(new Event(\'input\',{bubbles:true})); }
                                                             lbl.style.background=\'#16a34a\';
                                                             lbl.querySelector(\'span\').textContent=\'Ganti File\';
                                                             info.textContent = f.name + \' — \' + (lines.length - 1) + \' baris data\';
