@@ -229,7 +229,8 @@ class ProductResource extends Resource
                                     return;
                                 }
 
-                                $lines   = preg_split('/\r?\n/', $data['tsv_data'] ?? '');
+                                $rawTsv = $data['tsv_data'] ?? '';
+                                $lines  = preg_split('/\r?\n/', $rawTsv);
                                 $variantMap = [];
                                 // ponytail: user-defined column mapping (1-indexed), 0 = kolom tidak ada
                                 $colMap = [
@@ -239,9 +240,26 @@ class ProductResource extends Resource
                                     'ukuran' => (int)($data['col_ukuran'] ?? 4) - 1,
                                     'stok'   => (int)($data['col_stok']   ?? 5) - 1,
                                 ];
-                                $firstLine = true;
 
-                                foreach ($lines as $line) {
+                                // DEBUG: tampilkan info raw input
+                                $totalLines   = count($lines);
+                                $nonEmptyLines = count(array_filter($lines, fn($l) => trim($l) !== ''));
+                                $firstRaw     = trim($lines[0] ?? '');
+                                $hasTabs      = str_contains($rawTsv, "\t");
+                                \Filament\Notifications\Notification::make()
+                                    ->title('[DEBUG] Raw input')
+                                    ->body(
+                                        "Total baris: $totalLines | Non-empty: $nonEmptyLines\n" .
+                                        "Ada tab: " . ($hasTabs ? 'Ya' : 'Tidak') . "\n" .
+                                        "colMap: sku={$colMap['sku']} warna={$colMap['warna']} lengan={$colMap['lengan']} ukuran={$colMap['ukuran']} stok={$colMap['stok']}\n" .
+                                        "Baris 1: " . mb_substr($firstRaw, 0, 120)
+                                    )
+                                    ->info()->persistent()->send();
+
+                                $firstLine = true;
+                                $skippedLines = [];
+
+                                foreach ($lines as $i => $line) {
                                     $line = trim($line);
                                     if ($line === '') continue;
                                     $cols = str_contains($line, "\t") ? explode("\t", $line) : str_getcsv($line);
@@ -250,22 +268,32 @@ class ProductResource extends Resource
                                     if (count($cols) >= 6 && is_numeric($cols[0]) && !is_numeric($cols[1])) {
                                         array_shift($cols);
                                     }
-                                    if (count($cols) < 2) continue;
+                                    if (count($cols) < 2) { $skippedLines[] = "baris $i: kurang dari 2 kolom"; continue; }
                                     // skip baris header (stok tidak numerik)
                                     if ($firstLine) {
                                         $firstLine = false;
                                         $stokVal = $cols[$colMap['stok']] ?? '';
-                                        if (!is_numeric($stokVal)) continue;
+                                        if (!is_numeric($stokVal)) { $skippedLines[] = "baris $i: header (stok='$stokVal')"; continue; }
                                     }
                                     $sku    = $cols[$colMap['sku']]    ?? '';
                                     $warna  = $cols[$colMap['warna']]  ?? '';
                                     $lengan = $colMap['lengan'] >= 0 ? ($cols[$colMap['lengan']] ?? '') : '';
                                     $ukuran = $cols[$colMap['ukuran']] ?? '';
                                     $stok   = $cols[$colMap['stok']]   ?? '';
-                                    if (!is_numeric($stok)) continue;
+                                    if (!is_numeric($stok)) { $skippedLines[] = "baris $i: stok tidak numerik ('$stok')"; continue; }
                                     $variantKey = $lengan !== '' ? "$warna - $lengan" : $warna;
                                     $variantMap[$variantKey][] = compact('sku', 'ukuran', 'stok');
                                 }
+
+                                // DEBUG: tampilkan hasil parsing
+                                \Filament\Notifications\Notification::make()
+                                    ->title('[DEBUG] Hasil parse')
+                                    ->body(
+                                        "Varian ditemukan: " . count($variantMap) . "\n" .
+                                        "Varian keys: " . implode(', ', array_keys($variantMap)) . "\n" .
+                                        "Dilewati: " . implode(' | ', array_slice($skippedLines, 0, 5))
+                                    )
+                                    ->info()->persistent()->send();
 
                                 if (empty($variantMap)) {
                                     \Filament\Notifications\Notification::make()
