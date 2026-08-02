@@ -355,9 +355,10 @@ class ProductResource extends Resource
                                     ->nullable()
                                     ->placeholder('Army Green, Hitam...')
                                     ->label('Warna'),
-                                TextInput::make('lengan')
+                                Select::make('lengan')
                                     ->nullable()
-                                    ->placeholder('Panjang, Pendek...')
+                                    ->placeholder('Pilih tipe lengan...')
+                                    ->options(['Panjang' => 'Panjang', 'Pendek' => 'Pendek'])
                                     ->label('Lengan'),
                                 // ponytail: name di-derive dari warna+lengan saat save supaya backward compat
                                 TextInput::make('name')
