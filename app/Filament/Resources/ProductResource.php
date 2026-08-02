@@ -204,11 +204,11 @@ class ProductResource extends Resource
                                 \Filament\Schemas\Components\Section::make('Mapping Kolom')
                                     ->description('Sesuaikan jika urutan kolom di Excel kamu berbeda. Nomor kolom dimulai dari 1.')
                                     ->schema([
-                                        \Filament\Forms\Components\TextInput::make('col_sku')->label('Kolom SKU')->numeric()->default(1)->minValue(1)->required()->inline(),
-                                        \Filament\Forms\Components\TextInput::make('col_warna')->label('Kolom Warna')->numeric()->default(2)->minValue(1)->required()->inline(),
-                                        \Filament\Forms\Components\TextInput::make('col_lengan')->label('Kolom Lengan')->numeric()->default(3)->minValue(0)->helperText('0 = tidak ada kolom lengan')->inline(),
-                                        \Filament\Forms\Components\TextInput::make('col_ukuran')->label('Kolom Ukuran')->numeric()->default(4)->minValue(1)->required()->inline(),
-                                        \Filament\Forms\Components\TextInput::make('col_stok')->label('Kolom Stok')->numeric()->default(5)->minValue(1)->required()->inline(),
+                                        \Filament\Forms\Components\TextInput::make('col_sku')->label('Kolom SKU')->numeric()->default(1)->minValue(1)->required(),
+                                        \Filament\Forms\Components\TextInput::make('col_warna')->label('Kolom Warna')->numeric()->default(2)->minValue(1)->required(),
+                                        \Filament\Forms\Components\TextInput::make('col_lengan')->label('Kolom Lengan')->numeric()->default(3)->minValue(0)->helperText('0 = tidak ada kolom lengan'),
+                                        \Filament\Forms\Components\TextInput::make('col_ukuran')->label('Kolom Ukuran')->numeric()->default(4)->minValue(1)->required(),
+                                        \Filament\Forms\Components\TextInput::make('col_stok')->label('Kolom Stok')->numeric()->default(5)->minValue(1)->required(),
                                     ])
                                     ->columns(5)
                                     ->collapsible()
