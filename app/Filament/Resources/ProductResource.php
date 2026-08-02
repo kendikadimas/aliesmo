@@ -277,7 +277,7 @@ class ProductResource extends Resource
                                     ->nullable()
                                     ->label('Foto'),
                                 TextInput::make('warna')
-                                    ->required()
+                                    ->nullable()
                                     ->placeholder('Army Green, Hitam...')
                                     ->label('Warna'),
                                 TextInput::make('lengan')
@@ -286,7 +286,7 @@ class ProductResource extends Resource
                                     ->label('Lengan'),
                                 // ponytail: name di-derive dari warna+lengan saat save supaya backward compat
                                 TextInput::make('name')
-                                    ->required()
+                                    ->nullable()
                                     ->placeholder('Army Green - Panjang')
                                     ->label('Label Varian')
                                     ->helperText('Isi bebas atau biarkan sesuai Warna - Lengan'),
