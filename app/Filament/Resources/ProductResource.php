@@ -203,21 +203,36 @@ class ProductResource extends Resource
                                 \Filament\Forms\Components\Placeholder::make('file_picker_html')
                                     ->label('')
                                     ->content(new \Illuminate\Support\HtmlString('
-                                        <label style="cursor:pointer;display:inline-block;padding:6px 14px;background:#6b7280;color:#fff;border-radius:6px;font-size:14px;">
-                                            Pilih File CSV
-                                            <input type="file" accept=".csv,.txt" style="display:none"
-                                                onchange="
-                                                    const f = this.files[0];
-                                                    if (!f) return;
-                                                    const r = new FileReader();
-                                                    r.onload = e => {
-                                                        const ta = document.querySelector(\'textarea[wire\\\\:model]\') || document.querySelector(\'textarea\');
-                                                        if (ta) { ta.value = e.target.result; ta.dispatchEvent(new Event(\'input\')); }
-                                                    };
-                                                    r.readAsText(f);
-                                                "
-                                            />
-                                        </label>
+                                        <div id="csv-picker-wrap">
+                                            <label id="csv-picker-label" style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:#6b7280;color:#fff;border-radius:6px;font-size:14px;">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                                Pilih File CSV
+                                                <input type="file" accept=".csv,.txt" style="display:none"
+                                                    onchange="
+                                                        const f = this.files[0];
+                                                        if (!f) return;
+                                                        const lbl = document.getElementById(\'csv-picker-label\');
+                                                        const info = document.getElementById(\'csv-file-info\');
+                                                        lbl.style.background=\'#9ca3af\';
+                                                        lbl.querySelector(\'span\').textContent=\'Membaca...\';
+                                                        const r = new FileReader();
+                                                        r.onload = e => {
+                                                            const text = e.target.result;
+                                                            const lines = text.split(/\r?\n/).filter(l => l.trim() !== \'\');
+                                                            const ta = document.querySelector(\'textarea\');
+                                                            if (ta) { ta.value = text; ta.dispatchEvent(new Event(\'input\')); }
+                                                            lbl.style.background=\'#16a34a\';
+                                                            lbl.querySelector(\'span\').textContent=\'Ganti File\';
+                                                            info.textContent = f.name + \' — \' + (lines.length - 1) + \' baris data\';
+                                                            info.style.display=\'block\';
+                                                        };
+                                                        r.readAsText(f);
+                                                    "
+                                                />
+                                                <span>Pilih File CSV</span>
+                                            </label>
+                                            <div id="csv-file-info" style="display:none;margin-top:6px;font-size:13px;color:#16a34a;font-weight:500;"></div>
+                                        </div>
                                     ')),
                                 \Filament\Schemas\Components\Section::make('Mapping Kolom')
                                     ->description('Nomor kolom di CSV (dimulai dari 1). Set 0 jika kolom tidak ada.')
