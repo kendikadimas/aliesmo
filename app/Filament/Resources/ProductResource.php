@@ -197,10 +197,22 @@ class ProductResource extends Resource
                             ->form([
                                 Textarea::make('tsv_data')
                                     ->label('Data Varian (copy-paste dari Excel)')
-                                    ->helperText('Format: SKU, WARNA, LENGAN, UKURAN, STOK (tab atau koma). Header opsional — kolom dideteksi otomatis dari nama header.')
+                                    ->helperText('Paste data dari Excel. Baris pertama boleh berupa header. Kolom bisa diatur di bawah.')
                                     ->placeholder("SKU\tWarna\tLengan\tUkuran\tStok\nSGR-LP-ARM-M\tArmy Green\tPanjang\tM\t4")
-                                    ->rows(12)
+                                    ->rows(10)
                                     ->required(),
+                                \Filament\Schemas\Components\Section::make('Mapping Kolom')
+                                    ->description('Sesuaikan jika urutan kolom di Excel kamu berbeda. Nomor kolom dimulai dari 1.')
+                                    ->schema([
+                                        \Filament\Forms\Components\TextInput::make('col_sku')->label('Kolom SKU')->numeric()->default(1)->minValue(1)->required()->inline(),
+                                        \Filament\Forms\Components\TextInput::make('col_warna')->label('Kolom Warna')->numeric()->default(2)->minValue(1)->required()->inline(),
+                                        \Filament\Forms\Components\TextInput::make('col_lengan')->label('Kolom Lengan')->numeric()->default(3)->minValue(0)->helperText('0 = tidak ada kolom lengan')->inline(),
+                                        \Filament\Forms\Components\TextInput::make('col_ukuran')->label('Kolom Ukuran')->numeric()->default(4)->minValue(1)->required()->inline(),
+                                        \Filament\Forms\Components\TextInput::make('col_stok')->label('Kolom Stok')->numeric()->default(5)->minValue(1)->required()->inline(),
+                                    ])
+                                    ->columns(5)
+                                    ->collapsible()
+                                    ->collapsed(),
                             ])
                             ->action(function (array $data, $livewire) {
                                 $product = $livewire->getRecord();
@@ -217,10 +229,16 @@ class ProductResource extends Resource
                                     return;
                                 }
 
-                                $lines      = preg_split('/\r?\n/', $data['tsv_data'] ?? '');
+                                $lines   = preg_split('/\r?\n/', $data['tsv_data'] ?? '');
                                 $variantMap = [];
-                                // ponytail: deteksi header by keyword match, fallback ke posisi default
-                                $colMap = ['sku' => 0, 'warna' => 1, 'lengan' => 2, 'ukuran' => 3, 'stok' => 4];
+                                // ponytail: user-defined column mapping (1-indexed), 0 = kolom tidak ada
+                                $colMap = [
+                                    'sku'    => (int)($data['col_sku']    ?? 1) - 1,
+                                    'warna'  => (int)($data['col_warna']  ?? 2) - 1,
+                                    'lengan' => (int)($data['col_lengan'] ?? 3) - 1,
+                                    'ukuran' => (int)($data['col_ukuran'] ?? 4) - 1,
+                                    'stok'   => (int)($data['col_stok']   ?? 5) - 1,
+                                ];
                                 $firstLine = true;
 
                                 foreach ($lines as $line) {
@@ -232,24 +250,18 @@ class ProductResource extends Resource
                                     if (count($cols) >= 6 && is_numeric($cols[0]) && !is_numeric($cols[1])) {
                                         array_shift($cols);
                                     }
-                                    if (count($cols) < 5) continue;
-                                    // deteksi header row dari baris pertama
+                                    if (count($cols) < 2) continue;
+                                    // skip baris header (stok tidak numerik)
                                     if ($firstLine) {
                                         $firstLine = false;
-                                        $lower = array_map('strtolower', $cols);
-                                        $keywords = ['sku' => ['sku','kode'], 'warna' => ['warna','color','colours','warna/motif'], 'lengan' => ['lengan','sleeve','type'], 'ukuran' => ['ukuran','size','nama','name'], 'stok' => ['stok','stock','qty','quantity']];
-                                        $detected = [];
-                                        foreach ($keywords as $field => $hints) {
-                                            foreach ($lower as $i => $val) {
-                                                if (in_array($val, $hints) || str_contains($val, $field)) {
-                                                    $detected[$field] = $i; break;
-                                                }
-                                            }
-                                        }
-                                        if (count($detected) >= 3) { $colMap = array_merge($colMap, $detected); continue; } // skip header row
+                                        $stokVal = $cols[$colMap['stok']] ?? '';
+                                        if (!is_numeric($stokVal)) continue;
                                     }
-                                    if (count($cols) <= max($colMap)) continue;
-                                    [$sku, $warna, $lengan, $ukuran, $stok] = [$cols[$colMap['sku']] ?? '', $cols[$colMap['warna']] ?? '', $cols[$colMap['lengan']] ?? '', $cols[$colMap['ukuran']] ?? '', $cols[$colMap['stok']] ?? ''];
+                                    $sku    = $cols[$colMap['sku']]    ?? '';
+                                    $warna  = $cols[$colMap['warna']]  ?? '';
+                                    $lengan = $colMap['lengan'] >= 0 ? ($cols[$colMap['lengan']] ?? '') : '';
+                                    $ukuran = $cols[$colMap['ukuran']] ?? '';
+                                    $stok   = $cols[$colMap['stok']]   ?? '';
                                     if (!is_numeric($stok)) continue;
                                     $variantMap[$warna . ' - ' . $lengan][] = compact('sku', 'ukuran', 'stok');
                                 }
