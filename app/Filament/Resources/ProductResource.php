@@ -191,35 +191,22 @@ class ProductResource extends Resource
                     ->description('Tambahkan varian warna produk. Setiap warna bisa punya ukuran (S, M, L, XL) dengan stok masing-masing. Jika produk tidak punya varian, kosongkan bagian ini.')
                     ->headerActions([
                         \Filament\Actions\Action::make('import_tsv')
-                            ->label('Import dari Tabel')
+                            ->label('Import dari Excel')
                             ->icon('heroicon-o-table-cells')
                             ->color('gray')
                             ->form([
-                                Textarea::make('tsv_data')
-                                    ->label('Data Varian (copy-paste dari Excel/Sheets)')
-                                    ->helperText('Pilih sel di Excel/Sheets → Ctrl+C → klik di sini → Ctrl+V.')
-                                    ->placeholder("SKU\tWarna\tLengan\tUkuran\tStok\nSGR-LP-ARM-M\tArmy Green\tPanjang\tM\t4")
-                                    ->rows(10)
-                                    ->required()
-                                    ->extraInputAttributes([
-                                        // encode tab ke __TAB__ supaya Livewire tidak strip, decode di PHP
-                                        'x-on:paste' => '
-                                            $event.preventDefault();
-                                            const text = $event.clipboardData.getData("text/plain").replaceAll("\t", "__TAB__");
-                                            const el = $event.target;
-                                            const start = el.selectionStart;
-                                            const end = el.selectionEnd;
-                                            el.value = el.value.substring(0, start) + text + el.value.substring(end);
-                                            el.selectionStart = el.selectionEnd = start + text.length;
-                                            el.dispatchEvent(new Event("input"));
-                                        ',
-                                    ]),
+                                \Filament\Forms\Components\FileUpload::make('excel_file')
+                                    ->label('File Excel (.xlsx / .xls / .csv)')
+                                    ->acceptedFileTypes(['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel', 'text/csv', 'application/octet-stream'])
+                                    ->disk('local')
+                                    ->directory('import-tmp')
+                                    ->required(),
                                 \Filament\Schemas\Components\Section::make('Mapping Kolom')
-                                    ->description('Sesuaikan jika urutan kolom di Excel kamu berbeda. Nomor kolom dimulai dari 1.')
+                                    ->description('Nomor kolom di Excel (dimulai dari 1). Set 0 jika kolom tidak ada.')
                                     ->schema([
                                         \Filament\Forms\Components\TextInput::make('col_sku')->label('Kolom SKU')->numeric()->default(1)->minValue(1)->required(),
                                         \Filament\Forms\Components\TextInput::make('col_warna')->label('Kolom Warna')->numeric()->default(2)->minValue(1)->required(),
-                                        \Filament\Forms\Components\TextInput::make('col_lengan')->label('Kolom Lengan')->numeric()->default(3)->minValue(0)->helperText('0 = tidak ada kolom lengan'),
+                                        \Filament\Forms\Components\TextInput::make('col_lengan')->label('Kolom Lengan')->numeric()->default(3)->minValue(0)->helperText('0 = tidak ada'),
                                         \Filament\Forms\Components\TextInput::make('col_ukuran')->label('Kolom Ukuran')->numeric()->default(4)->minValue(1)->required(),
                                         \Filament\Forms\Components\TextInput::make('col_stok')->label('Kolom Stok')->numeric()->default(5)->minValue(1)->required(),
                                     ])
@@ -242,10 +229,12 @@ class ProductResource extends Resource
                                     return;
                                 }
 
-                                $rawTsv = str_replace('__TAB__', "\t", $data['tsv_data'] ?? '');
-                                $lines  = preg_split('/\r?\n/', $rawTsv);
+                                // baca file Excel pakai PhpSpreadsheet
+                                $path = \Illuminate\Support\Facades\Storage::disk('local')->path($data['excel_file']);
+                                $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($path);
+                                $rows = $spreadsheet->getActiveSheet()->toArray(null, true, true, false);
+
                                 $variantMap = [];
-                                // ponytail: user-defined column mapping (1-indexed), 0 = kolom tidak ada
                                 $colMap = [
                                     'sku'    => (int)($data['col_sku']    ?? 1) - 1,
                                     'warna'  => (int)($data['col_warna']  ?? 2) - 1,
@@ -254,44 +243,31 @@ class ProductResource extends Resource
                                     'stok'   => (int)($data['col_stok']   ?? 5) - 1,
                                 ];
 
-                                $firstLine = true;
-                                $skippedLines = [];
-
-                                foreach ($lines as $i => $line) {
-                                    $line = trim($line);
-                                    if ($line === '') continue;
-                                    $cols = str_contains($line, "\t") ? explode("\t", $line) : str_getcsv($line);
-                                    $cols = array_map('trim', $cols);
+                                $firstRow = true;
+                                foreach ($rows as $cols) {
+                                    $cols = array_values($cols);
                                     // auto-skip kolom NO di awal
-                                    if (count($cols) >= 6 && is_numeric($cols[0]) && !is_numeric($cols[1])) {
+                                    if (count($cols) >= 5 && is_numeric($cols[0]) && !is_numeric($cols[1])) {
                                         array_shift($cols);
                                     }
-                                    if (count($cols) < 2) { $skippedLines[] = "baris $i: kurang dari 2 kolom"; continue; }
-                                    // skip baris header (stok tidak numerik)
-                                    if ($firstLine) {
-                                        $firstLine = false;
+                                    // skip baris header
+                                    if ($firstRow) {
+                                        $firstRow = false;
                                         $stokVal = $cols[$colMap['stok']] ?? '';
-                                        if (!is_numeric($stokVal)) { $skippedLines[] = "baris $i: header (stok='$stokVal')"; continue; }
+                                        if (!is_numeric($stokVal)) continue;
                                     }
-                                    $sku    = $cols[$colMap['sku']]    ?? '';
-                                    $warna  = $cols[$colMap['warna']]  ?? '';
-                                    $lengan = $colMap['lengan'] >= 0 ? ($cols[$colMap['lengan']] ?? '') : '';
-                                    $ukuran = $cols[$colMap['ukuran']] ?? '';
-                                    $stok   = $cols[$colMap['stok']]   ?? '';
-                                    if (!is_numeric($stok)) { $skippedLines[] = "baris $i: stok tidak numerik ('$stok')"; continue; }
+                                    $stok = $cols[$colMap['stok']] ?? '';
+                                    if (!is_numeric($stok)) continue;
+                                    $sku    = trim((string)($cols[$colMap['sku']]   ?? ''));
+                                    $warna  = trim((string)($cols[$colMap['warna']] ?? ''));
+                                    $lengan = $colMap['lengan'] >= 0 ? trim((string)($cols[$colMap['lengan']] ?? '')) : '';
+                                    $ukuran = trim((string)($cols[$colMap['ukuran']] ?? ''));
                                     $variantKey = $lengan !== '' ? "$warna - $lengan" : $warna;
                                     $variantMap[$variantKey][] = compact('sku', 'ukuran', 'stok');
                                 }
 
-                                dd([
-                                    'raw_length'   => strlen($rawTsv),
-                                    'has_tabs'     => str_contains($rawTsv, "\t"),
-                                    'total_lines'  => count($lines),
-                                    'colMap'       => $colMap,
-                                    'first_line'   => mb_substr(trim($lines[0] ?? ''), 0, 200),
-                                    'skipped'      => $skippedLines,
-                                    'variantMap'   => $variantMap,
-                                ]);
+                                // hapus file temp setelah dibaca
+                                \Illuminate\Support\Facades\Storage::disk('local')->delete($data['excel_file']);
 
                                 if (empty($variantMap)) {
                                     \Filament\Notifications\Notification::make()
