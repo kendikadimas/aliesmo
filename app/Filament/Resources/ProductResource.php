@@ -196,11 +196,26 @@ class ProductResource extends Resource
                             ->color('gray')
                             ->form([
                                 Textarea::make('tsv_data')
-                                    ->label('Data Varian (copy-paste dari Excel)')
-                                    ->helperText('Paste data dari Excel. Baris pertama boleh berupa header. Kolom bisa diatur di bawah.')
+                                    ->label('Data Varian (copy-paste dari Excel/Sheets)')
+                                    ->helperText('Pilih sel di Excel/Sheets → Ctrl+C → klik di sini → Ctrl+V.')
                                     ->placeholder("SKU\tWarna\tLengan\tUkuran\tStok\nSGR-LP-ARM-M\tArmy Green\tPanjang\tM\t4")
                                     ->rows(10)
-                                    ->required(),
+                                    ->required()
+                                    ->extraInputAttributes([
+                                        // preserve tab saat paste dari Excel — Livewire/Alpine strip tab di x-model
+                                        'x-on:paste' => '
+                                            $event.preventDefault();
+                                            const text = $event.clipboardData.getData("text/plain");
+                                            const el = $event.target;
+                                            const start = el.selectionStart;
+                                            const end = el.selectionEnd;
+                                            const before = el.value.substring(0, start);
+                                            const after = el.value.substring(end);
+                                            el.value = before + text + after;
+                                            el.selectionStart = el.selectionEnd = start + text.length;
+                                            el.dispatchEvent(new Event("input"));
+                                        ',
+                                    ]),
                                 \Filament\Schemas\Components\Section::make('Mapping Kolom')
                                     ->description('Sesuaikan jika urutan kolom di Excel kamu berbeda. Nomor kolom dimulai dari 1.')
                                     ->schema([
