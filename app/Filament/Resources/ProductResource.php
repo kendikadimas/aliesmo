@@ -221,9 +221,9 @@ class ProductResource extends Resource
                                                             const lines = text.split(/\r?\n/).filter(l => l.trim() !== \'\');
                                                             const ta = document.getElementById(\'fi-csv-data\') || document.querySelector(\'textarea[id*=csv_data]\') || document.querySelector(\'textarea\');
                                                             if (ta) {
-                                                                const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,\'value\').set;
-                                                                setter.call(ta, text);
+                                                                ta.value = text;
                                                                 ta.dispatchEvent(new Event(\'input\', {bubbles:true}));
+                                                                ta.dispatchEvent(new Event(\'change\', {bubbles:true}));
                                                             }
                                                             lbl.style.opacity=\'1\';
                                                             lbl.style.background=\'#16a34a\';
