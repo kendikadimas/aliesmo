@@ -263,7 +263,8 @@ class ProductResource extends Resource
                                     $ukuran = $cols[$colMap['ukuran']] ?? '';
                                     $stok   = $cols[$colMap['stok']]   ?? '';
                                     if (!is_numeric($stok)) continue;
-                                    $variantMap[$warna . ' - ' . $lengan][] = compact('sku', 'ukuran', 'stok');
+                                    $variantKey = $lengan !== '' ? "$warna - $lengan" : $warna;
+                                    $variantMap[$variantKey][] = compact('sku', 'ukuran', 'stok');
                                 }
 
                                 if (empty($variantMap)) {
