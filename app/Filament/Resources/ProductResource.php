@@ -197,35 +197,27 @@ class ProductResource extends Resource
                             ->form([
                                 \Filament\Forms\Components\Textarea::make('csv_data')
                                     ->label('Data CSV')
-                                    ->helperText('Pilih file CSV di bawah, atau paste langsung isi CSV (kolom dipisah koma).')
+                                    ->helperText('Paste isi CSV, atau klik "Pilih File CSV" di bawah untuk baca file otomatis.')
                                     ->rows(6)
-                                    ->required()
-                                    ->extraAttributes([
-                                        'id' => 'csv-textarea',
-                                    ]),
-                                \Filament\Forms\Components\Actions\Action::make('pilih_file')
-                                    ->label('Pilih File CSV')
-                                    ->color('gray')
-                                    ->extraAttributes([
-                                        'onclick' => 'document.getElementById(\'csv-file-input\').click()',
-                                        'type' => 'button',
-                                    ])
-                                    ->action(fn() => null),
+                                    ->required(),
                                 \Filament\Forms\Components\Placeholder::make('file_picker_html')
                                     ->label('')
                                     ->content(new \Illuminate\Support\HtmlString('
-                                        <input type="file" id="csv-file-input" accept=".csv,.txt" style="display:none"
-                                            onchange="
-                                                const f = this.files[0];
-                                                if (!f) return;
-                                                const r = new FileReader();
-                                                r.onload = e => {
-                                                    const ta = document.querySelector(\'textarea[id*=csv_data]\') || document.querySelector(\'#csv-textarea\');
-                                                    if (ta) { ta.value = e.target.result; ta.dispatchEvent(new Event(\'input\')); }
-                                                };
-                                                r.readAsText(f);
-                                            "
-                                        />
+                                        <label style="cursor:pointer;display:inline-block;padding:6px 14px;background:#6b7280;color:#fff;border-radius:6px;font-size:14px;">
+                                            Pilih File CSV
+                                            <input type="file" accept=".csv,.txt" style="display:none"
+                                                onchange="
+                                                    const f = this.files[0];
+                                                    if (!f) return;
+                                                    const r = new FileReader();
+                                                    r.onload = e => {
+                                                        const ta = document.querySelector(\'textarea[wire\\\\:model]\') || document.querySelector(\'textarea\');
+                                                        if (ta) { ta.value = e.target.result; ta.dispatchEvent(new Event(\'input\')); }
+                                                    };
+                                                    r.readAsText(f);
+                                                "
+                                            />
+                                        </label>
                                     ')),
                                 \Filament\Schemas\Components\Section::make('Mapping Kolom')
                                     ->description('Nomor kolom di CSV (dimulai dari 1). Set 0 jika kolom tidak ada.')
