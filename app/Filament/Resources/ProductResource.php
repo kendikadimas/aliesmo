@@ -199,36 +199,30 @@ class ProductResource extends Resource
                                     ->label('Data CSV')
                                     ->rows(4)
                                     ->required()
-                                    ->extraAttributes(['id' => 'fi-csv-data']),
+                                    ->extraAttributes([
+                                        'x-on:csv-loaded.window' => '$wire.set(\'mountedActions.0.data.csv_data\', $event.detail.text)',
+                                    ]),
                                 \Filament\Forms\Components\Placeholder::make('file_picker_html')
                                     ->label('')
                                     ->content(new \Illuminate\Support\HtmlString('
-                                        <div id="csv-picker-wrap">
+                                        <div>
                                             <label id="csv-picker-label" style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:#6b7280;color:#fff;border-radius:6px;font-size:14px;">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                                                <span>Pilih File CSV</span>
+                                                <span id="csv-btn-text">Pilih File CSV</span>
                                                 <input type="file" accept=".csv,.txt" style="display:none"
                                                     onchange="
-                                                        const f = this.files[0];
-                                                        if (!f) return;
-                                                        const lbl = document.getElementById(\'csv-picker-label\');
+                                                        const f = this.files[0]; if (!f) return;
+                                                        const btn = document.getElementById(\'csv-btn-text\');
                                                         const info = document.getElementById(\'csv-file-info\');
-                                                        lbl.style.opacity=\'0.6\';
-                                                        lbl.querySelector(\'span\').textContent=\'Membaca...\';
+                                                        const lbl = document.getElementById(\'csv-picker-label\');
+                                                        btn.textContent=\'Membaca...\'; lbl.style.opacity=\'0.6\';
                                                         const r = new FileReader();
                                                         r.onload = ev => {
                                                             const text = ev.target.result;
-                                                            const lines = text.split(/\r?\n/).filter(l => l.trim() !== \'\');
-                                                            const ta = document.getElementById(\'fi-csv-data\') || document.querySelector(\'textarea[id*=csv_data]\') || document.querySelector(\'textarea\');
-                                                            if (ta) {
-                                                                ta.value = text;
-                                                                ta.dispatchEvent(new Event(\'input\', {bubbles:true}));
-                                                                ta.dispatchEvent(new Event(\'change\', {bubbles:true}));
-                                                            }
-                                                            lbl.style.opacity=\'1\';
-                                                            lbl.style.background=\'#16a34a\';
-                                                            lbl.querySelector(\'span\').textContent=\'Ganti File\';
-                                                            info.innerHTML = \'<strong>\' + f.name + \'</strong> &mdash; \' + (lines.length - 1) + \' baris data siap diimport\';
+                                                            const lines = text.split(/\r?\n/).filter(l=>l.trim());
+                                                            window.dispatchEvent(new CustomEvent(\'csv-loaded\', {detail:{text}}));
+                                                            btn.textContent=\'Ganti File\'; lbl.style.opacity=\'1\'; lbl.style.background=\'#16a34a\';
+                                                            info.innerHTML=\'<strong>\'+f.name+\'</strong> &mdash; \'+(lines.length-1)+\' baris data siap diimport\';
                                                             info.style.display=\'block\';
                                                         };
                                                         r.readAsText(f);
