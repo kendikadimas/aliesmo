@@ -195,15 +195,38 @@ class ProductResource extends Resource
                             ->icon('heroicon-o-table-cells')
                             ->color('gray')
                             ->form([
-                                \Filament\Forms\Components\FileUpload::make('csv_file')
-                                    ->label('File CSV')
-                                    ->helperText('Di Excel: File → Save As → CSV UTF-8 (Comma delimited). Lalu upload di sini.')
-                                    ->disk('local')
-                                    ->directory('import-tmp')
-                                    ->acceptedFileTypes(['text/csv', 'text/plain', 'application/csv', 'application/vnd.ms-excel'])
-                                    ->previewable(false)
-                                    ->rules(['file', 'mimes:csv,txt,xls'])
-                                    ->required(),
+                                \Filament\Forms\Components\Textarea::make('csv_data')
+                                    ->label('Data CSV')
+                                    ->helperText('Pilih file CSV di bawah, atau paste langsung isi CSV (kolom dipisah koma).')
+                                    ->rows(6)
+                                    ->required()
+                                    ->extraAttributes([
+                                        'id' => 'csv-textarea',
+                                    ]),
+                                \Filament\Forms\Components\Actions\Action::make('pilih_file')
+                                    ->label('Pilih File CSV')
+                                    ->color('gray')
+                                    ->extraAttributes([
+                                        'onclick' => 'document.getElementById(\'csv-file-input\').click()',
+                                        'type' => 'button',
+                                    ])
+                                    ->action(fn() => null),
+                                \Filament\Forms\Components\Placeholder::make('file_picker_html')
+                                    ->label('')
+                                    ->content(new \Illuminate\Support\HtmlString('
+                                        <input type="file" id="csv-file-input" accept=".csv,.txt" style="display:none"
+                                            onchange="
+                                                const f = this.files[0];
+                                                if (!f) return;
+                                                const r = new FileReader();
+                                                r.onload = e => {
+                                                    const ta = document.querySelector(\'textarea[id*=csv_data]\') || document.querySelector(\'#csv-textarea\');
+                                                    if (ta) { ta.value = e.target.result; ta.dispatchEvent(new Event(\'input\')); }
+                                                };
+                                                r.readAsText(f);
+                                            "
+                                        />
+                                    ')),
                                 \Filament\Schemas\Components\Section::make('Mapping Kolom')
                                     ->description('Nomor kolom di CSV (dimulai dari 1). Set 0 jika kolom tidak ada.')
                                     ->schema([
@@ -231,13 +254,6 @@ class ProductResource extends Resource
                                     return;
                                 }
 
-                                $path = \Illuminate\Support\Facades\Storage::disk('local')->path($data['csv_file']);
-                                $handle = fopen($path, 'r');
-                                if (!$handle) {
-                                    \Filament\Notifications\Notification::make()->title('File tidak bisa dibuka.')->danger()->send();
-                                    return;
-                                }
-
                                 $colMap = [
                                     'sku'    => (int)($data['col_sku']    ?? 1) - 1,
                                     'warna'  => (int)($data['col_warna']  ?? 2) - 1,
@@ -246,9 +262,15 @@ class ProductResource extends Resource
                                     'stok'   => (int)($data['col_stok']   ?? 5) - 1,
                                 ];
 
+                                // baca CSV dari textarea (FileReader JS sudah isi kontennya)
+                                $lines = preg_split('/\r?\n/', $data['csv_data'] ?? '');
+
                                 $variantMap = [];
                                 $firstRow = true;
-                                while (($cols = fgetcsv($handle)) !== false) {
+                                foreach ($lines as $line) {
+                                    $line = trim($line);
+                                    if ($line === '') continue;
+                                    $cols = str_getcsv($line);
                                     // auto-skip kolom NO di awal
                                     if (count($cols) >= 5 && is_numeric($cols[0]) && !is_numeric($cols[1])) {
                                         array_shift($cols);
@@ -267,8 +289,6 @@ class ProductResource extends Resource
                                     $variantKey = $lengan !== '' ? "$warna - $lengan" : $warna;
                                     $variantMap[$variantKey][] = compact('sku', 'ukuran', 'stok');
                                 }
-                                fclose($handle);
-                                \Illuminate\Support\Facades\Storage::disk('local')->delete($data['csv_file']);
 
                                 if (empty($variantMap)) {
                                     \Filament\Notifications\Notification::make()
