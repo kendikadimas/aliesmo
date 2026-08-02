@@ -197,41 +197,45 @@ class ProductResource extends Resource
                             ->form([
                                 \Filament\Forms\Components\Textarea::make('csv_data')
                                     ->label('Data CSV')
-                                    ->helperText('Paste isi CSV, atau klik "Pilih File CSV" di bawah untuk baca file otomatis.')
-                                    ->rows(6)
-                                    ->required(),
+                                    ->rows(4)
+                                    ->required()
+                                    ->extraAttributes(['id' => 'fi-csv-data']),
                                 \Filament\Forms\Components\Placeholder::make('file_picker_html')
                                     ->label('')
                                     ->content(new \Illuminate\Support\HtmlString('
                                         <div id="csv-picker-wrap">
                                             <label id="csv-picker-label" style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:#6b7280;color:#fff;border-radius:6px;font-size:14px;">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                                                Pilih File CSV
+                                                <span>Pilih File CSV</span>
                                                 <input type="file" accept=".csv,.txt" style="display:none"
                                                     onchange="
                                                         const f = this.files[0];
                                                         if (!f) return;
                                                         const lbl = document.getElementById(\'csv-picker-label\');
                                                         const info = document.getElementById(\'csv-file-info\');
-                                                        lbl.style.background=\'#9ca3af\';
+                                                        lbl.style.opacity=\'0.6\';
                                                         lbl.querySelector(\'span\').textContent=\'Membaca...\';
                                                         const r = new FileReader();
-                                                        r.onload = e => {
-                                                            const text = e.target.result;
+                                                        r.onload = ev => {
+                                                            const text = ev.target.result;
                                                             const lines = text.split(/\r?\n/).filter(l => l.trim() !== \'\');
-                                                            const ta = document.querySelector(\'textarea\');
-                                                            if (ta) { Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,\'value\').set.call(ta,text); ta.dispatchEvent(new Event(\'input\',{bubbles:true})); }
+                                                            const ta = document.getElementById(\'fi-csv-data\') || document.querySelector(\'textarea[id*=csv_data]\') || document.querySelector(\'textarea\');
+                                                            if (ta) {
+                                                                const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,\'value\').set;
+                                                                setter.call(ta, text);
+                                                                ta.dispatchEvent(new Event(\'input\', {bubbles:true}));
+                                                            }
+                                                            lbl.style.opacity=\'1\';
                                                             lbl.style.background=\'#16a34a\';
                                                             lbl.querySelector(\'span\').textContent=\'Ganti File\';
-                                                            info.textContent = f.name + \' — \' + (lines.length - 1) + \' baris data\';
+                                                            info.innerHTML = \'<strong>\' + f.name + \'</strong> &mdash; \' + (lines.length - 1) + \' baris data siap diimport\';
                                                             info.style.display=\'block\';
                                                         };
                                                         r.readAsText(f);
                                                     "
                                                 />
-                                                <span>Pilih File CSV</span>
                                             </label>
-                                            <div id="csv-file-info" style="display:none;margin-top:6px;font-size:13px;color:#16a34a;font-weight:500;"></div>
+                                            <div id="csv-file-info" style="display:none;margin-top:8px;font-size:13px;color:#16a34a;"></div>
                                         </div>
                                     ')),
                                 \Filament\Schemas\Components\Section::make('Mapping Kolom')
