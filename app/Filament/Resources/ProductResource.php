@@ -267,6 +267,8 @@ class ProductResource extends Resource
                                 }
                                 fclose($handle);
                                 \Illuminate\Support\Facades\Storage::disk('local')->delete($data['csv_file']);
+
+                                if (empty($variantMap)) {
                                     \Filament\Notifications\Notification::make()
                                         ->title('Tidak ada data valid yang bisa diparse.')
                                         ->warning()->send();
@@ -274,7 +276,7 @@ class ProductResource extends Resource
                                 }
 
                                 // ponytail: insert langsung ke DB, bypass Livewire state = tidak ada OOM
-                                \Illuminate\Support\Facades\DB::transaction(function () use ($product, $variantMap) {
+                                \Illuminate\Support\Facades\DB::transaction(function () use ($product, $variantMap): void {
                                     foreach ($variantMap as $variantName => $sizes) {
                                         [$warna, $lengan] = explode(' - ', $variantName, 2) + ['', ''];
                                         $variant = $product->variants()->firstOrCreate(
