@@ -198,9 +198,11 @@ class ProductResource extends Resource
                                 \Filament\Forms\Components\FileUpload::make('csv_file')
                                     ->label('File CSV')
                                     ->helperText('Di Excel: File → Save As → CSV UTF-8 (Comma delimited). Lalu upload di sini.')
-                                    ->acceptedFileTypes(['text/csv', 'text/plain', 'application/csv', 'application/octet-stream'])
                                     ->disk('local')
                                     ->directory('import-tmp')
+                                    ->acceptedFileTypes(['text/csv', 'text/plain', 'application/csv', 'application/vnd.ms-excel'])
+                                    ->previewable(false)
+                                    ->rules(['file', 'mimes:csv,txt,xls'])
                                     ->required(),
                                 \Filament\Schemas\Components\Section::make('Mapping Kolom')
                                     ->description('Nomor kolom di CSV (dimulai dari 1). Set 0 jika kolom tidak ada.')
