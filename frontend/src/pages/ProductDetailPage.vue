@@ -468,21 +468,10 @@ function updateImageForSelection() {
 }
 
 // ─── Display price ────────────────────────────────────────────────────────────
-// Harga per-size lebih prioritas dari harga variant (fallback)
+// Default: product.price; setelah pilih variant → size.price || variant.price
 const displayPrice = computed(() => {
     if (selectedSize.value) return selectedSize.value.price || selectedVariant.value?.price || product.value?.price
-    if (selectedVariant.value) {
-        const sizePrices = selectedVariant.value.sizes?.filter(s => s.is_active && s.price > 0).map(s => s.price) ?? []
-        return sizePrices.length ? Math.min(...sizePrices) : selectedVariant.value.price
-    }
-    if (hasVariants.value) {
-        const prices = activeVariants.value.flatMap(v =>
-            v.sizes?.filter(s => s.is_active && s.price > 0).map(s => s.price) ?? []
-        ).filter(p => p > 0)
-        if (prices.length) return Math.min(...prices)
-        const vPrices = activeVariants.value.map(v => v.price).filter(p => p > 0)
-        return vPrices.length ? Math.min(...vPrices) : product.value?.price
-    }
+    if (selectedVariant.value) return selectedVariant.value.price || product.value?.price
     return product.value?.price
 })
 
