@@ -13,6 +13,7 @@ class ProductVariantSizeResource extends JsonResource
             'name'       => $this->name,
             'stock'      => $this->stock,
             'sku'        => $this->sku,
+            'price'      => $this->price ? (float) $this->price : null,
             'weight'     => $this->weight,
             'is_active'  => $this->is_active,
             'sort_order' => $this->sort_order,

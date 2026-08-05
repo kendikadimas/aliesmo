@@ -468,20 +468,42 @@ function updateImageForSelection() {
 }
 
 // ─── Display price ────────────────────────────────────────────────────────────
+// Harga per-size lebih prioritas dari harga variant (fallback)
 const displayPrice = computed(() => {
-    if (selectedVariant.value) return selectedVariant.value.price
+    if (selectedSize.value) return selectedSize.value.price || selectedVariant.value?.price || product.value?.price
+    if (selectedVariant.value) {
+        const sizePrices = selectedVariant.value.sizes?.filter(s => s.is_active && s.price > 0).map(s => s.price) ?? []
+        return sizePrices.length ? Math.min(...sizePrices) : selectedVariant.value.price
+    }
     if (hasVariants.value) {
-        const prices = activeVariants.value.map(v => v.price).filter(p => p > 0)
-        return prices.length ? Math.min(...prices) : product.value?.price
+        const prices = activeVariants.value.flatMap(v =>
+            v.sizes?.filter(s => s.is_active && s.price > 0).map(s => s.price) ?? []
+        ).filter(p => p > 0)
+        if (prices.length) return Math.min(...prices)
+        const vPrices = activeVariants.value.map(v => v.price).filter(p => p > 0)
+        return vPrices.length ? Math.min(...vPrices) : product.value?.price
     }
     return product.value?.price
 })
 
 const displayPriceMax = computed(() => {
-    if (selectedVariant.value) return null
+    if (selectedSize.value) return null
+    if (selectedVariant.value) {
+        const sizePrices = selectedVariant.value.sizes?.filter(s => s.is_active && s.price > 0).map(s => s.price) ?? []
+        if (!sizePrices.length) return null
+        const min = Math.min(...sizePrices)
+        const max = Math.max(...sizePrices)
+        return max > min ? max : null
+    }
     if (!hasVariants.value) return null
-    const prices = activeVariants.value.map(v => v.price).filter(p => p > 0)
-    if (!prices.length) return null
+    const prices = activeVariants.value.flatMap(v =>
+        v.sizes?.filter(s => s.is_active && s.price > 0).map(s => s.price) ?? []
+    ).filter(p => p > 0)
+    if (!prices.length) {
+        const vPrices = activeVariants.value.map(v => v.price).filter(p => p > 0)
+        const min = Math.min(...vPrices); const max = Math.max(...vPrices)
+        return max > min ? max : null
+    }
     const min = Math.min(...prices)
     const max = Math.max(...prices)
     return max > min ? max : null
